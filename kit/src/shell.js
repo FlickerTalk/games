@@ -279,6 +279,8 @@ export function elementFor(game) {
           actions = `<button class="ftg-pill small" data-kit="fork-mine">${escape(t("forkMine"))}</button><button class="ftg-pill small" data-kit="fork-theirs">${escape(t("forkTheirs"))}</button>`;
         }
         html += `<div class="ftg-banner${warn ? " warn" : ""}" role="status"><span class="icon" aria-hidden="true">${icon}</span><span class="say">${escape(t(notice.key, { game: t("name"), ...notice.vars }))}</span>${actions}</div>`;
+      } else if (seen && table.connecting && seen.phase !== "invite") {
+        html += `<div class="ftg-banner" role="status"><span class="icon" aria-hidden="true">📡</span><span class="say">${escape(t("connecting"))}</span></div>`;
       } else if (seen && seen.pending > 0 && seen.phase !== "ended") {
         html += `<div class="ftg-banner" role="status"><span class="icon" aria-hidden="true">🕓</span><span class="say">${escape(t("pending", { game: t("name") }))}</span></div>`;
       }

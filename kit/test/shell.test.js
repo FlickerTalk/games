@@ -178,6 +178,22 @@ describe("a match between two phones", () => {
     expect(a.sent.length).toBe(before + 1);
   });
 
+  it("says it is reaching the other phone while the hello is on its way, until the answer or its absence", async () => {
+    const { a, b } = phones();
+    const one = await phone(a);
+    const two = await phone(b);
+    await press(one, '[data-kit="new"]');
+    await tick();
+    await press(one, '[data-kit="back"]');
+    b.closed = true;
+    two.remove();
+    await press(one, '[data-kit="enter"]');
+    expect(text(one)).toContain("Reaching the other phone…");
+    await vi.advanceTimersByTimeAsync(8_100);
+    expect(text(one)).not.toContain("Reaching the other phone…");
+    expect(text(one)).toContain("The other person does not have “Toy” open in this conversation.");
+  });
+
   it("asks before leaving one match for the one the other person started", async () => {
     const { a, b } = phones();
     const one = await phone(a);
