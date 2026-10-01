@@ -5,25 +5,7 @@ import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { extname, join } from "node:path";
 import { expect, vi } from "vitest";
 
-/**
- * A toy game for the kit's own tests. Moves are strings: "p" passes, "w" wins for the side that
- * plays it, "d" ends in a draw. Anything else breaks the rules.
- */
-export const toy = {
-  id: "toy",
-  icon: "🧸",
-  gv: 1,
-  initial: () => ({ moves: [], over: null }),
-  turn: (state) => state.moves.length % 2,
-  play(state, move, side) {
-    if (state.over) return { error: "over" };
-    if (side !== state.moves.length % 2) return { error: "turn" };
-    if (!["p", "w", "d"].includes(move)) return { error: "bad" };
-    const over = move === "w" ? { winner: side } : move === "d" ? { winner: null } : null;
-    return { state: { moves: [...state.moves, move], over } };
-  },
-  result: (state) => state.over,
-};
+export { toy } from "./toy.js";
 
 /**
  * One phone's core as the frame's `ft` answers it: records and the store in memory, `live.send`
