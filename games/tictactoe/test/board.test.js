@@ -5,7 +5,7 @@ import { describe, expect, it, vi } from "vitest";
 import { KIT_TEXTS, joinTexts, translator } from "../../../kit/src/i18n.js";
 import { checkTexts } from "../../../kit/test/helpers.js";
 import { board, MARKS } from "../src/board.js";
-import { TEXTS } from "../src/i18n.js";
+import { TEXTS } from "../src/texts.js";
 import { initial, play } from "../src/rules.js";
 
 const translate = translator(joinTexts(KIT_TEXTS, TEXTS));

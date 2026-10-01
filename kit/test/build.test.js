@@ -1,11 +1,11 @@
 // The build (README, "Build"): each game folder becomes the package the catalogue signs —
 // `module.json` beside a `dist/` with one minified ES module (the kit compiled in, styles as text)
 // and the game's third-party notices. A game whose sources did not change builds the same bytes.
-import { mkdtempSync, readFileSync, readdirSync } from "node:fs";
+import { mkdtempSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { buildGame, gameFolders } from "../build.js";
+import { buildGame, compactTexts, gameFolders } from "../build.js";
 import { checkDist } from "./helpers.js";
 
 const fixture = join(import.meta.dirname, "fixture");
@@ -36,6 +36,24 @@ describe("building a game", () => {
     const out = mkdtempSync(join(tmpdir(), "ftgames-"));
     await buildGame(fixture, { outdir: join(out, "dist") });
     expect(checkDist(out, { cap: 100 * 1024 })).toBeGreaterThan(10_000);
+  });
+
+  it("writes a texts module with each key once, and it reads back as the same texts", async () => {
+    const source = join(import.meta.dirname, "..", "src", "texts.js");
+    const code = await compactTexts(source);
+    const { KIT_TEXTS } = await import(source);
+    const compact = await import(`data:text/javascript;base64,${Buffer.from(code).toString("base64")}`);
+    expect(compact.KIT_TEXTS).toEqual(KIT_TEXTS);
+    expect(code.split('"notOpen"').length - 1).toBe(1);
+    expect(Buffer.byteLength(code)).toBeLessThan(Buffer.byteLength(JSON.stringify(KIT_TEXTS)) - 9_000);
+  });
+
+  it("refuses a texts module that holds anything but texts", async () => {
+    const dir = mkdtempSync(join(tmpdir(), "ftgames-texts-"));
+    writeFileSync(join(dir, "texts.js"), 'export const T = { en: { a: "x" } };\nexport const f = () => 1;\n');
+    await expect(compactTexts(join(dir, "texts.js"))).rejects.toThrow("only texts");
+    writeFileSync(join(dir, "other.js"), 'export const T = { en: { a: 1 } };\n');
+    await expect(compactTexts(join(dir, "other.js"))).rejects.toThrow("only texts");
   });
 
   it("finds every game of the repository", () => {

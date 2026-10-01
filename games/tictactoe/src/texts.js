@@ -1,5 +1,6 @@
 // What Tic-Tac-Toe adds to the kit's texts, in the 21 languages of the app: its name as each
 // language calls the game, and what a screen reader says of the board. English is the source.
+// Data only (README, "Texts").
 
 export const TEXTS = {
   en: { name: "Tic-Tac-Toe", board: "Board", cell: "Row {row}, column {col}", empty: "empty", markX: "X", markO: "O" },

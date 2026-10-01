@@ -21,6 +21,42 @@ const cssAsText = {
   },
 };
 
+/**
+ * A texts module (`export const NAME = { lang: { key: text } }` and nothing else) written for the
+ * bundle with each key once: the 21 languages would otherwise repeat every key 21 times. It
+ * builds the same objects when it loads. Anything that is not texts stops the build.
+ */
+export async function compactTexts(path) {
+  // Read as it is, on its own: a texts module imports nothing.
+  const module = await import(`data:text/javascript;base64,${readFileSync(path).toString("base64")}`);
+  const refuse = () => {
+    throw new Error(`${path} must hold only texts: { lang: { key: "text" } }`);
+  };
+  let code = "const z=(k,v)=>Object.fromEntries(k.map((key,at)=>[key,v[at]]).filter(([,text])=>text!==null));\n";
+  for (const [name, catalogue] of Object.entries(module)) {
+    if (!catalogue || typeof catalogue !== "object" || Array.isArray(catalogue)) refuse();
+    const keys = [];
+    for (const texts of Object.values(catalogue)) {
+      if (!texts || typeof texts !== "object" || Array.isArray(texts)) refuse();
+      for (const [key, text] of Object.entries(texts)) {
+        if (typeof text !== "string") refuse();
+        if (!keys.includes(key)) keys.push(key);
+      }
+    }
+    const languages = Object.entries(catalogue).map(([lang, texts]) => `${JSON.stringify(lang)}:z(k,${JSON.stringify(keys.map((key) => texts[key] ?? null))})`);
+    code += `export const ${name}=(()=>{const k=${JSON.stringify(keys)};return{${languages.join(",")}}})();\n`;
+  }
+  return code;
+}
+
+/** Texts modules go in with each key once (`compactTexts`). */
+const textsOnce = {
+  name: "texts-once",
+  setup(builder) {
+    builder.onLoad({ filter: /[\\/]texts\.js$/ }, async ({ path }) => ({ contents: await compactTexts(path), loader: "js" }));
+  },
+};
+
 /** Builds the game in `dir` into `outdir` (its `dist/` unless told otherwise). */
 export async function buildGame(dir, { outdir = join(dir, "dist") } = {}) {
   rmSync(outdir, { recursive: true, force: true });
@@ -33,7 +69,7 @@ export async function buildGame(dir, { outdir = join(dir, "dist") } = {}) {
     target: ["es2022"],
     charset: "utf8",
     outfile: join(outdir, "index.js"),
-    plugins: [cssAsText],
+    plugins: [cssAsText, textsOnce],
     legalComments: "none",
     logLevel: "warning",
   });
