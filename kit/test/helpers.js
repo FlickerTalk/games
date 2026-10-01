@@ -11,6 +11,7 @@ import { expect, vi } from "vitest";
  */
 export const toy = {
   id: "toy",
+  icon: "🧸",
   gv: 1,
   initial: () => ({ moves: [], over: null }),
   turn: (state) => state.moves.length % 2,

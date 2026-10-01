@@ -232,6 +232,8 @@ export async function merge(record, theirs, rules, { from, me, g, gv, id, now = 
   } else if (game.first && !told.length && mine.length) {
     verdict = changed ? "took" : "ahead";
   }
+  // Once their copy agrees with mine again, the other way is gone.
+  if (verdict !== "fork") next.fork = null;
   if (changed) next.updated = now;
   return { record: next, verdict, changed };
 }
