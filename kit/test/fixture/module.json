@@ -1,0 +1,10 @@
+{
+  "id": "com.flickertalk.game.fixture",
+  "name": "Fixture",
+  "version": "0.0.1",
+  "minCoreVersion": "1.3.0",
+  "kind": "game",
+  "components": ["ft-fixture"],
+  "permissions": { "live": true, "send": "propose" },
+  "summary": "A game that only exists for the build's tests."
+}

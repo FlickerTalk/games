@@ -1,0 +1,29 @@
+# The kit and every game on each change: the licences of what goes inside a package, the tests,
+# and the build, which has to give back exactly the dist/ that is committed (it is what the
+# catalogue signs).
+name: test
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+      - run: npm ci
+      # Only production dependencies end up in a game's bundle: each must be MIT, BSD, Apache-2.0,
+      # ISC or 0BSD. Development tools (esbuild, Vitest, Playwright) never ship.
+      - run: npm run licenses
+      - run: npm test
+      - run: npm run build
+      - run: git diff --exit-code -- games/

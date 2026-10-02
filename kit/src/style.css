@@ -1,0 +1,607 @@
+/* The look every game shares: the app's black-and-white surfaces, one colour per side (the app's
+   ember and aurora accents), light and dark, phone first, a tablet in landscape side by side.
+   Touch targets are at least 44px. Nothing is loaded from anywhere: system fonts, emoji, inline SVG. */
+
+.ftg {
+  --ink: #0a0a0a;
+  --muted: #6e6e6e;
+  --paper: #ffffff;
+  --surface: #f2f2f2;
+  --surface-2: #e6e6e6;
+  --line: rgba(0, 0, 0, 0.1);
+  --primary: #0a0a0a;
+  --on-primary: #ffffff;
+  --side-0: #e8731f;
+  --side-1: #0fa89a;
+  --warn-bg: #fff1dd;
+  --warn-ink: #6f3a00;
+  --good: #22a565;
+  --danger: #d4372b;
+  --shadow: 0 12px 32px rgba(0, 0, 0, 0.16);
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: var(--ftg-h, 560px);
+  padding: 4px 0 16px;
+  color: var(--ink);
+  font: 16px/1.35 system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", sans-serif;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-text-size-adjust: 100%;
+}
+@media (prefers-color-scheme: dark) {
+  .ftg {
+    --ink: #f5f5f5;
+    --muted: #9a9a9a;
+    --paper: #0e0e0e;
+    --surface: #1c1c1c;
+    --surface-2: #2a2a2a;
+    --line: rgba(255, 255, 255, 0.12);
+    --primary: #f5f5f5;
+    --on-primary: #000000;
+    --side-0: #ffa24c;
+    --side-1: #3ddbc4;
+    --warn-bg: #33240f;
+    --warn-ink: #ffd08a;
+    --shadow: 0 12px 32px rgba(0, 0, 0, 0.6);
+  }
+}
+.ftg[data-dark] {
+  --ink: #f5f5f5;
+  --muted: #9a9a9a;
+  --paper: #0e0e0e;
+  --surface: #1c1c1c;
+  --surface-2: #2a2a2a;
+  --line: rgba(255, 255, 255, 0.12);
+  --primary: #f5f5f5;
+  --on-primary: #000000;
+  --side-0: #ffa24c;
+  --side-1: #3ddbc4;
+  --warn-bg: #33240f;
+  --warn-ink: #ffd08a;
+  --shadow: 0 12px 32px rgba(0, 0, 0, 0.6);
+}
+.ftg *,
+.ftg *::before,
+.ftg *::after {
+  box-sizing: inherit;
+}
+.ftg button {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  -webkit-user-select: none;
+  user-select: none;
+}
+.ftg button:disabled {
+  cursor: default;
+  opacity: 0.35;
+}
+.ftg button:focus-visible {
+  outline: 3px solid var(--side-1);
+  outline-offset: 2px;
+}
+.ftg-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* Buttons: round icons, and pills where a word is needed. */
+.ftg-btn {
+  appearance: none;
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--surface);
+  font-size: 20px;
+  line-height: 1;
+}
+.ftg-btn.primary {
+  background: var(--primary);
+  color: var(--on-primary);
+}
+.ftg-btn svg {
+  width: 22px;
+  height: 22px;
+}
+[dir="rtl"] .ftg-flip {
+  transform: scaleX(-1);
+}
+.ftg-pill {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 22px;
+  background: var(--surface-2);
+  font-weight: 600;
+}
+.ftg-pill.primary {
+  background: var(--primary);
+  color: var(--on-primary);
+}
+.ftg-pill.danger {
+  background: var(--danger);
+  color: #ffffff;
+}
+.ftg-pill.small {
+  min-height: 44px;
+  padding: 0 14px;
+  font-size: 14px;
+}
+
+/* The bar at the top. */
+.ftg-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 48px;
+}
+.ftg-title {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  padding-inline-start: 4px;
+  font-size: 22px;
+  font-weight: 750;
+}
+.ftg-score {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-size: 26px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+.ftg-score .dash {
+  color: var(--muted);
+  font-weight: 400;
+}
+
+/* The list of matches. */
+.ftg-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.ftg-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 18px;
+  background: var(--surface);
+}
+.ftg-row-open {
+  appearance: none;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  min-height: 60px;
+  padding: 6px 8px;
+  border: 0;
+  border-radius: 14px;
+  background: none;
+  text-align: start;
+}
+.ftg-row-icon {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--paper);
+  font-size: 20px;
+}
+.ftg-row-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.ftg-row-score {
+  font-size: 18px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.ftg-row-meta {
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 13px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.ftg-row.mine .ftg-row-icon {
+  background: var(--primary);
+  color: var(--on-primary);
+}
+.ftg-empty {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 32px 16px;
+  text-align: center;
+}
+.ftg-hero {
+  display: grid;
+  place-items: center;
+  width: 120px;
+  height: 120px;
+  border-radius: 36px;
+  background: var(--surface);
+  font-size: 56px;
+}
+.ftg-empty p {
+  margin: 0;
+  color: var(--muted);
+}
+.ftg-hint {
+  margin: 0;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 14px;
+}
+
+/* A match: on a phone, who plays and whose turn it is, then the board, then what the user is told. */
+.ftg-main {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas: "players" "status" "hint" "stage" "result" "banner";
+  gap: 12px;
+}
+.ftg-players {
+  grid-area: players;
+}
+.ftg-status {
+  grid-area: status;
+}
+.ftg-stage {
+  grid-area: stage;
+}
+.ftg-result {
+  grid-area: result;
+}
+/* What to do while nobody is on the other side: a hint, quieter than the status, never an error. */
+.ftg-hint-under {
+  grid-area: hint;
+  margin: -6px auto 0;
+  max-width: 34em;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.4;
+  text-align: center;
+}
+.ftg-hint-under:empty {
+  display: none;
+}
+.ftg-result:empty {
+  display: none;
+}
+.ftg-result-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.ftg-result-card p {
+  margin: 0;
+  color: var(--muted);
+  text-align: center;
+}
+.ftg-result-card .ftg-actions {
+  flex-wrap: nowrap;
+  margin: 0;
+}
+.ftg-result-card .ftg-pill {
+  flex: 1;
+  min-width: 0;
+}
+.ftg-result-card .ftg-btn {
+  background: var(--surface-2);
+}
+.ftg-status.over {
+  font-size: 22px;
+}
+.ftg-status.over .icon {
+  width: 34px;
+  height: 34px;
+  font-size: 28px;
+}
+.ftg-status .icon {
+  display: inline-grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+}
+.ftg-status .icon svg {
+  width: 22px;
+  height: 22px;
+}
+.ftg-banners {
+  grid-area: banner;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.ftg-banners:empty {
+  display: none;
+}
+.ftg-players {
+  display: flex;
+  gap: 8px;
+}
+.ftg-player {
+  position: relative;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  min-height: 52px;
+  padding: 6px 12px;
+  border: 2px solid transparent;
+  border-radius: 16px;
+  background: var(--surface);
+  transition: border-color 0.2s, background 0.2s;
+}
+.ftg-player .mark {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 28px;
+  height: 28px;
+  font-size: 20px;
+}
+.ftg-player .mark svg {
+  width: 26px;
+  height: 26px;
+}
+.ftg-player .who {
+  overflow: hidden;
+  font-weight: 600;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.ftg-player.turn[data-side="0"] {
+  border-color: var(--side-0);
+}
+.ftg-player.turn[data-side="1"] {
+  border-color: var(--side-1);
+}
+.ftg-player.turn:not([data-side]) {
+  border-color: var(--ink);
+}
+.ftg-dot {
+  position: absolute;
+  inset-block-start: 6px;
+  inset-inline-end: 6px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--line);
+}
+.ftg-player.here .ftg-dot {
+  background: var(--good);
+}
+.ftg-status {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 28px;
+  margin: 0;
+  font-size: 17px;
+  font-weight: 650;
+  text-align: center;
+}
+.ftg-status.mine {
+  color: var(--ink);
+}
+.ftg-status.theirs {
+  color: var(--muted);
+}
+.ftg-stage {
+  position: relative;
+  justify-self: center;
+  width: min(100%, calc(var(--ftg-h, 600px) - 190px));
+  aspect-ratio: 1;
+}
+.ftg-board {
+  position: absolute;
+  inset: 0;
+  transition: opacity 0.25s, filter 0.25s;
+}
+.ftg-stage.dim .ftg-board {
+  opacity: 0.25;
+  filter: grayscale(1);
+}
+.ftg-overlay {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+}
+.ftg-overlay > * {
+  pointer-events: auto;
+}
+.ftg-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  width: min(92%, 340px);
+  padding: 22px 18px 18px;
+  border-radius: 24px;
+  background: var(--paper);
+  box-shadow: var(--shadow);
+  text-align: center;
+}
+.ftg-card h2 {
+  margin: 4px 0 0;
+  font-size: 24px;
+  line-height: 1.2;
+}
+.ftg-card p {
+  margin: 0;
+  color: var(--muted);
+}
+.ftg-card .ftg-score {
+  flex: none;
+  margin: 6px 0 4px;
+}
+.ftg-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 10px;
+  width: 100%;
+}
+.ftg-card .ftg-actions .ftg-pill {
+  flex: 1 1 100%;
+}
+.ftg-big {
+  font-size: 52px;
+  line-height: 1;
+}
+.ftg-wait {
+  display: grid;
+  place-items: center;
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  background: var(--paper);
+  box-shadow: var(--shadow);
+  font-size: 44px;
+}
+.ftg-coin {
+  display: inline-block;
+  animation: ftg-flip 1.1s ease-in-out infinite;
+}
+@keyframes ftg-flip {
+  50% {
+    transform: rotateY(180deg) scale(1.1);
+  }
+  100% {
+    transform: rotateY(360deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ftg-coin {
+    animation: none;
+  }
+}
+
+/* What the user is told: honest, short, with the one action that helps. */
+.ftg-banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 10px;
+  padding: 10px 12px;
+  border-radius: 16px;
+  background: var(--surface);
+  font-size: 14px;
+}
+.ftg-banner .say {
+  flex: 1 1 180px;
+}
+.ftg-banner .icon {
+  font-size: 18px;
+}
+.ftg-banner.warn {
+  background: var(--warn-bg);
+  color: var(--warn-ink);
+}
+.ftg-banner.prompt {
+  background: var(--primary);
+  color: var(--on-primary);
+}
+.ftg-banner.prompt .ftg-pill {
+  background: var(--on-primary);
+  color: var(--primary);
+}
+.ftg-banner.prompt .ftg-pill.quiet {
+  background: transparent;
+  color: var(--on-primary);
+  box-shadow: inset 0 0 0 1px currentColor;
+}
+
+/* A question asked inside the plugin: the frame has no confirm(). */
+.ftg-dialog {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: rgba(0, 0, 0, 0.4);
+}
+.ftg-dialog .ftg-card {
+  gap: 10px;
+}
+.ftg-dialog .ftg-actions .ftg-pill {
+  flex: 1 1 0;
+}
+
+/* A tablet, or a phone on its side: the board, and everything else beside it. */
+@media (min-width: 720px) {
+  .ftg {
+    gap: 16px;
+  }
+  .ftg-main {
+    grid-template-columns: auto minmax(260px, 420px);
+    grid-template-rows: auto auto auto auto 1fr;
+    grid-template-areas: "stage players" "stage status" "stage hint" "stage result" "stage banner";
+    justify-content: center;
+    align-items: start;
+    column-gap: 32px;
+  }
+  .ftg-stage {
+    width: min(calc(100vw - 340px), calc(var(--ftg-h, 600px) - 96px));
+  }
+  .ftg-players {
+    flex-direction: column;
+  }
+  .ftg-status {
+    justify-content: flex-start;
+    min-height: 44px;
+    font-size: 20px;
+    text-align: start;
+  }
+  .ftg-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  }
+  .ftg-hint-under {
+    margin: -8px 0 0;
+    font-size: 14px;
+    text-align: start;
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "id": "com.flickertalk.game.tictactoe",
+  "name": "Tic-Tac-Toe",
+  "version": "1.0.0",
+  "minCoreVersion": "1.3.0",
+  "kind": "game",
+  "components": [
+    "ft-tictactoe"
+  ],
+  "permissions": {
+    "live": true,
+    "send": "propose"
+  },
+  "summary": "Tic-Tac-Toe with the other person in the chat, over the direct connection between your phones."
+}
