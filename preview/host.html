@@ -6,7 +6,7 @@
 <title>FlickerTalk games — two phones</title>
 <style>
   /* Two phones, each with the game in a room of the conversation, as the app draws it: the chat's
-     header, the game bar (✕, the game's name, 📨 invite), the game scrolling in between, and the
+     header, the game bar (✕, the game's name, the invite mail icon), the game scrolling in between, and the
      chat's composer always visible below. */
   :root { color-scheme: light; --bg: #ffffff; --surface-2: #f2f2f2; --text: #0a0a0a; --muted: #6e6e6e; --desk: #d9d9de; }
   :root.dark { color-scheme: dark; --bg: #000000; --surface-2: #1c1c1c; --text: #f5f5f5; --muted: #8e8e8e; --desk: #2b2b30; }
@@ -114,7 +114,7 @@
     const node = document.createElement("section");
     node.className = "device closed";
     node.id = `device-${side}`;
-    node.innerHTML = `<div class="head"><span class="avatar">👤</span><span class="who">${side === "a" ? "Bea" : "Ana"}</span></div><div class="bar"><button aria-label="Close the game" data-close="${side}">✕</button><span class="name">${names[game] ?? game}</span><button aria-label="Invite">📨</button></div><div class="room"><div class="sheet"></div></div><div class="chat"><p class="hint">💬</p></div><div class="composer"><div class="box"></div><div class="send">➤</div></div>`;
+    node.innerHTML = `<div class="head"><span class="avatar">👤</span><span class="who">${side === "a" ? "Bea" : "Ana"}</span></div><div class="bar"><button aria-label="Close the game" data-close="${side}">✕</button><span class="name">${names[game] ?? game}</span><button aria-label="Invite"><svg viewBox="0 0 512 512" width="24" height="24" aria-hidden="true"><rect width="416" height="320" x="48" y="96" rx="40" ry="40" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32px"/><path d="m112 160 144 112 144-112" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32px"/></svg></button></div><div class="room"><div class="sheet"></div></div><div class="chat"><p class="hint">💬</p></div><div class="composer"><div class="box"></div><div class="send">➤</div></div>`;
     node.querySelector("[data-close]").onclick = () => close(side);
     document.getElementById("devices").append(node);
     return node;

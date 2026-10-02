@@ -12,6 +12,7 @@ export const CONFIGS = [
   { name: "phone-ar", device: { width: 360, height: 740 }, scale: 3, dark: false, lang: "ar" },
   { name: "tablet-landscape", device: { width: 1280, height: 800 }, scale: 2, dark: false, lang: "en", tablet: true },
   { name: "phone-samsung", device: { width: 384, height: 853 }, scale: 3, dark: true, lang: "es" },
+  { name: "phone-samsung-light", device: { width: 384, height: 853 }, scale: 3, dark: false, lang: "es" },
 ];
 
 export const STATES = ["list-empty", "waiting", "not-open", "mid-match", "confirm-resign", "win", "draw", "result-sent", "list"];
