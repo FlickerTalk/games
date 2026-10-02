@@ -186,6 +186,38 @@ describe("a match between two phones", () => {
     expect(built.destroyed).toBe(2);
   });
 
+  it("stays usable after the result went to the chat: the game room keeps the game open", async () => {
+    const { a, b } = phones();
+    const one = await phone(a);
+    const two = await phone(b);
+    await press(one, '[data-kit="new"]');
+    await tick();
+    const [first, second] = one.table.view.myTurn ? [one, two] : [two, one];
+    await press(first, '[data-move="w"]');
+    await press(first, '[data-kit="send"]');
+    expect(first.ft.say).toHaveBeenCalledTimes(1);
+    expect(first.ft.close).not.toHaveBeenCalled();
+    // Still the result, with everything still there to press.
+    expect(first.isConnected).toBe(true);
+    expect(text(first)).toContain("You won");
+    for (const act of ["send", "again", "back"]) expect(first.querySelector(`[data-kit="${act}"]`).disabled, act).toBe(false);
+    await press(first, '[data-kit="send"]');
+    expect(first.ft.say).toHaveBeenCalledTimes(2);
+    await press(first, '[data-kit="again"]');
+    await tick();
+    expect(text(second)).toContain("Round 2 · Your turn");
+    await press(first, '[data-kit="back"]');
+    expect(first.table.screen).toBe("list");
+  });
+
+  it("does not ask for the screen's height: the game room gives it the space between its bar and the composer", () => {
+    const css = document.head.querySelector("style[data-ftg]")?.textContent ?? "";
+    expect(css).not.toMatch(/\d+(?:\.\d+)?d?vh\b/);
+    const root = css.match(/\.ftg\{[^}]*\}/)?.[0] ?? css.match(/\.ftg \{[^}]*\}/)?.[0] ?? "";
+    expect(root).toContain("color");
+    expect(root).not.toMatch(/(?:^|[;{\s])(?:min-)?height\s*:/);
+  });
+
   it("resigns only after asking inside the plugin", async () => {
     const { a, b } = phones();
     const one = await phone(a);

@@ -87,7 +87,10 @@ export function elementFor(game) {
       this.shown = null;
       this.board = null;
       this.style.display = "block";
-      this.style.setProperty("--ftg-h", `${Math.max(480, (globalThis.screen?.availHeight ?? 800) - 150)}px`);
+      // The game lives in a room of the conversation, between the chat's header with the game bar
+      // and the composer; the page is as tall as what it shows. This only bounds the board, so the
+      // board and what is said around it fit in that room on a phone.
+      this.style.setProperty("--ftg-h", `${Math.max(420, (globalThis.screen?.availHeight ?? 800) - 290)}px`);
       this.root = document.createElement("div");
       this.root.className = "ftg";
       this.append(this.root);

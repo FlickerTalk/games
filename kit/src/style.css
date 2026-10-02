@@ -45,7 +45,6 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
-  min-height: var(--ftg-h, 560px);
   padding: 4px 0 16px;
   color: var(--ink);
   font: 16px/1.35 system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", sans-serif;

@@ -5,26 +5,32 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>FlickerTalk games — two phones</title>
 <style>
-  /* Two phones, each with the app's plugin window around the game: the bar with ✕ and the name,
-     the sheet with 16px on the sides, the app's black-and-white background. */
+  /* Two phones, each with the game in a room of the conversation, as the app draws it: the chat's
+     header, the game bar (✕, the game's name, 📨 invite), the game scrolling in between, and the
+     chat's composer always visible below. */
   :root { color-scheme: light; --bg: #ffffff; --surface-2: #f2f2f2; --text: #0a0a0a; --muted: #6e6e6e; --desk: #d9d9de; }
   :root.dark { color-scheme: dark; --bg: #000000; --surface-2: #1c1c1c; --text: #f5f5f5; --muted: #8e8e8e; --desk: #2b2b30; }
   html, body { margin: 0; background: var(--desk); font: 14px system-ui, sans-serif; color: var(--text); }
   #controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding: 10px 16px; }
   #controls button, #controls label { font: inherit; }
   #devices { display: flex; gap: 24px; padding: 0 16px 24px; align-items: flex-start; }
-  .device { position: relative; width: 360px; height: 740px; overflow-y: auto; background: var(--bg); border-radius: 28px; box-shadow: 0 10px 40px rgba(0,0,0,.25); }
+  .device { position: relative; display: flex; flex-direction: column; width: 360px; height: 740px; overflow: hidden; background: var(--bg); border-radius: 28px; box-shadow: 0 10px 40px rgba(0,0,0,.25); }
+  .head { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-bottom: 1px solid color-mix(in srgb, var(--text) 10%, transparent); }
+  .head .avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--surface-2); display: grid; place-items: center; }
+  .head .who { font-weight: 600; }
+  .room { flex: 1; min-height: 0; overflow-y: auto; }
   .tablet .device { width: 1280px; height: 800px; border-radius: 22px; }
-  .bar { position: sticky; top: 0; z-index: 1; display: flex; align-items: center; gap: 8px; padding: 8px; background: var(--bg); }
+  .bar { display: flex; align-items: center; gap: 8px; padding: 6px 8px; background: var(--bg); }
+  .bar .name { flex: 1; }
   .bar button { display: grid; place-items: center; width: 44px; height: 44px; border: 0; border-radius: 50%; background: var(--surface-2); color: var(--text); font-size: 18px; }
   .bar .name { font-size: 17px; font-weight: 600; }
   .sheet { padding: 0 16px 16px; }
   .sheet iframe { display: block; width: 100%; height: 320px; border: 0; background: transparent; }
-  .chat { display: none; height: 100%; flex-direction: column; justify-content: flex-end; padding: 16px; box-sizing: border-box; gap: 12px; }
+  .chat { display: none; flex: 1; flex-direction: column; justify-content: flex-end; padding: 16px; box-sizing: border-box; gap: 12px; }
   .device.closed .chat { display: flex; }
-  .device.closed .bar, .device.closed .sheet { display: none; }
+  .device.closed .bar, .device.closed .room { display: none; }
   .hint { color: var(--muted); text-align: center; }
-  .composer { display: flex; gap: 8px; align-items: flex-end; }
+  .composer { display: flex; gap: 8px; align-items: flex-end; padding: 8px 12px 12px; }
   .composer .box { flex: 1; min-height: 44px; padding: 11px 14px; border-radius: 22px; background: var(--surface-2); box-sizing: border-box; white-space: pre-wrap; }
   .composer .send { width: 44px; height: 44px; border-radius: 50%; background: var(--text); color: var(--bg); display: grid; place-items: center; }
 </style>
@@ -100,7 +106,7 @@
     const node = document.createElement("section");
     node.className = "device closed";
     node.id = `device-${side}`;
-    node.innerHTML = `<div class="bar"><button aria-label="Back" data-close="${side}">✕</button><span class="name">${names[game] ?? game}</span></div><div class="sheet"></div><div class="chat"><p class="hint">💬</p><div class="composer"><div class="box"></div><div class="send">➤</div></div></div>`;
+    node.innerHTML = `<div class="head"><span class="avatar">👤</span><span class="who">${side === "a" ? "Bea" : "Ana"}</span></div><div class="bar"><button aria-label="Close the game" data-close="${side}">✕</button><span class="name">${names[game] ?? game}</span><button aria-label="Invite">📨</button></div><div class="room"><div class="sheet"></div></div><div class="chat"><p class="hint">💬</p></div><div class="composer"><div class="box"></div><div class="send">➤</div></div>`;
     node.querySelector("[data-close]").onclick = () => close(side);
     document.getElementById("devices").append(node);
     return node;
@@ -166,9 +172,9 @@
         return done(connected);
       }
       case "ft.text":
-        // The text goes to the composer and the plugin closes, as in the chat.
+        // The text goes to the composer below; the game stays open in its room.
         devices[side].querySelector(".composer .box").textContent = said.text;
-        return close(side);
+        return;
       case "ft.close":
         return close(side);
       default:
