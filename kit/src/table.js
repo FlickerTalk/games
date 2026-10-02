@@ -5,7 +5,7 @@
 
 import { KV, PROTOCOL, seal, unseal } from "./envelope.js";
 import { MATCH_LIMIT, chooseFork, merge, newId, newMatch, peerOf, replay, tossStep, view } from "./match.js";
-import { forget, list, load, save } from "./store.js";
+import { exists, forget, list, load, save } from "./store.js";
 
 export { MATCH_LIMIT };
 
@@ -384,6 +384,8 @@ export class Table {
   async elsewhere(message) {
     const known = await load(this.ft.records, message.doc);
     if (!known) {
+      // Something kept under that key that this kit cannot read (a newer kit's match): never join over it.
+      if (await exists(this.ft.records, message.doc)) return this.answer("deny", message.doc);
       if (message.game?.b) return this.answer("deny", message.doc);
       if (message.k !== "hello") return;
       if (this.screen === "match") {

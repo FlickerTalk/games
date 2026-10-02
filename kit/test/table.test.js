@@ -290,6 +290,21 @@ describe("the coin over a channel that dropped", () => {
   });
 });
 
+describe("a match this kit cannot read", () => {
+  it("is never joined over, nor opened, by an invitation naming it", async () => {
+    const core = fakeCore();
+    const kept = JSON.stringify({ v: 2, id: "m1", g: "toy", what: "a newer kit's match" });
+    core.records.set("game/m1", kept);
+    const one = await table(core);
+    const invitation = { a: "wa", b: null, first: null, toss: {}, moves: [], end: null };
+    await core.hear(seal({ p: PROTOCOL, kv: KV, g: "toy", gv: 1, k: "hello", doc: "m1", who: "wa", app: "1.0.0", game: invitation }));
+    await one.idle();
+    expect(core.records.get("game/m1")).toBe(kept);
+    expect(one.screen).toBe("list");
+    expect(core.sent.map((data) => JSON.parse(new TextDecoder().decode(fromBase64(data)))).filter((message) => message.game)).toEqual([]);
+  });
+});
+
 describe("a phone busy elsewhere", () => {
   it("asks its user to join a new match, and tells the other side", async () => {
     const { ta, tb } = await started();

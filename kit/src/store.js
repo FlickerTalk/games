@@ -25,6 +25,11 @@ export async function save(records, record) {
   return Boolean(await records.set(keyOf(record.id), JSON.stringify(record)));
 }
 
+/** Whether anything at all is kept under a match's key, readable by this kit or not. */
+export async function exists(records, id) {
+  return (await records.get(keyOf(id))) !== null;
+}
+
 export async function load(records, id) {
   const json = await records.get(keyOf(id));
   return json ? parse(json) : null;
