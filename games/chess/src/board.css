@@ -122,8 +122,13 @@
   pointer-events: none;
 }
 
-/* A king on each player's chip. */
+/* A king on each player's chip, on a disc of the board's light square: the black king stays seen
+   on a dark page, the white one on a light page. */
 .ftc-side {
+  --art-light: #f0d9b5;
   width: 28px;
   height: 28px;
+  padding: 2px;
+  border-radius: 50%;
+  background: var(--art-light);
 }
