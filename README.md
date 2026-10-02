@@ -301,6 +301,19 @@ Fixed vectors (in `kit/test/commit.test.js`), computed independently by `kit/tes
 - `kit/test/helpers.js` gives every game's tests the same tools: `fakeCore()` (one phone's `ft`),
   `phones()` (two of them wired as one conversation), `checkManifest`, `checkDist`, `checkTexts`.
 
+## Publishing
+
+The catalogue packs each `games/<name>/` folder (`module.json` and `dist/`) and signs it. The app
+updates an installed game only when the catalogue lists a **newer `version`**: it does not compare the
+package's contents. So:
+
+- A game whose `dist/` changed gets a new `version` in its `module.json` before it is published again;
+  otherwise phones that already have it keep the old code, silently (a repackaged 1.0.0 is neither
+  offered as an update nor refused).
+- The kit is compiled into every game, so a kit change after the first publication rebuilds every
+  `dist/` and means a new version for every game.
+- Nothing is published yet: every game stays at `1.0.0` for the first publication.
+
 ## Preview
 
 `npm run preview` serves two phones side by side; each runs the game in an iframe built like the app's
