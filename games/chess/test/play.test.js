@@ -4,6 +4,7 @@
 // one side closing the game and coming back to it, and a long game that still fits in one message.
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { Chess } from "chess.js";
+import { Chessboard } from "cm-chessboard/src/Chessboard.js";
 import { KV, PROTOCOL, fromBase64, seal } from "../../../kit/src/envelope.js";
 import { MATCH_LIMIT } from "../../../kit/src/table.js";
 import { fakeCore, phones, settle } from "../../../kit/test/helpers.js";
@@ -94,11 +95,17 @@ describe("chess between two phones", () => {
     await game(white, black, ["e2e4", "e7e5", "f1c4", "b8c6", "d1h5", "g8f6", "h5f7"]);
     for (const side of [white, black]) {
       expect(fen(side)).toBe("r1bqkb1r/pppp1Qpp/2n2n2/4p3/2B1P3/8/PPPP1PPP/RNB1K1NR b KQkq - 0 4");
-      expect(side.querySelector(".ftc-end").textContent).toBe("Checkmate");
+      expect(side.querySelector(".ftg-hint-under").textContent).toBe("Checkmate");
+      expect(side.querySelector(".ftc-end")).toBeNull();
     }
     expect(text(white)).toContain("You won");
     expect(text(black)).toContain("You lost");
 
+    // Leaving the match lets its board go, once.
+    const destroy = vi.spyOn(Chessboard.prototype, "destroy");
+    await touch(black, '[data-kit="back"]');
+    expect(destroy).toHaveBeenCalledTimes(1);
+    destroy.mockRestore();
     await touch(white, '[data-kit="send"]');
     expect(white.ft.say).toHaveBeenCalledWith("♟️ Chess: I won (white) · Checkmate · moves: 4\n\n1. e4 e5 2. Bc4 Nc6 3. Qh5 Nf6 4. Qxf7# 1-0");
   });

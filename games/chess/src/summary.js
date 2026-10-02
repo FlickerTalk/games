@@ -26,3 +26,8 @@ export function summary(seen, { t, lang, name, icon }) {
   const token = winner === null ? "1/2-1/2" : winner === white ? "1-0" : "0-1";
   return `${icon} ${text}\n\n${pgn(round.state, token)}`;
 }
+
+/** How a game ended by the rules, for the kit to show under the status (README, "A game": `how`). */
+export function how(result, t) {
+  return result?.reason ? t(result.reason) : "";
+}

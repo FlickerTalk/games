@@ -5,6 +5,7 @@
 // the user's moves to the kit as UCI and takes them only when the user may play.
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { KIT_TEXTS, joinTexts, translator } from "../../../kit/src/i18n.js";
+import { Chessboard } from "cm-chessboard/src/Chessboard.js";
 import { SIDES, STYLE, board } from "../src/board.js";
 import { initial, play, turn } from "../src/rules.js";
 import { TEXTS } from "../src/texts.js";
@@ -143,7 +144,7 @@ describe("the chess board", () => {
     expect(ctx.play).toHaveBeenCalledWith("b7a8n");
   });
 
-  it("marks the last move, a move still pending, the king in check, and how the game ended", () => {
+  it("marks the last move, a move still pending and the king in check, and leaves how the game ended to the kit", () => {
     const { host, shown } = mount(context(["e2e4", "f7f6", "d1h5"], { mySide: 1 }));
     expect(marks(host, "ftc-last")).toEqual(["d1", "h5"]);
     expect(marks(host, "ftc-check")).toEqual(["e8"]);
@@ -152,14 +153,23 @@ describe("the chess board", () => {
     expect(marks(host, "ftc-last")).toEqual([]);
     expect(marks(host, "ftc-pending")).toEqual(["g6", "g7"]);
     expect(marks(host, "ftc-check")).toEqual([]);
-    expect(host.querySelector(".ftc-end").hidden).toBe(true);
     shown.update(context(["f2f3", "e7e5", "g2g4", "d8h4"], { lang: "es" }));
-    const end = host.querySelector(".ftc-end");
-    expect(end.hidden).toBe(false);
-    expect(end.textContent).toBe("Jaque mate");
     expect(marks(host, "ftc-check")).toEqual(["e1"]);
-    shown.update(context(["f2f3", "e7e5", "g2g4", "d8h4"], { lang: "ar" }));
-    expect(end.getAttribute("dir")).toBe("rtl");
+    // Nothing is drawn over the board: the kit says how it ended, under the status (game.how).
+    expect(host.querySelector(".ftc-end")).toBeNull();
+    expect(host.textContent).not.toContain("Jaque mate");
+  });
+
+  it("lets cm-chessboard go when it leaves the screen, once", () => {
+    const destroy = vi.spyOn(Chessboard.prototype, "destroy");
+    const { host, shown } = mount(context(["e2e4"]));
+    expect(host.querySelector(".cm-chessboard")).not.toBeNull();
+    shown.destroy();
+    expect(destroy).toHaveBeenCalledTimes(1);
+    expect(host.querySelector(".cm-chessboard")).toBeNull();
+    shown.destroy();
+    expect(destroy).toHaveBeenCalledTimes(1);
+    destroy.mockRestore();
   });
 
   it("follows the moves it is told of", async () => {

@@ -6,7 +6,7 @@ import manifest from "../module.json";
 import { defineGame } from "../../../kit/src/index.js";
 import { SIDES, STYLE, board } from "./board.js";
 import { initial, play, result, turn } from "./rules.js";
-import { summary } from "./summary.js";
+import { how, summary } from "./summary.js";
 import { TEXTS } from "./texts.js";
 
 export const game = defineGame({
@@ -24,4 +24,5 @@ export const game = defineGame({
   style: STYLE,
   texts: TEXTS,
   summary,
+  how,
 });

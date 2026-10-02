@@ -115,29 +115,6 @@
   pointer-events: none;
 }
 
-/* How the game ended, over the board. */
-.ftc-end {
-  position: absolute;
-  inset-block-start: 50%;
-  inset-inline-start: 50%;
-  transform: translate(-50%, -50%);
-  max-width: 86%;
-  padding: 6px 14px;
-  border-radius: 18px;
-  /* Translucent: the pieces under it still show. */
-  background: color-mix(in srgb, var(--paper, #ffffff) 82%, transparent);
-  color: var(--ink, #0a0a0a);
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
-  font-size: 15px;
-  font-weight: 750;
-  white-space: nowrap;
-  text-align: center;
-  pointer-events: none;
-}
-.ftc-end[hidden] {
-  display: none;
-}
-
 /* A king on each player's chip. */
 .ftc-side {
   width: 28px;

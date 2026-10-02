@@ -6,7 +6,7 @@ import { describe, expect, it } from "vitest";
 import { view } from "../../../kit/src/match.js";
 import { KIT_TEXTS, joinTexts, translator } from "../../../kit/src/i18n.js";
 import { initial, play, result, turn } from "../src/rules.js";
-import { summary } from "../src/summary.js";
+import { how, summary } from "../src/summary.js";
 import { TEXTS } from "../src/texts.js";
 
 const rules = { initial, play, result, turn };
@@ -51,5 +51,16 @@ describe("the result in the chat", () => {
     expect(say(FOOLS, { me: "bob" }, "es")).toBe("♟️ Ajedrez: gané yo (negras) · Jaque mate · jugadas: 2\n\n1. f3 e5 2. g4 Qh4# 0-1");
     const n = new Intl.NumberFormat("ar").format(2);
     expect(say(FOOLS, { me: "bob" }, "ar")).toBe(`♟️ شطرنج: الفوز لي (الأسود) · كش مات · النقلات: ${n}\n\n1. f3 e5 2. g4 Qh4# 0-1`);
+  });
+});
+
+describe("how a game ended, for the kit to show under the status", () => {
+  it("is the reason in the user's language, and nothing for a game that did not end by the rules", () => {
+    const es = (key, vars) => translate("es", key, vars);
+    expect(how({ winner: 0, reason: "checkmate" }, es)).toBe("Jaque mate");
+    expect(how({ winner: null, reason: "stalemate" }, (key) => translate("en", key))).toBe("Stalemate");
+    expect(how({ winner: null, reason: "repetition" }, (key) => translate("en", key))).toBe("Threefold repetition");
+    expect(how({ winner: null }, es)).toBe("");
+    expect(how(null, es)).toBe("");
   });
 });

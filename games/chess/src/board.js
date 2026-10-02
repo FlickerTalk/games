@@ -14,7 +14,6 @@ import { BORDER_TYPE, COLOR, Chessboard, INPUT_EVENT_TYPE } from "cm-chessboard/
 import { Markers } from "cm-chessboard/src/extensions/markers/Markers.js";
 import { PROMOTION_DIALOG_RESULT_TYPE, PromotionDialog } from "cm-chessboard/src/extensions/promotion-dialog/PromotionDialog.js";
 import { Chess } from "chess.js";
-import { direction } from "../../../kit/src/i18n.js";
 import STYLE from "./board.css";
 import { MARKER, MARKERS } from "./markers.js";
 import { PIECES } from "./pieces.js";
@@ -50,9 +49,8 @@ class ChessView {
   constructor(host, ctx) {
     addSprite("cm-chessboard-sprite", PIECES);
     addSprite("cm-chessboard-markers", MARKERS);
-    host.innerHTML = '<div class="ftc" role="group"><div class="ftc-board"></div><div class="ftc-end" hidden></div></div>';
+    host.innerHTML = '<div class="ftc" role="group"><div class="ftc-board"></div></div>';
     this.frame = host.querySelector(".ftc");
-    this.end = host.querySelector(".ftc-end");
     this.host = host;
     this.ctx = ctx;
     this.inputOn = false;
@@ -85,6 +83,7 @@ class ChessView {
   }
 
   update(ctx) {
+    if (!this.board) return;
     this.ctx = ctx;
     const board = this.board;
     const t = ctx.t;
@@ -103,11 +102,6 @@ class ChessView {
     if (ctx.state.check) board.addMarker(MARKER.check, kingSquare(this.game()));
 
     this.frame.setAttribute("aria-label", ctx.state.check ? `${t("board")} · ${t("check")}` : t("board"));
-    const ending = ctx.result?.k === "rules" ? ctx.result.result?.reason : null;
-    this.end.hidden = !ending;
-    this.end.textContent = ending ? t(ending) : "";
-    this.end.setAttribute("dir", direction(ctx.lang));
-    this.end.setAttribute("lang", ctx.lang);
 
     // cm-chessboard's promotion dialog speaks only English and German: it speaks the user's language.
     this.dialog.t = { choosePromotion: t("choosePromotion"), pieces: { q: t("queen"), r: t("rook"), b: t("bishop"), n: t("knight") } };
@@ -130,6 +124,14 @@ class ChessView {
         board.setPosition(ctx.state.fen, true);
       }
     }
+  }
+
+  /** The match leaves the screen: cm-chessboard and its listeners go with it. */
+  destroy() {
+    if (!this.board) return;
+    this.board.destroy();
+    this.board = null;
+    this.host.innerHTML = "";
   }
 
   showMoves(moves) {
@@ -182,6 +184,6 @@ class ChessView {
 export const board = {
   mount(host, ctx) {
     const shown = new ChessView(host, ctx);
-    return { update: (next) => shown.update(next) };
+    return { update: (next) => shown.update(next), destroy: () => shown.destroy() };
   },
 };
