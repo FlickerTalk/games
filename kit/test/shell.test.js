@@ -207,6 +207,19 @@ describe("a match between two phones", () => {
     expect(text(one)).toContain("The other person does not have “Toy” open in this conversation.");
   });
 
+  it("always offers the choice when the two phones parted ways, whatever else it has to say", async () => {
+    const core = fakeCore();
+    const one = await phone(core);
+    await press(one, '[data-kit="new"]');
+    one.table.record = { ...one.table.record, fork: ["p"] };
+    one.table.notice = { key: "notOpen" };
+    one.paint();
+    expect(text(one)).toContain("Your two phones disagree about this match. Which one goes on?");
+    expect(one.querySelector('[data-kit="fork-mine"]')).not.toBeNull();
+    expect(one.querySelector('[data-kit="fork-theirs"]')).not.toBeNull();
+    expect(text(one)).toContain("The other person does not have “Toy” open in this conversation.");
+  });
+
   it("asks before leaving one match for the one the other person started", async () => {
     const { a, b } = phones();
     const one = await phone(a);

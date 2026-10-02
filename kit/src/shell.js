@@ -287,14 +287,15 @@ export function elementFor(game) {
         const go = table.prompt.kind === "invited" ? t("join") : t("open");
         html += `<div class="ftg-banner prompt" role="alert"><span class="icon" aria-hidden="true">📥</span><span class="say">${escape(text)}</span><button class="ftg-pill small" data-kit="join">${escape(go)}</button><button class="ftg-pill small quiet" data-kit="dismiss">${escape(t("dismiss"))}</button></div>`;
       }
-      const notice = table.notice;
+      // Two phones that parted ways cannot play on until the user picks: the choice is always there.
+      if (seen?.fork) {
+        html += `<div class="ftg-banner warn" role="alert"><span class="icon" aria-hidden="true">🔀</span><span class="say">${escape(t("fork"))}</span><button class="ftg-pill small" data-kit="fork-mine">${escape(t("forkMine"))}</button><button class="ftg-pill small" data-kit="fork-theirs">${escape(t("forkTheirs"))}</button></div>`;
+      }
+      const notice = table.notice?.key === "fork" ? null : table.notice;
       if (notice && (seen || !RETRY.includes(notice.key))) {
         const [icon, warn] = NOTICES[notice.key] ?? ["ℹ️", false];
         let actions = "";
         if (seen && RETRY.includes(notice.key) && table.live) actions = `<button class="ftg-pill small" data-kit="retry">🔄 ${escape(t("retry"))}</button>`;
-        if (seen && notice.key === "fork" && seen.fork) {
-          actions = `<button class="ftg-pill small" data-kit="fork-mine">${escape(t("forkMine"))}</button><button class="ftg-pill small" data-kit="fork-theirs">${escape(t("forkTheirs"))}</button>`;
-        }
         html += `<div class="ftg-banner${warn ? " warn" : ""}" role="status"><span class="icon" aria-hidden="true">${icon}</span><span class="say">${escape(t(notice.key, { game: t("name"), ...notice.vars }))}</span>${actions}</div>`;
       } else if (seen && !table.live) {
         html += `<div class="ftg-banner" role="status"><span class="icon" aria-hidden="true">💬</span><span class="say">${escape(t("needsChat", { game: t("name") }))}</span></div>`;
