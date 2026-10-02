@@ -262,6 +262,34 @@ describe("what the other phone says, checked", () => {
   });
 });
 
+describe("the coin over a channel that dropped", () => {
+  it("gives the match up after 30 s without saying anything over a channel that took nothing", async () => {
+    const { a, b } = phones();
+    const forward = a.wire;
+    let down = false;
+    a.wire = (data) => {
+      // The connection drops just as the commitment arrives: nothing goes either way after it.
+      if (down) return;
+      if (JSON.parse(new TextDecoder().decode(fromBase64(data))).k === "commit") {
+        down = true;
+        b.reachable = false;
+      }
+      forward(data);
+    };
+    const ta = await table(a);
+    const tb = await table(b);
+    await ta.newMatch();
+    await settle(ta, tb);
+    expect(kinds(b)).toEqual(["sync", "seed"]);
+    await vi.advanceTimersByTimeAsync(30_100);
+    await settle(ta, tb);
+    expect(tb.record.game.end).toEqual({ k: "abandoned", by: ta.record.me });
+    expect(JSON.parse(b.records.get(`game/${tb.record.id}`)).game.end).toEqual({ k: "abandoned", by: ta.record.me });
+    // Without a channel that took the last message, a word now would wake the other phone.
+    expect(kinds(b)).toEqual(["sync", "seed"]);
+  });
+});
+
 describe("a phone busy elsewhere", () => {
   it("asks its user to join a new match, and tells the other side", async () => {
     const { ta, tb } = await started();

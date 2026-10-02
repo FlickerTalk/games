@@ -465,6 +465,8 @@ export class Table {
     }
     this.record = next;
     this.notice = { key: "abandoned" };
-    this.say("sync");
+    // Nobody touched anything: say so only over a channel that took the last message, or this
+    // would wake the other phone. Otherwise it goes with the next hello.
+    if (this.lastSendOk) this.say("sync");
   }
 }
