@@ -165,7 +165,8 @@ export function elementFor(game) {
       part("status").innerHTML = status.html;
       // Under the status: what to do while the other person is missing, or how the round ended.
       part("hint").textContent = this.waitingFor(seen) ? this.t("howToInvite") : seen.phase === "over" ? this.outcome(seen).how : "";
-      part("stage").classList.toggle("dim", ["invite", "toss", "ended", "broken"].includes(seen.phase));
+      // Waiting for a person, the board is ready in its own colours, only not playable; an ended match is dimmed.
+      part("stage").classList.toggle("dim", ["ended", "broken"].includes(seen.phase));
       part("overlay").innerHTML = this.overlayHtml(seen);
       part("result").innerHTML = this.resultHtml(seen);
       part("banner").innerHTML = this.bannerHtml(seen);
@@ -256,7 +257,7 @@ export function elementFor(game) {
       const round = seen.index > 0 ? `${escape(t("round", { n: this.number(seen.index + 1) }))} · ` : "";
       const line = (icon, text, mine = false) => ({ html: `<span class="icon" aria-hidden="true">${icon}</span><span>${round}${escape(text)}</span>`, mine });
       const mark = (side) => (side === null ? "" : game.sides?.[side]) || "";
-      if (seen.phase === "invite") return { html: `<span aria-hidden="true">⏳</span><span>${escape(t("waiting", { game: game_ }))}</span>`, mine: false };
+      if (seen.phase === "invite") return { html: `<span aria-hidden="true">👤</span><span>${escape(t("waiting", { game: game_ }))}</span>`, mine: true };
       if (seen.phase === "toss") return { html: `<span aria-hidden="true">🪙</span><span>${escape(t("tossing"))}</span>`, mine: false };
       if (seen.phase === "ended" || seen.phase === "broken") return line("⛔", t("ended"));
       if (seen.phase === "over") {
@@ -272,8 +273,6 @@ export function elementFor(game) {
 
     overlayHtml(seen) {
       const t = this.t;
-      // Waiting for a person, not loading: nothing here moves.
-      if (seen.phase === "invite") return '<div class="ftg-wait person" aria-hidden="true"><span>👤</span><span class="badge">⏳</span></div>';
       if (seen.phase === "toss") return '<div class="ftg-wait" aria-hidden="true"><span class="ftg-coin">🪙</span></div>';
       if (seen.phase === "ended" || seen.phase === "broken") {
         const why = seen.end?.k === "invalid" ? t("invalid") : seen.end?.k === "abandoned" ? t(abandonedBy(seen)) : t("ended");

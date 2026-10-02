@@ -223,11 +223,14 @@ describe("a match between two phones", () => {
     b.closed = true;
     const one = await phone(a);
     await press(one, '[data-kit="new"]');
-    // Waiting for someone, not loading: a person and an hourglass that does not move.
+    // Waiting for a person, not loading: the board ready in its own colours (only not playable),
+    // nothing over it and nothing moving; the person who is missing is in the line read first.
     expect(text(one)).toContain(HINT);
     expect(one.querySelector(".ftg-hint-under")).not.toBeNull();
-    expect(one.querySelector(".ftg-breathe, .ftg-coin")).toBeNull();
-    expect(one.querySelector(".ftg-wait").textContent).toContain("👤");
+    expect(one.querySelector(".ftg-stage").classList.contains("dim")).toBe(false);
+    expect(one.querySelector('[data-part="overlay"]').children).toHaveLength(0);
+    expect(one.querySelector(".ftg-status").textContent).toContain("👤");
+    expect(one.querySelector('[data-move="p"]').disabled).toBe(true);
     await vi.advanceTimersByTimeAsync(8_100);
     expect(text(one)).toContain("The other person does not have “Toy” open in this conversation.");
     expect(text(one)).toContain(HINT);

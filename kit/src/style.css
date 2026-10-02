@@ -504,22 +504,6 @@
   display: inline-block;
   animation: ftg-flip 1.1s ease-in-out infinite;
 }
-.ftg-wait.person {
-  position: relative;
-}
-.ftg-wait.person .badge {
-  position: absolute;
-  inset-inline-end: -4px;
-  inset-block-end: -4px;
-  display: grid;
-  place-items: center;
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
-  background: var(--paper);
-  box-shadow: var(--shadow);
-  font-size: 22px;
-}
 @keyframes ftg-flip {
   50% {
     transform: rotateY(180deg) scale(1.1);
