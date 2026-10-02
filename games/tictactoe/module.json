@@ -1,7 +1,7 @@
 {
   "id": "com.flickertalk.game.tictactoe",
   "name": "Tic-Tac-Toe",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "minCoreVersion": "1.3.0",
   "kind": "game",
   "components": [
@@ -11,5 +11,87 @@
     "live": true,
     "send": "propose"
   },
-  "summary": "Tic-Tac-Toe with the other person in the chat, over the direct connection between your phones."
+  "summary": "Tic-Tac-Toe with the other person in the chat, over the direct connection between your phones.",
+  "locales": {
+    "es": {
+      "name": "Tres en raya",
+      "summary": "Tres en raya con la otra persona del chat, por la conexión directa entre los dos teléfonos."
+    },
+    "pt": {
+      "name": "Jogo da velha",
+      "summary": "Jogo da velha com a outra pessoa da conversa, pela conexão direta entre os dois telefones."
+    },
+    "fr": {
+      "name": "Morpion",
+      "summary": "Morpion avec l’autre personne de la conversation, par la connexion directe entre vos deux téléphones."
+    },
+    "de": {
+      "name": "Tic-Tac-Toe",
+      "summary": "Tic-Tac-Toe mit der anderen Person im Chat, über die direkte Verbindung zwischen euren Telefonen."
+    },
+    "it": {
+      "name": "Tris",
+      "summary": "Tris con l’altra persona della chat, tramite la connessione diretta tra i vostri telefoni."
+    },
+    "ro": {
+      "name": "X și 0",
+      "summary": "X și 0 cu cealaltă persoană din conversație, prin conexiunea directă dintre telefoanele voastre."
+    },
+    "ru": {
+      "name": "Крестики-нолики",
+      "summary": "Крестики-нолики с другим человеком из чата, через прямое соединение между вашими телефонами."
+    },
+    "uk": {
+      "name": "Хрестики-нулики",
+      "summary": "Хрестики-нулики з іншою людиною з чату, через пряме з’єднання між вашими телефонами."
+    },
+    "pl": {
+      "name": "Kółko i krzyżyk",
+      "summary": "Kółko i krzyżyk z drugą osobą z czatu, przez bezpośrednie połączenie między waszymi telefonami."
+    },
+    "tr": {
+      "name": "XOX",
+      "summary": "XOX: sohbetteki diğer kişiyle, telefonlarınız arasındaki doğrudan bağlantı üzerinden."
+    },
+    "ar": {
+      "name": "إكس-أو",
+      "summary": "إكس-أو مع الشخص الآخر في المحادثة، عبر الاتصال المباشر بين هاتفيكما."
+    },
+    "hi": {
+      "name": "टिक-टैक-टो",
+      "summary": "चैट के दूसरे व्यक्ति के साथ टिक-टैक-टो, आप दोनों के फ़ोन के बीच सीधे कनेक्शन पर।"
+    },
+    "bn": {
+      "name": "টিক-ট্যাক-টো",
+      "summary": "চ্যাটের অন্যজনের সাথে টিক-ট্যাক-টো, আপনাদের দুই ফোনের সরাসরি সংযোগের মাধ্যমে।"
+    },
+    "id": {
+      "name": "Tic-Tac-Toe",
+      "summary": "Tic-Tac-Toe dengan orang lain di obrolan, lewat koneksi langsung antara kedua ponsel."
+    },
+    "vi": {
+      "name": "Cờ ca-rô 3×3",
+      "summary": "Cờ ca-rô 3×3 với người kia trong cuộc trò chuyện, qua kết nối trực tiếp giữa hai điện thoại."
+    },
+    "th": {
+      "name": "โอเอกซ์",
+      "summary": "โอเอกซ์กับอีกฝ่ายในแชท ผ่านการเชื่อมต่อโดยตรงระหว่างโทรศัพท์ของทั้งสองคน"
+    },
+    "ja": {
+      "name": "三目並べ",
+      "summary": "チャットの相手と三目並べ。2台の端末の直接接続で遊びます。"
+    },
+    "ko": {
+      "name": "틱택토",
+      "summary": "채팅 상대와 두 휴대폰 사이의 직접 연결로 즐기는 틱택토입니다."
+    },
+    "zh-CN": {
+      "name": "井字棋",
+      "summary": "通过两部手机之间的直连，与聊天中的对方下井字棋。"
+    },
+    "zh-TW": {
+      "name": "井字遊戲",
+      "summary": "透過兩支手機之間的直接連線，與聊天中的對方玩井字遊戲。"
+    }
+  }
 }

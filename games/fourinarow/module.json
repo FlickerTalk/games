@@ -1,7 +1,7 @@
 {
   "id": "com.flickertalk.game.fourinarow",
   "name": "Four in a Row",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "minCoreVersion": "1.3.0",
   "kind": "game",
   "components": [
@@ -11,5 +11,87 @@
     "live": true,
     "send": "propose"
   },
-  "summary": "Four in a Row with the other person in the chat, over the direct connection between your phones."
+  "summary": "Four in a Row with the other person in the chat, over the direct connection between your phones.",
+  "locales": {
+    "es": {
+      "name": "Cuatro en raya",
+      "summary": "Cuatro en raya con la otra persona del chat, por la conexión directa entre los dos teléfonos."
+    },
+    "pt": {
+      "name": "Quatro em linha",
+      "summary": "Quatro em linha com a outra pessoa da conversa, pela conexão direta entre os dois telefones."
+    },
+    "fr": {
+      "name": "Quatre en ligne",
+      "summary": "Quatre en ligne avec l’autre personne de la conversation, par la connexion directe entre vos deux téléphones."
+    },
+    "de": {
+      "name": "Vier in einer Reihe",
+      "summary": "Vier in einer Reihe mit der anderen Person im Chat, über die direkte Verbindung zwischen euren Telefonen."
+    },
+    "it": {
+      "name": "Quattro in fila",
+      "summary": "Quattro in fila con l’altra persona della chat, tramite la connessione diretta tra i vostri telefoni."
+    },
+    "ro": {
+      "name": "Patru în linie",
+      "summary": "Patru în linie cu cealaltă persoană din conversație, prin conexiunea directă dintre telefoanele voastre."
+    },
+    "ru": {
+      "name": "Четыре в ряд",
+      "summary": "Четыре в ряд с другим человеком из чата, через прямое соединение между вашими телефонами."
+    },
+    "uk": {
+      "name": "Чотири в ряд",
+      "summary": "Чотири в ряд з іншою людиною з чату, через пряме з’єднання між вашими телефонами."
+    },
+    "pl": {
+      "name": "Cztery w rzędzie",
+      "summary": "Cztery w rzędzie z drugą osobą z czatu, przez bezpośrednie połączenie między waszymi telefonami."
+    },
+    "tr": {
+      "name": "Dörtlü sıra",
+      "summary": "Dörtlü sıra: sohbetteki diğer kişiyle, telefonlarınız arasındaki doğrudan bağlantı üzerinden."
+    },
+    "ar": {
+      "name": "أربعة في صف",
+      "summary": "أربعة في صف مع الشخص الآخر في المحادثة، عبر الاتصال المباشر بين هاتفيكما."
+    },
+    "hi": {
+      "name": "पंक्ति में चार",
+      "summary": "चैट के दूसरे व्यक्ति के साथ पंक्ति में चार, आप दोनों के फ़ोन के बीच सीधे कनेक्शन पर।"
+    },
+    "bn": {
+      "name": "এক সারিতে চার",
+      "summary": "চ্যাটের অন্যজনের সাথে এক সারিতে চার, আপনাদের দুই ফোনের সরাসরি সংযোগের মাধ্যমে।"
+    },
+    "id": {
+      "name": "Empat Sejajar",
+      "summary": "Empat Sejajar dengan orang lain di obrolan, lewat koneksi langsung antara kedua ponsel."
+    },
+    "vi": {
+      "name": "Bốn quân thẳng hàng",
+      "summary": "Bốn quân thẳng hàng với người kia trong cuộc trò chuyện, qua kết nối trực tiếp giữa hai điện thoại."
+    },
+    "th": {
+      "name": "เรียงสี่",
+      "summary": "เรียงสี่กับอีกฝ่ายในแชท ผ่านการเชื่อมต่อโดยตรงระหว่างโทรศัพท์ของทั้งสองคน"
+    },
+    "ja": {
+      "name": "四目並べ",
+      "summary": "チャットの相手と四目並べ。2台の端末の直接接続で遊びます。"
+    },
+    "ko": {
+      "name": "사목",
+      "summary": "채팅 상대와 두 휴대폰 사이의 직접 연결로 즐기는 사목입니다."
+    },
+    "zh-CN": {
+      "name": "四子棋",
+      "summary": "通过两部手机之间的直连，与聊天中的对方下四子棋。"
+    },
+    "zh-TW": {
+      "name": "四子棋",
+      "summary": "透過兩支手機之間的直接連線，與聊天中的對方下四子棋。"
+    }
+  }
 }

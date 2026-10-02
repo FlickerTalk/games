@@ -53,7 +53,9 @@ if the build does not give back the committed `dist/`.
 1. `games/<name>/module.json`, copied from Tic-Tac-Toe: `id` `com.flickertalk.game.<name>`, `name`
    (English), `components: ["ft-<name>"]`, `version` `1.0.0`. Keep `kind: "game"`,
    `minCoreVersion: "1.3.0"` and `permissions: { "live": true, "send": "propose" }` — the app refuses a
-   game that asks for anything else.
+   game that asks for anything else. Add `locales` (plugin-sdk's `module.schema.json`): the `name` and
+   `summary` in the app's other 20 languages, the name being the game's own `TEXTS.<lang>.name`, so
+   the app shows them in the phone's language (`checkLocales` checks them).
 2. `games/<name>/THIRD_PARTY_NOTICES.md`: the full licence text (and Apache `NOTICE`) of everything
    bundled from elsewhere. Every game carries at least the kit's icons (Ionicons, MIT: copy the
    section from Tic-Tac-Toe's). Runtime dependencies go in the root `package.json` `dependencies`,
@@ -340,7 +342,7 @@ Fixed vectors (in `kit/test/commit.test.js`), computed independently by `kit/tes
   (`http://www.w3.org/2000/svg`…) are allowed: browsers never fetch them. `THIRD_PARTY_NOTICES.md` is
   not scanned: it may quote a licence's address, and the frame never loads it.
 - `kit/test/helpers.js` gives every game's tests the same tools: `fakeCore()` (one phone's `ft`),
-  `phones()` (two of them wired as one conversation), `checkManifest`, `checkDist`, `checkTexts`.
+  `phones()` (two of them wired as one conversation), `checkManifest`, `checkLocales`, `checkDist`, `checkTexts`.
 
 ## Publishing
 
@@ -353,7 +355,10 @@ package's contents. So:
   offered as an update nor refused).
 - The kit is compiled into every game, so a kit change after the first publication rebuilds every
   `dist/` and means a new version for every game.
-- Nothing is published yet: every game stays at `1.0.0` for the first publication.
+- `module.json` is bundled into `dist/` (the game reads its `version` from it), so any change to the
+  manifest, `locales` included, changes `dist/` and needs a new version too.
+- The three games were first published at `1.0.0`; `1.0.1` adds their names and summaries in the
+  app's other 20 languages (`locales`).
 
 ## Preview
 
