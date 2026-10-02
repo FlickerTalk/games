@@ -36,7 +36,7 @@ describe("the result in the chat", () => {
     expect(say([{ x: "resign", by: "bob" }])).toBe("♟️ Chess: I won (white) · Resignation · moves: 0\n\n1-0");
     expect(say(LOYD)).toBe(
       "♟️ Chess: a draw · Stalemate · moves: 10\n\n" +
-        "1. e3 a5 2. Qh5 Ra6 3. Qxa5 h5 4. h4 Rah6 5. Qxc7 f6 6. Qxd7+ Kf7 7. Qxb7 Qd3 8.\nQxb8 Qh7 9. Qxc8 Kg6 10. Qe6 1/2-1/2",
+        "1. e3 a5 2. Qh5 Ra6 3. Qxa5 h5 4. h4 Rah6 5. Qxc7 f6 6. Qxd7+ Kf7 7. Qxb7 Qd3 8. Qxb8 Qh7 9. Qxc8 Kg6 10. Qe6 1/2-1/2",
     );
   });
 

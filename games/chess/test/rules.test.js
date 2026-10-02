@@ -119,12 +119,12 @@ describe("chess", () => {
     expect(verdict(new Chess())).toBeNull();
   });
 
-  it("writes a game as PGN movetext with its result", () => {
+  it("writes a game as PGN movetext with its result, on one line (the chat wraps it)", () => {
     const opera = after(...OPERA);
     expect(result(opera)).toEqual({ winner: 0, reason: "checkmate" });
     expect(pgn(opera, "1-0")).toBe(
-      "1. e4 e5 2. Nf3 d6 3. d4 Bg4 4. dxe5 Bxf3 5. Qxf3 dxe5 6. Bc4 Nf6 7. Qb3 Qe7 8.\n" +
-        "Nc3 c6 9. Bg5 b5 10. Nxb5 cxb5 11. Bxb5+ Nbd7 12. O-O-O Rd8 13. Rxd7 Rxd7 14.\n" +
+      "1. e4 e5 2. Nf3 d6 3. d4 Bg4 4. dxe5 Bxf3 5. Qxf3 dxe5 6. Bc4 Nf6 7. Qb3 Qe7 8. " +
+        "Nc3 c6 9. Bg5 b5 10. Nxb5 cxb5 11. Bxb5+ Nbd7 12. O-O-O Rd8 13. Rxd7 Rxd7 14. " +
         "Rd1 Qe6 15. Bxd7+ Nxd7 16. Qb8+ Nxb8 17. Rd8# 1-0",
     );
     expect(pgn(after("e2e4", "e7e5", "d1h5"), "0-1")).toBe("1. e4 e5 2. Qh5 0-1");

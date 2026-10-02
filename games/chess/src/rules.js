@@ -106,8 +106,9 @@ export function play(state, move, side) {
 }
 
 /**
- * The moves of a round as PGN movetext (numbered SAN, lines of at most 80 characters) ending in
- * its result: `1-0`, `0-1` or `1/2-1/2`. No tag pairs: nothing about who played, or where.
+ * The moves of a round as PGN movetext (numbered SAN) ending in its result: `1-0`, `0-1` or
+ * `1/2-1/2`. One line: it goes into a chat message, which wraps it where the screen ends. No tag
+ * pairs: nothing about who played, or where.
  */
 export function pgn(state, token) {
   const words = [];
@@ -115,15 +116,5 @@ export function pgn(state, token) {
     if (at % 2 === 0) words.push(`${at / 2 + 1}.`);
     words.push(san);
   });
-  words.push(token);
-  const lines = [];
-  let text = "";
-  for (const word of words) {
-    if (text && text.length + 1 + word.length > 80) {
-      lines.push(text);
-      text = word;
-    } else text = text ? `${text} ${word}` : word;
-  }
-  lines.push(text);
-  return lines.join("\n");
+  return [...words, token].join(" ");
 }
