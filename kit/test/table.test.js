@@ -3,7 +3,7 @@
 // conversation, with the toy game, and every rule of the live channel is played through.
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { KV, PROTOCOL, fromBase64, seal } from "../src/envelope.js";
-import { peerOf } from "../src/match.js";
+import { newMatch, peerOf } from "../src/match.js";
 import { summarize, Table } from "../src/table.js";
 import { fakeCore, phones, settle as settleAll, toy } from "./helpers.js";
 
@@ -586,5 +586,85 @@ describe("a match belongs to its conversation", () => {
       for (const chat of [a.chat, b.chat]) expect(all).not.toContain(chat);
       for (const one of sentBy(core)) expect(one).not.toHaveProperty("chat");
     }
+  });
+});
+
+describe("each path the reviews flagged, with every match in its conversation", () => {
+  it("opens on a hello only a match of this conversation: one of another conversation is unknown here", async () => {
+    const { x, ac, ab, tab } = await aMatchWithCAndAFrameInBsChat();
+    const kept = ac.records.get(`game/${ac.chat}/${x.id}`);
+    await ab.hear(message({ k: "hello", doc: x.id, who: x.game.b, game: { ...x.game, moves: [...x.game.moves, "p"] } }));
+    await settle(tab);
+    expect(tab.screen).toBe("list");
+    expect(sentBy(ab).map((one) => one.k)).toEqual(["deny"]);
+    expect(ac.records.get(`game/${ac.chat}/${x.id}`)).toBe(kept);
+  });
+
+  it("keeps a match id that two conversations share apart in everything it does", async () => {
+    const { x, ac, ab, tab, b, tb } = await aMatchWithCAndAFrameInBsChat();
+    const kept = ac.records.get(`game/${ac.chat}/${x.id}`);
+    // B's phone invites A to a match whose id happens to be X's.
+    const inviting = newMatch({ g: "toy", gv: 1, id: x.id });
+    await b.ft.records.set(`game/${b.chat}/${x.id}`, JSON.stringify(inviting));
+    await tb.enter(x.id);
+    await settle(tab, tb);
+    expect(tab.record.id).toBe(x.id);
+    expect(tab.view.phase).toBe("play");
+    const mine = tab.view.myTurn ? tab : tb;
+    await mine.play("p");
+    await settle(tab, tb);
+    expect(JSON.parse(ab.records.get(`game/a-with-b/${x.id}`)).game.moves).toEqual(["p"]);
+    expect(ac.records.get(`game/${ac.chat}/${x.id}`)).toBe(kept);
+    await tab.leave();
+    expect(tab.matches.map((one) => one.record.game.a)).toEqual([inviting.me]);
+  });
+
+  it("answers another contact probing for a match of another conversation as for an unknown one, busy or not", async () => {
+    const { x, ac } = await aMatchWithCAndAFrameInBsChat();
+    const probe = async (doc) => {
+      const ab = fakeCore({ records: new Map(ac.records), chat: "a-with-b" });
+      const b = fakeCore({ chat: "b-with-a" });
+      wire(ab, b);
+      const tab = await table(ab);
+      await tab.newMatch();
+      await settle(tab);
+      const before = ab.sent.length;
+      for (const k of ["state", "sync", "hello"]) await ab.hear(message({ k, doc, who: x.game.b, game: x.game }));
+      await ab.hear(message({ k: "hello", doc, who: "bbbbbbbbbbbbbbbb", game: { a: "bbbbbbbbbbbbbbbb", b: null, first: null, toss: {}, moves: [], end: null } }));
+      await settle(tab);
+      return { said: plain(sentBy(ab).slice(before)).split(doc).join("DOC"), tab };
+    };
+    const known = await probe(x.id);
+    const unknown = await probe("nosuchmatch00001");
+    expect(known.said).toBe(unknown.said);
+    expect(known.tab.prompt).toMatchObject({ kind: "invited" });
+    expect(JSON.parse(known.said).map((one) => one.k)).toEqual(["deny", "busy"]);
+  });
+
+  it("recovers a lost join answer: the joiner answers the invitation again", async () => {
+    const { a, b } = phones();
+    // The first answer of the one who joins is lost on the way.
+    const forward = b.wire;
+    let lost = false;
+    b.wire = (data) => {
+      if (!lost && JSON.parse(new TextDecoder().decode(fromBase64(data))).k === "sync") {
+        lost = true;
+        return;
+      }
+      forward(data);
+    };
+    const ta = await table(a);
+    const tb = await table(b);
+    await ta.newMatch();
+    await settle(ta, tb);
+    expect(lost).toBe(true);
+    expect(tb.screen).toBe("match");
+    expect(ta.view.phase).toBe("invite");
+    // The inviter says hello again (on its own after 8 + 15 s, or when the user taps 🔄).
+    await vi.advanceTimersByTimeAsync(23_100);
+    await settle(ta, tb);
+    expect(ta.record.game.b).toBe(tb.record.me);
+    expect(ta.view.phase).toBe("play");
+    expect(tb.view.phase).toBe("play");
   });
 });
