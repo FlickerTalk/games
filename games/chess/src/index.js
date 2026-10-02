@@ -25,4 +25,6 @@ export const game = defineGame({
   texts: TEXTS,
   summary,
   how,
+  // Eight squares of at least 40 px in a game: the kit makes room for that before anything else.
+  minBoard: 320,
 });

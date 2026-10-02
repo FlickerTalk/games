@@ -6,7 +6,9 @@
   position: absolute;
   inset: 0;
   display: grid;
-  grid-template-columns: repeat(7, minmax(44px, 1fr));
+  /* Seven equal columns, as wide as the board the kit gives; in a game it gives at least 7 × 44 px
+     (minBoard), so each column is a finger's width. */
+  grid-template-columns: repeat(7, minmax(0, 1fr));
   align-content: start;
 }
 .ffr::before {

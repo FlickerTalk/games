@@ -45,7 +45,7 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
-  padding: 4px 0 16px;
+  padding: 4px 0;
   color: var(--ink);
   font: 16px/1.35 system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", sans-serif;
   -webkit-tap-highlight-color: transparent;
@@ -284,15 +284,19 @@
   font-size: 14px;
 }
 
-/* A match: on a phone, who plays and whose turn it is, then the board, then what the user is told. */
+/* A match on a phone: who plays, whose turn it is, what the user is told and what they can do, all
+   above the board, which takes what is left of the room (the kit sizes it, see shell.js). */
 .ftg-main {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  grid-template-areas: "players" "status" "hint" "stage" "result" "banner";
+  display: flex;
+  flex-direction: column;
   gap: 12px;
 }
 .ftg-players {
   grid-area: players;
+}
+/* A short room: the chips go, the status line says whose turn it is, with the side's mark. */
+.ftg[data-compact] .ftg-players {
+  display: none;
 }
 .ftg-status {
   grid-area: status;
@@ -443,8 +447,9 @@
 }
 .ftg-stage {
   position: relative;
+  align-self: center;
   justify-self: center;
-  width: min(100%, calc(var(--ftg-h, 600px) - 190px));
+  width: min(100%, var(--ftg-board, 100%));
   aspect-ratio: 1;
 }
 .ftg-board {
@@ -592,6 +597,7 @@
     gap: 16px;
   }
   .ftg-main {
+    display: grid;
     grid-template-columns: auto minmax(260px, 420px);
     grid-template-rows: auto auto auto auto 1fr;
     grid-template-areas: "stage players" "stage status" "stage hint" "stage result" "stage banner";
@@ -600,7 +606,8 @@
     column-gap: 32px;
   }
   .ftg-stage {
-    width: min(calc(100vw - 340px), calc(var(--ftg-h, 600px) - 96px));
+    align-self: start;
+    width: min(calc(100vw - 340px), var(--ftg-board, 560px));
   }
   .ftg-players {
     flex-direction: column;

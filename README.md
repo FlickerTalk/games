@@ -94,6 +94,7 @@ defineGame({ id: "tictactoe", gv: 1, tag: manifest.components[0], app: manifest.
 | `texts` | `{ lang: { key: text } }` with at least `name` (the game's name in each language). |
 | `sides` | Optional: two HTML snippets (trusted, the game's own), the marks of side 0 and side 1, shown on the players' chips and the turn line. |
 | `style` | Optional: CSS text added to the page once (import a `.css` file: the build passes it as text). |
+| `minBoard` | Optional: the smallest board, in CSS pixels, on which the game is playable (Chess 320: squares of 40 px; Four in a Row 308: columns of 44 px). In a game the kit makes room for it before anything else; while waiting or on the result the board may be smaller. Default 200. |
 | `how(result, t)` | Optional: why a round ended by the rules, in the game's words (“checkmate”, “stalemate”), shown with the result; `result` is what `result(state)` returned. |
 | `summary(view, { t, lang, name, icon, record })` | Optional: the text sent to the chat. Without it: `⭕ Tic-Tac-Toe: I won, 3–2 · draws: 1`, in the sender's language. |
 
@@ -102,6 +103,15 @@ Rules are run on both phones from the first move every time something arrives, s
 and deterministic.
 
 ### The board
+
+On a phone the game lives in the conversation's room, between the app's game bar and its composer,
+and the whole page fits it without scrolling: everything else of a state (bar, chips, status, hint,
+notices, the result's actions) is laid out above the board, and the board, square, takes what is
+left of the room. The room is the screen's height less the app's chrome, `ROOM_CHROME` in
+`kit/src/shell.js` (297 px, measured on a Samsung S20+): the one number to change when the app's
+room changes. When even the game's `minBoard` does not fit, the players' chips go first. A board
+must draw inside the square it is given, whatever its size. `npm run room` checks every game in
+every state on a 384×853 and a 360×740 phone, in German and Spanish.
 
 `board.mount(host, context)` is called once when a match opens; `update(context)` after every change
 (a move from either side, a new round, a message); `destroy()`, if the board has it, when the match

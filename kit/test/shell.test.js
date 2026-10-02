@@ -243,7 +243,8 @@ describe("a match between two phones", () => {
     await press(one, '[data-kit="new"]');
     expect(text(one)).toContain("Waiting for the other person to open “Toy” in this conversation");
     await vi.advanceTimersByTimeAsync(8_100);
-    expect(text(one)).toContain("The other person does not have “Toy” open in this conversation.");
+    // Nobody answered the invitation: the notice says how to invite them, with 🔄.
+    expect(one.querySelector(".ftg-banner").textContent).toContain("The other person has to open this game too. Tap 📨 above to invite them.");
     const before = a.sent.length;
     await press(one, '[data-kit="retry"]');
     expect(a.sent.length).toBe(before + 1);
@@ -264,8 +265,12 @@ describe("a match between two phones", () => {
     expect(one.querySelector(".ftg-status").textContent).toContain("👤");
     expect(one.querySelector('[data-move="p"]').disabled).toBe(true);
     await vi.advanceTimersByTimeAsync(8_100);
-    expect(text(one)).toContain("The other person does not have “Toy” open in this conversation.");
-    expect(text(one)).toContain(HINT);
+    // Nobody answered: one notice with 🔄 takes the hint's place (the room is small; they do not stack),
+    // and still says how to invite them.
+    const count = (needle) => text(one).split(needle).length - 1;
+    expect(count(HINT)).toBe(1);
+    expect(one.querySelector(".ftg-hint-under").textContent).toBe("");
+    expect(one.querySelector('.ftg-banner [data-kit="retry"]')).not.toBeNull();
     // They open the game: the invitation goes again, they join, and the hint is gone.
     b.closed = false;
     const two = await phone(b);
@@ -279,7 +284,9 @@ describe("a match between two phones", () => {
     two.remove();
     await press(one, '[data-kit="enter"]');
     await vi.advanceTimersByTimeAsync(8_100);
-    expect(text(one)).toContain(HINT);
+    expect(text(one)).toContain("The other person does not have “Toy” open in this conversation.");
+    expect(one.querySelector(".ftg-hint-under").textContent).toBe("");
+    expect(one.querySelector('.ftg-banner [data-kit="retry"]')).not.toBeNull();
   });
 
   it("says it is reaching the other phone while the hello is on its way, until the answer or its absence", async () => {
@@ -315,7 +322,7 @@ describe("a match between two phones", () => {
     const core = fakeCore();
     const one = await phone(core);
     await press(one, '[data-kit="new"]');
-    one.table.record = { ...one.table.record, fork: ["p"] };
+    one.table.record = { ...one.table.record, game: { ...one.table.record.game, b: "wother" }, fork: ["p"] };
     one.table.notice = { key: "notOpen" };
     one.paint();
     expect(text(one)).toContain("Your two phones disagree about this match. Which one goes on?");

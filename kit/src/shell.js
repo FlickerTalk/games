@@ -38,6 +38,18 @@ const RETRY = ["notOpen", "unreachable", "left", "denied", "error"];
 /** Which phone did not reveal the coin in time, said as it is. */
 const abandonedBy = (seen) => (seen?.end?.by === seen?.me ? "abandonedYou" : "abandonedThem");
 
+/**
+ * What the app's room leaves of the screen on a phone: the status bar and chat header, the game bar,
+ * and the composer with the system's navigation bar (measured on a Samsung S20+, 2026-10-03). The
+ * one place to change when the app's room changes.
+ */
+export const ROOM_CHROME = 297;
+
+/** The height of the room the game is given, in CSS pixels. */
+function roomHeight() {
+  return (globalThis.screen?.height || 853) - ROOM_CHROME;
+}
+
 /** One of the app's colours on the frame's root ("" when it gave none). */
 function appColour(name) {
   const page = document.documentElement;
@@ -87,10 +99,7 @@ export function elementFor(game) {
       this.shown = null;
       this.board = null;
       this.style.display = "block";
-      // The game lives in a room of the conversation, between the chat's header with the game bar
-      // and the composer; the page is as tall as what it shows. This only bounds the board, so the
-      // board and what is said around it fit in that room on a phone.
-      this.style.setProperty("--ftg-h", `${Math.max(420, (globalThis.screen?.availHeight ?? 800) - 290)}px`);
+      addEventListener("resize", () => this.fitBoard());
       this.root = document.createElement("div");
       this.root.className = "ftg";
       this.append(this.root);
@@ -168,9 +177,9 @@ export function elementFor(game) {
   <div class="ftg-players" data-part="players"></div>
   <p class="ftg-status" role="status" aria-live="polite" data-part="status"></p>
   <p class="ftg-hint-under" data-part="hint"></p>
-  <div class="ftg-stage" data-part="stage"><div class="ftg-board" data-part="board" dir="ltr"></div><div class="ftg-overlay" data-part="overlay"></div></div>
   <div class="ftg-result" data-part="result"></div>
   <div class="ftg-banners" data-part="banner"></div>
+  <div class="ftg-stage" data-part="stage"><div class="ftg-board" data-part="board" dir="ltr"></div><div class="ftg-overlay" data-part="overlay"></div></div>
 </div>
 <div data-part="dialog"></div>`;
         this.board = game.board.mount(root.querySelector('[data-part="board"]'), this.boardContext(seen));
@@ -191,6 +200,7 @@ export function elementFor(game) {
       part("result").innerHTML = this.resultHtml(seen);
       part("banner").innerHTML = this.bannerHtml(seen);
       part("dialog").innerHTML = this.dialogHtml();
+      this.fitBoard();
     }
 
     /** Whether the app gave its colours, and whether its secondary-text colour reads (README, "Colours"). */
@@ -271,10 +281,40 @@ export function elementFor(game) {
       return chip("me", mine, t("you"), turn(seen.me)) + chip("them", theirs, t("them"), `${turn(seen.peer)}${this.table.peerHere ? " here" : ""}`);
     }
 
+    /**
+     * On a phone, the game lives in the conversation's room, between the app's game bar and its
+     * composer, and the whole page must fit it without scrolling. Everything else of the state is
+     * laid out above the board; the board, square, takes what is left of the room — never less than
+     * a game's playable size in a game, never more than the width. When even that does not fit, the
+     * players' chips go first (the status line says whose turn it is, with the side's mark).
+     */
+    fitBoard() {
+      const root = this.root;
+      const stage = root.querySelector('[data-part="stage"]');
+      if (!stage) return;
+      if (globalThis.matchMedia?.("(min-width: 720px)").matches) {
+        // A tablet: the board beside everything else, as tall as the room under the kit's top bar.
+        root.removeAttribute("data-compact");
+        root.style.setProperty("--ftg-board", `${Math.max(240, roomHeight() - 72)}px`);
+        return;
+      }
+      const width = stage.parentElement.clientWidth;
+      const room = roomHeight();
+      const left = () => room - (root.getBoundingClientRect().height - stage.getBoundingClientRect().height);
+      const playing = this.table.view?.phase === "play";
+      const least = playing ? (game.minBoard ?? 200) : 120;
+      root.removeAttribute("data-compact");
+      root.style.setProperty("--ftg-board", `${width}px`);
+      if (left() < Math.min(least, width)) root.setAttribute("data-compact", "");
+      const board = Math.floor(Math.max(Math.min(width, left()), Math.min(least, width)));
+      root.style.setProperty("--ftg-board", `${board}px`);
+    }
+
     /** Whether the other phone is missing and the user can do something about it (invite them). */
     waitingFor(seen) {
       const table = this.table;
-      return table.live && !table.peerHere && (seen.phase === "invite" || table.notice?.key === "notOpen");
+      // Once nobody answered, the notice with 🔄 takes the hint's place: the room has no space for both.
+      return table.live && !table.peerHere && seen.phase === "invite" && table.notice?.key !== "notOpen";
     }
 
     /** The line that always says where the match stands, and honestly. */
@@ -359,7 +399,8 @@ export function elementFor(game) {
         const [icon, warn] = NOTICES[notice.key] ?? ["ℹ️", false];
         let actions = "";
         if (seen && RETRY.includes(notice.key) && table.live) actions = `<button class="ftg-pill small" data-kit="retry">🔄 ${escape(t("retry"))}</button>`;
-        const key = notice.key === "abandoned" ? abandonedBy(seen) : notice.key;
+        // While waiting for the one invited, "nobody answered" is best said as how to invite them.
+        const key = notice.key === "abandoned" ? abandonedBy(seen) : notice.key === "notOpen" && seen?.phase === "invite" ? "howToInvite" : notice.key;
         html += `<div class="ftg-banner${warn ? " warn" : ""}" role="status"><span class="icon" aria-hidden="true">${icon}</span><span class="say">${escape(t(key, { game: t("name"), ...notice.vars }))}</span>${actions}</div>`;
       } else if (seen && !table.live) {
         html += `<div class="ftg-banner" role="status"><span class="icon" aria-hidden="true">💬</span><span class="say">${escape(t("needsChat", { game: t("name") }))}</span></div>`;

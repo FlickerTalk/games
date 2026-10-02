@@ -11,7 +11,8 @@
     "preview": "node preview/serve.js",
     "shots": "node preview/shots.js",
     "frame": "node games/chess/test/frame.spec.js",
-    "theme": "node preview/theme.spec.js"
+    "theme": "node preview/theme.spec.js",
+    "room": "node preview/room.spec.js"
   },
   "devDependencies": {
     "esbuild": "^0.28.2",

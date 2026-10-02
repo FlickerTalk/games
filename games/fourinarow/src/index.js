@@ -21,4 +21,6 @@ export const game = defineGame({
   sides: DISCS,
   style: STYLE,
   texts: TEXTS,
+  // Seven columns of at least 44 px in a game: the kit makes room for that before anything else.
+  minBoard: 308,
 });

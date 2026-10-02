@@ -11,6 +11,7 @@ export const CONFIGS = [
   { name: "phone-dark", device: { width: 360, height: 740 }, scale: 3, dark: true, lang: "en" },
   { name: "phone-ar", device: { width: 360, height: 740 }, scale: 3, dark: false, lang: "ar" },
   { name: "tablet-landscape", device: { width: 1280, height: 800 }, scale: 2, dark: false, lang: "en", tablet: true },
+  { name: "phone-samsung", device: { width: 384, height: 853 }, scale: 3, dark: true, lang: "es" },
 ];
 
 export const STATES = ["list-empty", "waiting", "not-open", "mid-match", "confirm-resign", "win", "draw", "result-sent", "list"];
@@ -35,7 +36,7 @@ export const PLAYS = {
     async scenes({ open, frame, touch, play, shot, x, o }) {
       await open(x);
       await touch(o, '[data-kit="new"]');
-      await frame(o).locator(".ftg-player.turn").waitFor();
+      await frame(o).locator(".ftg-player.turn").waitFor({ state: "attached" });
       const [white, black] = (await frame(o).locator(".ftg-player.me.turn").count()) ? [o, x] : [x, o];
       await shot("start-white", white);
       await shot("start-black", black);
@@ -77,7 +78,8 @@ export function shotPath(game, config, index, state, side) {
 async function run(browser, base, game, config) {
   const plays = PLAYS[game];
   const viewport = { width: config.device.width * 2 + 72, height: config.device.height + 40 };
-  const context = await browser.newContext({ viewport, deviceScaleFactor: config.scale, colorScheme: config.dark ? "dark" : "light" });
+  // The phone's screen: the app's room is what its chrome leaves of it.
+  const context = await browser.newContext({ viewport, deviceScaleFactor: config.scale, colorScheme: config.dark ? "dark" : "light", screen: config.device });
   const page = await context.newPage();
   const problems = [];
   page.on("pageerror", (error) => problems.push(error.message));
@@ -85,6 +87,7 @@ async function run(browser, base, game, config) {
   const query = new URLSearchParams({ game, lang: config.lang });
   for (const flag of ["bare", "closed", ...(config.dark ? ["dark"] : [])]) query.set(flag, "");
   if (config.tablet) query.set("layout", "tablet");
+  else query.set("screen", `${config.device.width}x${config.device.height}`);
   await page.goto(`${base}/?${query}`);
 
   const frame = (side) => page.frameLocator(`#frame-${side}`);
@@ -113,7 +116,7 @@ async function run(browser, base, game, config) {
   await page.evaluate(() => globalThis.harness.open("b"));
   await frame("b").locator(".ftg").waitFor();
   await touch("a", '[data-kit="retry"]');
-  await frame("a").locator(".ftg-player.turn").waitFor();
+  await frame("a").locator(".ftg-player.turn").waitFor({ state: "attached" });
   const [x, o] = (await frame("a").locator(".ftg-player.me.turn").count()) ? ["a", "b"] : ["b", "a"];
   const [x1, o1, x2] = plays.opening;
   await play(x, x1);
