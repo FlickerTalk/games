@@ -40,6 +40,7 @@ npm run build         # rebuilds every games/*/dist/ (node build.js chess: just 
 npm run licenses      # production dependencies must be MIT, BSD, Apache-2.0, ISC or 0BSD
 npm run preview       # http://127.0.0.1:5178/?game=tictactoe  (&lang=ar, &dark, &layout=tablet)
 npm run shots         # screenshots of every game to /private/tmp/ftgames-shots/<game>/
+npm run frame         # chess in Chromium inside the preview's frame: pieces drawn, tap, drag, promotion, no network
 ```
 
 `dist/` is committed: after changing `src/` or the kit, run `npm run build` and commit what changed.

@@ -9,7 +9,8 @@
     "test": "vitest run",
     "licenses": "license-checker --production --excludePrivatePackages --onlyAllow \"MIT;BSD-2-Clause;BSD-3-Clause;Apache-2.0;ISC;0BSD\"",
     "preview": "node preview/serve.js",
-    "shots": "node preview/shots.js"
+    "shots": "node preview/shots.js",
+    "frame": "node games/chess/test/frame.spec.js"
   },
   "devDependencies": {
     "esbuild": "^0.28.2",
