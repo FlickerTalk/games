@@ -35,16 +35,60 @@
   <button data-do="open-a">Open A</button><button data-do="close-a">Close A</button>
   <button data-do="open-b">Open B</button><button data-do="close-b">Close B</button>
   <label><input type="checkbox" id="connected" checked> direct connection</label>
+  <label>theme <select id="theme">
+    <option value="">none (fallback)</option>
+    <option>ember-light</option><option>ember-dark</option>
+    <option>aurora-light</option><option>aurora-dark</option>
+    <option>mono-light</option><option>mono-dark</option>
+  </select></label>
   <span id="where"></span>
 </div>
 <div id="devices"></div>
 <script type="module">
   const params = new URLSearchParams(location.search);
+  /**
+   * The app's themes as its frame will hand them over: Ionic's variables, from the app's
+   * src/theme/variables.css (ember, aurora, mono; light and dark). Ionic's own defaults for what
+   * the app does not set (medium, success); the app sets item backgrounds transparent.
+   */
+  const THEMES = {};
+  for (const [name, bg, text, border, accent, onAccent] of [
+    ["ember-light", "#fbf8f5", "#1c1714", "rgba(40, 20, 5, 0.08)", "#e8731f", "#ffffff"],
+    ["ember-dark", "#0d0b0a", "#f6efe8", "rgba(255, 240, 225, 0.07)", "#ffa24c", "#1b0f06"],
+    ["aurora-light", "#f6f8fb", "#121821", "rgba(10, 25, 45, 0.08)", "#0fa89a", "#ffffff"],
+    ["aurora-dark", "#0a0e14", "#eaf1fa", "rgba(200, 225, 255, 0.07)", "#3ddbc4", "#04141a"],
+    ["mono-light", "#ffffff", "#0a0a0a", "rgba(0, 0, 0, 0.10)", "#000000", "#ffffff"],
+    ["mono-dark", "#000000", "#f5f5f5", "rgba(255, 255, 255, 0.12)", "#ffffff", "#000000"],
+  ]) {
+    THEMES[name] = {
+      dark: name.endsWith("dark"),
+      vars: {
+        "--ion-background-color": bg,
+        "--ion-text-color": text,
+        "--ion-color-medium": "#636469",
+        "--ion-item-background": "transparent",
+        "--ion-border-color": border,
+        "--ion-color-primary": accent,
+        "--ion-color-primary-contrast": onAccent,
+        "--ion-color-success": "#2dd55b",
+        "--ion-color-danger": "#ff4d5e",
+      },
+    };
+  }
+  let theme = THEMES[params.get("theme")] ?? null;
   const game = params.get("game") || "tictactoe";
   const lang = params.get("lang") || "en";
-  const dark = params.has("dark");
+  let dark = params.has("dark") || Boolean(theme?.dark);
   const tablet = params.get("layout") === "tablet";
-  if (dark) document.documentElement.classList.add("dark");
+  /** The page around the frames takes the theme too, as the app's sheet does. */
+  function paintPage() {
+    document.documentElement.classList.toggle("dark", dark);
+    for (const [name, value] of [["--bg", theme?.vars["--ion-background-color"]], ["--text", theme?.vars["--ion-text-color"]]]) {
+      if (value) document.documentElement.style.setProperty(name, value);
+      else document.documentElement.style.removeProperty(name);
+    }
+  }
+  paintPage();
   if (tablet) document.body.classList.add("tablet");
   if (params.has("bare")) document.getElementById("controls").hidden = true;
   const names = { tictactoe: "Tic-Tac-Toe", fourinarow: "Four in a Row", chess: "Chess" };
@@ -94,7 +138,7 @@
     switch (said.type) {
       case "ft.ready":
         // Each phone has its own id for the conversation with the other, as in the app.
-        return tell(side, { type: "ft.open", text: "", dark, lang, file: null, ref: null, reminder: null, live: true, chat: `${side}-with-${side === "a" ? "b" : "a"}` });
+        return tell(side, { type: "ft.open", text: "", dark, lang, file: null, ref: null, reminder: null, live: true, chat: `${side}-with-${side === "a" ? "b" : "a"}`, theme: theme?.vars ?? null });
       case "ft.height":
         phone.frame.style.height = `${Math.min(Math.max(said.height, 160), 4000)}px`;
         return;
@@ -141,7 +185,17 @@
     else close(side);
   });
   document.getElementById("connected").onchange = (event) => (connected = event.target.checked);
-  window.harness = { open, close, connect: (yes) => (connected = yes), phones };
+  /** Switches the app's theme with the games open, as the app does: no reload. */
+  function setTheme(name) {
+    theme = THEMES[name] ?? null;
+    dark = theme ? theme.dark : params.has("dark");
+    paintPage();
+    for (const side of Object.keys(phones)) tell(side, { type: "ft.theme", theme: theme?.vars ?? null, dark });
+  }
+  const picker = document.getElementById("theme");
+  picker.value = params.get("theme") ?? "";
+  picker.onchange = () => setTheme(picker.value);
+  window.harness = { open, close, connect: (yes) => (connected = yes), phones, setTheme };
   if (!params.has("closed")) {
     open("a");
     open("b");

@@ -36,6 +36,9 @@ describe("the review harness", () => {
     for (const call of ["ft.ready", "ft.liveSend", "ft.recordSet", "ft.text", 'import("./dist/index.js")']) expect(bridge).toContain(call);
     // The conversation the game is open in reaches onOpen, as the app hands it over.
     expect(bridge).toMatch(/chat: typeof said\.chat === "string" \? said\.chat : undefined/);
+    // The app's colours land on the frame's root at opening, and again whenever the theme changes.
+    expect(bridge).toContain('said.type === "ft.theme"');
+    expect(bridge).toContain("document.documentElement.style.setProperty");
     const code = await fetch(`${base}/frame/tictactoe/b/dist/index.js`);
     expect(code.headers.get("content-type")).toContain("javascript");
     expect(code.headers.get("content-security-policy")).toBe(policy(base));
