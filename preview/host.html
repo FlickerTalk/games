@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FlickerTalk games — two phones</title>
+<style>
+  /* Two phones, each with the app's plugin window around the game: the bar with ✕ and the name,
+     the sheet with 16px on the sides, the app's black-and-white background. */
+  :root { color-scheme: light; --bg: #ffffff; --surface-2: #f2f2f2; --text: #0a0a0a; --muted: #6e6e6e; --desk: #d9d9de; }
+  :root.dark { color-scheme: dark; --bg: #000000; --surface-2: #1c1c1c; --text: #f5f5f5; --muted: #8e8e8e; --desk: #2b2b30; }
+  html, body { margin: 0; background: var(--desk); font: 14px system-ui, sans-serif; color: var(--text); }
+  #controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding: 10px 16px; }
+  #controls button, #controls label { font: inherit; }
+  #devices { display: flex; gap: 24px; padding: 0 16px 24px; align-items: flex-start; }
+  .device { position: relative; width: 360px; height: 740px; overflow-y: auto; background: var(--bg); border-radius: 28px; box-shadow: 0 10px 40px rgba(0,0,0,.25); }
+  .tablet .device { width: 1280px; height: 800px; border-radius: 22px; }
+  .bar { position: sticky; top: 0; z-index: 1; display: flex; align-items: center; gap: 8px; padding: 8px; background: var(--bg); }
+  .bar button { display: grid; place-items: center; width: 44px; height: 44px; border: 0; border-radius: 50%; background: var(--surface-2); color: var(--text); font-size: 18px; }
+  .bar .name { font-size: 17px; font-weight: 600; }
+  .sheet { padding: 0 16px 16px; }
+  .sheet iframe { display: block; width: 100%; height: 320px; border: 0; background: transparent; }
+  .chat { display: none; height: 100%; flex-direction: column; justify-content: flex-end; padding: 16px; box-sizing: border-box; gap: 12px; }
+  .device.closed .chat { display: flex; }
+  .device.closed .bar, .device.closed .sheet { display: none; }
+  .hint { color: var(--muted); text-align: center; }
+  .composer { display: flex; gap: 8px; align-items: flex-end; }
+  .composer .box { flex: 1; min-height: 44px; padding: 11px 14px; border-radius: 22px; background: var(--surface-2); box-sizing: border-box; white-space: pre-wrap; }
+  .composer .send { width: 44px; height: 44px; border-radius: 50%; background: var(--text); color: var(--bg); display: grid; place-items: center; }
+</style>
+</head>
+<body>
+<div id="controls">
+  <strong>Games preview</strong>
+  <button data-do="open-a">Open A</button><button data-do="close-a">Close A</button>
+  <button data-do="open-b">Open B</button><button data-do="close-b">Close B</button>
+  <label><input type="checkbox" id="connected" checked> direct connection</label>
+  <span id="where"></span>
+</div>
+<div id="devices"></div>
+<script type="module">
+  const params = new URLSearchParams(location.search);
+  const game = params.get("game") || "tictactoe";
+  const lang = params.get("lang") || "en";
+  const dark = params.has("dark");
+  const tablet = params.get("layout") === "tablet";
+  if (dark) document.documentElement.classList.add("dark");
+  if (tablet) document.body.classList.add("tablet");
+  if (params.has("bare")) document.getElementById("controls").hidden = true;
+  const names = { tictactoe: "Tic-Tac-Toe", fourinarow: "Four in a Row", chess: "Chess" };
+
+  /** One phone each: what the core keeps for the game, and its frame while the game is open. */
+  const phones = { a: { records: new Map(), store: new Map(), frame: null }, b: { records: new Map(), store: new Map(), frame: null } };
+  let connected = true;
+
+  function device(side) {
+    const node = document.createElement("section");
+    node.className = "device closed";
+    node.id = `device-${side}`;
+    node.innerHTML = `<div class="bar"><button aria-label="Back" data-close="${side}">✕</button><span class="name">${names[game] ?? game}</span></div><div class="sheet"></div><div class="chat"><p class="hint">💬</p><div class="composer"><div class="box"></div><div class="send">➤</div></div></div>`;
+    node.querySelector("[data-close]").onclick = () => close(side);
+    document.getElementById("devices").append(node);
+    return node;
+  }
+  const devices = { a: device("a"), b: device("b") };
+
+  function open(side) {
+    close(side);
+    const frame = document.createElement("iframe");
+    frame.setAttribute("sandbox", "allow-scripts");
+    frame.setAttribute("referrerpolicy", "no-referrer");
+    frame.title = names[game] ?? game;
+    frame.id = `frame-${side}`;
+    frame.src = `/frame/${game}/${side}/frame.html`;
+    phones[side].frame = frame;
+    devices[side].querySelector(".sheet").append(frame);
+    devices[side].classList.remove("closed");
+  }
+
+  function close(side) {
+    phones[side].frame?.remove();
+    phones[side].frame = null;
+    devices[side].classList.add("closed");
+  }
+
+  const tell = (side, message) => phones[side].frame?.contentWindow?.postMessage(message, "*");
+
+  addEventListener("message", (event) => {
+    const side = Object.keys(phones).find((one) => phones[one].frame && phones[one].frame.contentWindow === event.source);
+    if (!side) return;
+    const said = event.data;
+    const phone = phones[side];
+    const done = (answer) => tell(side, { type: "ft.done", id: said.id, answer });
+    switch (said.type) {
+      case "ft.ready":
+        return tell(side, { type: "ft.open", text: "", dark, lang, file: null, ref: null, reminder: null, live: true });
+      case "ft.height":
+        phone.frame.style.height = `${Math.min(Math.max(said.height, 160), 4000)}px`;
+        return;
+      case "ft.recordGet":
+        return done(phone.records.get(said.key) ?? null);
+      case "ft.recordSet":
+        phone.records.set(said.key, said.value);
+        return done(true);
+      case "ft.recordForget":
+        return done(phone.records.delete(said.key));
+      case "ft.recordKeys":
+        return done([...phone.records.keys()].filter((key) => key.startsWith(said.prefix)).sort());
+      case "ft.recordUsage":
+        return done({ used: [...phone.records.values()].reduce((sum, value) => sum + value.length, 0), quota: 4 * 1024 * 1024 });
+      case "ft.read":
+        return done(phone.store.get(said.key) ?? null);
+      case "ft.write":
+        phone.store.set(said.key, said.value);
+        return done(true);
+      case "ft.forget":
+        return done(phone.store.delete(said.key));
+      case "ft.liveSend": {
+        // True when the message leaves over the connection, whether or not anyone hears it.
+        const other = side === "a" ? "b" : "a";
+        if (connected) setTimeout(() => tell(other, { type: "ft.live", data: said.data }), 30);
+        return done(connected);
+      }
+      case "ft.text":
+        // The text goes to the composer and the plugin closes, as in the chat.
+        devices[side].querySelector(".composer .box").textContent = said.text;
+        return close(side);
+      case "ft.close":
+        return close(side);
+      default:
+        if (said.id) done(false);
+    }
+  });
+
+  document.getElementById("controls").addEventListener("click", (event) => {
+    const act = event.target.dataset?.do;
+    if (!act) return;
+    const [verb, side] = act.split("-");
+    if (verb === "open") open(side);
+    else close(side);
+  });
+  document.getElementById("connected").onchange = (event) => (connected = event.target.checked);
+  window.harness = { open, close, connect: (yes) => (connected = yes), phones };
+  if (!params.has("closed")) {
+    open("a");
+    open("b");
+  }
+</script>
+</body>
+</html>

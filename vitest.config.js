@@ -11,7 +11,7 @@ const TAIL = ".as-text.js";
 export default {
   test: {
     environment: "happy-dom",
-    include: ["kit/**/*.test.js", "games/*/test/**/*.test.js"],
+    include: ["kit/**/*.test.js", "games/*/test/**/*.test.js", "preview/**/*.test.js"],
   },
   plugins: [
     {
