@@ -23,8 +23,8 @@ describe("the Tic-Tac-Toe package", () => {
     expect(readFileSync(join(out, "THIRD_PARTY_NOTICES.md")).equals(readFileSync(join(dir, "dist", "THIRD_PARTY_NOTICES.md")))).toBe(true);
   });
 
-  it("stays under 100 KB, says it holds no third-party code, and loads nothing from outside", () => {
-    expect(checkDist(dir, { cap: 100 * 1024 })).toBeGreaterThan(20_000);
+  it("stays under 128 KB, says it holds no third-party code, and loads nothing from outside", () => {
+    expect(checkDist(dir, { cap: 128 * 1024 })).toBeGreaterThan(20_000);
     expect(readFileSync(join(dir, "dist", "THIRD_PARTY_NOTICES.md"), "utf8")).toContain("no third-party code");
   });
 });

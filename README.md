@@ -293,7 +293,8 @@ Fixed vectors (in `kit/test/commit.test.js`), computed independently by `kit/tes
   licence comments dropped and the game's `THIRD_PARTY_NOTICES.md` copied beside it. A game that needs
   more from its build (a module made at build time, a fix to a dependency's source) exports esbuild
   `plugins` from its own `build.js`; they run before the kit's.
-- Each game's tests check its manifest, that `dist/` stays under its size cap (100 KB for a small game),
+- Each game's tests check its manifest, that `dist/` stays under its size cap (128 KB for a small game:
+  the plan's 100 KB assumed a 25 KB kit, and the real kit with its 21 languages is about 90 KB),
   and that nothing the frame loads contains an `http://` or `https://` address. XML namespace names
   (`http://www.w3.org/2000/svg`…) are allowed: browsers never fetch them. `THIRD_PARTY_NOTICES.md` is
   not scanned: it may quote a licence's address, and the frame never loads it.
