@@ -2,7 +2,7 @@
 // Arabic right to left, and on a tablet in landscape (2560×1600), in the states that matter.
 // @vitest-environment node
 import { describe, expect, it } from "vitest";
-import { CONFIGS, STATES, alternate, shotPath } from "./shots.js";
+import { CONFIGS, PLAYS, STATES, alternate, shotPath, touches } from "./shots.js";
 
 describe("the screenshots for review", () => {
   it("cover a phone light and dark, Arabic right to left, and a tablet in landscape", () => {
@@ -22,6 +22,26 @@ describe("the screenshots for review", () => {
   it("end a round with as many moves as the game needs, the two sides taking turns from ⭕", () => {
     expect(alternate([1, 6], ["o", "x"])).toEqual([["o", 1], ["x", 6]]);
     expect(alternate([4, 3, 4, 3], ["o", "x"])).toEqual([["o", 4], ["x", 3], ["o", 4], ["x", 3]]);
+  });
+
+  it("touch what each game's move needs: one cell, or a piece and then its square", () => {
+    expect(touches(PLAYS.tictactoe, 4)).toEqual(['[data-cell="4"]']);
+    expect(touches(PLAYS.chess, "e2e4")).toEqual(['rect.square[data-square="e2"]', 'rect.square[data-square="e4"]']);
+  });
+
+  it("play lines that do what they claim: the starter wins the first round, the second is a draw", async () => {
+    for (const [game, plays] of Object.entries(PLAYS)) {
+      const rules = await import(`../games/${game}/src/rules.js`);
+      const after = (moves) => moves.reduce((state, move) => {
+        const played = rules.play(state, move, rules.turn(state));
+        if (played.error) throw new Error(`${game} ${move}: ${played.error}`);
+        return played.state;
+      }, rules.initial());
+      expect(rules.result(after([...plays.opening, ...plays.winning])), game).toMatchObject({ winner: 0 });
+      expect(rules.result(after(plays.opening)), game).toBeNull();
+      expect(rules.result(after(plays.draw)), game).toMatchObject({ winner: null });
+    }
+    expect(typeof PLAYS.chess.scenes).toBe("function");
   });
 
   it("are saved where the review looks for them", () => {

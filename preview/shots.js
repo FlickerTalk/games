@@ -16,14 +16,54 @@ export const CONFIGS = [
 export const STATES = ["list-empty", "waiting", "not-open", "mid-match", "confirm-resign", "win", "draw", "result-sent", "list"];
 
 /**
- * How each game is played for the screenshots: the selector of a move, the first three moves
- * (✖, ⭕, ✖), the ones that end the round with ✖ winning (⭕, ✖, …, ✖: as many as the game
- * needs), and a round to a draw from its starter. A new game adds its own line here.
+ * How each game is played for the screenshots: what a move touches (one selector, or several in
+ * order), the first three moves (the starter, the other, the starter), the ones that end the
+ * round with the starter winning (as many as the game needs, the other side first), and a round to
+ * a draw from its starter. A new game adds its own line
+ * here; `scenes` adds states of its own at the end, from where the common ones leave the phones.
  */
 export const PLAYS = {
   tictactoe: { move: (cell) => `[data-cell="${cell}"]`, opening: [4, 0, 2], winning: [1, 6], draw: [0, 1, 2, 4, 3, 5, 7, 6, 8] },
   fourinarow: { move: (column) => `[data-col="${column}"]`, opening: [3, 4, 3], winning: [4, 3, 4, 3], draw: [0, 1, 0, 1, 0, 0, 2, 0, 2, 0, 2, 1, 1, 1, 3, 1, 3, 2, 2, 4, 2, 4, 3, 3, 5, 3, 5, 3, 5, 4, 4, 5, 6, 5, 6, 5, 6, 6, 4, 6, 4, 6] },
+  chess: {
+    move: (uci) => [uci.slice(0, 2), uci.slice(2, 4)].map((square) => `rect.square[data-square="${square}"]`),
+    opening: ["e2e4", "g7g5", "d2d4"],
+    winning: ["f7f6", "d1h5"],
+    // Sam Loyd's stalemate in ten moves.
+    draw: "e2e3 a7a5 d1h5 a8a6 h5a5 h7h5 h2h4 a6h6 a5c7 f7f6 c7d7 e8f7 d7b7 d8d3 b7b8 d3h7 b8c8 f7g6 c8e6".split(" "),
+    // A new match: the opening from each side, where a piece may go, a check, then a promotion.
+    async scenes({ open, frame, touch, play, shot, x, o }) {
+      await open(x);
+      await touch(o, '[data-kit="new"]');
+      await frame(o).locator(".ftg-player.turn").waitFor();
+      const [white, black] = (await frame(o).locator(".ftg-player.me.turn").count()) ? [o, x] : [x, o];
+      await shot("start-white", white);
+      await shot("start-black", black);
+      await play(white, "e2e4");
+      await play(black, "f7f6");
+      await touch(white, 'rect.square[data-square="d1"]');
+      await shot("legal-moves", white);
+      await touch(white, 'rect.square[data-square="h5"]');
+      await shot("check", black);
+      await shot("check", white);
+      // White resigns; black starts the next round, with white.
+      await touch(white, '[data-kit="resign"]');
+      await touch(white, '[data-kit="yes"]');
+      await touch(black, '[data-kit="again"]');
+      const line = "a2a4 b7b5 a4b5 a7a6 b5a6 c8b7 a6b7 b8c6".split(" ");
+      for (const [at, uci] of line.entries()) await play(at % 2 ? white : black, uci);
+      await play(black, "b7a8");
+      await shot("promotion", black);
+      await touch(black, '.promotion-dialog-button-group[data-piece="wq"] rect');
+      await shot("promoted", white);
+    },
+  },
 };
+
+/** The selectors a move touches, in order. */
+export function touches(plays, move) {
+  return [plays.move(move)].flat();
+}
 
 /** Moves the two sides make in turn, the first side first: `[[side, move], …]`. */
 export function alternate(moves, sides) {
@@ -58,6 +98,9 @@ async function run(browser, base, game, config) {
     await frame(side).locator(selector).first().click();
     await page.waitForTimeout(250);
   };
+  const play = async (side, move) => {
+    for (const selector of touches(plays, move)) await touch(side, selector);
+  };
 
   await page.evaluate(() => globalThis.harness.open("a"));
   await frame("a").locator(".ftg").waitFor();
@@ -73,15 +116,15 @@ async function run(browser, base, game, config) {
   await frame("a").locator(".ftg-player.turn").waitFor();
   const [x, o] = (await frame("a").locator(".ftg-player.me.turn").count()) ? ["a", "b"] : ["b", "a"];
   const [x1, o1, x2] = plays.opening;
-  await touch(x, plays.move(x1));
-  await touch(o, plays.move(o1));
-  await touch(x, plays.move(x2));
+  await play(x, x1);
+  await play(o, o1);
+  await play(x, x2);
   await shot("mid-match", o);
   await shot("mid-match", x);
   await touch(o, '[data-kit="resign"]');
   await shot("confirm-resign", o);
   await touch(o, '[data-kit="no"]');
-  for (const [side, move] of alternate(plays.winning, [o, x])) await touch(side, plays.move(move));
+  for (const [side, move] of alternate(plays.winning, [o, x])) await play(side, move);
   await shot("win", x);
   await shot("win", o);
 
@@ -89,7 +132,7 @@ async function run(browser, base, game, config) {
   await touch(o, '[data-kit="again"]');
   let side = o;
   for (const move of plays.draw) {
-    await touch(side, plays.move(move));
+    await play(side, move);
     side = side === x ? o : x;
   }
   await shot("draw", o);
@@ -98,6 +141,13 @@ async function run(browser, base, game, config) {
   await shot("result-sent", x);
   await touch(o, '[data-kit="back"]');
   await shot("list", o);
+  if (plays.scenes) {
+    const open = async (side) => {
+      await page.evaluate((one) => globalThis.harness.open(one), side);
+      await frame(side).locator(".ftg").waitFor();
+    };
+    await plays.scenes({ page, open, frame, touch, play, shot, x, o });
+  }
   await context.close();
   return problems;
 }
