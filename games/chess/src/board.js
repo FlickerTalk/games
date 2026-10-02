@@ -58,6 +58,7 @@ class ChessView {
     this.inputOn = false;
     this.promoting = false;
     this.chess = null;
+    this.facing = this.colour(ctx);
     this.board = new Chessboard(host.querySelector(".ftc-board"), {
       position: ctx.state.fen,
       orientation: this.colour(ctx),
@@ -88,7 +89,11 @@ class ChessView {
     const board = this.board;
     const t = ctx.t;
     const colour = this.colour(ctx);
-    if (board.getOrientation() !== colour) board.setOrientation(colour);
+    // A turn of the board is queued behind the moves being drawn: asked for once.
+    if (this.facing !== colour) {
+      this.facing = colour;
+      board.setOrientation(colour);
+    }
     if (!this.promoting) board.setPosition(ctx.state.fen, true);
     this.host.dataset.fen = ctx.state.fen;
 
@@ -113,9 +118,12 @@ class ChessView {
       board.enableMoveInput(this.input, colour);
       this.inputOn = true;
     } else if (!can && this.inputOn) {
-      board.cancelMoveInput();
+      // A piece still in the user's hand is dropped back by cm-chessboard itself: with input off,
+      // nothing validates its move. Cancelling here would cut short a move it is still drawing.
       board.disableMoveInput();
       this.inputOn = false;
+      this.hideMoves();
+      board.removeMarkers(MARKER.pick);
       if (this.promoting) {
         this.promoting = false;
         this.dialog.setDisplayState("hidden");
