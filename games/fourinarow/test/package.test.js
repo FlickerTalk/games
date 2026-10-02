@@ -25,10 +25,10 @@ describe("the Four in a Row package", () => {
     expect(readFileSync(join(out, "THIRD_PARTY_NOTICES.md")).equals(readFileSync(join(dir, "dist", "THIRD_PARTY_NOTICES.md")))).toBe(true);
   });
 
-  it("stays under 128 KB, says it holds no third-party code, loads nothing from outside and names no brand", () => {
+  it("stays under 128 KB, says its one third-party work is Ionicons, loads nothing from outside and names no brand", () => {
     expect(checkDist(dir, { cap: 128 * 1024 })).toBeGreaterThan(20_000);
     const notices = readFileSync(join(dir, "dist", "THIRD_PARTY_NOTICES.md"), "utf8");
-    expect(notices).toContain("no third-party code");
+    expect(notices).toContain("its one third-party work is Ionicons");
     const code = readFileSync(join(dir, "dist", "index.js"), "utf8");
     for (const brand of BRANDS) expect(`${code}\n${notices}`).not.toMatch(brand);
   });

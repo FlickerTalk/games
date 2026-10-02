@@ -21,7 +21,7 @@ describe("building a game", () => {
     expect(code).toContain("min-height:44px"); // the kit's stylesheet, as text
     expect(code).toContain("Waiting for the other person"); // the kit's texts
     expect(code).not.toContain("\n//"); // minified, no comments
-    expect(readFileSync(join(out, "THIRD_PARTY_NOTICES.md"), "utf8")).toContain("no third-party code");
+    expect(readFileSync(join(out, "THIRD_PARTY_NOTICES.md"), "utf8")).toContain("## Ionicons");
   });
 
   it("builds the same bytes from the same sources", async () => {
@@ -35,7 +35,8 @@ describe("building a game", () => {
   it("passes the checks every package must pass", async () => {
     const out = mkdtempSync(join(tmpdir(), "ftgames-"));
     await buildGame(fixture, { outdir: join(out, "dist") });
-    expect(checkDist(out, { cap: 100 * 1024 })).toBeGreaterThan(10_000);
+    // The kit with a toy game: the small games' cap (the kit's icons took it past 100 KB).
+    expect(checkDist(out, { cap: 128 * 1024 })).toBeGreaterThan(10_000);
   });
 
   it("writes a texts module with each key once, and it reads back as the same texts", async () => {
