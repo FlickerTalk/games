@@ -73,7 +73,7 @@ describe("Tic-Tac-Toe between two phones", () => {
     await touch(x, '[data-kit="send"]');
     expect(x.ft.say).toHaveBeenCalledWith("⭕ Tic-Tac-Toe: a draw, 1–0 · draws: 1");
     // Everything was saved before the result went out: the plugin closes with `say`.
-    const kept = JSON.parse(x.ft === a.ft ? a.records.get(`game/${x.table.record.id}`) : b.records.get(`game/${x.table.record.id}`));
+    const kept = JSON.parse(x.ft === a.ft ? a.records.get(`game/${a.chat}/${x.table.record.id}`) : b.records.get(`game/${b.chat}/${x.table.record.id}`));
     expect(kept.game.moves).toHaveLength(15);
   });
 

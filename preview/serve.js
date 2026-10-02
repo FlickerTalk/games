@@ -82,7 +82,7 @@ addEventListener("message", (event) => {
   if (said.type === "ft.open") {
     if (said.dark) document.documentElement.dataset.dark = "1";
     document.documentElement.lang = said.lang;
-    for (const handler of opened) handler({ text: "", dark: Boolean(said.dark), lang: String(said.lang), file: null, ref: null, reminder: null, live: Boolean(said.live) });
+    for (const handler of opened) handler({ text: "", dark: Boolean(said.dark), lang: String(said.lang), file: null, ref: null, reminder: null, live: Boolean(said.live), chat: typeof said.chat === "string" ? said.chat : undefined });
     requestAnimationFrame(tell);
   } else if (said.type === "ft.live") {
     for (const handler of heard) handler(String(said.data));

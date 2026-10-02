@@ -93,7 +93,8 @@
     const done = (answer) => tell(side, { type: "ft.done", id: said.id, answer });
     switch (said.type) {
       case "ft.ready":
-        return tell(side, { type: "ft.open", text: "", dark, lang, file: null, ref: null, reminder: null, live: true });
+        // Each phone has its own id for the conversation with the other, as in the app.
+        return tell(side, { type: "ft.open", text: "", dark, lang, file: null, ref: null, reminder: null, live: true, chat: `${side}-with-${side === "a" ? "b" : "a"}` });
       case "ft.height":
         phone.frame.style.height = `${Math.min(Math.max(said.height, 160), 4000)}px`;
         return;

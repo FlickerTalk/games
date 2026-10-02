@@ -6,7 +6,7 @@
 import { whoProof } from "./commit.js";
 import { KV, PROTOCOL, isId, seal, unseal } from "./envelope.js";
 import { MATCH_LIMIT, chooseFork, merge, newId, newMatch, peerOf, replay, tossStep, view } from "./match.js";
-import { exists, forget, list, load, save } from "./store.js";
+import { exists, forget, isChat, list, load, save } from "./store.js";
 
 export { MATCH_LIMIT };
 
@@ -48,6 +48,7 @@ export class Table {
     this.matches = [];
     this.record = null;
     this.live = false;
+    this.chat = null;
     this.lang = "en";
     this.dark = false;
     this.notice = null;
@@ -94,7 +95,7 @@ export class Table {
         return;
       }
       const record = newMatch({ g: this.game.id, gv: this.game.gv });
-      if (!(await save(this.ft.records, record))) {
+      if (!(await save(this.ft.records, this.chat, record))) {
         this.notice = { key: "full" };
         return;
       }
@@ -105,7 +106,7 @@ export class Table {
 
   enter(id) {
     return this.run(async () => {
-      const record = await load(this.ft.records, id);
+      const record = this.chat ? await load(this.ft.records, this.chat, id) : null;
       if (!record) return this.reload();
       this.show(record);
       if (this.live) this.say("hello");
@@ -158,7 +159,8 @@ export class Table {
 
   remove(id) {
     return this.run(async () => {
-      await forget(this.ft.records, id);
+      if (!this.chat) return;
+      await forget(this.ft.records, this.chat, id);
       if (this.record?.id === id) {
         this.stopTimers();
         this.record = null;
@@ -187,7 +189,7 @@ export class Table {
         const { message } = prompt;
         const joined = await merge(null, message.game, this.game, { me: newId(), from: message.who, g: this.game.id, gv: this.game.gv, id: message.doc });
         if (joined.verdict !== "took") return;
-        if (!(await save(this.ft.records, joined.record))) {
+        if (!(await save(this.ft.records, this.chat, joined.record))) {
           this.notice = { key: "full" };
           return;
         }
@@ -197,7 +199,7 @@ export class Table {
         this.say("sync");
         return;
       }
-      const record = await load(this.ft.records, prompt.id);
+      const record = await load(this.ft.records, this.chat, prompt.id);
       if (!record) return;
       this.show(record);
       this.say("hello");
@@ -223,13 +225,20 @@ export class Table {
 
   async opened(opening) {
     this.lang = opening.lang || "en";
-    this.live = Boolean(opening.live);
+    // A match belongs to the conversation the game is open in; without one, there is none to
+    // show, start or play, and no shared place to fall back on.
+    this.chat = isChat(opening.chat) ? opening.chat : null;
+    this.live = Boolean(opening.live) && this.chat !== null;
     this.dark = Boolean(opening.dark);
     if (!this.record) await this.reload();
   }
 
   async reload() {
-    const kept = await list(this.ft.records, this.game.id);
+    if (!this.chat) {
+      this.matches = [];
+      return;
+    }
+    const kept = await list(this.ft.records, this.chat, this.game.id);
     this.matches = kept.map((record) => ({ record, view: view(record, this.game) }));
   }
 
@@ -259,7 +268,7 @@ export class Table {
       this.notice = { key: "tooLong" };
       return false;
     }
-    if (!(await save(this.ft.records, next))) {
+    if (!(await save(this.ft.records, this.chat, next))) {
       this.notice = { key: "full" };
       return false;
     }
@@ -388,7 +397,7 @@ export class Table {
   }
 
   async heard(data) {
-    const opened = unseal(data, { g: this.game.id, gv: this.game.gv });
+    const opened = this.chat ? unseal(data, { g: this.game.id, gv: this.game.gv }) : null;
     if (!opened) return;
     if (opened.newer) {
       this.notice = { key: "update", vars: { version: opened.newer.app } };
@@ -426,7 +435,7 @@ export class Table {
 
   /** The match kept under an id, as this kit reads it (null: none, or one it cannot read). */
   async kept(doc, current) {
-    return current ?? (await load(this.ft.records, doc));
+    return current ?? (await load(this.ft.records, this.chat, doc));
   }
 
   /**
@@ -468,7 +477,7 @@ export class Table {
     if (!invitation) return this.answer("deny", message.doc);
     const session = this.session(message.doc);
     const record = await this.kept(message.doc, current);
-    if (record || (await exists(this.ft.records, message.doc))) {
+    if (record || (await exists(this.ft.records, this.chat, message.doc))) {
       // A match kept here is never joined again. Only the inviter already trusted in this
       // conversation may say it again (the first answer was lost): it gets the answer again.
       if (record && session.proven && peerOf(record) === message.who && current) return this.take(current, message);
@@ -480,7 +489,7 @@ export class Table {
     }
     const joined = await merge(null, game, this.game, { me: newId(), from: message.who, g: this.game.id, gv: this.game.gv, id: message.doc });
     if (joined.verdict !== "took") return this.answer("deny", message.doc);
-    if (!(await save(this.ft.records, joined.record))) {
+    if (!(await save(this.ft.records, this.chat, joined.record))) {
       this.notice = { key: "full" };
       return;
     }
@@ -518,7 +527,7 @@ export class Table {
     }
     // Busy with another match: take what it says, quietly, and let the user choose.
     const quiet = await merge(record, message.game, this.game, { from: message.who });
-    if (quiet.verdict !== "bad" && quiet.verdict !== "stranger") await save(this.ft.records, quiet.record);
+    if (quiet.verdict !== "bad" && quiet.verdict !== "stranger") await save(this.ft.records, this.chat, quiet.record);
     this.prompt = { kind: "elsewhere", id: message.doc };
     return this.answer("busy", message.doc, record.me);
   }
@@ -535,14 +544,14 @@ export class Table {
     }
     if (result.verdict === "fork") this.notice = { key: "fork" };
     let next = result.record;
-    if (JSON.stringify(next) !== JSON.stringify(record) && !(await save(this.ft.records, next))) {
+    if (JSON.stringify(next) !== JSON.stringify(record) && !(await save(this.ft.records, this.chat, next))) {
       this.notice = { key: "full" };
       return;
     }
     this.record = next;
     const step = await tossStep(next, this.random ? { random: this.random } : {});
     if (step.send) {
-      if (!(await save(this.ft.records, step.record))) {
+      if (!(await save(this.ft.records, this.chat, step.record))) {
         this.notice = { key: "full" };
         return;
       }
@@ -572,7 +581,7 @@ export class Table {
     const next = structuredClone(record);
     next.game.end = { k: "abandoned", by: next.game.a };
     next.updated = Date.now();
-    if (!(await save(this.ft.records, next))) {
+    if (!(await save(this.ft.records, this.chat, next))) {
       this.notice = { key: "full" };
       return;
     }

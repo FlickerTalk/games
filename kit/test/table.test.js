@@ -58,7 +58,7 @@ describe("opening and starting", () => {
     await one.newMatch();
     expect(one.screen).toBe("match");
     expect(one.view.phase).toBe("invite");
-    expect(JSON.parse(one.core.records.get(`game/${one.record.id}`))).toEqual(one.record);
+    expect(JSON.parse(one.core.records.get(`game/${one.core.chat}/${one.record.id}`))).toEqual(one.record);
     const sent = said(one.core);
     expect(sent).toMatchObject({ p: PROTOCOL, kv: KV, g: "toy", gv: 1, k: "hello", doc: one.record.id, who: one.record.me, app: "1.0.0" });
     expect(sent.game).toEqual(one.record.game);
@@ -77,8 +77,8 @@ describe("two phones", () => {
     expect([ta.view.myTurn, tb.view.myTurn].sort()).toEqual([false, true]);
     expect(ta.peerHere && tb.peerHere).toBe(true);
     // Saved on both phones, as it is.
-    expect(JSON.parse(a.records.get(`game/${ta.record.id}`))).toEqual(ta.record);
-    expect(JSON.parse(b.records.get(`game/${tb.record.id}`))).toEqual(tb.record);
+    expect(JSON.parse(a.records.get(`game/${a.chat}/${ta.record.id}`))).toEqual(ta.record);
+    expect(JSON.parse(b.records.get(`game/${b.chat}/${tb.record.id}`))).toEqual(tb.record);
   });
 
   it("play a move: the other side replays it through the rules and acknowledges it", async () => {
@@ -285,7 +285,7 @@ describe("the coin over a channel that dropped", () => {
     await vi.advanceTimersByTimeAsync(30_100);
     await settle(ta, tb);
     expect(tb.record.game.end).toEqual({ k: "abandoned", by: ta.record.me });
-    expect(JSON.parse(b.records.get(`game/${tb.record.id}`)).game.end).toEqual({ k: "abandoned", by: ta.record.me });
+    expect(JSON.parse(b.records.get(`game/${b.chat}/${tb.record.id}`)).game.end).toEqual({ k: "abandoned", by: ta.record.me });
     // Without a channel that took the last message, a word now would wake the other phone.
     expect(kinds(b)).toEqual(["sync", "seed"]);
   });
@@ -295,12 +295,12 @@ describe("a match this kit cannot read", () => {
   it("is never joined over, nor opened, by an invitation naming it", async () => {
     const core = fakeCore();
     const kept = JSON.stringify({ v: 2, id: "m1", g: "toy", what: "a newer kit's match" });
-    core.records.set("game/m1", kept);
+    core.records.set(`game/${core.chat}/m1`, kept);
     const one = await table(core);
     const invitation = { a: "wa", b: null, first: null, toss: {}, moves: [], end: null };
     await core.hear(seal({ p: PROTOCOL, kv: KV, g: "toy", gv: 1, k: "hello", doc: "m1", who: "wa", app: "1.0.0", game: invitation }));
     await one.idle();
-    expect(core.records.get("game/m1")).toBe(kept);
+    expect(core.records.get(`game/${core.chat}/m1`)).toBe(kept);
     expect(one.screen).toBe("list");
     expect(core.sent.map((data) => JSON.parse(new TextDecoder().decode(fromBase64(data)))).filter((message) => message.game)).toEqual([]);
   });
@@ -332,23 +332,6 @@ describe("a phone busy elsewhere", () => {
     tb.dismiss();
     expect(tb.prompt).toBeNull();
     expect(tb.matches.map((one) => one.record.id)).not.toContain(ta.record.id);
-  });
-
-  it("tells a match that is with someone else", async () => {
-    const { a, ta, tb } = await started();
-    // The same plugin, another conversation: a phone that never had this match.
-    const c = fakeCore();
-    const tc = await table(c);
-    a.wire = (data) => setTimeout(() => c.hear(data), 0);
-    c.wire = (data) => setTimeout(() => a.hear(data), 0);
-    await ta.leave();
-    await ta.enter(tb.record.id);
-    await settle(ta, tc);
-    // It answers the hello with a proof of nothing, exactly as a phone that has the match would
-    // answer (C1): the proof does not hold, and the user is told the match is not there.
-    expect(kinds(c)).toEqual(["hello"]);
-    expect(ta.notice).toEqual({ key: "denied" });
-    expect(tc.matches).toEqual([]);
   });
 });
 
@@ -441,15 +424,16 @@ const wire = (one, two) => {
   two.wire = (data) => !one.closed && setTimeout(() => one.hear(data), 0);
 };
 const message = (fields) => seal({ p: PROTOCOL, kv: KV, g: "toy", gv: 1, app: "1.0.0", ...fields });
+/** What was said, with every random id and hex value written the same way. */
+const plain = (list) => JSON.stringify(list).replace(/[0-9a-f]{64}/g, "HEX").replace(/[a-z0-9]{16}/g, "ID");
 
 /**
  * A plays a match X with C; B is another contact of A. A's user opens the game in B's chat: a new
- * frame over the same records. Returns A's phone in B's chat (`ab`, its table `tab`), B's phone
- * (`b`, `tb`), and the match as A keeps it.
+ * frame over the same records, in the conversation with B. Returns A's phone in B's chat (`ab`,
+ * its table `tab`), B's phone (`b`, `tb`), and match X as A keeps it in the conversation with C.
  */
-async function aMatchWithCOpenedInBsChat() {
+async function aMatchWithCAndAFrameInBsChat({ records } = {}) {
   const { first, second } = await started();
-  // Make it A's turn: A is the phone that does not start, after C's first move.
   const [ta, tc] = [second, first];
   await tc.play("p");
   await settle(ta, tc);
@@ -459,105 +443,107 @@ async function aMatchWithCOpenedInBsChat() {
   ta.core.closed = true;
   ta.core.wire = () => {};
   ta.stopTimers();
-  const ab = fakeCore({ records: ta.core.records });
-  const b = fakeCore();
+  const ab = fakeCore({ records: records ?? ta.core.records, chat: "a-with-b" });
+  const b = fakeCore({ chat: "b-with-a" });
   wire(ab, b);
   const tab = await table(ab);
   const tb = await table(b);
-  return { ta, tc, x, ab, tab, b, tb, ids: [x.me, peerOf(x)] };
+  return { ta, tc, x, ac: ta.core, ab, tab, b, tb, ids: [x.me, peerOf(x)] };
 }
 
-describe("a match opened in the chat of someone who is not in it", () => {
-  it("tells that contact nothing of the match: no game, no ids, no moves, even after a move", async () => {
-    const { x, ab, tab, b, tb, ids } = await aMatchWithCOpenedInBsChat();
-    expect(tab.matches.map((one) => one.record.id)).toContain(x.id);
+describe("a match belongs to its conversation", () => {
+  it("is listed, and can be entered, only in its own conversation", async () => {
+    const { x, ac, ab, tab, tb } = await aMatchWithCAndAFrameInBsChat();
+    expect(tab.matches).toEqual([]);
     await tab.enter(x.id);
     await settle(tab, tb);
-    expect(tab.view.myTurn).toBe(true);
-    await tab.play("p");
-    await settle(tab, tb);
-    await vi.advanceTimersByTimeAsync(60_000);
-    await settle(tab, tb);
-    const told = sentBy(ab);
-    expect(told.length).toBeGreaterThan(0);
-    for (const one of told) {
-      expect(one, JSON.stringify(one)).not.toHaveProperty("game");
-      for (const id of ids) expect(JSON.stringify(one)).not.toContain(id);
-    }
-    // The move is kept here, pending, and the user is told the match is not on that phone.
-    expect(tab.record.game.moves).toHaveLength(2);
-    expect(tab.view.pending).toBe(1);
-    expect(tab.notice).toEqual({ key: "denied" });
-    expect(b.records.size).toBe(0);
-    expect(tb.screen).toBe("list");
-  });
-
-  it("takes nothing from that contact, opens nothing, and answers it no more than for a match it does not have", async () => {
-    const { x, ab, tab, ids } = await aMatchWithCOpenedInBsChat();
-    const [aId, cId] = ids;
-    const kept = ab.records.get(`game/${x.id}`);
-    // Even knowing both ids, B cannot play for C, resign for C, or open the match.
-    const forged = { ...x.game, moves: [...x.game.moves, "p"] };
-    await ab.hear(message({ k: "state", doc: x.id, who: cId, game: forged }));
-    await ab.hear(message({ k: "state", doc: x.id, who: cId, game: { ...x.game, moves: [...x.game.moves, { x: "resign", by: cId }] } }));
-    await ab.hear(message({ k: "sync", doc: x.id, who: cId, game: forged }));
-    await tab.idle();
-    await settle(tab);
-    expect(ab.records.get(`game/${x.id}`)).toBe(kept);
     expect(tab.screen).toBe("list");
     expect(ab.sent).toEqual([]);
-    // What a known match and an unknown one get back is the same.
-    const answers = async (doc) => {
-      const before = ab.sent.length;
-      await ab.hear(message({ k: "hello", doc, who: "zz", game: 0 }));
-      await ab.hear(message({ k: "hello", doc, who: "zz" }));
-      await ab.hear(message({ k: "hello", doc, who: "zz" }));
-      await ab.hear(message({ k: "state", doc, who: cId, game: forged }));
-      await settle(tab);
-      return sentBy(ab).slice(before);
-    };
-    const known = await answers(x.id);
-    const unknown = await answers("nosuchmatch00001");
-    const shape = (list) => list.map((one) => ({ k: one.k, keys: Object.keys(one).sort().join(","), proof: typeof one.proof, again: one.who === list[1]?.who }));
-    expect(shape(known)).toEqual(shape(unknown));
-    for (const one of known) {
-      expect(one).not.toHaveProperty("game");
-      expect(JSON.stringify(one)).not.toContain(aId);
-    }
-    expect(tab.screen).toBe("list");
-    expect(ab.records.get(`game/${x.id}`)).toBe(kept);
-  });
-
-  it("does not tell that contact it is busy with that match, nor who it is", async () => {
-    const { x, ab, tab, ids } = await aMatchWithCOpenedInBsChat();
-    const [aId, cId] = ids;
+    // A match with B is kept in the conversation with B, and shown only there.
     await tab.newMatch();
-    await settle(tab);
-    const before = ab.sent.length;
-    await ab.hear(message({ k: "state", doc: x.id, who: cId, game: { ...x.game, moves: [...x.game.moves, "p"] } }));
-    await settle(tab);
-    expect(sentBy(ab).slice(before)).toEqual([]);
-    expect(tab.prompt).toBeNull();
-    expect(JSON.stringify(sentBy(ab))).not.toContain(aId);
+    await settle(tab, tb);
+    const withB = tab.record.id;
+    await tab.leave();
+    expect(tab.matches.map((one) => one.record.id)).toEqual([withB]);
+    const again = await table(fakeCore({ records: ac.records, chat: ac.chat }));
+    expect(again.matches.map((one) => one.record.id)).toEqual([x.id]);
   });
 
-  it("still delivers the move made there once A opens the game in C's chat again", async () => {
-    const { tc, x, tab, ab } = await aMatchWithCOpenedInBsChat();
-    await tab.enter(x.id);
-    await tab.play("p");
+  it("shows and starts nothing outside a conversation", async () => {
+    const { ac } = await aMatchWithCAndAFrameInBsChat();
+    const keys = [...ac.records.keys()];
+    const away = await table(fakeCore({ records: ac.records }), { chat: undefined });
+    expect(away.matches).toEqual([]);
+    await away.newMatch();
+    expect(away.notice).toEqual({ key: "needsChat" });
+    expect(away.screen).toBe("list");
+    expect([...ac.records.keys()]).toEqual(keys);
+    const odd = await table(fakeCore({ records: ac.records }), { chat: "not/a/chat" });
+    expect(odd.matches).toEqual([]);
+  });
+
+  it("answers another contact that names it exactly as for a match that does not exist", async () => {
+    // The same phone twice, so each probe meets the same state.
+    const first = await aMatchWithCAndAFrameInBsChat();
+    const { x, ac } = first;
+    const kept = ac.records.get(`game/${ac.chat}/${x.id}`);
+    const probe = async (doc) => {
+      const copy = new Map(ac.records);
+      const ab = fakeCore({ records: copy, chat: "a-with-b" });
+      const b = fakeCore({ chat: "b-with-a" });
+      wire(ab, b);
+      const tab = await table(ab);
+      for (const fields of [
+        { k: "state", who: x.game.b, game: { ...x.game, moves: [...x.game.moves, "p"] } },
+        { k: "sync", who: x.game.b, game: x.game },
+        { k: "commit", who: x.game.b, game: x.game },
+        { k: "bye", who: x.game.b },
+        { k: "busy", who: x.game.b },
+        { k: "hello", who: x.game.b, game: { ...x.game } },
+        { k: "hello", who: "zz", game: 0 },
+        { k: "hello", who: "bbbbbbbbbbbbbbbb", game: { a: "bbbbbbbbbbbbbbbb", b: null, first: null, toss: {}, moves: [], end: null } },
+      ]) {
+        await ab.hear(message({ doc, ...fields }));
+        await settle(tab);
+      }
+      await settle(tab);
+      return { said: plain(sentBy(ab)).split(doc).join("DOC"), copy, tab };
+    };
+    const known = await probe(x.id);
+    const unknown = await probe("nosuchmatch00001");
+    expect(known.said).toBe(unknown.said);
+    // X with C is untouched; the invitation made a match of its own, in the conversation with B.
+    expect(known.copy.get(`game/${ac.chat}/${x.id}`)).toBe(kept);
+    expect(known.tab.record.id).toBe(x.id);
+    expect(known.tab.record.game.a).toBe("bbbbbbbbbbbbbbbb");
+    expect(JSON.stringify(sentBy(first.ab))).not.toContain(x.game.a);
+  });
+
+  it("is deleted in its own conversation only, even when another has a match with the same id", async () => {
+    const { x, ac, ab, tab, b } = await aMatchWithCAndAFrameInBsChat();
+    await ab.hear(message({ k: "hello", doc: x.id, who: "bbbbbbbbbbbbbbbb", game: { a: "bbbbbbbbbbbbbbbb", b: null, first: null, toss: {}, moves: [], end: null } }));
     await settle(tab);
+    expect(ab.records.has(`game/a-with-b/${x.id}`)).toBe(true);
     await tab.leave();
-    ab.closed = true;
-    ab.wire = () => {};
-    tab.stopTimers();
-    // Back in C's chat: a new frame again, over the same records.
-    const ac = fakeCore({ records: ab.records });
-    wire(ac, tc.core);
-    const again = await table(ac);
-    await again.enter(x.id);
-    await settle(again, tc);
-    expect(tc.record.game.moves).toEqual([...x.game.moves, "p"]);
-    expect(again.view.pending).toBe(0);
-    expect(again.notice).toBeNull();
+    await tab.remove(x.id);
+    expect(ab.records.has(`game/a-with-b/${x.id}`)).toBe(false);
+    expect(ac.records.has(`game/${ac.chat}/${x.id}`)).toBe(true);
+    void b;
+  });
+
+  it("never says which conversation it is in", async () => {
+    const { a, b, ta, tb, first } = await started();
+    await first.play("p");
+    await settle(ta, tb);
+    await ta.leave();
+    await ta.enter(tb.record.id);
+    await settle(ta, tb);
+    await ta.resign();
+    await settle(ta, tb);
+    for (const core of [a, b]) {
+      const all = JSON.stringify(sentBy(core));
+      for (const chat of [a.chat, b.chat]) expect(all).not.toContain(chat);
+      for (const one of sentBy(core)) expect(one).not.toHaveProperty("chat");
+    }
   });
 });

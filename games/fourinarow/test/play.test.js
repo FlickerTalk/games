@@ -88,7 +88,7 @@ describe("Four in a Row between two phones", () => {
     await touch(x, '[data-kit="send"]');
     expect(x.ft.say).toHaveBeenCalledWith("🔴 Four in a Row: a draw, 1–0 · draws: 1");
     // Everything was saved before the result went out: the plugin closes with `say`.
-    const kept = JSON.parse((x.ft === a.ft ? a : b).records.get(`game/${x.table.record.id}`));
+    const kept = JSON.parse((x.ft === a.ft ? a : b).records.get(`game/${(x.ft === a.ft ? a : b).chat}/${x.table.record.id}`));
     expect(kept.game.moves).toHaveLength(7 + 1 + 42);
   });
 

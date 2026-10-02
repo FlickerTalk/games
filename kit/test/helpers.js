@@ -7,22 +7,31 @@ import { expect, vi } from "vitest";
 
 export { toy } from "./toy.js";
 
+/** The conversation each phone's records were last opened in, so a frame opened again over the
+ *  same records (the user coming back) is in the same conversation unless a test says otherwise. */
+const lastChat = new WeakMap();
+let chats = 0;
+
 /**
- * One phone's core as the frame's `ft` answers it: records and the store in memory, `live.send`
- * handed to `wire` (or answering `true` into the void), `say` and `close` recorded.
+ * One phone's core as the frame's `ft` answers it, open in one conversation (`chat`, as `onOpen`
+ * gives it: local, different on each phone): records and the store in memory, `live.send` handed
+ * to `wire` (or answering `true` into the void), `say` and `close` recorded.
  */
-export function fakeCore({ records = new Map(), quota = 4 * 1024 * 1024 } = {}) {
+export function fakeCore({ records = new Map(), quota = 4 * 1024 * 1024, chat } = {}) {
+  chat ??= lastChat.get(records) ?? `chat${(chats += 1).toString().padStart(4, "0")}`;
+  lastChat.set(records, chat);
   const openers = [];
   const hearers = [];
   const core = {
     records,
+    chat,
     sent: [],
     said: [],
     wire: null,
     reachable: true,
     /** Opens the plugin, as the app does with `ft.open`. */
     open: (opening = {}) =>
-      Promise.all(openers.map((handler) => handler({ text: "", dark: false, lang: "en", file: null, ref: null, reminder: null, live: true, ...opening }))),
+      Promise.all(openers.map((handler) => handler({ text: "", dark: false, lang: "en", file: null, ref: null, reminder: null, live: true, chat, ...opening }))),
     /** What the other phone's twin said reaches this one. */
     hear: async (data) => {
       for (const handler of hearers) await handler(data);
@@ -60,7 +69,8 @@ export function fakeCore({ records = new Map(), quota = 4 * 1024 * 1024 } = {}) 
 }
 
 /**
- * Two phones in one conversation: what one sends, the other hears, if its twin is open there.
+ * Two phones in one conversation (each with its own `chat` id for it, as in the app): what one
+ * sends, the other hears, if its twin is open there.
  * Delivery is a task later, as over the real channel; `settle()` lets everything in flight land.
  */
 export function phones(aOptions = {}, bOptions = {}) {
