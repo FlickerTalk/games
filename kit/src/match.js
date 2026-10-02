@@ -12,6 +12,8 @@ export const PREFIX = "game/";
 export const RECORD = 1;
 
 const HEX64 = /^[0-9a-f]{64}$/;
+/** 32 bytes in hex, and nothing that only looks like it once turned into a string (a list…). */
+const isHex64 = (value) => typeof value === "string" && HEX64.test(value);
 const ALPHABET = "abcdefghijklmnopqrstuvwxyz0123456789";
 
 /** A random plain id: 16 letters and digits. */
@@ -158,14 +160,14 @@ async function mergeToss(next, theirs) {
     game.end = { k: "invalid", by: game.a };
   };
   if (me === game.a) {
-    if (toss.c && !toss.s && HEX64.test(said.s ?? "")) toss.s = said.s;
+    if (toss.c && !toss.s && isHex64(said.s)) toss.s = said.s;
     return;
   }
-  if (said.c !== undefined && toss.c && said.c !== toss.c) return invalid();
-  if (!toss.c && !toss.s && HEX64.test(said.c ?? "")) toss.c = said.c;
-  if (toss.c && toss.s && !toss.r && said.r !== undefined) {
-    const r = HEX64.test(said.r) ? fromHex(said.r) : null;
-    if (!r || !(await verifyCoin(next.id, r, toss.c))) return invalid();
+  if (isHex64(said.c) && toss.c && said.c !== toss.c) return invalid();
+  if (!toss.c && !toss.s && isHex64(said.c)) toss.c = said.c;
+  if (toss.c && toss.s && !toss.r && isHex64(said.r)) {
+    const r = fromHex(said.r);
+    if (!(await verifyCoin(next.id, r, toss.c))) return invalid();
     toss.r = said.r;
     game.first = (await coinToss(next.id, r, fromHex(toss.s))) === 0 ? game.a : game.b;
   }

@@ -120,6 +120,32 @@ describe("the coin toss", () => {
   });
 });
 
+describe("a coin from a phone that does not play fair", () => {
+  it("takes no coin value that is not a hex string, and can still finish the toss", async () => {
+    let a = newMatch({ g: "toy", gv: 1, id: "m1", me: "wa" });
+    let b = (await merge(null, a.game, toy, { me: "wb", from: "wa", g: "toy", gv: 1, id: "m1" })).record;
+    a = (await merge(a, b.game, toy, { from: "wb" })).record;
+    a = (await tossStep(a, { random: () => bytes(1) })).record;
+    const fresh = structuredClone(b);
+    b = (await merge(b, a.game, toy, { from: "wa" })).record;
+    b = (await tossStep(b, { random: () => bytes(2) })).record;
+    // The seed wrapped in a list passes a regular expression, and would break every later step.
+    const odd = await merge(a, { ...b.game, toss: { ...b.game.toss, s: [b.game.toss.s] } }, toy, { from: "wb" });
+    expect(odd.record.game.toss.s).toBeUndefined();
+    expect((await tossStep(odd.record)).send).toBeNull();
+    a = (await merge(odd.record, b.game, toy, { from: "wb" })).record;
+    expect((await tossStep(a)).send).toBe("reveal");
+    // The other way: a commitment or a reveal that is not a string is not taken either.
+    const listed = await merge(fresh, { ...a.game, toss: { c: [a.game.toss.c] } }, toy, { from: "wa" });
+    expect(listed.record.game.toss.c).toBeUndefined();
+    const revealed = (await tossStep(a)).record;
+    const wrapped = await merge(b, { ...revealed.game, toss: { ...revealed.game.toss, r: [revealed.game.toss.r] } }, toy, { from: "wa" });
+    expect(wrapped.record.game.toss.r).toBeUndefined();
+    expect(wrapped.record.game.end).toBeNull();
+    expect((await merge(b, revealed.game, toy, { from: "wa" })).record.game.first).toBe(revealed.game.first);
+  });
+});
+
 describe("replaying a match through the rules", () => {
   it("checks every move from the first, side by side, and tells who made each", async () => {
     const { a } = await tossed("wa");
