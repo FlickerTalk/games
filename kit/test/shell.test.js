@@ -218,7 +218,7 @@ describe("a match between two phones", () => {
   });
 
   it("while nobody is on the other side, says what to do — and stops saying it once they are there", async () => {
-    const HINT = "The other person has to open this game too. To invite them, close the game and tap 🎮 and then 📨 in the chat.";
+    const HINT = "The other person has to open this game too. To invite them, close the game, open the apps button in the chat and tap 🎮 and then 📨.";
     const { a, b } = phones();
     b.closed = true;
     const one = await phone(a);
