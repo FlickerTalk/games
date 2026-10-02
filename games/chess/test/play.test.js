@@ -223,3 +223,32 @@ describe("chess between two phones", () => {
     expect(weight).toBeLessThan(MATCH_LIMIT / 10);
   }, 30_000);
 });
+
+describe("chess with nobody on the other side", () => {
+  it("keeps the same timeline as every game: waiting at once, the notice at 8 s, a hello every 23 s, eight times", async () => {
+    const { a, b } = phones();
+    b.closed = true;
+    const one = await phone(a);
+    const start = Date.now();
+    const hellos = [];
+    const send = a.ft.live.send;
+    a.ft.live.send = vi.fn(async (data) => {
+      if (decode(data).k === "hello") hellos.push(Date.now() - start);
+      return send(data);
+    });
+    one.querySelector('[data-kit="new"]').click();
+    await settle([one.table]);
+    expect(text(one)).toContain("Waiting for the other person");
+    await vi.advanceTimersByTimeAsync(8_100 - (Date.now() - start));
+    await settle([one.table]);
+    expect(text(one)).toContain("The other person does not have “Chess” open in this conversation.");
+    for (let second = 0; second < 300; second += 1) {
+      await vi.advanceTimersByTimeAsync(1_000);
+      await settle([one.table], 2);
+    }
+    const gaps = hellos.slice(1).map((at, index) => at - hellos[index]);
+    expect(hellos[0]).toBeLessThan(100);
+    expect(hellos).toHaveLength(9);
+    for (const gap of gaps) expect(gap).toBeGreaterThanOrEqual(23_000), expect(gap).toBeLessThan(23_200);
+  }, 30_000);
+});

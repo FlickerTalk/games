@@ -668,3 +668,49 @@ describe("each path the reviews flagged, with every match in its conversation", 
     expect(tb.view.phase).toBe("play");
   });
 });
+
+describe("a core or a board that misbehaves", () => {
+  it("tells the user after 8 s even while the core is still trying to send, and tries again once it took the hello", async () => {
+    const core = fakeCore();
+    // The core keeps the first hello for 40 s (it is trying to reach the other phone), then takes it.
+    let first = true;
+    core.ft.live.send = vi.fn((data) => {
+      core.sent.push(data);
+      if (!first) return Promise.resolve(true);
+      first = false;
+      return new Promise((resolve) => setTimeout(() => resolve(true), 40_000));
+    });
+    const one = await table(core);
+    await one.newMatch();
+    await vi.advanceTimersByTimeAsync(8_100);
+    await settle(one);
+    expect(one.notice).toEqual({ key: "notOpen" });
+    expect(kinds(core)).toEqual(["hello"]);
+    // The core takes it at 40 s; nobody answers; the next hello follows 15 s later.
+    await vi.advanceTimersByTimeAsync(32_000 + 15_100);
+    await settle(one);
+    expect(kinds(core)).toEqual(["hello", "hello"]);
+  });
+
+  it("keeps working after drawing the screen failed once", async () => {
+    const core = fakeCore();
+    let failed = false;
+    const one = new Table({
+      ft: core.ft,
+      game: toy,
+      app: "1.0.0",
+      t,
+      onChange: () => {
+        if (failed) return;
+        failed = true;
+        throw new Error("the board could not be drawn");
+      },
+    });
+    await core.open({});
+    await one.idle().catch(() => {});
+    await one.newMatch();
+    await settle(one);
+    expect(one.screen).toBe("match");
+    expect(kinds(core)).toEqual(["hello"]);
+  });
+});

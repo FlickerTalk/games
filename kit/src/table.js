@@ -57,6 +57,8 @@ export class Table {
     this.timers = { ack: null, reveal: null, retry: null };
     this.retries = 0;
     this.lastSendOk = false;
+    this.sending = 0;
+    this.waitedOut = null;
     this.queue = Promise.resolve();
     ft.onOpen((opening) => this.run(() => this.opened(opening)));
     ft.live?.onMessage?.((data) => this.run(() => this.heard(data)));
@@ -73,7 +75,14 @@ export class Table {
       this.notice = { key: "error" };
       globalThis.console?.warn?.("game:", error?.message ?? error);
     });
-    this.queue = next.finally(() => this.onChange());
+    // A screen that could not be drawn is said, never left to stop everything after it.
+    this.queue = next.finally(() => {
+      try {
+        this.onChange();
+      } catch (error) {
+        globalThis.console?.warn?.("game: drawing:", error?.message ?? error);
+      }
+    });
     return this.queue;
   }
 
@@ -288,6 +297,13 @@ export class Table {
       return;
     }
     if (kind === "hello" && !this.peerHere) this.connecting = true;
+    // The answer is waited for from now: a core still trying to reach the other phone (it can
+    // take a while) must not leave the user with nothing said.
+    if (ASKING.includes(kind)) {
+      this.stop("ack");
+      this.timers.ack = setTimeout(() => this.run(() => this.unanswered(record.id)), this.timing.ack);
+    }
+    this.sending += 1;
     Promise.resolve(this.ft.live.send(data)).then(
       (ok) => this.run(() => this.sent(kind, record.id, ok)),
       () => this.run(() => this.sent(kind, record.id, false)),
@@ -301,20 +317,21 @@ export class Table {
   }
 
   sent(kind, id, ok) {
+    this.sending -= 1;
     if (this.record?.id !== id) return;
     if (!ok) {
       this.lastSendOk = false;
       this.peerHere = false;
       this.connecting = false;
+      this.waitedOut = null;
+      this.stop("ack");
       this.stop("retry");
       if (kind !== "bye") this.notice = { key: "unreachable" };
       return;
     }
     this.lastSendOk = true;
-    if (ASKING.includes(kind)) {
-      this.stop("ack");
-      this.timers.ack = setTimeout(() => this.run(() => this.unanswered(id)), this.timing.ack);
-    }
+    // Nobody answered while the core still held the hello: now that it took it, try again later.
+    if (this.waitedOut === id && !this.sending && !this.peerHere) this.retryLater(id);
   }
 
   unanswered(id) {
@@ -323,8 +340,16 @@ export class Table {
     this.peerHere = false;
     this.connecting = false;
     this.notice = { key: "notOpen" };
-    // While the user waits here, say hello again now and then, but only over a channel that took
-    // the last message: a hello without a connection would wake the other phone.
+    if (this.sending) this.waitedOut = id;
+    else this.retryLater(id);
+  }
+
+  /**
+   * While the user waits here, say hello again now and then, but only over a channel that took the
+   * last message: a hello without a connection would wake the other phone.
+   */
+  retryLater(id) {
+    this.waitedOut = null;
     if (this.lastSendOk && this.retries < this.timing.retries && !this.timers.retry) {
       this.timers.retry = setTimeout(
         () =>
