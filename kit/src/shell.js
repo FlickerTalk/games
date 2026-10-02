@@ -51,6 +51,20 @@ export function elementFor(game) {
   const translate = translator(joinTexts(KIT_TEXTS, game.texts ?? {}));
 
   return class GameElement extends HTMLElement {
+    disconnectedCallback() {
+      this.letBoardGo();
+      this.shown = null;
+    }
+
+    /** The board leaves the screen: it may let go of what it holds (`destroy`, optional). */
+    letBoardGo() {
+      try {
+        this.board?.destroy?.();
+      } finally {
+        this.board = null;
+      }
+    }
+
     connectedCallback() {
       if (this.table) return;
       addStyle(game.style);
@@ -120,9 +134,9 @@ export function elementFor(game) {
       root.setAttribute("lang", this.lang);
       root.toggleAttribute("data-dark", table.dark);
       const shown = table.screen === "match" && table.record ? `match:${table.record.id}` : "list";
+      if (shown !== this.shown) this.letBoardGo();
       if (shown === "list") {
         this.shown = shown;
-        this.board = null;
         root.innerHTML = this.listHtml() + this.dialogHtml();
         return;
       }
@@ -266,8 +280,18 @@ export function elementFor(game) {
       return {
         big: result.winner === null ? "🤝" : won ? "🏆" : "😅",
         title: result.winner === null ? t("draw") : won ? t("youWon") : t("youLost"),
-        how: result.k === "resign" ? (result.by === seen.me ? t("youResigned") : t("theyResigned")) : "",
+        how: result.k === "resign" ? (result.by === seen.me ? t("youResigned") : t("theyResigned")) : this.why(result),
       };
+    }
+
+    /** Why a round ended by the rules, in the game's own words (`game.how`, optional). */
+    why(result) {
+      if (result.k !== "rules" || typeof game.how !== "function") return "";
+      try {
+        return String(game.how(result.result, this.t) ?? "");
+      } catch {
+        return "";
+      }
     }
 
     /** The end of a round: how it ended if it was a resignation, the way to the chat, another round. */

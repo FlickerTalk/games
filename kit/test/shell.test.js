@@ -6,7 +6,7 @@ import { defineGame } from "../src/index.js";
 import { fakeCore, phones, settle, toy } from "./helpers.js";
 
 /** A board with three buttons, one per toy move; it counts how often it was built and told. */
-const built = { mounts: 0, updates: 0 };
+const built = { mounts: 0, updates: 0, destroyed: 0 };
 const toyBoard = {
   mount(host, ctx) {
     built.mounts += 1;
@@ -23,6 +23,9 @@ const toyBoard = {
         built.updates += 1;
         paint(next);
       },
+      destroy() {
+        built.destroyed += 1;
+      },
     };
   },
 };
@@ -33,6 +36,8 @@ defineGame({
   app: "1.0.0",
   sides: ["🔺", "🔵"],
   board: toyBoard,
+  // Why a round ended, in the game's words (optional).
+  how: (result, t) => (result.winner === null ? `${t("name")} level` : `${t("name")} won with w`),
   texts: { en: { name: "Toy" }, es: { name: "Juguete" }, ar: { name: "لعبة" } },
 });
 
@@ -57,10 +62,12 @@ const press = async (element, selector) => {
 const text = (element) => element.textContent.replace(/\s+/g, " ");
 
 beforeEach(() => {
+  vi.useFakeTimers();
+  // Clearing the page lets the last test's boards go: count from after that.
+  document.body.innerHTML = "";
   built.mounts = 0;
   built.updates = 0;
-  vi.useFakeTimers();
-  document.body.innerHTML = "";
+  built.destroyed = 0;
   globalThis.confirm = vi.fn(() => true);
   globalThis.alert = vi.fn();
   globalThis.prompt = vi.fn();
@@ -158,6 +165,24 @@ describe("a match between two phones", () => {
     // The board was built once for the match and told of every change since.
     expect(built.mounts).toBe(2);
     expect(built.updates).toBeGreaterThan(3);
+  });
+
+  it("says why a round ended in the game's words, and lets the board go when it leaves the screen", async () => {
+    const { a, b } = phones();
+    const one = await phone(a);
+    const two = await phone(b);
+    await press(one, '[data-kit="new"]');
+    await tick();
+    const [first, second] = one.table.view.myTurn ? [one, two] : [two, one];
+    await press(first, '[data-move="w"]');
+    await tick();
+    expect(text(first)).toContain("Toy won with w");
+    expect(text(second)).toContain("Toy won with w");
+    expect(built.destroyed).toBe(0);
+    await press(first, '[data-kit="back"]');
+    expect(built.destroyed).toBe(1);
+    second.remove();
+    expect(built.destroyed).toBe(2);
   });
 
   it("resigns only after asking inside the plugin", async () => {

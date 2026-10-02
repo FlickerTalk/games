@@ -94,6 +94,7 @@ defineGame({ id: "tictactoe", gv: 1, tag: manifest.components[0], app: manifest.
 | `texts` | `{ lang: { key: text } }` with at least `name` (the game's name in each language). |
 | `sides` | Optional: two HTML snippets (trusted, the game's own), the marks of side 0 and side 1, shown on the players' chips and the turn line. |
 | `style` | Optional: CSS text added to the page once (import a `.css` file: the build passes it as text). |
+| `how(result, t)` | Optional: why a round ended by the rules, in the game's words (“checkmate”, “stalemate”), shown with the result; `result` is what `result(state)` returned. |
 | `summary(view, { t, lang, name, icon, record })` | Optional: the text sent to the chat. Without it: `⭕ Tic-Tac-Toe: I won, 3–2 · draws: 1`, in the sender's language. |
 
 A **move** is a JSON number or a short string (≤ 64 characters): a cell index, a column, `e7e8q`.
@@ -103,7 +104,8 @@ and deterministic.
 ### The board
 
 `board.mount(host, context)` is called once when a match opens; `update(context)` after every change
-(a move from either side, a new round, a message). The board draws into `host` (light DOM: no shadow
+(a move from either side, a new round, a message); `destroy()`, if the board has it, when the match
+leaves the screen or the game closes, to let go of listeners and timers. The board draws into `host` (light DOM: no shadow
 root, so a library that needs `document` or `<use href="#id">` works) and never talks to the other
 phone. `host` is always `dir="ltr"`: boards are not mirrored in Arabic.
 
