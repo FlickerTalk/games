@@ -6,7 +6,8 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { buildGame } from "../../../kit/build.js";
-import { checkDist, checkManifest } from "../../../kit/test/helpers.js";
+import { checkDist, checkLocales, checkManifest } from "../../../kit/test/helpers.js";
+import { TEXTS } from "../src/texts.js";
 import { BRANDS } from "./brands.js";
 
 const dir = join(import.meta.dirname, "..");
@@ -14,8 +15,13 @@ const dir = join(import.meta.dirname, "..");
 describe("the Four in a Row package", () => {
   it("says it is a game that needs the core 1.3.0, the live channel and sending, and nothing else", () => {
     const manifest = checkManifest(dir, { id: "com.flickertalk.game.fourinarow", name: "Four in a Row", component: "ft-fourinarow" });
-    expect(manifest.version).toBe("1.0.0");
+    expect(manifest.version).toBe("1.0.1");
     for (const brand of BRANDS) expect(`${manifest.name} ${manifest.summary}`).not.toMatch(brand);
+  });
+
+  it("names and describes itself in the app's other 20 languages, the name its own title there", () => {
+    const manifest = checkManifest(dir, { id: "com.flickertalk.game.fourinarow", name: "Four in a Row", component: "ft-fourinarow" });
+    checkLocales(manifest, TEXTS, { brands: BRANDS });
   });
 
   it("carries in dist/ exactly what src/ builds", async () => {

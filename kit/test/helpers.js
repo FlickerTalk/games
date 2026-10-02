@@ -110,9 +110,38 @@ export function checkManifest(dir, { id, name, component }) {
     components: [component],
     permissions: { live: true, send: "propose" },
     summary: expect.any(String),
+    // The name and summary in other languages (plugin-sdk's module.schema.json): optional.
+    ...("locales" in manifest ? { locales: expect.any(Object) } : {}),
   });
   expect(manifest.summary.length).toBeGreaterThan(10);
   return manifest;
+}
+
+/** The app's languages other than English, which is the manifest's top level. */
+export const LOCALES = ["es", "pt", "fr", "de", "it", "ro", "ru", "uk", "pl", "tr", "ar", "hi", "bn", "id", "vi", "th", "ja", "ko", "zh-CN", "zh-TW"];
+
+/**
+ * The manifest's `locales`, what the app shows in the phone's language: every one of the app's 20
+ * other languages, each with a summary and with the game's own title as its name (`texts`, the
+ * game's TEXTS), within the SDK's limits (64 and 200 characters), and no brand in any of them.
+ */
+export function checkLocales(manifest, texts, { brands = [] } = {}) {
+  const locales = manifest.locales;
+  expect(locales, "module.json has no locales").toBeTypeOf("object");
+  expect(Object.keys(locales).sort()).toEqual([...LOCALES].sort());
+  const length = (text) => [...text].length;
+  for (const lang of LOCALES) {
+    const { name, summary, ...rest } = locales[lang];
+    expect(rest, lang).toEqual({});
+    expect(name, `${lang}.name`).toBe(texts[lang].name);
+    expect(name.trim(), `${lang}.name`).not.toBe("");
+    expect(length(name), `${lang}.name`).toBeLessThanOrEqual(64);
+    expect(summary, `${lang}.summary`).toBeTypeOf("string");
+    expect(summary.trim(), `${lang}.summary`).not.toBe("");
+    expect(length(summary), `${lang}.summary`).toBeLessThanOrEqual(200);
+    for (const brand of brands) expect(`${name} ${summary}`, lang).not.toMatch(brand);
+  }
+  return locales;
 }
 
 /** XML namespaces are names, not addresses: a browser never loads them. Nothing else may appear. */

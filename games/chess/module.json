@@ -1,7 +1,7 @@
 {
   "id": "com.flickertalk.game.chess",
   "name": "Chess",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "minCoreVersion": "1.3.0",
   "kind": "game",
   "components": [
@@ -11,5 +11,87 @@
     "live": true,
     "send": "propose"
   },
-  "summary": "Chess with the other person in the chat, over the direct connection between your phones."
+  "summary": "Chess with the other person in the chat, over the direct connection between your phones.",
+  "locales": {
+    "es": {
+      "name": "Ajedrez",
+      "summary": "Ajedrez con la otra persona del chat, por la conexión directa entre los dos teléfonos."
+    },
+    "pt": {
+      "name": "Xadrez",
+      "summary": "Xadrez com a outra pessoa da conversa, pela conexão direta entre os dois telefones."
+    },
+    "fr": {
+      "name": "Échecs",
+      "summary": "Échecs avec l’autre personne de la conversation, par la connexion directe entre vos deux téléphones."
+    },
+    "de": {
+      "name": "Schach",
+      "summary": "Schach mit der anderen Person im Chat, über die direkte Verbindung zwischen euren Telefonen."
+    },
+    "it": {
+      "name": "Scacchi",
+      "summary": "Scacchi con l’altra persona della chat, tramite la connessione diretta tra i vostri telefoni."
+    },
+    "ro": {
+      "name": "Șah",
+      "summary": "Șah cu cealaltă persoană din conversație, prin conexiunea directă dintre telefoanele voastre."
+    },
+    "ru": {
+      "name": "Шахматы",
+      "summary": "Шахматы с другим человеком из чата, через прямое соединение между вашими телефонами."
+    },
+    "uk": {
+      "name": "Шахи",
+      "summary": "Шахи з іншою людиною з чату, через пряме з’єднання між вашими телефонами."
+    },
+    "pl": {
+      "name": "Szachy",
+      "summary": "Szachy z drugą osobą z czatu, przez bezpośrednie połączenie między waszymi telefonami."
+    },
+    "tr": {
+      "name": "Satranç",
+      "summary": "Satranç: sohbetteki diğer kişiyle, telefonlarınız arasındaki doğrudan bağlantı üzerinden."
+    },
+    "ar": {
+      "name": "شطرنج",
+      "summary": "شطرنج مع الشخص الآخر في المحادثة، عبر الاتصال المباشر بين هاتفيكما."
+    },
+    "hi": {
+      "name": "शतरंज",
+      "summary": "चैट के दूसरे व्यक्ति के साथ शतरंज, आप दोनों के फ़ोन के बीच सीधे कनेक्शन पर।"
+    },
+    "bn": {
+      "name": "দাবা",
+      "summary": "চ্যাটের অন্যজনের সাথে দাবা, আপনাদের দুই ফোনের সরাসরি সংযোগের মাধ্যমে।"
+    },
+    "id": {
+      "name": "Catur",
+      "summary": "Catur dengan orang lain di obrolan, lewat koneksi langsung antara kedua ponsel."
+    },
+    "vi": {
+      "name": "Cờ vua",
+      "summary": "Cờ vua với người kia trong cuộc trò chuyện, qua kết nối trực tiếp giữa hai điện thoại."
+    },
+    "th": {
+      "name": "หมากรุกสากล",
+      "summary": "หมากรุกสากลกับอีกฝ่ายในแชท ผ่านการเชื่อมต่อโดยตรงระหว่างโทรศัพท์ของทั้งสองคน"
+    },
+    "ja": {
+      "name": "チェス",
+      "summary": "チャットの相手とチェス。2台の端末の直接接続で遊びます。"
+    },
+    "ko": {
+      "name": "체스",
+      "summary": "채팅 상대와 두 휴대폰 사이의 직접 연결로 즐기는 체스입니다."
+    },
+    "zh-CN": {
+      "name": "国际象棋",
+      "summary": "通过两部手机之间的直连，与聊天中的对方下国际象棋。"
+    },
+    "zh-TW": {
+      "name": "西洋棋",
+      "summary": "透過兩支手機之間的直接連線，與聊天中的對方下西洋棋。"
+    }
+  }
 }
