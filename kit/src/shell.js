@@ -37,6 +37,13 @@ const RETRY = ["notOpen", "unreachable", "left", "denied", "error"];
 /** Which phone did not reveal the coin in time, said as it is. */
 const abandonedBy = (seen) => (seen?.end?.by === seen?.me ? "abandonedYou" : "abandonedThem");
 
+/** Whether the app gave its colours (Ionic's variables on the frame's root): then they rule. */
+function appColours() {
+  const page = document.documentElement;
+  const value = getComputedStyle(page).getPropertyValue("--ion-background-color") || page.style.getPropertyValue("--ion-background-color");
+  return Boolean(value && value.trim());
+}
+
 /** The page's stylesheet, once: the kit's and the game's own. */
 function addStyle(extra = "") {
   if (document.head.querySelector("style[data-ftg]")) return;
@@ -133,6 +140,7 @@ export function elementFor(game) {
       root.setAttribute("dir", direction(this.lang));
       root.setAttribute("lang", this.lang);
       root.toggleAttribute("data-dark", table.dark);
+      root.toggleAttribute("data-themed", appColours());
       const shown = table.screen === "match" && table.record ? `match:${table.record.id}` : "list";
       if (shown !== this.shown) this.letBoardGo();
       if (shown === "list") {

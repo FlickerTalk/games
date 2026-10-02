@@ -327,6 +327,21 @@ describe("the look", () => {
     expect(ar.querySelector('[data-part="board"]').getAttribute("dir")).toBe("ltr");
   });
 
+  it("knows whether the app gave its colours, on every repaint", async () => {
+    const one = await phone(fakeCore());
+    const root = () => one.querySelector(".ftg");
+    expect(root().hasAttribute("data-themed")).toBe(false);
+    document.documentElement.style.setProperty("--ion-background-color", "#0d0b0a");
+    try {
+      one.paint();
+      expect(root().hasAttribute("data-themed")).toBe(true);
+    } finally {
+      document.documentElement.style.removeProperty("--ion-background-color");
+    }
+    one.paint();
+    expect(root().hasAttribute("data-themed")).toBe(false);
+  });
+
   it("gives every button a name in the user's language and a finger-sized target", async () => {
     const element = await phone(fakeCore(), { lang: "fr" });
     await press(element, '[data-kit="new"]');

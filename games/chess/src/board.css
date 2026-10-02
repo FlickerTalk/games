@@ -17,8 +17,15 @@
   z-index: 20;
 }
 
-/* The board fills the kit's square stage; the plugin sheet must not take a drag for a scroll. */
+/* The board fills the kit's square stage; the plugin sheet must not take a drag for a scroll. The
+   board's own colours are the game's art: wood-coloured squares and the marks, the same on every theme. */
 .ftc {
+  --art-light: #f0d9b5;
+  --art-dark: #b58863;
+  --art-move: #14551e;
+  --art-last: var(--art-last);
+  --art-pending: #6e6e6e;
+  --art-check: var(--art-check);
   position: absolute;
   inset: 0;
   overflow: hidden;
@@ -39,13 +46,13 @@
 
 /* The squares and their coordinates. */
 .cm-chessboard.ftc-theme .board .square.white {
-  fill: #f0d9b5;
+  fill: var(--art-light);
 }
 .cm-chessboard.ftc-theme .board .square.black {
-  fill: #b58863;
+  fill: var(--art-dark);
 }
 .cm-chessboard.ftc-theme .board .border {
-  fill: #b58863;
+  fill: var(--art-dark);
   stroke-width: 0;
 }
 .cm-chessboard.ftc-theme .coordinates .coordinate {
@@ -53,52 +60,52 @@
   user-select: none;
 }
 .cm-chessboard.ftc-theme .coordinates .coordinate.white {
-  fill: #b58863;
+  fill: var(--art-dark);
 }
 .cm-chessboard.ftc-theme .coordinates .coordinate.black {
-  fill: #f0d9b5;
+  fill: var(--art-light);
 }
 .ftg[data-dark] .ftc,
 :root[data-dark] .ftc {
   filter: brightness(0.88);
 }
 @media (prefers-color-scheme: dark) {
-  .ftc {
+  .ftg:not([data-themed]) .ftc {
     filter: brightness(0.88);
   }
 }
 
 /* The marks. */
 .cm-chessboard .markers .marker.ftc-pick {
-  fill: #14551e;
+  fill: var(--art-move);
   opacity: 0.45;
 }
 .cm-chessboard .markers .marker.ftc-last {
-  fill: #9bc700;
+  fill: var(--art-last);
   opacity: 0.45;
 }
 .cm-chessboard .markers .marker.ftc-pending {
-  fill: #6e6e6e;
+  fill: var(--art-pending);
   opacity: 0.4;
 }
 .cm-chessboard .markers .marker.ftc-move {
-  fill: #14551e;
+  fill: var(--art-move);
   opacity: 0.55;
 }
 .cm-chessboard .markers .marker.ftc-capture {
-  fill: #14551e;
+  fill: var(--art-move);
   opacity: 0.5;
 }
 .cm-chessboard .markers .marker.ftc-check {
-  fill: #e5231b;
+  fill: var(--art-check);
   opacity: 0.6;
 }
 
 /* The promotion dialog: four pieces on the kit's paper. */
 .cm-chessboard .promotion-dialog-group .promotion-dialog {
-  fill: var(--paper, #ffffff);
+  fill: var(--paper);
   fill-opacity: 0.96;
-  stroke: var(--line, rgba(0, 0, 0, 0.1));
+  stroke: var(--line);
 }
 .cm-chessboard .promotion-dialog-group .promotion-dialog-button-group {
   outline: none;
@@ -109,7 +116,7 @@
 }
 .cm-chessboard .promotion-dialog-group .promotion-dialog-button-group:focus-visible .promotion-dialog-button,
 .cm-chessboard .promotion-dialog-group .promotion-dialog-button:hover {
-  fill: var(--surface-2, #e6e6e6);
+  fill: var(--surface-2);
 }
 .cm-chessboard .promotion-dialog-group .piece {
   pointer-events: none;
