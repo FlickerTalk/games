@@ -12,6 +12,7 @@ const escape = (text) =>
   String(text).replace(/[&<>"']/g, (one) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[one]);
 
 const BACK = '<svg class="ftg-flip" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 4.5 7.5 12l7.5 7.5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const FLAG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 21V4m0 0h11.5l-2.5 4.25L17.5 12.5H6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 
 /** How each message looks: its icon, and whether it warns or only tells. */
 const NOTICES = {
@@ -127,12 +128,11 @@ export function elementFor(game) {
         this.shown = shown;
         root.innerHTML = `<header class="ftg-bar" data-part="bar"></header>
 <div class="ftg-main">
-  <div class="ftg-stage" data-part="stage"><div class="ftg-board" data-part="board"></div><div class="ftg-overlay" data-part="overlay"></div></div>
-  <div class="ftg-side">
-    <div class="ftg-players" data-part="players"></div>
-    <p class="ftg-status" role="status" aria-live="polite" data-part="status"></p>
-    <div data-part="banner"></div>
-  </div>
+  <div class="ftg-players" data-part="players"></div>
+  <p class="ftg-status" role="status" aria-live="polite" data-part="status"></p>
+  <div class="ftg-stage" data-part="stage"><div class="ftg-board" data-part="board" dir="ltr"></div><div class="ftg-overlay" data-part="overlay"></div></div>
+  <div class="ftg-result" data-part="result"></div>
+  <div class="ftg-banners" data-part="banner"></div>
 </div>
 <div data-part="dialog"></div>`;
         this.board = game.board.mount(root.querySelector('[data-part="board"]'), this.boardContext(seen));
@@ -143,10 +143,11 @@ export function elementFor(game) {
       part("bar").innerHTML = this.barHtml(seen);
       part("players").innerHTML = this.playersHtml(seen);
       const status = this.status(seen);
-      part("status").className = `ftg-status ${status.mine ? "mine" : "theirs"}`;
+      part("status").className = `ftg-status ${status.mine ? "mine" : "theirs"}${status.over ? " over" : ""}`;
       part("status").innerHTML = status.html;
       part("stage").classList.toggle("dim", ["invite", "toss", "ended", "broken"].includes(seen.phase));
       part("overlay").innerHTML = this.overlayHtml(seen);
+      part("result").innerHTML = this.resultHtml(seen);
       part("banner").innerHTML = this.bannerHtml(seen);
       part("dialog").innerHTML = this.dialogHtml();
     }
@@ -171,10 +172,10 @@ export function elementFor(game) {
     listHtml() {
       const t = this.t;
       const table = this.table;
-      const name = escape(t("name"));
       const newLabel = escape(t("newMatch"));
       const disabled = table.live ? "" : "disabled";
-      let html = `<header class="ftg-bar"><div class="ftg-title"><span class="ftg-logo" aria-hidden="true">${game.icon}</span><span>${name}</span></div><button class="ftg-btn primary" data-kit="new" aria-label="${newLabel}" title="${newLabel}" ${disabled}>＋</button></header>`;
+      // The app's own bar already shows the game's name: here, the matches and a new one.
+      let html = `<header class="ftg-bar"><h1 class="ftg-title">${escape(t("matches"))}</h1><button class="ftg-btn primary" data-kit="new" aria-label="${newLabel}" title="${newLabel}" ${disabled}>＋</button></header>`;
       html += this.bannerHtml(null);
       if (!table.live) html += `<p class="ftg-hint">💬 ${escape(t("needsChat", { game: t("name") }))}</p>`;
       if (!table.matches.length) {
@@ -207,7 +208,7 @@ export function elementFor(game) {
       const t = this.t;
       const can = this.table.live && seen.phase === "play" && !seen.fork;
       const score = `<span class="me">${this.number(seen.score.me)}</span><span class="dash">–</span><span class="them">${this.number(seen.score.them)}</span>`;
-      return `<button class="ftg-btn" data-kit="back" aria-label="${escape(t("back"))}" title="${escape(t("back"))}">${BACK}</button><div class="ftg-score" role="img" aria-label="${escape(`${t("score")} ${seen.score.me}–${seen.score.them}`)}">${score}</div><button class="ftg-btn" data-kit="resign" aria-label="${escape(t("resign"))}" title="${escape(t("resign"))}" ${can ? "" : "disabled"}>🏳️</button>`;
+      return `<button class="ftg-btn" data-kit="back" aria-label="${escape(t("back"))}" title="${escape(t("back"))}">${BACK}</button><div class="ftg-score" role="img" aria-label="${escape(`${t("score")} ${seen.score.me}–${seen.score.them}`)}">${score}</div><button class="ftg-btn" data-kit="resign" aria-label="${escape(t("resign"))}" title="${escape(t("resign"))}" ${can ? "" : "disabled"}>${FLAG}</button>`;
     }
 
     playersHtml(seen) {
@@ -216,13 +217,10 @@ export function elementFor(game) {
       const mark = (side) => (side === null || side === undefined ? "" : sides[side] ?? "");
       const mine = seen.mySide;
       const theirs = mine === null ? null : 1 - mine;
-      const chip = (who, side, name, wins, extra) =>
-        `<div class="ftg-player ${who}${extra}"${side === null ? "" : ` data-side="${side}"`}><span class="mark" aria-hidden="true">${mark(side)}</span><span class="who">${escape(name)}</span><span class="wins">${this.number(wins)}</span>${who === "them" ? '<span class="ftg-dot" aria-hidden="true"></span>' : ""}</div>`;
+      const chip = (who, side, name, extra) =>
+        `<div class="ftg-player ${who}${extra}"${side === null ? "" : ` data-side="${side}"`}><span class="mark" aria-hidden="true">${mark(side)}</span><span class="who">${escape(name)}</span>${who === "them" ? '<span class="ftg-dot" aria-hidden="true"></span>' : ""}</div>`;
       const turn = (who) => (seen.turn && seen.turn === who ? " turn" : "");
-      return (
-        chip("me", mine, t("you"), seen.score.me, turn(seen.me)) +
-        chip("them", theirs, t("them"), seen.score.them, `${turn(seen.peer)}${this.table.peerHere ? " here" : ""}`)
-      );
+      return chip("me", mine, t("you"), turn(seen.me)) + chip("them", theirs, t("them"), `${turn(seen.peer)}${this.table.peerHere ? " here" : ""}`);
     }
 
     /** The line that always says where the match stands, and honestly. */
@@ -230,14 +228,20 @@ export function elementFor(game) {
       const t = this.t;
       const game_ = t("name");
       const round = seen.index > 0 ? `${escape(t("round", { n: this.number(seen.index + 1) }))} · ` : "";
-      const line = (icon, text, mine = false) => ({ html: `<span aria-hidden="true">${icon}</span><span>${round}${escape(text)}</span>`, mine });
+      const line = (icon, text, mine = false) => ({ html: `<span class="icon" aria-hidden="true">${icon}</span><span>${round}${escape(text)}</span>`, mine });
+      const mark = (side) => (side === null ? "" : game.sides?.[side]) || "";
       if (seen.phase === "invite") return { html: `<span aria-hidden="true">⏳</span><span>${escape(t("waiting", { game: game_ }))}</span>`, mine: false };
       if (seen.phase === "toss") return { html: `<span aria-hidden="true">🪙</span><span>${escape(t("tossing"))}</span>`, mine: false };
       if (seen.phase === "ended" || seen.phase === "broken") return line("⛔", t("ended"));
-      if (seen.phase === "over") return line("🏁", t("over"));
+      if (seen.phase === "over") {
+        const { big, title } = this.outcome(seen);
+        return { ...line(big, title, seen.result.winner === seen.me), over: true };
+      }
       const fresh = seen.index === 0 && !seen.round.moves.length;
-      if (seen.myTurn) return fresh ? line("🪙", t("youStart"), true) : line("▶️", t("yourTurn"), true);
-      return fresh ? line("🪙", t("theyStart")) : line("⏳", t("theirTurn"));
+      const mine = mark(seen.mySide) || "▶️";
+      const theirs = mark(1 - seen.mySide) || "⏳";
+      if (seen.myTurn) return fresh ? line("🪙", t("youStart"), true) : line(mine, t("yourTurn"), true);
+      return fresh ? line("🪙", t("theyStart")) : line(theirs, t("theirTurn"));
     }
 
     overlayHtml(seen) {
@@ -248,17 +252,30 @@ export function elementFor(game) {
         const why = seen.end?.k === "invalid" ? t("invalid") : seen.end?.k === "abandoned" ? t("abandoned") : t("ended");
         return `<div class="ftg-card"><div class="ftg-big" aria-hidden="true">⚠️</div><h2>${escape(t("ended"))}</h2><p>${escape(why)}</p></div>`;
       }
-      if (seen.phase !== "over") return "";
+      return "";
+    }
+
+    /** How the round ended, for this phone. */
+    outcome(seen) {
+      const t = this.t;
       const result = seen.result;
       const won = result.winner === seen.me;
-      const big = result.winner === null ? "🤝" : won ? "🏆" : "🫡";
-      const title = result.winner === null ? t("draw") : won ? t("youWon") : t("youLost");
-      const how = result.k === "resign" ? (result.by === seen.me ? t("youResigned") : t("theyResigned")) : "";
-      const score = `<div class="ftg-score"><span class="me">${this.number(seen.score.me)}</span><span class="dash">–</span><span class="them">${this.number(seen.score.them)}</span></div>`;
-      const live = this.table.live;
-      return `<div class="ftg-card" role="group" aria-label="${escape(title)}"><div class="ftg-big" aria-hidden="true">${big}</div><h2>${escape(title)}</h2>${how ? `<p>${escape(how)}</p>` : ""}${score}<div class="ftg-actions"><button class="ftg-pill primary" data-kit="send">📤 ${escape(t("sendResult"))}</button>${
-        live ? `<button class="ftg-pill" data-kit="again">🔁 ${escape(t("again"))}</button>` : ""
-      }</div></div>`;
+      return {
+        big: result.winner === null ? "🤝" : won ? "🏆" : "😅",
+        title: result.winner === null ? t("draw") : won ? t("youWon") : t("youLost"),
+        how: result.k === "resign" ? (result.by === seen.me ? t("youResigned") : t("theyResigned")) : "",
+      };
+    }
+
+    /** The end of a round: how it ended if it was a resignation, the way to the chat, another round. */
+    resultHtml(seen) {
+      const t = this.t;
+      if (seen.phase !== "over") return "";
+      const { title, how } = this.outcome(seen);
+      const again = this.table.live
+        ? `<button class="ftg-btn" data-kit="again" aria-label="${escape(t("again"))}" title="${escape(t("again"))}">🔁</button>`
+        : "";
+      return `<div class="ftg-result-card" role="group" aria-label="${escape(title)}">${how ? `<p>${escape(how)}</p>` : ""}<div class="ftg-actions"><button class="ftg-pill primary" data-kit="send">📤 ${escape(t("sendResult"))}</button>${again}</div></div>`;
     }
 
     bannerHtml(seen) {
@@ -279,6 +296,8 @@ export function elementFor(game) {
           actions = `<button class="ftg-pill small" data-kit="fork-mine">${escape(t("forkMine"))}</button><button class="ftg-pill small" data-kit="fork-theirs">${escape(t("forkTheirs"))}</button>`;
         }
         html += `<div class="ftg-banner${warn ? " warn" : ""}" role="status"><span class="icon" aria-hidden="true">${icon}</span><span class="say">${escape(t(notice.key, { game: t("name"), ...notice.vars }))}</span>${actions}</div>`;
+      } else if (seen && !table.live) {
+        html += `<div class="ftg-banner" role="status"><span class="icon" aria-hidden="true">💬</span><span class="say">${escape(t("needsChat", { game: t("name") }))}</span></div>`;
       } else if (seen && table.connecting && seen.phase !== "invite") {
         html += `<div class="ftg-banner" role="status"><span class="icon" aria-hidden="true">📡</span><span class="say">${escape(t("connecting"))}</span></div>`;
       } else if (seen && seen.pending > 0 && seen.phase !== "ended") {

@@ -153,15 +153,11 @@
 }
 .ftg-title {
   flex: 1;
-  display: flex;
-  align-items: center;
-  gap: 10px;
   min-width: 0;
-  font-size: 20px;
-  font-weight: 700;
-}
-.ftg-title .ftg-logo {
-  font-size: 26px;
+  margin: 0;
+  padding-inline-start: 4px;
+  font-size: 22px;
+  font-weight: 750;
 }
 .ftg-score {
   flex: 1;
@@ -272,16 +268,75 @@
   font-size: 14px;
 }
 
-/* A match. */
+/* A match: on a phone, who plays and whose turn it is, then the board, then what the user is told. */
 .ftg-main {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas: "players" "status" "stage" "result" "banner";
   gap: 12px;
 }
-.ftg-side {
+.ftg-players {
+  grid-area: players;
+}
+.ftg-status {
+  grid-area: status;
+}
+.ftg-stage {
+  grid-area: stage;
+}
+.ftg-result {
+  grid-area: result;
+}
+.ftg-result:empty {
+  display: none;
+}
+.ftg-result-card {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
+}
+.ftg-result-card p {
+  margin: 0;
+  color: var(--muted);
+  text-align: center;
+}
+.ftg-result-card .ftg-actions {
+  flex-wrap: nowrap;
+  margin: 0;
+}
+.ftg-result-card .ftg-pill {
+  flex: 1;
+  min-width: 0;
+}
+.ftg-result-card .ftg-btn {
+  background: var(--surface-2);
+}
+.ftg-status.over {
+  font-size: 22px;
+}
+.ftg-status.over .icon {
+  width: 34px;
+  height: 34px;
+  font-size: 28px;
+}
+.ftg-status .icon {
+  display: inline-grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+}
+.ftg-status .icon svg {
+  width: 22px;
+  height: 22px;
+}
+.ftg-banners {
+  grid-area: banner;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.ftg-banners:empty {
+  display: none;
 }
 .ftg-players {
   display: flex;
@@ -318,12 +373,6 @@
   font-weight: 600;
   white-space: nowrap;
   text-overflow: ellipsis;
-}
-.ftg-player .wins {
-  margin-inline-start: auto;
-  color: var(--muted);
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
 }
 .ftg-player.turn[data-side="0"] {
   border-color: var(--side-0);
@@ -365,8 +414,8 @@
 }
 .ftg-stage {
   position: relative;
-  align-self: center;
-  width: min(100%, var(--ftg-board, 100%));
+  justify-self: center;
+  width: min(100%, calc(var(--ftg-h, 600px) - 190px));
   aspect-ratio: 1;
 }
 .ftg-board {
@@ -524,19 +573,15 @@
     gap: 16px;
   }
   .ftg-main {
-    flex-direction: row;
-    align-items: flex-start;
-    gap: 24px;
+    grid-template-columns: auto minmax(260px, 420px);
+    grid-template-rows: auto auto auto 1fr;
+    grid-template-areas: "stage players" "stage status" "stage result" "stage banner";
+    justify-content: center;
+    align-items: start;
+    column-gap: 32px;
   }
   .ftg-stage {
-    flex: none;
-    width: min(62%, calc(var(--ftg-h, 600px) - 96px));
-  }
-  .ftg-side {
-    flex: 1;
-    min-width: 260px;
-    max-width: 420px;
-    padding-top: 8px;
+    width: min(calc(100vw - 340px), calc(var(--ftg-h, 600px) - 96px));
   }
   .ftg-players {
     flex-direction: column;

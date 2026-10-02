@@ -91,6 +91,21 @@ describe("the list", () => {
     expect(core.records.size).toBe(0);
   });
 
+  it("outside a conversation, shows a kept match without playing it or saying anything", async () => {
+    const core = fakeCore();
+    const first = await phone(core);
+    await press(first, '[data-kit="new"]');
+    first.remove();
+    const sent = core.sent.length;
+    const away = await phone(fakeCore({ records: core.records }), { live: false });
+    await press(away, '[data-kit="enter"]');
+    expect(away.table.screen).toBe("match");
+    expect(text(away)).toContain("Open “Toy” from a conversation to play with someone.");
+    expect(away.querySelector('[data-kit="resign"]').disabled).toBe(true);
+    expect(away.table.ft.live.send).not.toHaveBeenCalled();
+    expect(core.sent.length).toBe(sent);
+  });
+
   it("deletes a match only after asking inside the plugin", async () => {
     const core = fakeCore();
     const element = await phone(core);
@@ -224,6 +239,9 @@ describe("the look", () => {
     expect(root.getAttribute("lang")).toBe("ar");
     expect(root.hasAttribute("data-dark")).toBe(true);
     expect(text(ar)).toContain("لا توجد مباريات بعد");
+    // Everything around it runs right to left; a board never does (its cells and lines are drawn left to right).
+    await press(ar, '[data-kit="new"]');
+    expect(ar.querySelector('[data-part="board"]').getAttribute("dir")).toBe("ltr");
   });
 
   it("gives every button a name in the user's language and a finger-sized target", async () => {
