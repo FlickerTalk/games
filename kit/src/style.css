@@ -52,6 +52,11 @@
   -webkit-tap-highlight-color: transparent;
   -webkit-text-size-adjust: 100%;
 }
+/* The app's secondary-text colour, where the kit measured that it reads at 4.5:1 on the page and on
+   the surface (in the app's light themes it does not: the mix above stays). */
+.ftg[data-medium] {
+  --muted: var(--ion-color-medium);
+}
 /* The fallback palette in dark: when the app says so, or — only if it gave no colours — when the
    system is dark. */
 :root[data-dark] .ftg,

@@ -136,9 +136,12 @@ The app sets Ionic's variables on the frame's root and keeps them in step with i
 directions, light and dark), with `data-dark` beside them. The kit's tokens read them:
 `--ink` (`--ion-text-color`), `--paper` (`--ion-background-color`), `--line` (`--ion-border-color`),
 `--primary` / `--on-primary` (`--ion-color-primary` / `-contrast`), `--good` (`--ion-color-success`),
-`--danger` (`--ion-color-danger`). What the app does not give usable values for — `--muted`,
-`--surface`, `--surface-2`, the warning, and `--side-0` / `--side-1` (one colour per side) — is mixed
-from ink and paper, so it reads on every theme.
+`--danger` (`--ion-color-danger`). Secondary text (`--muted`) is the app's `--ion-color-medium` where
+the kit measures it at 4.5:1 or more on the page and on the surface (the app's dark themes), and a mix
+of ink and paper elsewhere. Surfaces (`--surface`, `--surface-2`) are mixed from ink and paper rather
+than taken from `--ion-item-background`, because in mono light the app's card surface is the page
+colour itself, and rows and chips would vanish white on white. The warning and `--side-0` / `--side-1`
+(one colour per side) are mixed the same way, so they read on every theme.
 
 - **Precedence**: with the app's variables present, they rule; nothing else applies a palette (the
   kit marks its root `data-themed` and ignores the system's dark mode). Without them, the kit's own

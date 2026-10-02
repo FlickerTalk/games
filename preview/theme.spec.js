@@ -111,6 +111,18 @@ for (const game of ["tictactoe", "fourinarow", "chess"]) {
   });
 }
 
+await check("the app's secondary-text colour where it reads (mono dark), the kit's own where it does not (ember light)", async () => {
+  const muted = async (theme) => {
+    const { context, page, frame } = await open("tictactoe", { theme });
+    await page.waitForTimeout(100);
+    const value = await frame.evaluate(() => getComputedStyle(document.querySelector(".ftg-empty p")).color);
+    await context.close();
+    return rgb(value);
+  };
+  assert.deepEqual(await muted("mono-dark"), [142, 142, 142]);
+  assert.notDeepEqual(await muted("ember-light"), [125, 114, 106]);
+});
+
 await browser.close();
 server.close();
 for (const [state, name, why] of results) console.log(`${state === "ok" ? "ok  " : "FAIL"} ${name}${why ? `\n     ${why}` : ""}`);

@@ -7,6 +7,7 @@
 import STYLE from "./style.css";
 import { KIT_TEXTS, direction, joinTexts, translator } from "./i18n.js";
 import { Table } from "./table.js";
+import { mediumReads } from "./colour.js";
 
 const escape = (text) =>
   String(text).replace(/[&<>"']/g, (one) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[one]);
@@ -37,11 +38,15 @@ const RETRY = ["notOpen", "unreachable", "left", "denied", "error"];
 /** Which phone did not reveal the coin in time, said as it is. */
 const abandonedBy = (seen) => (seen?.end?.by === seen?.me ? "abandonedYou" : "abandonedThem");
 
+/** One of the app's colours on the frame's root ("" when it gave none). */
+function appColour(name) {
+  const page = document.documentElement;
+  return (getComputedStyle(page).getPropertyValue(name) || page.style.getPropertyValue(name) || "").trim();
+}
+
 /** Whether the app gave its colours (Ionic's variables on the frame's root): then they rule. */
 function appColours() {
-  const page = document.documentElement;
-  const value = getComputedStyle(page).getPropertyValue("--ion-background-color") || page.style.getPropertyValue("--ion-background-color");
-  return Boolean(value && value.trim());
+  return Boolean(appColour("--ion-background-color"));
 }
 
 /** The page's stylesheet, once: the kit's and the game's own. */
@@ -59,6 +64,7 @@ export function elementFor(game) {
 
   return class GameElement extends HTMLElement {
     disconnectedCallback() {
+      this.watch?.disconnect();
       this.letBoardGo();
       this.shown = null;
     }
@@ -85,6 +91,9 @@ export function elementFor(game) {
       this.root = document.createElement("div");
       this.root.className = "ftg";
       this.append(this.root);
+      // The app switches its theme on the frame's root while the game is open.
+      this.watch = new MutationObserver(() => this.retheme());
+      this.watch.observe(document.documentElement, { attributes: true, attributeFilter: ["style", "class", "data-dark"] });
       this.addEventListener("click", (event) => this.onClick(event));
       this.table = new Table({ ft, game, app: game.app, t: this.t, onChange: () => this.paint() });
       this.paint();
@@ -140,7 +149,7 @@ export function elementFor(game) {
       root.setAttribute("dir", direction(this.lang));
       root.setAttribute("lang", this.lang);
       root.toggleAttribute("data-dark", table.dark);
-      root.toggleAttribute("data-themed", appColours());
+      this.retheme();
       const shown = table.screen === "match" && table.record ? `match:${table.record.id}` : "list";
       if (shown !== this.shown) this.letBoardGo();
       if (shown === "list") {
@@ -179,6 +188,13 @@ export function elementFor(game) {
       part("result").innerHTML = this.resultHtml(seen);
       part("banner").innerHTML = this.bannerHtml(seen);
       part("dialog").innerHTML = this.dialogHtml();
+    }
+
+    /** Whether the app gave its colours, and whether its secondary-text colour reads (README, "Colours"). */
+    retheme() {
+      const root = this.root;
+      root.toggleAttribute("data-themed", appColours());
+      root.toggleAttribute("data-medium", mediumReads({ background: appColour("--ion-background-color"), ink: appColour("--ion-text-color"), medium: appColour("--ion-color-medium") }));
     }
 
     /** What a board is told (README, "A game"). */

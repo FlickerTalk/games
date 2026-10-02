@@ -342,6 +342,24 @@ describe("the look", () => {
     expect(root().hasAttribute("data-themed")).toBe(false);
   });
 
+  it("takes the app's secondary-text colour only where it reads, and follows a theme switched live", async () => {
+    const page = document.documentElement.style;
+    const set = (vars) => Object.entries(vars).forEach(([name, value]) => page.setProperty(name, value));
+    const vars = ["--ion-background-color", "--ion-text-color", "--ion-color-medium"];
+    try {
+      set({ "--ion-background-color": "#000000", "--ion-text-color": "#f5f5f5", "--ion-color-medium": "#8e8e8e" });
+      const one = await phone(fakeCore());
+      const root = () => one.querySelector(".ftg");
+      expect(root().hasAttribute("data-medium")).toBe(true);
+      // Mono light, switched with the game open: 4.47:1 on the surface, so not used.
+      set({ "--ion-background-color": "#ffffff", "--ion-text-color": "#0a0a0a", "--ion-color-medium": "#6e6e6e" });
+      await tick();
+      expect(root().hasAttribute("data-medium")).toBe(false);
+    } finally {
+      for (const name of vars) page.removeProperty(name);
+    }
+  });
+
   it("gives every button a name in the user's language and a finger-sized target", async () => {
     const element = await phone(fakeCore(), { lang: "fr" });
     await press(element, '[data-kit="new"]');

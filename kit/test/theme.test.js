@@ -51,6 +51,9 @@ describe("the games' colours", () => {
     for (const token of ["--muted", "--surface", "--surface-2", "--warn-bg", "--warn-ink", "--side-0", "--side-1"]) {
       expect(base[token], token).toMatch(/^color-mix\(in srgb, .*var\(--(?:ink|paper)\)/);
     }
+    // The app's secondary-text colour, where the kit measured that it reads (data-medium).
+    const medium = declarations(readFileSync(KIT, "utf8")).filter((one) => one.where === ".ftg[data-medium]");
+    expect(medium).toEqual([{ where: ".ftg[data-medium]", name: "--muted", value: "var(--ion-color-medium)" }]);
     // Today's light palette, as the fallback.
     expect(base).toMatchObject({ "--fb-ink": "#0a0a0a", "--fb-paper": "#ffffff", "--fb-primary": "#0a0a0a", "--fb-on-primary": "#ffffff" });
   });

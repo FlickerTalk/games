@@ -47,29 +47,28 @@
 <script type="module">
   const params = new URLSearchParams(location.search);
   /**
-   * The app's themes as its frame will hand them over: Ionic's variables, from the app's
-   * src/theme/variables.css (ember, aurora, mono; light and dark). Ionic's own defaults for what
-   * the app does not set (medium, success); the app sets item backgrounds transparent.
+   * The app's themes as its frame hands them over (computed by the app's bridge, 2026-10-03):
+   * Ionic's variables on the frame's root, for each direction in light and dark.
    */
   const THEMES = {};
-  for (const [name, bg, text, border, accent, onAccent] of [
-    ["ember-light", "#fbf8f5", "#1c1714", "rgba(40, 20, 5, 0.08)", "#e8731f", "#ffffff"],
-    ["ember-dark", "#0d0b0a", "#f6efe8", "rgba(255, 240, 225, 0.07)", "#ffa24c", "#1b0f06"],
-    ["aurora-light", "#f6f8fb", "#121821", "rgba(10, 25, 45, 0.08)", "#0fa89a", "#ffffff"],
-    ["aurora-dark", "#0a0e14", "#eaf1fa", "rgba(200, 225, 255, 0.07)", "#3ddbc4", "#04141a"],
-    ["mono-light", "#ffffff", "#0a0a0a", "rgba(0, 0, 0, 0.10)", "#000000", "#ffffff"],
-    ["mono-dark", "#000000", "#f5f5f5", "rgba(255, 255, 255, 0.12)", "#ffffff", "#000000"],
+  for (const [name, bg, text, medium, item, border, primary, contrast] of [
+    ["mono-light", "#ffffff", "#0a0a0a", "#6e6e6e", "#ffffff", "rgba(0, 0, 0, 0.10)", "#000000", "#ffffff"],
+    ["mono-dark", "#000000", "#f5f5f5", "#8e8e8e", "#0e0e0e", "rgba(255, 255, 255, 0.12)", "#ffffff", "#000000"],
+    ["ember-light", "#fbf8f5", "#1c1714", "#7d726a", "#ffffff", "rgba(40, 20, 5, 0.08)", "#e8731f", "#ffffff"],
+    ["ember-dark", "#0d0b0a", "#f6efe8", "#9b8f86", "#161311", "rgba(255, 240, 225, 0.07)", "#ffa24c", "#1b0f06"],
+    ["aurora-light", "#f6f8fb", "#121821", "#66758a", "#ffffff", "rgba(10, 25, 45, 0.08)", "#0fa89a", "#ffffff"],
+    ["aurora-dark", "#0a0e14", "#eaf1fa", "#8a97a8", "#111722", "rgba(200, 225, 255, 0.07)", "#3ddbc4", "#04141a"],
   ]) {
     THEMES[name] = {
       dark: name.endsWith("dark"),
       vars: {
         "--ion-background-color": bg,
         "--ion-text-color": text,
-        "--ion-color-medium": "#636469",
-        "--ion-item-background": "transparent",
+        "--ion-color-medium": medium,
+        "--ion-item-background": item,
         "--ion-border-color": border,
-        "--ion-color-primary": accent,
-        "--ion-color-primary-contrast": onAccent,
+        "--ion-color-primary": primary,
+        "--ion-color-primary-contrast": contrast,
         "--ion-color-success": "#2dd55b",
         "--ion-color-danger": "#ff4d5e",
       },
