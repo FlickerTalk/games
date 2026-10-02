@@ -278,11 +278,11 @@ export class Table {
   }
 
   /** Says something about the current match, with the whole of it. The answer, or its absence, comes later. */
-  say(kind) {
+  say(kind, extra = {}) {
     const record = this.record;
     let data;
     try {
-      data = seal(this.envelope(kind, record, kind !== "bye"));
+      data = seal({ ...this.envelope(kind, record, kind !== "bye"), ...extra });
     } catch {
       this.notice = { key: "tooLong" };
       return;
@@ -436,12 +436,13 @@ export class Table {
 
   /** A message about the match on screen. */
   async take(record, message) {
-    const result = await merge(record, message.game, this.game, { from: message.who });
+    const result = await merge(record, message.game, this.game, { from: message.who, refused: message.refused === true });
     if (result.verdict === "stranger") return;
     this.present();
     if (result.verdict === "bad") {
+      // Said once, to a question only: answering every copy would never end.
       this.notice = { key: "badMove" };
-      this.say("sync");
+      if (ASKING.includes(message.k)) this.say("sync", { refused: true });
       return;
     }
     if (result.verdict === "fork") this.notice = { key: "fork" };

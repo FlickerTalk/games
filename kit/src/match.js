@@ -197,7 +197,7 @@ async function mergeToss(next, theirs) {
  * `fork` (we parted ways: both kept, the user picks), `bad` (it breaks the rules or adds moves for
  * me: nothing taken), `stranger` (not from the other participant of this match).
  */
-export async function merge(record, theirs, rules, { from, me, g, gv, id, now = Date.now() } = {}) {
+export async function merge(record, theirs, rules, { from, me, g, gv, id, refused = false, now = Date.now() } = {}) {
   if (record) {
     // Who speaks is checked first: nothing about this match is weighed for anyone but its other
     // participant (or, while nobody has the other seat, the one who answers the invitation).
@@ -257,6 +257,11 @@ export async function merge(record, theirs, rules, { from, me, g, gv, id, now = 
     } else if (common === moves.length) {
       next.heard = Math.max(next.heard, moves.length);
       if (common < mine.length) verdict = changed ? "took" : "ahead";
+      // They refused what I have beyond their copy: the two ways part, and the user picks.
+      if (common < mine.length && refused) {
+        next.fork = structuredClone(moves);
+        verdict = "fork";
+      }
     } else {
       next.fork = structuredClone(moves);
       next.heard = Math.max(next.heard, common);
@@ -264,6 +269,10 @@ export async function merge(record, theirs, rules, { from, me, g, gv, id, now = 
     }
   } else if (game.first && !moves.length && mine.length) {
     verdict = changed ? "took" : "ahead";
+    if (refused) {
+      next.fork = [];
+      verdict = "fork";
+    }
   }
   // They lack my reveal (it was lost): say it again.
   if (verdict === "same" && next.me === game.a && game.toss.r && theirs.toss?.r !== game.toss.r) verdict = "ahead";

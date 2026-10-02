@@ -280,6 +280,30 @@ describe("what the other phone says, checked", () => {
   });
 });
 
+describe("two phones that disagree on a move", () => {
+  it("say so once each, show it honestly on both sides, and go on with the copy the user picks", async () => {
+    const { first, second } = await started();
+    // A's copy holds a move for B's seat that B never made (a bug, or a tampered phone).
+    const wrong = structuredClone(first.record);
+    wrong.game.moves = ["p", "w"];
+    first.record = wrong;
+    await first.core.ft.records.set(`game/${first.core.chat}/${wrong.id}`, JSON.stringify(wrong));
+    const [fromA, fromB] = [first.core.sent.length, second.core.sent.length];
+    await first.retry();
+    for (let round = 0; round < 6; round += 1) await settle(first, second);
+    const exchanged = first.core.sent.length - fromA + (second.core.sent.length - fromB);
+    expect(exchanged).toBeLessThanOrEqual(4);
+    expect(second.notice).toEqual({ key: "badMove" });
+    expect(second.record.game.moves).toEqual([]);
+    expect(first.view.fork).toBe(true);
+    expect(first.notice).toEqual({ key: "fork" });
+    await first.pickFork("theirs");
+    await settle(first, second);
+    expect(first.record.game.moves).toEqual([]);
+    expect(first.view.fork).toBe(false);
+  });
+});
+
 describe("the coin over a channel that dropped", () => {
   it("gives the match up after 30 s without saying anything over a channel that took nothing", async () => {
     const { a, b } = phones();
