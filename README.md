@@ -140,7 +140,7 @@ same keys and `{gaps}`.
 ## The match
 
 A match is a **series** of rounds between two participants, kept on each phone as one record,
-`game/<id>` in the plugin's `records`, rewritten on every change (a plugin is never told it is being
+`game/<chat>/<id>` in the plugin's `records` (see below), rewritten on every change (a plugin is never told it is being
 closed). Its shared part travels whole in every message that carries a game:
 
 ```json
@@ -166,6 +166,39 @@ Nothing received is trusted: the coin is checked against its commitment and the 
 through the rules from the first one. A series whose message would pass 40,000 bytes stops there (“start
 a new match”), so a message never has to be cut: the core carries 48 KiB at most; a received game larger
 than 40,000 bytes is refused whole.
+
+### A match belongs to its conversation
+
+`onOpen` gives the game `chat`: an id for the conversation it is open in — opaque, at most 43 characters
+of `[A-Za-z0-9_-]`, stable for this phone, this plugin and this contact, different on each phone and for
+each plugin, and absent when the game is not opened from a conversation. It is local: the kit never puts
+it in a message (a test scans every message sent).
+
+- Matches are kept under `game/<chat>/<id>` (at most 5 + 43 + 1 + 64 = 113 bytes; the core allows 128).
+  The list shows only this conversation's matches; opening, joining, deleting and everything that
+  arrives look only inside this conversation's partition. The same match id may exist in two
+  conversations: they are two matches.
+- Without `chat` (opened from Settings, or an app that does not give it) no match is shown, started or
+  played, and the user is told to open the game from a conversation. There is no shared place to fall
+  back on.
+- The core authenticates and encrypts `ft.live` per contact, so whatever arrives while the game is open
+  in a chat comes from that chat's contact. Participant ids are not secrets: they only say which of the
+  two seats is which.
+
+What another contact B of the user can do, and what it cannot:
+
+- B reaches only the matches the user plays with B. A message naming any other match id — one the user
+  plays with C, or one that does not exist — is unknown in B's conversation and gets exactly the same
+  answer: `deny` for a `hello` that is not an invitation, `busy` for an invitation while the user is in a
+  match, a new match with B for an invitation otherwise, and silence for anything else. B learns nothing
+  of the user's other conversations, cannot open, change or delete their matches, and cannot tell
+  whether a match id exists in them.
+- In its own matches with the user, B is held by the same checks as anyone: moves replayed through the
+  rules, no move or resignation for the user's seat, the coin against its commitment, ends only as the kit
+  makes them, events rebuilt to their exact form, nothing larger than 40,000 bytes.
+- B can still be a nuisance in its own conversation: send invitations (each one, when the user has the
+  game open on its list, opens a new match with B, which the user can delete), stop playing, or walk away
+  from the coin (below).
 
 ## Protocol
 
@@ -205,6 +238,13 @@ the same conversation, never through the mailbox or the server. Every message is
 - **Arriving**: a phone with the game open on its list that hears a `hello` opens the match (joining it,
   if it is an invitation); busy in another match, it asks its user. A match kept here, even one this kit
   cannot read, is never joined again.
+- **A lost first answer**: if the joiner's first `sync` never arrives, the inviter keeps saying its
+  invitation `hello`; the joiner answers it again (it already holds the match), and the inviter learns who
+  joined. The joiner's own `hello` does the same.
+- **Disagreeing on a move**: a phone that finds a move it cannot accept says so once, answering a
+  `hello` or `state` with `sync` marked `"refused": true`; it shows “a move that breaks the rules”, and the
+  other phone shows both copies and lets the user pick. Neither answers a `sync` with another `sync`, so
+  the exchange ends.
 
 ### Who starts: commit and reveal
 
