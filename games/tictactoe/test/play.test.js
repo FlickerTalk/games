@@ -3,12 +3,10 @@
 // the next hello, one side closing the game and coming back, and a state that breaks the rules.
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { KV, PROTOCOL, fromBase64, seal } from "../../../kit/src/envelope.js";
-import { fakeCore, phones } from "../../../kit/test/helpers.js";
+import { fakeCore, phones, settle } from "../../../kit/test/helpers.js";
 import "../src/index.js";
 
-const tick = async () => {
-  for (let round = 0; round < 8; round += 1) await vi.advanceTimersByTimeAsync(1);
-};
+const tick = () => settle([...document.querySelectorAll("ft-tictactoe")].map((element) => element.table));
 const kinds = (core) => core.sent.map((data) => JSON.parse(new TextDecoder().decode(fromBase64(data))).k);
 const text = (element) => element.textContent.replace(/\s+/g, " ");
 const cell = (element, index) => element.querySelector(`[data-cell="${index}"]`);

@@ -77,6 +77,17 @@ export function phones(aOptions = {}, bOptions = {}) {
   return { a, b };
 }
 
+/**
+ * Lets everything in flight land: messages on their way (fake timers) and the work each table is
+ * doing (real: SHA-256 through WebCrypto takes its own time, longer when the machine is busy).
+ */
+export async function settle(tables, rounds = 12) {
+  for (let round = 0; round < rounds; round += 1) {
+    await vi.advanceTimersByTimeAsync(1);
+    await Promise.all(tables.filter(Boolean).map((table) => table.idle()));
+  }
+}
+
 /** The checks every game package passes: what `module.json` says. */
 export function checkManifest(dir, { id, name, component }) {
   const manifest = JSON.parse(readFileSync(join(dir, "module.json"), "utf8"));

@@ -3,7 +3,7 @@
 // messages, the language and the colours. The toy game and its toy board stand in for a real one.
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { defineGame } from "../src/index.js";
-import { fakeCore, phones, toy } from "./helpers.js";
+import { fakeCore, phones, settle, toy } from "./helpers.js";
 
 /** A board with three buttons, one per toy move; it counts how often it was built and told. */
 const built = { mounts: 0, updates: 0 };
@@ -36,9 +36,7 @@ defineGame({
   texts: { en: { name: "Toy" }, es: { name: "Juguete" }, ar: { name: "لعبة" } },
 });
 
-const tick = async () => {
-  for (let round = 0; round < 6; round += 1) await vi.advanceTimersByTimeAsync(1);
-};
+const tick = () => settle([...document.querySelectorAll("ft-toy")].map((element) => element.table));
 
 /** A phone with the toy open, as the app opens it. */
 async function phone(core, opening = {}) {

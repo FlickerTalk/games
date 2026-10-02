@@ -4,7 +4,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { KV, PROTOCOL, fromBase64, seal } from "../src/envelope.js";
 import { summarize, Table } from "../src/table.js";
-import { fakeCore, phones, toy } from "./helpers.js";
+import { fakeCore, phones, settle as settleAll, toy } from "./helpers.js";
 
 const kinds = (core) => core.sent.map((data) => JSON.parse(new TextDecoder().decode(fromBase64(data))).k);
 const said = (core, at = -1) => JSON.parse(new TextDecoder().decode(fromBase64(core.sent.at(at))));
@@ -20,12 +20,7 @@ async function table(core, opening = {}, options = {}) {
 }
 
 /** Lets every message in flight land, and every answer to it. */
-async function settle(...tables) {
-  for (let round = 0; round < 12; round += 1) {
-    await vi.advanceTimersByTimeAsync(1);
-    await Promise.all(tables.map((one) => one.idle()));
-  }
-}
+const settle = (...tables) => settleAll(tables);
 
 /** Two phones with the plugin open in one conversation, a match started by A and the coin tossed. */
 async function started() {
@@ -127,6 +122,21 @@ describe("two phones", () => {
     expect(second.record.game.moves).toEqual(["p"]);
     expect(first.view.pending).toBe(0);
     expect(first.notice).toBeNull();
+  });
+
+  it("answer a copy that lacks some of their moves with what they have", async () => {
+    const { first, second } = await started();
+    first.core.reachable = false;
+    await first.play("p");
+    await settle(first, second);
+    first.core.reachable = true;
+    const before = first.core.sent.length;
+    // The other phone's own copy arrives, without the move.
+    await first.core.hear(seal({ p: PROTOCOL, kv: KV, g: "toy", gv: 1, k: "sync", doc: second.record.id, who: second.record.me, app: "1.0.0", game: second.record.game }));
+    await settle(first, second);
+    expect(kinds(first.core).slice(before)).toEqual(["sync"]);
+    expect(second.record.game.moves).toEqual(["p"]);
+    expect(first.view.pending).toBe(0);
   });
 
   it("go on by themselves when the side that closed opens the game again", async () => {

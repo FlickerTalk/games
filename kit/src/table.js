@@ -437,7 +437,8 @@ export class Table {
       }
       this.record = next = step.record;
       this.say(step.send);
-    } else if (ASKING.includes(message.k) || result.changed) {
+    } else if (ASKING.includes(message.k) || result.changed || result.verdict === "ahead") {
+      // An answer to a question, news, or a copy that lacks some of mine: say what I have.
       this.say("sync");
     }
     this.watchReveal();
