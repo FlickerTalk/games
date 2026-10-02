@@ -660,7 +660,7 @@ describe("each path the reviews flagged, with every match in its conversation", 
     expect(lost).toBe(true);
     expect(tb.screen).toBe("match");
     expect(ta.view.phase).toBe("invite");
-    // The inviter says hello again (on its own after 8 + 15 s, or when the user taps 🔄).
+    // The inviter says hello again (on its own after 8 + 15 s, or when the user taps "try again").
     await vi.advanceTimersByTimeAsync(23_100);
     await settle(ta, tb);
     expect(ta.record.game.b).toBe(tb.record.me);

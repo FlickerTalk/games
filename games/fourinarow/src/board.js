@@ -4,6 +4,7 @@
 // It is built once and then patched, so a disc dropping in keeps falling while the kit redraws.
 
 import STYLE from "./board.css";
+import { icon } from "../../../kit/src/icons.js";
 import { COLUMNS, ROWS, landing } from "./rules.js";
 
 export { STYLE };
@@ -49,7 +50,7 @@ function draw(host, ctx, dropped) {
       if (cell === dropped && side !== null) classes.push("drop");
       slot.className = classes.join(" ");
       if (cell === dropped) slot.style.setProperty("--f", String(Math.floor(cell / COLUMNS) + 1));
-      const html = `${side === null ? "" : DISCS[side]}${cell === last && ctx.pending ? '<span class="ffr-clock" aria-hidden="true">🕓</span>' : ""}`;
+      const html = `${side === null ? "" : DISCS[side]}${cell === last && ctx.pending ? `<span class="ffr-clock" aria-hidden="true">${icon("time-outline")}</span>` : ""}`;
       if (slot.drawn !== html) {
         slot.innerHTML = html;
         slot.drawn = html;

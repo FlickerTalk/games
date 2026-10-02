@@ -3,6 +3,7 @@
 // touch back as a move, a cell from 0 to 8.
 
 import STYLE from "./board.css";
+import { icon } from "../../../kit/src/icons.js";
 
 export { STYLE };
 
@@ -32,7 +33,7 @@ function draw(host, ctx) {
     if (line?.includes(index)) classes.push("win");
     const open = ctx.canPlay && side === null;
     html += `<button class="${classes.join(" ")}" data-cell="${index}" aria-label="${name}" ${open ? "" : "disabled"}>${side === null ? "" : MARKS[side]}${
-      index === ctx.last && ctx.pending ? '<span class="ftt-clock" aria-hidden="true">🕓</span>' : ""
+      index === ctx.last && ctx.pending ? `<span class="ftt-clock" aria-hidden="true">${icon("time-outline")}</span>` : ""
     }</button>`;
   });
   if (line) {

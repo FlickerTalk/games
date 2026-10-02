@@ -1,65 +1,81 @@
-/* The look every game shares: the app's black-and-white surfaces, one colour per side (the app's
-   ember and aurora accents), light and dark, phone first, a tablet in landscape side by side.
-   Touch targets are at least 44px. Nothing is loaded from anywhere: system fonts, emoji, inline SVG. */
+/* The look every game shares, in the app's own colours: the app sets Ionic's variables on the
+   frame's root and keeps them in step with its theme (ember, aurora, mono; light and dark), and the
+   tokens below read them. Today's black-and-white palette is only the fallback for when they are
+   absent, and dark only ever changes that fallback: two palettes are never mixed. What the app does
+   not give usable values for (secondary text, surfaces, the warning, each side's colour) is mixed
+   from its ink and paper, as the app derives its own steps. Phone first, a tablet in landscape side
+   by side; touch targets of at least 44px; nothing loaded from anywhere. */
 
 .ftg {
-  --ink: #0a0a0a;
-  --muted: #6e6e6e;
-  --paper: #ffffff;
-  --surface: #f2f2f2;
-  --surface-2: #e6e6e6;
-  --line: rgba(0, 0, 0, 0.1);
-  --primary: #0a0a0a;
-  --on-primary: #ffffff;
-  --side-0: #e8731f;
-  --side-1: #0fa89a;
-  --warn-bg: #fff1dd;
-  --warn-ink: #6f3a00;
-  --good: #22a565;
-  --danger: #d4372b;
-  --shadow: 0 12px 32px rgba(0, 0, 0, 0.16);
+  /* The fallback palette (light), and fixed hues. */
+  --fb-ink: #0a0a0a;
+  --fb-paper: #ffffff;
+  --fb-line: rgba(0, 0, 0, 0.1);
+  --fb-primary: #0a0a0a;
+  --fb-on-primary: #ffffff;
+  --fb-good: #22a565;
+  --fb-danger: #d4372b;
+  --fb-shade: rgba(0, 0, 0, 0.16);
+  --hue-warn: #f08c1e;
+  --hue-side-0: #e8731f;
+  --hue-side-1: #0fa89a;
+  --hue-on-danger: #ffffff;
+  --shade-scrim: rgba(0, 0, 0, 0.4);
+  --shade-soft: rgba(0, 0, 0, 0.06);
+  /* The tokens: the app's colours when it gives them. */
+  --ink: var(--ion-text-color, var(--fb-ink));
+  --paper: var(--ion-background-color, var(--fb-paper));
+  --line: var(--ion-border-color, var(--fb-line));
+  --primary: var(--ion-color-primary, var(--fb-primary));
+  --on-primary: var(--ion-color-primary-contrast, var(--fb-on-primary));
+  --good: var(--ion-color-success, var(--fb-good));
+  --danger: var(--ion-color-danger, var(--fb-danger));
+  --on-danger: var(--hue-on-danger);
+  /* Mixed from ink and paper, so they read on every theme. */
+  --muted: color-mix(in srgb, var(--ink) 64%, var(--paper));
+  --surface: color-mix(in srgb, var(--ink) 6%, var(--paper));
+  --surface-2: color-mix(in srgb, var(--ink) 11%, var(--paper));
+  --warn-bg: color-mix(in srgb, var(--hue-warn) 16%, var(--paper));
+  --warn-ink: color-mix(in srgb, var(--hue-warn) 35%, var(--ink));
+  /* Each side's colour leans toward the ink: deeper on a light page, lighter on a dark one. */
+  --side-0: color-mix(in srgb, var(--hue-side-0) 80%, var(--ink));
+  --side-1: color-mix(in srgb, var(--hue-side-1) 80%, var(--ink));
+  --shadow: 0 12px 32px var(--fb-shade);
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
   gap: 12px;
-  min-height: var(--ftg-h, 560px);
-  padding: 4px 0 16px;
+  padding: 4px 0;
   color: var(--ink);
   font: 16px/1.35 system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", sans-serif;
   -webkit-tap-highlight-color: transparent;
   -webkit-text-size-adjust: 100%;
 }
-@media (prefers-color-scheme: dark) {
-  .ftg {
-    --ink: #f5f5f5;
-    --muted: #9a9a9a;
-    --paper: #0e0e0e;
-    --surface: #1c1c1c;
-    --surface-2: #2a2a2a;
-    --line: rgba(255, 255, 255, 0.12);
-    --primary: #f5f5f5;
-    --on-primary: #000000;
-    --side-0: #ffa24c;
-    --side-1: #3ddbc4;
-    --warn-bg: #33240f;
-    --warn-ink: #ffd08a;
-    --shadow: 0 12px 32px rgba(0, 0, 0, 0.6);
-  }
+/* The app's secondary-text colour, where the kit measured that it reads at 4.5:1 on the page and on
+   the surface (in the app's light themes it does not: the mix above stays). */
+.ftg[data-medium] {
+  --muted: var(--ion-color-medium);
 }
+/* The fallback palette in dark: when the app says so, or — only if it gave no colours — when the
+   system is dark. */
+:root[data-dark] .ftg,
 .ftg[data-dark] {
-  --ink: #f5f5f5;
-  --muted: #9a9a9a;
-  --paper: #0e0e0e;
-  --surface: #1c1c1c;
-  --surface-2: #2a2a2a;
-  --line: rgba(255, 255, 255, 0.12);
-  --primary: #f5f5f5;
-  --on-primary: #000000;
-  --side-0: #ffa24c;
-  --side-1: #3ddbc4;
-  --warn-bg: #33240f;
-  --warn-ink: #ffd08a;
-  --shadow: 0 12px 32px rgba(0, 0, 0, 0.6);
+  --fb-ink: #f5f5f5;
+  --fb-paper: #0e0e0e;
+  --fb-line: rgba(255, 255, 255, 0.12);
+  --fb-primary: #f5f5f5;
+  --fb-on-primary: #000000;
+  --fb-shade: rgba(0, 0, 0, 0.6);
+}
+@media (prefers-color-scheme: dark) {
+  .ftg:not([data-themed]) {
+    --fb-ink: #f5f5f5;
+    --fb-paper: #0e0e0e;
+    --fb-line: rgba(255, 255, 255, 0.12);
+    --fb-primary: #f5f5f5;
+    --fb-on-primary: #000000;
+    --fb-shade: rgba(0, 0, 0, 0.6);
+  }
 }
 .ftg *,
 .ftg *::before,
@@ -90,6 +106,15 @@
   white-space: nowrap;
 }
 
+/* The icons (icons.js): Ionicons, drawn in the text's colour and sized by the text around them. */
+.ftg-ico {
+  flex: none;
+  width: 1.2em;
+  height: 1.2em;
+  vertical-align: -0.25em;
+  fill: currentColor;
+}
+
 /* Buttons: round icons, and pills where a word is needed. */
 .ftg-btn {
   appearance: none;
@@ -109,10 +134,6 @@
 .ftg-btn.primary {
   background: var(--primary);
   color: var(--on-primary);
-}
-.ftg-btn svg {
-  width: 22px;
-  height: 22px;
 }
 [dir="rtl"] .ftg-flip {
   transform: scaleX(-1);
@@ -136,7 +157,7 @@
 }
 .ftg-pill.danger {
   background: var(--danger);
-  color: #ffffff;
+  color: var(--on-danger);
 }
 .ftg-pill.small {
   min-height: 44px;
@@ -211,7 +232,7 @@
   flex: none;
   width: 44px;
   height: 44px;
-  border-radius: 50%;
+  border-radius: 12px;
   background: var(--paper);
   font-size: 20px;
 }
@@ -268,15 +289,19 @@
   font-size: 14px;
 }
 
-/* A match: on a phone, who plays and whose turn it is, then the board, then what the user is told. */
+/* A match on a phone: who plays, whose turn it is, what the user is told and what they can do, all
+   above the board, which takes what is left of the room (the kit sizes it, see shell.js). */
 .ftg-main {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  grid-template-areas: "players" "status" "hint" "stage" "result" "banner";
+  display: flex;
+  flex-direction: column;
   gap: 12px;
 }
 .ftg-players {
   grid-area: players;
+}
+/* A short room: the chips go, the status line says whose turn it is, with the side's mark. */
+.ftg[data-compact] .ftg-players {
+  display: none;
 }
 .ftg-status {
   grid-area: status;
@@ -331,6 +356,10 @@
   width: 34px;
   height: 34px;
   font-size: 28px;
+}
+.ftg-status.over .icon svg {
+  width: 30px;
+  height: 30px;
 }
 .ftg-status .icon {
   display: inline-grid;
@@ -427,8 +456,9 @@
 }
 .ftg-stage {
   position: relative;
+  align-self: center;
   justify-self: center;
-  width: min(100%, calc(var(--ftg-h, 600px) - 190px));
+  width: min(100%, var(--ftg-board, 100%));
   aspect-ratio: 1;
 }
 .ftg-board {
@@ -533,6 +563,7 @@
   flex: 1 1 180px;
 }
 .ftg-banner .icon {
+  display: flex;
   font-size: 18px;
 }
 .ftg-banner.warn {
@@ -561,7 +592,7 @@
   display: grid;
   place-items: center;
   padding: 16px;
-  background: rgba(0, 0, 0, 0.4);
+  background: var(--shade-scrim);
 }
 .ftg-dialog .ftg-card {
   gap: 10px;
@@ -576,6 +607,7 @@
     gap: 16px;
   }
   .ftg-main {
+    display: grid;
     grid-template-columns: auto minmax(260px, 420px);
     grid-template-rows: auto auto auto auto 1fr;
     grid-template-areas: "stage players" "stage status" "stage hint" "stage result" "stage banner";
@@ -584,7 +616,8 @@
     column-gap: 32px;
   }
   .ftg-stage {
-    width: min(calc(100vw - 340px), calc(var(--ftg-h, 600px) - 96px));
+    align-self: start;
+    width: min(calc(100vw - 340px), var(--ftg-board, 560px));
   }
   .ftg-players {
     flex-direction: column;

@@ -143,6 +143,12 @@ export function checkDist(dir, { cap }) {
   walk(dist);
   expect(existsSync(join(dist, "index.js"))).toBe(true);
   expect(existsSync(join(dist, NOTICES))).toBe(true);
+  // The kit draws Ionicons (icons.js): every package carries their licence, as the package has it.
+  const notices = readFileSync(join(dist, NOTICES), "utf8");
+  const ionicons = join(import.meta.dirname, "..", "..", "node_modules", "ionicons");
+  const squash = (text) => text.replace(/\s+/g, " ").trim();
+  expect(notices).toContain(`## Ionicons ${JSON.parse(readFileSync(join(ionicons, "package.json"), "utf8")).version}`);
+  expect(squash(notices)).toContain(squash(readFileSync(join(ionicons, "LICENSE"), "utf8")));
   expect(total).toBeLessThan(cap);
   for (const path of files) {
     if (path.endsWith(`/${NOTICES}`)) continue;

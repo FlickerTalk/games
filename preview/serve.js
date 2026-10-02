@@ -76,14 +76,26 @@ globalThis.ft = {
 };
 await import("./dist/index.js");
 const tell = () => post({ type: "ft.height", height: document.documentElement.scrollHeight });
+/** The app's colours on the root, as the app's frame sets them: Ionic's variables and data-dark. */
+const THEMED = ["--ion-background-color", "--ion-text-color", "--ion-color-medium", "--ion-item-background", "--ion-border-color", "--ion-color-primary", "--ion-color-primary-contrast", "--ion-color-success", "--ion-color-danger"];
+const theme = (vars, dark) => {
+  for (const name of THEMED) {
+    if (vars && vars[name]) document.documentElement.style.setProperty(name, vars[name]);
+    else document.documentElement.style.removeProperty(name);
+  }
+  if (dark) document.documentElement.dataset.dark = "1";
+  else delete document.documentElement.dataset.dark;
+};
 addEventListener("message", (event) => {
   const said = event.data;
   if (!said || typeof said.type !== "string") return;
   if (said.type === "ft.open") {
-    if (said.dark) document.documentElement.dataset.dark = "1";
+    theme(said.theme, said.dark);
     document.documentElement.lang = said.lang;
     for (const handler of opened) handler({ text: "", dark: Boolean(said.dark), lang: String(said.lang), file: null, ref: null, reminder: null, live: Boolean(said.live), chat: typeof said.chat === "string" ? said.chat : undefined });
     requestAnimationFrame(tell);
+  } else if (said.type === "ft.theme") {
+    theme(said.theme, said.dark);
   } else if (said.type === "ft.live") {
     for (const handler of heard) handler(String(said.data));
   } else if (said.type === "ft.done") {

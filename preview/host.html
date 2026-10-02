@@ -5,26 +5,34 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>FlickerTalk games — two phones</title>
 <style>
-  /* Two phones, each with the app's plugin window around the game: the bar with ✕ and the name,
-     the sheet with 16px on the sides, the app's black-and-white background. */
+  /* Two phones, each with the game in a room of the conversation, as the app draws it: the chat's
+     header, the game bar (✕, the game's name, the invite mail icon), the game scrolling in between, and the
+     chat's composer always visible below. */
   :root { color-scheme: light; --bg: #ffffff; --surface-2: #f2f2f2; --text: #0a0a0a; --muted: #6e6e6e; --desk: #d9d9de; }
   :root.dark { color-scheme: dark; --bg: #000000; --surface-2: #1c1c1c; --text: #f5f5f5; --muted: #8e8e8e; --desk: #2b2b30; }
   html, body { margin: 0; background: var(--desk); font: 14px system-ui, sans-serif; color: var(--text); }
   #controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding: 10px 16px; }
   #controls button, #controls label { font: inherit; }
   #devices { display: flex; gap: 24px; padding: 0 16px 24px; align-items: flex-start; }
-  .device { position: relative; width: 360px; height: 740px; overflow-y: auto; background: var(--bg); border-radius: 28px; box-shadow: 0 10px 40px rgba(0,0,0,.25); }
+  /* The app's chrome around the room, as measured on a Samsung S20+ (2026-10-03): status bar and
+     chat header 86, game bar 56, composer and Android's navigation bar 155 — 297 in all. */
+  .device { position: relative; display: flex; flex-direction: column; width: var(--screen-w, 360px); height: var(--screen-h, 740px); overflow: hidden; background: var(--bg); border-radius: 28px; box-shadow: 0 10px 40px rgba(0,0,0,.25); }
+  .head { box-sizing: border-box; height: 86px; flex: none; display: flex; align-items: flex-end; gap: 10px; padding: 10px 12px; border-bottom: 1px solid color-mix(in srgb, var(--text) 10%, transparent); }
+  .head .avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--surface-2); display: grid; place-items: center; }
+  .head .who { font-weight: 600; }
+  .room { flex: 1; min-height: 0; overflow-y: auto; }
   .tablet .device { width: 1280px; height: 800px; border-radius: 22px; }
-  .bar { position: sticky; top: 0; z-index: 1; display: flex; align-items: center; gap: 8px; padding: 8px; background: var(--bg); }
+  .bar { box-sizing: border-box; height: 56px; flex: none; display: flex; align-items: center; gap: 8px; padding: 6px 8px; background: var(--bg); }
+  .bar .name { flex: 1; }
   .bar button { display: grid; place-items: center; width: 44px; height: 44px; border: 0; border-radius: 50%; background: var(--surface-2); color: var(--text); font-size: 18px; }
   .bar .name { font-size: 17px; font-weight: 600; }
-  .sheet { padding: 0 16px 16px; }
+  .sheet { padding: 0 16px; }
   .sheet iframe { display: block; width: 100%; height: 320px; border: 0; background: transparent; }
-  .chat { display: none; height: 100%; flex-direction: column; justify-content: flex-end; padding: 16px; box-sizing: border-box; gap: 12px; }
+  .chat { display: none; flex: 1; flex-direction: column; justify-content: flex-end; padding: 16px; box-sizing: border-box; gap: 12px; }
   .device.closed .chat { display: flex; }
-  .device.closed .bar, .device.closed .sheet { display: none; }
+  .device.closed .bar, .device.closed .room { display: none; }
   .hint { color: var(--muted); text-align: center; }
-  .composer { display: flex; gap: 8px; align-items: flex-end; }
+  .composer { box-sizing: border-box; height: 155px; flex: none; display: flex; gap: 8px; align-items: flex-start; padding: 12px 12px 0; border-top: 1px solid color-mix(in srgb, var(--text) 10%, transparent); }
   .composer .box { flex: 1; min-height: 44px; padding: 11px 14px; border-radius: 22px; background: var(--surface-2); box-sizing: border-box; white-space: pre-wrap; }
   .composer .send { width: 44px; height: 44px; border-radius: 50%; background: var(--text); color: var(--bg); display: grid; place-items: center; }
 </style>
@@ -35,18 +43,67 @@
   <button data-do="open-a">Open A</button><button data-do="close-a">Close A</button>
   <button data-do="open-b">Open B</button><button data-do="close-b">Close B</button>
   <label><input type="checkbox" id="connected" checked> direct connection</label>
+  <label>theme <select id="theme">
+    <option value="">none (fallback)</option>
+    <option>ember-light</option><option>ember-dark</option>
+    <option>aurora-light</option><option>aurora-dark</option>
+    <option>mono-light</option><option>mono-dark</option>
+  </select></label>
   <span id="where"></span>
 </div>
 <div id="devices"></div>
 <script type="module">
   const params = new URLSearchParams(location.search);
+  /**
+   * The app's themes as its frame hands them over (computed by the app's bridge, 2026-10-03):
+   * Ionic's variables on the frame's root, for each direction in light and dark.
+   */
+  const THEMES = {};
+  for (const [name, bg, text, medium, item, border, primary, contrast] of [
+    ["mono-light", "#ffffff", "#0a0a0a", "#6e6e6e", "#ffffff", "rgba(0, 0, 0, 0.10)", "#000000", "#ffffff"],
+    ["mono-dark", "#000000", "#f5f5f5", "#8e8e8e", "#0e0e0e", "rgba(255, 255, 255, 0.12)", "#ffffff", "#000000"],
+    ["ember-light", "#fbf8f5", "#1c1714", "#7d726a", "#ffffff", "rgba(40, 20, 5, 0.08)", "#e8731f", "#ffffff"],
+    ["ember-dark", "#0d0b0a", "#f6efe8", "#9b8f86", "#161311", "rgba(255, 240, 225, 0.07)", "#ffa24c", "#1b0f06"],
+    ["aurora-light", "#f6f8fb", "#121821", "#66758a", "#ffffff", "rgba(10, 25, 45, 0.08)", "#0fa89a", "#ffffff"],
+    ["aurora-dark", "#0a0e14", "#eaf1fa", "#8a97a8", "#111722", "rgba(200, 225, 255, 0.07)", "#3ddbc4", "#04141a"],
+  ]) {
+    THEMES[name] = {
+      dark: name.endsWith("dark"),
+      vars: {
+        "--ion-background-color": bg,
+        "--ion-text-color": text,
+        "--ion-color-medium": medium,
+        "--ion-item-background": item,
+        "--ion-border-color": border,
+        "--ion-color-primary": primary,
+        "--ion-color-primary-contrast": contrast,
+        "--ion-color-success": "#2dd55b",
+        "--ion-color-danger": "#ff4d5e",
+      },
+    };
+  }
+  let theme = THEMES[params.get("theme")] ?? null;
   const game = params.get("game") || "tictactoe";
   const lang = params.get("lang") || "en";
-  const dark = params.has("dark");
+  let dark = params.has("dark") || Boolean(theme?.dark);
   const tablet = params.get("layout") === "tablet";
-  if (dark) document.documentElement.classList.add("dark");
+  /** The page around the frames takes the theme too, as the app's sheet does. */
+  function paintPage() {
+    document.documentElement.classList.toggle("dark", dark);
+    for (const [name, value] of [["--bg", theme?.vars["--ion-background-color"]], ["--text", theme?.vars["--ion-text-color"]]]) {
+      if (value) document.documentElement.style.setProperty(name, value);
+      else document.documentElement.style.removeProperty(name);
+    }
+  }
+  paintPage();
   if (tablet) document.body.classList.add("tablet");
   if (params.has("bare")) document.getElementById("controls").hidden = true;
+  // The phone's screen, CSS pixels (?screen=384x853): the room is what the app's chrome leaves.
+  const [screenW, screenH] = (params.get("screen") ?? "").split("x").map(Number);
+  if (screenW && screenH) {
+    document.documentElement.style.setProperty("--screen-w", `${screenW}px`);
+    document.documentElement.style.setProperty("--screen-h", `${screenH}px`);
+  }
   const names = { tictactoe: "Tic-Tac-Toe", fourinarow: "Four in a Row", chess: "Chess" };
 
   /** One phone each: what the core keeps for the game, and its frame while the game is open. */
@@ -57,7 +114,7 @@
     const node = document.createElement("section");
     node.className = "device closed";
     node.id = `device-${side}`;
-    node.innerHTML = `<div class="bar"><button aria-label="Back" data-close="${side}">✕</button><span class="name">${names[game] ?? game}</span></div><div class="sheet"></div><div class="chat"><p class="hint">💬</p><div class="composer"><div class="box"></div><div class="send">➤</div></div></div>`;
+    node.innerHTML = `<div class="head"><span class="avatar">👤</span><span class="who">${side === "a" ? "Bea" : "Ana"}</span></div><div class="bar"><button aria-label="Close the game" data-close="${side}">✕</button><span class="name">${names[game] ?? game}</span><button aria-label="Invite"><svg viewBox="0 0 512 512" width="24" height="24" aria-hidden="true"><rect width="416" height="320" x="48" y="96" rx="40" ry="40" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32px"/><path d="m112 160 144 112 144-112" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32px"/></svg></button></div><div class="room"><div class="sheet"></div></div><div class="chat"><p class="hint">💬</p></div><div class="composer"><div class="box"></div><div class="send">➤</div></div>`;
     node.querySelector("[data-close]").onclick = () => close(side);
     document.getElementById("devices").append(node);
     return node;
@@ -94,7 +151,7 @@
     switch (said.type) {
       case "ft.ready":
         // Each phone has its own id for the conversation with the other, as in the app.
-        return tell(side, { type: "ft.open", text: "", dark, lang, file: null, ref: null, reminder: null, live: true, chat: `${side}-with-${side === "a" ? "b" : "a"}` });
+        return tell(side, { type: "ft.open", text: "", dark, lang, file: null, ref: null, reminder: null, live: true, chat: `${side}-with-${side === "a" ? "b" : "a"}`, theme: theme?.vars ?? null });
       case "ft.height":
         phone.frame.style.height = `${Math.min(Math.max(said.height, 160), 4000)}px`;
         return;
@@ -123,9 +180,9 @@
         return done(connected);
       }
       case "ft.text":
-        // The text goes to the composer and the plugin closes, as in the chat.
+        // The text goes to the composer below; the game stays open in its room.
         devices[side].querySelector(".composer .box").textContent = said.text;
-        return close(side);
+        return;
       case "ft.close":
         return close(side);
       default:
@@ -141,7 +198,17 @@
     else close(side);
   });
   document.getElementById("connected").onchange = (event) => (connected = event.target.checked);
-  window.harness = { open, close, connect: (yes) => (connected = yes), phones };
+  /** Switches the app's theme with the games open, as the app does: no reload. */
+  function setTheme(name) {
+    theme = THEMES[name] ?? null;
+    dark = theme ? theme.dark : params.has("dark");
+    paintPage();
+    for (const side of Object.keys(phones)) tell(side, { type: "ft.theme", theme: theme?.vars ?? null, dark });
+  }
+  const picker = document.getElementById("theme");
+  picker.value = params.get("theme") ?? "";
+  picker.onchange = () => setTheme(picker.value);
+  window.harness = { open, close, connect: (yes) => (connected = yes), phones, setTheme };
   if (!params.has("closed")) {
     open("a");
     open("b");

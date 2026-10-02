@@ -6,6 +6,7 @@ import { elementFor } from "./shell.js";
 export { summarize, Table } from "./table.js";
 export { replay, view } from "./match.js";
 export { KIT_TEXTS, LANGUAGES, joinTexts, translator, direction } from "./i18n.js";
+export { ICONS, icon } from "./icons.js";
 
 const REQUIRED = {
   id: "string",

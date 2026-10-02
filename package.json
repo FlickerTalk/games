@@ -10,11 +10,14 @@
     "licenses": "license-checker --production --excludePrivatePackages --onlyAllow \"MIT;BSD-2-Clause;BSD-3-Clause;Apache-2.0;ISC;0BSD\"",
     "preview": "node preview/serve.js",
     "shots": "node preview/shots.js",
-    "frame": "node games/chess/test/frame.spec.js"
+    "frame": "node games/chess/test/frame.spec.js",
+    "theme": "node preview/theme.spec.js",
+    "room": "node preview/room.spec.js"
   },
   "devDependencies": {
     "esbuild": "^0.28.2",
     "happy-dom": "^20.14.5",
+    "ionicons": "^8.1.0",
     "license-checker": "^25.0.1",
     "playwright": "^1.63.0",
     "vitest": "^5.0.3"

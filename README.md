@@ -55,8 +55,9 @@ if the build does not give back the committed `dist/`.
    `minCoreVersion: "1.3.0"` and `permissions: { "live": true, "send": "propose" }` — the app refuses a
    game that asks for anything else.
 2. `games/<name>/THIRD_PARTY_NOTICES.md`: the full licence text (and Apache `NOTICE`) of everything
-   bundled from elsewhere, or a line saying there is none. Runtime dependencies go in the root
-   `package.json` `dependencies`, where `npm run licenses` checks them.
+   bundled from elsewhere. Every game carries at least the kit's icons (Ionicons, MIT: copy the
+   section from Tic-Tac-Toe's). Runtime dependencies go in the root `package.json` `dependencies`,
+   where `npm run licenses` checks them.
 3. `src/rules.js`, `src/board.js`, `src/texts.js` and `src/index.js` (below).
 4. Tests in `games/<name>/test/`: the rules, the board and texts, the package (copy Tic-Tac-Toe's
    `package.test.js` and set your size cap), and two phones playing (copy `play.test.js`).
@@ -94,6 +95,7 @@ defineGame({ id: "tictactoe", gv: 1, tag: manifest.components[0], app: manifest.
 | `texts` | `{ lang: { key: text } }` with at least `name` (the game's name in each language). |
 | `sides` | Optional: two HTML snippets (trusted, the game's own), the marks of side 0 and side 1, shown on the players' chips and the turn line. |
 | `style` | Optional: CSS text added to the page once (import a `.css` file: the build passes it as text). |
+| `minBoard` | Optional: the smallest board, in CSS pixels, on which the game is playable (Chess 320: squares of 40 px; Four in a Row 308: columns of 44 px). In a game the kit makes room for it before anything else; while waiting or on the result the board may be smaller. Default 200. |
 | `how(result, t)` | Optional: why a round ended by the rules, in the game's words (“checkmate”, “stalemate”), shown with the result; `result` is what `result(state)` returned. |
 | `summary(view, { t, lang, name, icon, record })` | Optional: the text sent to the chat. Without it: `⭕ Tic-Tac-Toe: I won, 3–2 · draws: 1`, in the sender's language. |
 
@@ -103,11 +105,30 @@ and deterministic.
 
 ### The board
 
+On a phone the game lives in the conversation's room, between the app's game bar and its composer,
+and the whole page fits it without scrolling: everything else of a state (bar, chips, status, hint,
+notices, the result's actions) is laid out above the board, and the board, square, takes what is
+left of the room. The room is the screen's height less the app's chrome, `ROOM_CHROME` in
+`kit/src/shell.js` (297 px, measured on a Samsung S20+): the one number to change when the app's
+room changes. When even the game's `minBoard` does not fit, the players' chips go first. A board
+must draw inside the square it is given, whatever its size. `npm run room` checks every game in
+every state on a 384×853 and a 360×740 phone, in German and Spanish.
+
 `board.mount(host, context)` is called once when a match opens; `update(context)` after every change
 (a move from either side, a new round, a message); `destroy()`, if the board has it, when the match
 leaves the screen or the game closes, to let go of listeners and timers. The board draws into `host` (light DOM: no shadow
 root, so a library that needs `document` or `<use href="#id">` works) and never talks to the other
 phone. `host` is always `dir="ltr"`: boards are not mirrored in Arabic.
+
+**Icons.** The interface draws no emoji: its icons are [Ionicons](https://ionic.io/ionicons) (MIT), the
+outline set the app itself uses, copied unchanged into `kit/src/icons.js` (only the ones drawn; a test
+checks each against the `ionicons` package, a development dependency). `icon(name)`, exported by the
+kit, gives one as inline SVG in `currentColor`, sized `1.2em` by the text around it and hidden from
+screen readers (the button's translated label says what it does). A board marks things with it too
+(`icon("time-outline")` on a move still on its way). A text that names a control draws it:
+`{invite}` in `howToInvite` becomes the app's mail button. Emoji stay only in what goes to the chat
+(the summary) and in a game's own `icon` field. To add one: copy its file's drawing from
+`node_modules/ionicons/dist/svg/` into `ICONS`.
 
 | `context` | |
 | --- | --- |
@@ -129,6 +150,26 @@ restarts its animations each time; patch what changed instead (Four in a Row doe
 Touch targets must be at least 44 px. The kit's CSS variables are there to be used: `--ink`, `--muted`,
 `--paper`, `--surface`, `--surface-2`, `--line`, `--side-0`, `--side-1` (one colour per side, the app's
 own accents), light and dark.
+
+### Colours
+
+The app sets Ionic's variables on the frame's root and keeps them in step with its theme (its three
+directions, light and dark), with `data-dark` beside them. The kit's tokens read them:
+`--ink` (`--ion-text-color`), `--paper` (`--ion-background-color`), `--line` (`--ion-border-color`),
+`--primary` / `--on-primary` (`--ion-color-primary` / `-contrast`), `--good` (`--ion-color-success`),
+`--danger` (`--ion-color-danger`). Secondary text (`--muted`) is the app's `--ion-color-medium` where
+the kit measures it at 4.5:1 or more on the page and on the surface (the app's dark themes), and a mix
+of ink and paper elsewhere. Surfaces (`--surface`, `--surface-2`) are mixed from ink and paper rather
+than taken from `--ion-item-background`, because in mono light the app's card surface is the page
+colour itself, and rows and chips would vanish white on white. The warning and `--side-0` / `--side-1`
+(one colour per side) are mixed the same way, so they read on every theme.
+
+- **Precedence**: with the app's variables present, they rule; nothing else applies a palette (the
+  kit marks its root `data-themed` and ignores the system's dark mode). Without them, the kit's own
+  palette applies: dark when the app says `data-dark`, or when the system is dark.
+- A board uses the tokens for everything around its art, and writes its art's own colours (chess
+  squares, markers) as `--art-*` tokens. A test fails on any other colour literal in the CSS.
+- `npm run theme` checks this in Chromium; the preview has a theme selector (`?theme=ember-dark`…).
 
 ### Texts
 

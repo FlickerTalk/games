@@ -186,6 +186,38 @@ describe("a match between two phones", () => {
     expect(built.destroyed).toBe(2);
   });
 
+  it("stays usable after the result went to the chat: the game room keeps the game open", async () => {
+    const { a, b } = phones();
+    const one = await phone(a);
+    const two = await phone(b);
+    await press(one, '[data-kit="new"]');
+    await tick();
+    const [first, second] = one.table.view.myTurn ? [one, two] : [two, one];
+    await press(first, '[data-move="w"]');
+    await press(first, '[data-kit="send"]');
+    expect(first.ft.say).toHaveBeenCalledTimes(1);
+    expect(first.ft.close).not.toHaveBeenCalled();
+    // Still the result, with everything still there to press.
+    expect(first.isConnected).toBe(true);
+    expect(text(first)).toContain("You won");
+    for (const act of ["send", "again", "back"]) expect(first.querySelector(`[data-kit="${act}"]`).disabled, act).toBe(false);
+    await press(first, '[data-kit="send"]');
+    expect(first.ft.say).toHaveBeenCalledTimes(2);
+    await press(first, '[data-kit="again"]');
+    await tick();
+    expect(text(second)).toContain("Round 2 · Your turn");
+    await press(first, '[data-kit="back"]');
+    expect(first.table.screen).toBe("list");
+  });
+
+  it("does not ask for the screen's height: the game room gives it the space between its bar and the composer", () => {
+    const css = document.head.querySelector("style[data-ftg]")?.textContent ?? "";
+    expect(css).not.toMatch(/\d+(?:\.\d+)?d?vh\b/);
+    const root = css.match(/\.ftg\{[^}]*\}/)?.[0] ?? css.match(/\.ftg \{[^}]*\}/)?.[0] ?? "";
+    expect(root).toContain("color");
+    expect(root).not.toMatch(/(?:^|[;{\s])(?:min-)?height\s*:/);
+  });
+
   it("resigns only after asking inside the plugin", async () => {
     const { a, b } = phones();
     const one = await phone(a);
@@ -211,14 +243,18 @@ describe("a match between two phones", () => {
     await press(one, '[data-kit="new"]');
     expect(text(one)).toContain("Waiting for the other person to open “Toy” in this conversation");
     await vi.advanceTimersByTimeAsync(8_100);
-    expect(text(one)).toContain("The other person does not have “Toy” open in this conversation.");
+    // Nobody answered the invitation: the notice says how to invite them (the app's mail button
+    // drawn in the sentence), with "try again".
+    const notice = one.querySelector(".ftg-banner");
+    expect(text(notice)).toContain("The other person has to open this game too. Tap above to invite them.");
+    expect(notice.querySelector(".say svg.ftg-ico")).not.toBeNull();
     const before = a.sent.length;
     await press(one, '[data-kit="retry"]');
     expect(a.sent.length).toBe(before + 1);
   });
 
   it("while nobody is on the other side, says what to do — and stops saying it once they are there", async () => {
-    const HINT = "The other person has to open this game too. To invite them, close the game, open the apps button in the chat and tap 🎮 and then 📨.";
+    const HINT = "The other person has to open this game too. Tap above to invite them.";
     const { a, b } = phones();
     b.closed = true;
     const one = await phone(a);
@@ -229,11 +265,15 @@ describe("a match between two phones", () => {
     expect(one.querySelector(".ftg-hint-under")).not.toBeNull();
     expect(one.querySelector(".ftg-stage").classList.contains("dim")).toBe(false);
     expect(one.querySelector('[data-part="overlay"]').children).toHaveLength(0);
-    expect(one.querySelector(".ftg-status").textContent).toContain("👤");
+    expect(one.querySelector(".ftg-status svg.ftg-ico")).not.toBeNull();
     expect(one.querySelector('[data-move="p"]').disabled).toBe(true);
     await vi.advanceTimersByTimeAsync(8_100);
-    expect(text(one)).toContain("The other person does not have “Toy” open in this conversation.");
-    expect(text(one)).toContain(HINT);
+    // Nobody answered: one notice with "try again" takes the hint's place (the room is small; they do not stack),
+    // and still says how to invite them.
+    const count = (needle) => text(one).split(needle).length - 1;
+    expect(count(HINT)).toBe(1);
+    expect(one.querySelector(".ftg-hint-under").textContent).toBe("");
+    expect(one.querySelector('.ftg-banner [data-kit="retry"]')).not.toBeNull();
     // They open the game: the invitation goes again, they join, and the hint is gone.
     b.closed = false;
     const two = await phone(b);
@@ -247,7 +287,9 @@ describe("a match between two phones", () => {
     two.remove();
     await press(one, '[data-kit="enter"]');
     await vi.advanceTimersByTimeAsync(8_100);
-    expect(text(one)).toContain(HINT);
+    expect(text(one)).toContain("The other person does not have “Toy” open in this conversation.");
+    expect(one.querySelector(".ftg-hint-under").textContent).toBe("");
+    expect(one.querySelector('.ftg-banner [data-kit="retry"]')).not.toBeNull();
   });
 
   it("says it is reaching the other phone while the hello is on its way, until the answer or its absence", async () => {
@@ -283,7 +325,7 @@ describe("a match between two phones", () => {
     const core = fakeCore();
     const one = await phone(core);
     await press(one, '[data-kit="new"]');
-    one.table.record = { ...one.table.record, fork: ["p"] };
+    one.table.record = { ...one.table.record, game: { ...one.table.record.game, b: "wother" }, fork: ["p"] };
     one.table.notice = { key: "notOpen" };
     one.paint();
     expect(text(one)).toContain("Your two phones disagree about this match. Which one goes on?");
@@ -325,6 +367,39 @@ describe("the look", () => {
     // Everything around it runs right to left; a board never does (its cells and lines are drawn left to right).
     await press(ar, '[data-kit="new"]');
     expect(ar.querySelector('[data-part="board"]').getAttribute("dir")).toBe("ltr");
+  });
+
+  it("knows whether the app gave its colours, on every repaint", async () => {
+    const one = await phone(fakeCore());
+    const root = () => one.querySelector(".ftg");
+    expect(root().hasAttribute("data-themed")).toBe(false);
+    document.documentElement.style.setProperty("--ion-background-color", "#0d0b0a");
+    try {
+      one.paint();
+      expect(root().hasAttribute("data-themed")).toBe(true);
+    } finally {
+      document.documentElement.style.removeProperty("--ion-background-color");
+    }
+    one.paint();
+    expect(root().hasAttribute("data-themed")).toBe(false);
+  });
+
+  it("takes the app's secondary-text colour only where it reads, and follows a theme switched live", async () => {
+    const page = document.documentElement.style;
+    const set = (vars) => Object.entries(vars).forEach(([name, value]) => page.setProperty(name, value));
+    const vars = ["--ion-background-color", "--ion-text-color", "--ion-color-medium"];
+    try {
+      set({ "--ion-background-color": "#000000", "--ion-text-color": "#f5f5f5", "--ion-color-medium": "#8e8e8e" });
+      const one = await phone(fakeCore());
+      const root = () => one.querySelector(".ftg");
+      expect(root().hasAttribute("data-medium")).toBe(true);
+      // Mono light, switched with the game open: 4.47:1 on the surface, so not used.
+      set({ "--ion-background-color": "#ffffff", "--ion-text-color": "#0a0a0a", "--ion-color-medium": "#6e6e6e" });
+      await tick();
+      expect(root().hasAttribute("data-medium")).toBe(false);
+    } finally {
+      for (const name of vars) page.removeProperty(name);
+    }
   });
 
   it("gives every button a name in the user's language and a finger-sized target", async () => {

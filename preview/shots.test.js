@@ -13,6 +13,9 @@ describe("the screenshots for review", () => {
     const tablet = byName["tablet-landscape"];
     expect(tablet.device.width * tablet.scale).toBe(2560);
     expect(tablet.device.height * tablet.scale).toBe(1600);
+    // The phone the room was measured on (Samsung S20+), with the longest texts, dark.
+    expect(byName["phone-samsung"]).toMatchObject({ device: { width: 384, height: 853 }, dark: true, lang: "es" });
+    expect(byName["phone-samsung-light"]).toMatchObject({ device: { width: 384, height: 853 }, dark: false, lang: "es" });
   });
 
   it("cover the list, waiting, a match on both sides, a win, a draw and the result", () => {
