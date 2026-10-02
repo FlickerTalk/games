@@ -20,6 +20,7 @@ kit/                      shared code, compiled INTO each game's dist/index.js (
 games/<name>/             one catalogue package per game
   module.json             what the catalogue reads (kind "game", live + send only)
   THIRD_PARTY_NOTICES.md  copied into dist/ by the build
+  build.js                optional: `export const plugins = [...]`, esbuild plugins for this game's build
   src/                    rules.js, board.js (+ board.css), texts.js, index.js
   dist/                   built and committed: index.js + THIRD_PARTY_NOTICES.md
   test/
@@ -276,7 +277,9 @@ Fixed vectors (in `kit/test/commit.test.js`), computed independently by `kit/tes
 ## Packages
 
 - One minified ES module per game (esbuild), the kit inside, the CSS minified and inlined as text, the
-  licence comments dropped and the game's `THIRD_PARTY_NOTICES.md` copied beside it.
+  licence comments dropped and the game's `THIRD_PARTY_NOTICES.md` copied beside it. A game that needs
+  more from its build (a module made at build time, a fix to a dependency's source) exports esbuild
+  `plugins` from its own `build.js`; they run before the kit's.
 - Each game's tests check its manifest, that `dist/` stays under its size cap (100 KB for a small game),
   and that nothing the frame loads contains an `http://` or `https://` address. XML namespace names
   (`http://www.w3.org/2000/svg`…) are allowed: browsers never fetch them. `THIRD_PARTY_NOTICES.md` is

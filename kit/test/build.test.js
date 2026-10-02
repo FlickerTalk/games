@@ -1,10 +1,10 @@
 // The build (README, "Build"): each game folder becomes the package the catalogue signs —
 // `module.json` beside a `dist/` with one minified ES module (the kit compiled in, styles as text)
 // and the game's third-party notices. A game whose sources did not change builds the same bytes.
-import { mkdtempSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, onTestFinished } from "vitest";
 import { buildGame, compactTexts, gameFolders } from "../build.js";
 import { checkDist } from "./helpers.js";
 
@@ -54,6 +54,33 @@ describe("building a game", () => {
     await expect(compactTexts(join(dir, "texts.js"))).rejects.toThrow("only texts");
     writeFileSync(join(dir, "other.js"), 'export const T = { en: { a: 1 } };\n');
     await expect(compactTexts(join(dir, "other.js"))).rejects.toThrow("only texts");
+  });
+
+  it("adds the esbuild plugins a game's own build.js exports, before the kit's", async () => {
+    // Inside the repository: Vitest loads modules only from there.
+    const dir = mkdtempSync(join(import.meta.dirname, ".hook-"));
+    onTestFinished(() => rmSync(dir, { recursive: true, force: true }));
+    mkdirSync(join(dir, "src"));
+    writeFileSync(join(dir, "module.json"), readFileSync(join(fixture, "module.json")));
+    writeFileSync(join(dir, "THIRD_PARTY_NOTICES.md"), "None.\n");
+    const kit = JSON.stringify(join(import.meta.dirname, "..", "src", "index.js"));
+    const toy = JSON.stringify(join(import.meta.dirname, "toy.js"));
+    writeFileSync(
+      join(dir, "src", "index.js"),
+      `import word from "virtual:word";\nimport { defineGame } from ${kit};\nimport { toy } from ${toy};\n` +
+        'defineGame({ ...toy, tag: "ft-hooked", app: "0.0.1", texts: { en: { name: word } }, board: { mount: () => ({}) } });\n',
+    );
+    writeFileSync(
+      join(dir, "build.js"),
+      "export const plugins = [{ name: 'word', setup(build) {\n" +
+        "  build.onResolve({ filter: /^virtual:word$/ }, () => ({ path: 'word', namespace: 'word' }));\n" +
+        "  build.onLoad({ filter: /.*/, namespace: 'word' }, () => ({ contents: 'export default \"made-by-the-hook\";', loader: 'js' }));\n" +
+        "} }];\n",
+    );
+    const out = mkdtempSync(join(tmpdir(), "ftgames-"));
+    await buildGame(dir, { outdir: out });
+    expect(readFileSync(join(out, "index.js"), "utf8")).toContain("made-by-the-hook");
+    expect(readdirSync(out).sort()).toEqual(["THIRD_PARTY_NOTICES.md", "index.js"]);
   });
 
   it("finds every game of the repository", () => {

@@ -7,6 +7,7 @@
 import { build, transform } from "esbuild";
 import { copyFileSync, existsSync, mkdirSync, readFileSync, readdirSync, rmSync } from "node:fs";
 import { join } from "node:path";
+import { pathToFileURL } from "node:url";
 
 const NOTICES = "THIRD_PARTY_NOTICES.md";
 
@@ -57,8 +58,16 @@ const textsOnce = {
   },
 };
 
+/** What a game adds to its own build: the esbuild `plugins` its `build.js` exports, if it has one. */
+async function ownPlugins(dir) {
+  const hook = join(dir, "build.js");
+  if (!existsSync(hook)) return [];
+  return (await import(pathToFileURL(hook).href)).plugins ?? [];
+}
+
 /** Builds the game in `dir` into `outdir` (its `dist/` unless told otherwise). */
 export async function buildGame(dir, { outdir = join(dir, "dist") } = {}) {
+  const plugins = await ownPlugins(dir);
   rmSync(outdir, { recursive: true, force: true });
   mkdirSync(outdir, { recursive: true });
   await build({
@@ -69,7 +78,7 @@ export async function buildGame(dir, { outdir = join(dir, "dist") } = {}) {
     target: ["es2022"],
     charset: "utf8",
     outfile: join(outdir, "index.js"),
-    plugins: [cssAsText, textsOnce],
+    plugins: [...plugins, cssAsText, textsOnce],
     legalComments: "none",
     logLevel: "warning",
   });
