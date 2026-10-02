@@ -117,6 +117,11 @@ phone. `host` is always `dir="ltr"`: boards are not mirrored in Arabic.
 | `t(key, vars)`, `lang` | The texts, in the user's language; numbers and dates through `Intl`. |
 | `view` | Everything the shell knows (phase, rounds, score…), for boards that need more. |
 
+`ctx.last` and the moves in `view.round.moves` come from the other phone: they have passed the game's
+`play` and nothing else. A board never puts them into markup unescaped (use them as numbers, look them up,
+or escape them). The kit calls `update` after every change, so a board that rewrites its whole markup there
+restarts its animations each time; patch what changed instead (Four in a Row does).
+
 Touch targets must be at least 44 px. The kit's CSS variables are there to be used: `--ink`, `--muted`,
 `--paper`, `--surface`, `--surface-2`, `--line`, `--side-0`, `--side-1` (one colour per side, the app's
 own accents), light and dark.
@@ -134,7 +139,8 @@ same keys and `{gaps}`.
 
 A match is a **series** of rounds between two participants, kept on each phone as one record,
 `game/<id>` in the plugin's `records`, rewritten on every change (a plugin is never told it is being
-closed). Its shared part travels whole in every message:
+closed). Its shared part travels whole in every message that carries a game — and only to the
+match's other participant, once it has proved who it is (see “First contact”):
 
 ```json
 { "a": "<who>", "b": "<who>", "first": "<who>", "toss": { "c": "<hex>", "s": "<hex>", "r": "<hex>" },
@@ -144,13 +150,21 @@ closed). Its shared part travels whole in every message:
 - `a` started the match, `b` joined it; each is a random id per participant **per match**.
 - `moves` holds the moves of every round in order, plus `{ "x": "resign", "by" }` (ends the round, the
   other side wins it) and `{ "x": "next" }` (a new round, once the last one ended; the side that did not
-  start the last round starts it). Who made each move follows from the rules' `turn`.
+  start the last round starts it). Who made each move follows from the rules' `turn`. A received event
+  is rebuilt to exactly one of these forms: a move is a finite number or a string of 1 to 64
+  characters, and an object with any other field is refused.
 - `first` is who starts round 0; it is derived from `toss` and recomputed, never trusted.
-- `end` ends the whole match without a winner: `{ "k": "abandoned" | "invalid", "by" }` (the coin).
+- `end` ends the whole match without a winner: `{ "k": "abandoned" | "invalid", "by" }` (the coin). Only
+  `b`'s phone ends a match, and only against `a`: `invalid` when the reveal does not check out (kept on
+  `b`'s phone), `abandoned` when the reveal does not come within 30 s of the seed. From the wire, `a`'s
+  phone takes `{ "k": "abandoned", "by": a }` while it has not revealed, and nothing else; once the coin
+  has spoken, no message can void the match. A reveal that arrives after `b` gave up and checks out
+  settles the coin and the match goes on.
 
 Nothing received is trusted: the coin is checked against its commitment and the moves are replayed
 through the rules from the first one. A series whose message would pass 40,000 bytes stops there (“start
-a new match”), so a message never has to be cut: the core carries 48 KiB at most.
+a new match”), so a message never has to be cut: the core carries 48 KiB at most; a received game larger
+than 40,000 bytes is refused whole.
 
 ## Protocol
 
@@ -159,19 +173,47 @@ the same conversation, never through the mailbox or the server. Every message is
 
 ```json
 { "p": "ftgame", "kv": 1, "g": "tictactoe", "gv": 1, "k": "state", "doc": "<match>", "who": "<sender>",
-  "app": "1.0.0", "game": { ... } }
+  "app": "1.0.0", "proof": "<hex>", "game": { ... } }
 ```
 
 | `k` | Carries | Answered with |
 | --- | --- | --- |
-| `hello` | `game` | `sync`, or the next coin step. Sent when the user starts or enters a match, never just because the game opened (a message without a connection wakes the other phone). Re-sends anything pending. |
+| `hello` (a match with two participants) | `who` = this frame's nonce; `proof` when it answers a `hello` | A `hello` with a `proof`, or (when it was that answer) `sync` with the game. Sent when the user starts or enters a match, never just because the game opened (a message without a connection wakes the other phone). |
+| `hello` (an invitation: nobody in the other seat yet) | `who` = the creator's id, `game` with `b: null` | The joiner's `sync` with the game, which introduces its id. |
 | `state` | `game` | `sync` — after the user's own move, resignation or new round. |
 | `commit`, `seed`, `reveal` | `game` | The next coin step, or `sync`. |
-| `sync` | `game` | Nothing, unless it changed what this phone has (then `sync`). This is the acknowledgment. |
+| `sync` | `game` | Nothing, unless it changed what this phone has, it is the first word from a phone that just proved itself, or the two copies just parted ways (then `sync`). This is the acknowledgment; it carries anything pending. |
 | `busy` | — | The other phone is in another match: it asked its user to join (“📥 Join”). |
-| `deny` | — | The other phone does not have this match and it is not an invitation: it is with someone else, or was deleted there. |
+| `deny` | — | A `hello` with a game that is not an invitation, or an invitation for a match this phone already keeps. |
 | `bye` | — | The user left the match screen (best effort: closing the plugin sends nothing). |
 | `part` | reserved | Not sent by `kv` 1 (see the 40,000-byte cap above). |
+
+### First contact
+
+The plugin is not told which conversation it is open in, so the list shows the matches of every
+conversation, and a user can open a match played with C inside the chat of B. Participant ids are what
+make a match: nothing about it may reach B. So, in each frame (one conversation), a match's game is sent
+only after the other phone has proved that it holds the match's other participant:
+
+1. Entering a match sends `hello { doc, who: nA }`: `nA` is a random nonce this frame chose for the
+   match. No game, no participant id, no move.
+2. The other phone answers `hello { doc, who: nC, proof: P(doc, nA, a) }`, where `a` is the id it
+   expects for the other participant, and
+   `P(g, n, id) = SHA-256("ftgames-who-v1" ‖ 0x00 ‖ g ‖ 0x00 ‖ n ‖ 0x00 ‖ id)` as hex. A phone that
+   does not have the match (or has nobody else in it) answers the same way with a proof of a random id:
+   the two answers cannot be told apart.
+3. The proof holds: the other phone knows `a`. Only now does `a` send `sync { who: a, proof:
+   P(doc, nC, c), game }` (with anything pending); the proof shows it knows `c`. The proof does not hold:
+   nothing more is sent, and the user reads “this match is not on the other phone”.
+4. The other phone checks the proof and from then on talks with the game; a phone on its list opens
+   the match only now.
+
+Until then, a move, a resignation or a new round is kept on the phone, 🕓 pending, and nothing about the
+match leaves. A game-carrying message from a phone that has not proved itself in this frame gets no
+answer and changes nothing — exactly what a match that is not here gets. An invitation is the one
+message that introduces a participant before any proof: the creator's id (it is the invitation), and
+then the joiner's id in its first answer. The kit stays at `kv` 1: nothing is published yet, so there
+is no kit without this handshake to talk to.
 
 - Unknown `p`, another `g`, malformed messages and unknown kinds or fields are ignored. A `kv` or `gv`
   higher than this phone's is not applied: the user is told to update. A newer kit keeps speaking `kv` 1
@@ -187,8 +229,9 @@ the same conversation, never through the mailbox or the server. Every message is
   acknowledged stays 🕓 pending and goes again with the next `hello`. While the user waits in a match, the
   kit says `hello` again every 15 s (8 times at most), and only after the core took the last message:
   over a channel that is down, that would wake the other phone.
-- **Arriving**: a phone with the game open on its list that hears a `hello` opens the match (joining it,
-  if it is an invitation); busy in another match, it asks its user.
+- **Arriving**: a phone with the game open on its list opens a match when the other phone has proved
+  itself (or joins it, if it is an invitation); busy in another match, it asks its user. A match kept
+  here, even one this kit cannot read, is never joined again.
 
 ### Who starts: commit and reveal
 
@@ -202,9 +245,12 @@ c = SHA-256("ftgames-coin-v1" ‖ 0x00 ‖ g ‖ 0x00 ‖ n ‖ rA)          a �
 d = SHA-256("ftgames-coin-v1/out" ‖ 0x00 ‖ g ‖ 0x00 ‖ n ‖ rA ‖ s)  d[0] even: a starts; odd: b starts
 ```
 
-`n` is 0 for the opening coin. `b` checks that `rA` hashes to `c`; if not, the match ends as invalid. If the
-reveal does not come within 30 s of the seed, the match ends as abandoned. Neither side can choose the
-outcome: `a` was bound before seeing `s`, and `b` chose `s` without knowing `rA`.
+`n` is 0 for the opening coin. Each value is a 64-character hex string, or it is ignored. `b` checks that
+`rA` hashes to `c`; if not, the match ends as invalid. If the reveal does not come within 30 s of the seed,
+the match ends as abandoned, and each phone says which one did not reveal. Neither side can choose the
+outcome: `a` was bound before seeing `s`, and `b` chose `s` without knowing `rA`. What remains is walking
+away: `a`, having seen `s`, can refuse to reveal (the match shows as abandoned by it), and either side can
+stop answering or delete the match and start another; neither can be prevented, only seen.
 
 The same layout serves dice and hidden fleets (for later games): dice use `"ftgames-dice-v1"`, roll `n`,
 and take the bytes of `d` in order, dropping those ≥ 252, each die = byte mod 6 + 1; when they run out,
@@ -225,6 +271,7 @@ Fixed vectors (in `kit/test/commit.test.js`), computed independently by `kit/tes
 | dice outcome, n = 15 | `fc933aa01aa06f111dd75a897b6d5b0620e0d2c458fe5a16fe159bfa69d0e0bd` (starts with 0xfc: dropped) |
 | 40 dice, n = 15 | `4 5 5 3 5 4 6 6 6 1 6 4 2 2 1 3 3 1 5 5 1 5 4 6 5 4 5 3 4 2 1 6 3 1 4 3 2 5 2 6` |
 | fleet `A9,A10;E3,E4,E5` | `116b3c477d1eacfaa46b8b9ac2dc4c76b70e2d97f941832904cf80f6534b1e1d` |
+| first-contact proof, nonce `n0nce0000000000x`, id `wa000000000000id` | `1bc81ec8fb2bd366ffc13ccae99804a7671cccdda6afcf9bfa26bb4a4e5f6205` |
 
 ## Packages
 
