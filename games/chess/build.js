@@ -58,7 +58,26 @@ export function piecesModule(sprite) {
   );
 }
 
-export const plugins = [];
+/**
+ * cm-chessboard writes the namespace of a prefixed SVG attribute as `"http://www.w3.org/1999/" +
+ * prefix`; the only prefix it ever uses is `xlink` (for `xlink:href`). The namespace is a name a
+ * browser never loads, but a bare `http://` in the bundle is what the package checks refuse, so the
+ * one expression becomes the full xlink namespace. The build stops if cm-chessboard changes it.
+ */
+export const XLINK = { from: '"http://www.w3.org/1999/" + value[0]', to: '"http://www.w3.org/1999/xlink"' };
+
+const xlinkNamespace = {
+  name: "cm-chessboard-xlink",
+  setup(build) {
+    build.onLoad({ filter: /[\\/]cm-chessboard[\\/]src[\\/]lib[\\/]Svg\.js$/ }, ({ path }) => {
+      const source = readFileSync(path, "utf8");
+      if (source.split(XLINK.from).length !== 2) throw new Error(`${path}: the xlink namespace is no longer written as ${XLINK.from}`);
+      return { contents: source.replace(XLINK.from, XLINK.to), loader: "js" };
+    });
+  },
+};
+
+export const plugins = [xlinkNamespace];
 
 if (process.argv[1] === import.meta.filename) {
   const dir = import.meta.dirname;
