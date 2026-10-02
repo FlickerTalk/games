@@ -1,0 +1,111 @@
+/* The Four in a Row board: a rounded tray of six rows of holes under a strip where the discs go
+   in; seven columns, each one button; the discs in SVG in each side's colour with its mark, the
+   newest one dropping in, the last one and the winning four ringed. */
+
+.ffr {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: repeat(7, minmax(44px, 1fr));
+  align-content: start;
+}
+.ffr::before {
+  content: "";
+  position: absolute;
+  inset: calc(100% / 7) 0 0;
+  border-radius: 24px;
+  background: var(--surface);
+}
+.ffr.s0 {
+  --me: var(--side-0);
+}
+.ffr.s1 {
+  --me: var(--side-1);
+}
+.ftg .ffr-col {
+  appearance: none;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  border: 0;
+  border-radius: 14px;
+  background: none;
+}
+.ftg .ffr-col:disabled {
+  opacity: 1;
+}
+.ffr-col > span {
+  position: relative;
+  aspect-ratio: 1;
+  border-radius: 50%;
+}
+.ffr.mine .ffr-col:enabled .ffr-top::after {
+  content: "";
+  position: absolute;
+  inset: 34% 32% 24%;
+  background: var(--me);
+  clip-path: polygon(0 0, 100% 0, 50% 100%);
+  opacity: 0.45;
+}
+.ffr.mine .ffr-col:enabled:is(:hover, :focus-visible, :active) .ffr-top::after {
+  opacity: 1;
+}
+.ffr-slot {
+  padding: 8%;
+  background: var(--paper) content-box;
+}
+.ffr.mine .ffr-col:enabled:is(:hover, :focus-visible, :active) .next {
+  background-color: color-mix(in srgb, var(--me) 35%, var(--paper));
+}
+.ffr-col .ffr-d {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.ffr-s0 > circle {
+  fill: var(--side-0);
+}
+.ffr-s1 > circle {
+  fill: var(--side-1);
+}
+.ffr-d path,
+.ffr-d circle + circle {
+  fill: none;
+  stroke: var(--paper);
+  stroke-width: 9;
+  stroke-linecap: round;
+}
+.ffr-slot.last {
+  box-shadow: inset 0 0 0 2.5px var(--muted);
+}
+.ffr-slot.pending .ffr-d {
+  opacity: 0.45;
+}
+.ffr-clock {
+  position: absolute;
+  inset-block-start: -4%;
+  inset-inline-end: -4%;
+  font-size: 13px;
+  line-height: 1;
+}
+.ffr-slot.win {
+  box-shadow: inset 0 0 0 3px var(--ink);
+}
+.ffr.won .ffr-slot:not(.win) .ffr-d {
+  opacity: 0.3;
+}
+.ffr-slot.drop .ffr-d {
+  animation: ffr-drop calc(0.12s + var(--f) * 0.06s) cubic-bezier(0.55, 0, 1, 0.45) both;
+}
+@keyframes ffr-drop {
+  from {
+    transform: translateY(calc(var(--f) * -100%));
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ffr-slot.drop .ffr-d {
+    animation: none;
+  }
+}
