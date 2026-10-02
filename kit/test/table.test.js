@@ -178,6 +178,23 @@ describe("two phones", () => {
     expect(hellos).toBeLessThanOrEqual(9);
   });
 
+  it("say hello with the whole match when the user enters it, and the other answers with its own", async () => {
+    const { a, b, ta, tb, first } = await started();
+    await first.play("p");
+    await settle(ta, tb);
+    await ta.leave();
+    await settle(ta, tb);
+    const [fromA, fromB] = [a.sent.length, b.sent.length];
+    await ta.enter(tb.record.id);
+    await settle(ta, tb);
+    const hello = sentBy(a)[fromA];
+    expect(hello).toMatchObject({ k: "hello", who: ta.record.me, game: ta.record.game });
+    expect(hello).not.toHaveProperty("proof");
+    expect(kinds(a).slice(fromA)).toEqual(["hello"]);
+    expect(kinds(b).slice(fromB)).toEqual(["sync"]);
+    expect(ta.peerHere).toBe(true);
+  });
+
   it("say goodbye when the user leaves the match", async () => {
     const { first, second } = await started();
     await first.leave();
