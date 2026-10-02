@@ -44,15 +44,34 @@ export function peerOf(record) {
   return (record.me === a ? b : a) ?? null;
 }
 
-/** What may stand in a match's list: a move (a number or a string), a resignation, a new round. */
-export function isEvent(value) {
-  if (typeof value === "string") return value.length > 0 && value.length <= 64;
-  if (typeof value === "number") return Number.isFinite(value);
-  if (!value || typeof value !== "object" || Array.isArray(value)) return false;
-  return value.x === "next" || (value.x === "resign" && isId(value.by));
+/** The most a match may weigh in one message (JSON bytes), with room to spare below the core's
+ *  48 KiB: a series that would not fit ends there, and a bigger one from the wire is refused. */
+export const MATCH_LIMIT = 40_000;
+/** The longest a move written as a string may be (a move is a number or a short string). */
+export const MOVE_LENGTH = 64;
+
+/**
+ * An event as the kit writes it, rebuilt from what arrived: a move (a finite number, or a string
+ * of 1 to 64 characters), `{x:"next"}` or `{x:"resign",by}`, with nothing else in it; null for
+ * anything else. Extra fields would travel and be kept for ever.
+ */
+export function eventOf(value) {
+  if (typeof value === "string") return value.length > 0 && value.length <= MOVE_LENGTH ? value : null;
+  if (typeof value === "number") return Number.isFinite(value) ? value : null;
+  if (!value || typeof value !== "object" || Array.isArray(value)) return null;
+  const keys = Object.keys(value).sort().join(",");
+  if (value.x === "next" && keys === "x") return { x: "next" };
+  if (value.x === "resign" && keys === "by,x" && isId(value.by)) return { x: "resign", by: value.by };
+  return null;
 }
 
-const same = (one, two) => JSON.stringify(one) === JSON.stringify(two);
+/** What may stand in a match's list: a move (a number or a string), a resignation, a new round. */
+export function isEvent(value) {
+  return eventOf(value) !== null;
+}
+
+/** Two events are the same when the kit writes them the same. */
+const same = (one, two) => JSON.stringify(eventOf(one)) === JSON.stringify(eventOf(two));
 
 /**
  * The match played again from the start through the rules: its rounds (who started, the state,
@@ -184,6 +203,7 @@ async function mergeToss(next, theirs) {
  */
 export async function merge(record, theirs, rules, { from, me, g, gv, id, now = Date.now() } = {}) {
   if (!theirs || typeof theirs !== "object") return { record, verdict: "bad", changed: false };
+  if (new TextEncoder().encode(JSON.stringify(theirs)).length > MATCH_LIMIT) return { record, verdict: "bad", changed: false };
   if (!record) {
     if (theirs.a !== from || !isId(from) || (theirs.b !== null && theirs.b !== undefined)) return { record, verdict: "stranger", changed: false };
     const joined = newMatch({ g, gv, id, me, now });
@@ -209,7 +229,8 @@ export async function merge(record, theirs, rules, { from, me, g, gv, id, now = 
 
   let verdict = changed ? "took" : "same";
   const mine = game.moves;
-  const told = Array.isArray(theirs.moves) ? theirs.moves : [];
+  const told = Array.isArray(theirs.moves) ? theirs.moves.map(eventOf) : [];
+  if (told.includes(null)) return { record, verdict: "bad", changed: false };
   if (game.first && told.length) {
     const played = replay({ ...game, moves: told }, rules);
     if (!played.ok) return { record, verdict: "bad", changed: false };

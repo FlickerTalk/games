@@ -3,7 +3,7 @@
 // of it come together (prefix, equal, divergent).
 import { describe, expect, it } from "vitest";
 import { coinToss, fromHex } from "../src/commit.js";
-import { chooseFork, isEvent, merge, newId, newMatch, peerOf, replay, score, tossStep, view } from "../src/match.js";
+import { MATCH_LIMIT, chooseFork, isEvent, merge, newId, newMatch, peerOf, replay, score, tossStep, view } from "../src/match.js";
 import { toy } from "./helpers.js";
 
 const bytes = (fill) => new Uint8Array(32).fill(fill);
@@ -143,6 +143,31 @@ describe("a coin from a phone that does not play fair", () => {
     expect(wrapped.record.game.toss.r).toBeUndefined();
     expect(wrapped.record.game.end).toBeNull();
     expect((await merge(b, revealed.game, toy, { from: "wa" })).record.game.first).toBe(revealed.game.first);
+  });
+});
+
+describe("events from a phone that does not play fair", () => {
+  it("keeps only what an event is: no extra fields, no padding, and the same event however it is written", async () => {
+    const { a, b } = await tossed("wa");
+    // A resignation padded to fill every later message: refused whole.
+    const padded = { ...b.game, moves: [{ x: "resign", by: "wb", pad: "A".repeat(45_000) }] };
+    expect(await merge(a, padded, toy, { from: "wb" })).toMatchObject({ verdict: "bad", changed: false });
+    expect((await merge(a, { ...b.game, moves: [{ x: "next", why: 1 }] }, toy, { from: "wb" })).verdict).toBe("bad");
+    // The same resignation with its keys the other way round is the same event, kept as the kit writes it.
+    const turned = await merge(a, { ...b.game, moves: [{ by: "wb", x: "resign" }] }, toy, { from: "wb" });
+    expect(turned.verdict).toBe("took");
+    expect(JSON.stringify(turned.record.game.moves)).toBe('[{"x":"resign","by":"wb"}]');
+    expect((await merge(turned.record, { ...b.game, moves: [{ by: "wb", x: "resign" }] }, toy, { from: "wb" })).verdict).toBe("same");
+    // Moves are numbers or strings of at most 64 characters.
+    expect((await merge(a, { ...b.game, moves: ["p".repeat(65)] }, toy, { from: "wb" })).verdict).toBe("bad");
+    expect(isEvent({ x: "resign", by: "wb", pad: 1 })).toBe(false);
+  });
+
+  it("refuses a whole match that is bigger than any match the kit would send", async () => {
+    const { a, b } = await tossed("wa");
+    expect(MATCH_LIMIT).toBe(40_000);
+    const heavy = { ...b.game, note: "x".repeat(MATCH_LIMIT) };
+    expect(await merge(a, heavy, toy, { from: "wb" })).toMatchObject({ verdict: "bad", changed: false });
   });
 });
 

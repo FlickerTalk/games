@@ -4,14 +4,13 @@
 // phone — and it says plainly what it cannot know: `live.send` answering true is not "heard".
 
 import { KV, PROTOCOL, seal, unseal } from "./envelope.js";
-import { chooseFork, merge, newId, newMatch, peerOf, replay, tossStep, view } from "./match.js";
+import { MATCH_LIMIT, chooseFork, merge, newId, newMatch, peerOf, replay, tossStep, view } from "./match.js";
 import { forget, list, load, save } from "./store.js";
+
+export { MATCH_LIMIT };
 
 /** How long to wait for an answer, for the coin's reveal, and between hellos nobody answered. */
 export const TIMING = { ack: 8_000, reveal: 30_000, retry: 15_000, retries: 8 };
-/** The most a match may weigh in one message (JSON bytes), with room to spare below the core's
- *  48 KiB: a series that would not fit ends there, so the kit never needs to cut a message. */
-export const MATCH_LIMIT = 40_000;
 /** The kinds that the other side answers. */
 const ASKING = ["hello", "state", "commit", "seed", "reveal"];
 /** What the other side's voice proves wrong. */
