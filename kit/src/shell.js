@@ -34,6 +34,9 @@ const NOTICES = {
 /** The messages that one more hello may fix. */
 const RETRY = ["notOpen", "unreachable", "left", "denied", "error"];
 
+/** Which phone did not reveal the coin in time, said as it is. */
+const abandonedBy = (seen) => (seen?.end?.by === seen?.me ? "abandonedYou" : "abandonedThem");
+
 /** The page's stylesheet, once: the kit's and the game's own. */
 function addStyle(extra = "") {
   if (document.head.querySelector("style[data-ftg]")) return;
@@ -249,7 +252,7 @@ export function elementFor(game) {
       if (seen.phase === "invite") return '<div class="ftg-wait" aria-hidden="true"><span class="ftg-breathe">⏳</span></div>';
       if (seen.phase === "toss") return '<div class="ftg-wait" aria-hidden="true"><span class="ftg-coin">🪙</span></div>';
       if (seen.phase === "ended" || seen.phase === "broken") {
-        const why = seen.end?.k === "invalid" ? t("invalid") : seen.end?.k === "abandoned" ? t("abandoned") : t("ended");
+        const why = seen.end?.k === "invalid" ? t("invalid") : seen.end?.k === "abandoned" ? t(abandonedBy(seen)) : t("ended");
         return `<div class="ftg-card"><div class="ftg-big" aria-hidden="true">⚠️</div><h2>${escape(t("ended"))}</h2><p>${escape(why)}</p></div>`;
       }
       return "";
@@ -296,7 +299,8 @@ export function elementFor(game) {
         const [icon, warn] = NOTICES[notice.key] ?? ["ℹ️", false];
         let actions = "";
         if (seen && RETRY.includes(notice.key) && table.live) actions = `<button class="ftg-pill small" data-kit="retry">🔄 ${escape(t("retry"))}</button>`;
-        html += `<div class="ftg-banner${warn ? " warn" : ""}" role="status"><span class="icon" aria-hidden="true">${icon}</span><span class="say">${escape(t(notice.key, { game: t("name"), ...notice.vars }))}</span>${actions}</div>`;
+        const key = notice.key === "abandoned" ? abandonedBy(seen) : notice.key;
+        html += `<div class="ftg-banner${warn ? " warn" : ""}" role="status"><span class="icon" aria-hidden="true">${icon}</span><span class="say">${escape(t(key, { game: t("name"), ...notice.vars }))}</span>${actions}</div>`;
       } else if (seen && !table.live) {
         html += `<div class="ftg-banner" role="status"><span class="icon" aria-hidden="true">💬</span><span class="say">${escape(t("needsChat", { game: t("name") }))}</span></div>`;
       } else if (seen && table.connecting && seen.phase !== "invite") {

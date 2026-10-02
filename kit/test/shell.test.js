@@ -207,6 +207,19 @@ describe("a match between two phones", () => {
     expect(text(one)).toContain("The other person does not have “Toy” open in this conversation.");
   });
 
+  it("says honestly which phone did not reveal the coin when a match is abandoned", async () => {
+    const one = await phone(fakeCore());
+    await press(one, '[data-kit="new"]');
+    const record = one.table.record;
+    one.table.record = { ...record, game: { ...record.game, b: "wother", end: { k: "abandoned", by: record.me } } };
+    one.paint();
+    expect(text(one)).toContain("This phone did not reveal the coin in time: this match was abandoned.");
+    one.table.record = { ...record, me: "wother", game: { ...record.game, b: "wother", end: { k: "abandoned", by: record.game.a } } };
+    one.table.notice = { key: "abandoned" };
+    one.paint();
+    expect(text(one)).toContain("The other person did not reveal the coin in time: this match was abandoned.");
+  });
+
   it("always offers the choice when the two phones parted ways, whatever else it has to say", async () => {
     const core = fakeCore();
     const one = await phone(core);

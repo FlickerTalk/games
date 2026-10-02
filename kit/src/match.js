@@ -138,10 +138,6 @@ export function score(played, me) {
   return tally;
 }
 
-/** An end of the whole match, which gives nobody a win: abandoned, or invalid (a bad coin). */
-const validEnd = (end, game) =>
-  Boolean(end) && typeof end === "object" && (end.k === "abandoned" || end.k === "invalid") && (end.by === game.a || end.by === game.b);
-
 /**
  * The next step of the coin toss on this phone, if it is mine to take: the starter commits; the
  * other sends its seed only after the commitment; the starter reveals once the seed is in. Saved
@@ -223,38 +219,48 @@ export async function merge(record, theirs, rules, { from, me, g, gv, id, now = 
   if (!peer || from !== peer) return { record, verdict: "stranger", changed: false };
 
   const before = JSON.stringify(game);
-  if (!game.end && validEnd(theirs.end, game)) game.end = { k: theirs.end.k, by: theirs.end.by };
-  if (!game.end && !game.first) await mergeToss(next, theirs.toss);
+  // An end from the wire is taken only as the kit makes it: b gives a match up when a's reveal does
+  // not come within 30 s of the seed. So a takes "abandoned by a" while it has not revealed; once
+  // the coin has spoken, nobody can void the match, and "invalid" is seen on b's phone alone.
+  const ended = theirs.end;
+  if (!game.end && !game.first && next.me === game.a && ended?.k === "abandoned" && ended.by === game.a) game.end = { k: "abandoned", by: game.a };
+  // b gave the match up for a reveal that did not come: if it comes after all and checks out, the
+  // coin is settled and the match goes on (a could have revealed in time; it gains nothing).
+  const gaveUp = next.me === game.b && game.end?.k === "abandoned" && !game.first;
+  if ((!game.end || gaveUp) && !game.first) await mergeToss(next, theirs.toss);
+  if (gaveUp && game.first) game.end = null;
   changed ||= JSON.stringify(game) !== before;
 
   let verdict = changed ? "took" : "same";
   const mine = game.moves;
-  const told = Array.isArray(theirs.moves) ? theirs.moves.map(eventOf) : [];
-  if (told.includes(null)) return { record, verdict: "bad", changed: false };
-  if (game.first && told.length) {
-    const played = replay({ ...game, moves: told }, rules);
+  const moves = Array.isArray(theirs.moves) ? theirs.moves.map(eventOf) : [];
+  if (moves.includes(null)) return { record, verdict: "bad", changed: false };
+  if (game.first && moves.length) {
+    const played = replay({ ...game, moves }, rules);
     if (!played.ok) return { record, verdict: "bad", changed: false };
     let common = 0;
-    while (common < mine.length && common < told.length && same(mine[common], told[common])) common += 1;
+    while (common < mine.length && common < moves.length && same(mine[common], moves[common])) common += 1;
     // Whatever they have beyond what we share must be theirs: never a move made for me.
     if (played.actors.slice(common).includes(next.me)) return { record, verdict: "bad", changed: false };
-    if (common === mine.length && common < told.length) {
-      game.moves = structuredClone(told);
-      next.heard = told.length;
+    if (common === mine.length && common < moves.length) {
+      game.moves = structuredClone(moves);
+      next.heard = moves.length;
       next.fork = null;
       verdict = "took";
       changed = true;
-    } else if (common === told.length) {
-      next.heard = Math.max(next.heard, told.length);
+    } else if (common === moves.length) {
+      next.heard = Math.max(next.heard, moves.length);
       if (common < mine.length) verdict = changed ? "took" : "ahead";
     } else {
-      next.fork = structuredClone(told);
+      next.fork = structuredClone(moves);
       next.heard = Math.max(next.heard, common);
       verdict = "fork";
     }
-  } else if (game.first && !told.length && mine.length) {
+  } else if (game.first && !moves.length && mine.length) {
     verdict = changed ? "took" : "ahead";
   }
+  // They lack my reveal (it was lost): say it again.
+  if (verdict === "same" && next.me === game.a && game.toss.r && theirs.toss?.r !== game.toss.r) verdict = "ahead";
   // Once their copy agrees with mine again, the other way is gone.
   if (verdict !== "fork") next.fork = null;
   if (changed) next.updated = now;

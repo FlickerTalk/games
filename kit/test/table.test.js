@@ -232,7 +232,8 @@ describe("what the other phone says, checked", () => {
     await settle(ta, tb);
     expect(tb.record.game.end).toEqual({ k: "invalid", by: ta.record.me });
     expect(tb.view.phase).toBe("ended");
-    expect(ta.view.phase).toBe("ended");
+    // a's phone revealed: nobody can void the match on it once the coin has spoken (C2).
+    expect(ta.view.phase).not.toBe("ended");
   });
 
   it("gives the match up as abandoned when the reveal does not come within 30 s", async () => {
@@ -256,7 +257,8 @@ describe("what the other phone says, checked", () => {
     await settle(ta, tb);
     expect(tb.record.game.end).toEqual({ k: "abandoned", by: ta.record.me });
     expect(tb.notice).toEqual({ key: "abandoned" });
-    expect(ta.view.phase).toBe("ended");
+    // a's phone revealed (only the wire hid it): b's word cannot void the match there (C2).
+    expect(ta.view.phase).not.toBe("ended");
   });
 });
 

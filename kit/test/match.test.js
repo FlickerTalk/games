@@ -28,6 +28,18 @@ async function tossed(firstIs = "wa") {
   }
 }
 
+/** Two phones' records with the coin committed and seeded, not yet revealed. */
+async function seeded() {
+  let a = newMatch({ g: "toy", gv: 1, id: "m1", me: "wa" });
+  let b = (await merge(null, a.game, toy, { me: "wb", from: "wa", g: "toy", gv: 1, id: "m1" })).record;
+  a = (await merge(a, b.game, toy, { from: "wb" })).record;
+  a = (await tossStep(a, { random: () => bytes(3) })).record;
+  b = (await merge(b, a.game, toy, { from: "wa" })).record;
+  b = (await tossStep(b, { random: () => bytes(4) })).record;
+  a = (await merge(a, b.game, toy, { from: "wb" })).record;
+  return { a, b };
+}
+
 /** One phone plays `move` in its record, as the table does. */
 async function play(record, move) {
   const next = structuredClone(record);
@@ -270,12 +282,48 @@ describe("two copies of a match coming together", () => {
     expect((await merge(a, { ...b.game, moves: ["d"] }, toy, { from: "wb" })).verdict).toBe("bad");
   });
 
-  it("accepts an end of the whole match from the other phone, which gives nobody a win", async () => {
-    const { a, b } = await tossed("wa");
+  it("takes an end from the other phone only as the kit makes it: the seed sent, the reveal never seen", async () => {
+    // Only b's phone ends a match from the coin, and only against a: a reveal that does not check
+    // out (seen on b's phone only), or no reveal within 30 s of the seed. So a takes "abandoned by
+    // me" while it has not revealed, and nothing else, ever.
+    const { a, b } = await seeded();
     const gone = { ...b.game, end: { k: "abandoned", by: "wa" } };
     const heard = await merge(a, gone, toy, { from: "wb" });
     expect(heard.record.game.end).toEqual({ k: "abandoned", by: "wa" });
     expect(view(heard.record, toy)).toMatchObject({ phase: "ended", score: { me: 0, them: 0, draws: 0 } });
-    expect((await merge(a, { ...b.game, end: { k: "won", by: "wb" } }, toy, { from: "wb" })).record.game.end).toBeNull();
+    for (const end of [{ k: "invalid", by: "wa" }, { k: "abandoned", by: "wb" }, { k: "won", by: "wb" }]) {
+      expect((await merge(a, { ...b.game, end }, toy, { from: "wb" })).record.game.end, JSON.stringify(end)).toBeNull();
+    }
+    // b's phone never takes an end from a.
+    expect((await merge(b, { ...a.game, end: { k: "abandoned", by: "wb" } }, toy, { from: "wa" })).record.game.end).toBeNull();
+  });
+
+  it("does not let the other phone void a match once the coin has spoken, mid-round or right after", async () => {
+    const { a, b } = await tossed("wb");
+    // b did not like the coin: it says a never revealed, or that the coin did not check out.
+    for (const end of [{ k: "abandoned", by: "wa" }, { k: "invalid", by: "wa" }]) {
+      expect((await merge(a, { ...b.game, end }, toy, { from: "wb" })).record.game.end).toBeNull();
+    }
+    // Mid-round, with the same moves: still nothing.
+    const played = structuredClone(b);
+    played.game.moves = ["p"];
+    const mine = (await merge(a, played.game, toy, { from: "wb" })).record;
+    expect((await merge(mine, { ...played.game, end: { k: "invalid", by: "wa" } }, toy, { from: "wb" })).record.game.end).toBeNull();
+  });
+
+  it("takes a late reveal after giving the match up, and answers a copy that lacks the reveal", async () => {
+    const { a, b } = await seeded();
+    const revealed = (await tossStep(a)).record;
+    // The reveal was lost; 30 s later b gave the match up as abandoned by a.
+    const given = structuredClone(b);
+    given.game.end = { k: "abandoned", by: "wa" };
+    // a knows it revealed: it keeps playing, and says what b lacks.
+    const told = await merge(revealed, given.game, toy, { from: "wb" });
+    expect(told.record.game.end).toBeNull();
+    expect(told.verdict).toBe("ahead");
+    // The reveal reaches b at last, and checks out: the match goes on.
+    const back = await merge(given, revealed.game, toy, { from: "wa" });
+    expect(back.record.game.end).toBeNull();
+    expect(back.record.game.first).toBe(revealed.game.first);
   });
 });
