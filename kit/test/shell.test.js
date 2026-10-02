@@ -216,6 +216,36 @@ describe("a match between two phones", () => {
     expect(a.sent.length).toBe(before + 1);
   });
 
+  it("while nobody is on the other side, says what to do — and stops saying it once they are there", async () => {
+    const HINT = "The other person has to open this game too. To invite them, close the game and tap 🎮 and then 📨 in the chat.";
+    const { a, b } = phones();
+    b.closed = true;
+    const one = await phone(a);
+    await press(one, '[data-kit="new"]');
+    // Waiting for someone, not loading: a person and an hourglass that does not move.
+    expect(text(one)).toContain(HINT);
+    expect(one.querySelector(".ftg-hint-under")).not.toBeNull();
+    expect(one.querySelector(".ftg-breathe, .ftg-coin")).toBeNull();
+    expect(one.querySelector(".ftg-wait").textContent).toContain("👤");
+    await vi.advanceTimersByTimeAsync(8_100);
+    expect(text(one)).toContain("The other person does not have “Toy” open in this conversation.");
+    expect(text(one)).toContain(HINT);
+    // They open the game: the invitation goes again, they join, and the hint is gone.
+    b.closed = false;
+    const two = await phone(b);
+    await press(one, '[data-kit="retry"]');
+    await tick();
+    expect(two.table.screen).toBe("match");
+    expect(text(one)).not.toContain(HINT);
+    // The same in a match both already play, when the other has closed the game.
+    await press(one, '[data-kit="back"]');
+    b.closed = true;
+    two.remove();
+    await press(one, '[data-kit="enter"]');
+    await vi.advanceTimersByTimeAsync(8_100);
+    expect(text(one)).toContain(HINT);
+  });
+
   it("says it is reaching the other phone while the hello is on its way, until the answer or its absence", async () => {
     const { a, b } = phones();
     const one = await phone(a);

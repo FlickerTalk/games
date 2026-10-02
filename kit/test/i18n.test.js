@@ -8,6 +8,7 @@ describe("the kit's texts", () => {
   it("speak the 21 languages of the app, with the same keys and gaps in each", () => {
     expect(LANGUAGES).toHaveLength(21);
     checkTexts(KIT_TEXTS);
+    for (const lang of LANGUAGES) expect(KIT_TEXTS[lang].howToInvite, lang).toMatch(/🎮.*📨/s);
   });
 
   it("join a game's own texts, which may not reuse a key of the kit's", () => {
