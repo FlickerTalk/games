@@ -1,0 +1,15 @@
+{
+  "id": "com.flickertalk.game.fourinarow",
+  "name": "Four in a Row",
+  "version": "1.0.0",
+  "minCoreVersion": "1.3.0",
+  "kind": "game",
+  "components": [
+    "ft-fourinarow"
+  ],
+  "permissions": {
+    "live": true,
+    "send": "propose"
+  },
+  "summary": "Four in a Row with the other person in the chat, over the direct connection between your phones."
+}
