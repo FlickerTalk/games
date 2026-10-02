@@ -142,6 +142,9 @@ describe("the chess board", () => {
     const knight = host.querySelector('.promotion-dialog-button-group[data-piece="wn"] rect');
     knight.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true, button: 0 }));
     expect(ctx.play).toHaveBeenCalledWith("b7a8n");
+    // A screen reader hears the piece that was picked, not the one that had the focus first.
+    await later(150);
+    expect(host.querySelector(".cm-chessboard-promotion-live-region").textContent).toBe("Caballo");
   });
 
   it("marks the last move, a move still pending and the king in check, and leaves how the game ended to the kit", () => {

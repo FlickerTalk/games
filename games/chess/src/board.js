@@ -35,6 +35,9 @@ function addSprite(id, svg) {
   document.body.append(holder);
 }
 
+/** The text key of each piece a pawn can become. */
+const PIECE_NAMES = { q: "queen", r: "rook", b: "bishop", n: "knight" };
+
 /** The squares a move touches, from its UCI. */
 const squaresOf = (move) => (typeof move === "string" ? [move.slice(0, 2), move.slice(2, 4)] : []);
 
@@ -175,8 +178,15 @@ class ChessView {
     this.board.showPromotionDialog(to, this.colour(this.ctx), (chosen) => {
       if (!this.promoting) return;
       this.promoting = false;
-      if (chosen.type === PROMOTION_DIALOG_RESULT_TYPE.pieceSelected) this.ctx.play(`${from}${to}${chosen.piece.charAt(1)}`);
-      else this.board.setPosition(this.ctx.state.fen, true);
+      if (chosen.type === PROMOTION_DIALOG_RESULT_TYPE.pieceSelected) {
+        const piece = chosen.piece.charAt(1);
+        // cm-chessboard announces the piece that has the focus, not the one tapped: say the choice.
+        this.dialog.announce?.(this.ctx.t(PIECE_NAMES[piece]));
+        this.ctx.play(`${from}${to}${piece}`);
+      } else {
+        this.dialog.announce?.("");
+        this.board.setPosition(this.ctx.state.fen, true);
+      }
     });
   }
 }
