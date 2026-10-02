@@ -10,8 +10,8 @@ export { STYLE };
 
 /** The two discs, each in its side's colour with a mark (✖ for side 0, ⭕ for side 1); also on the players' chips. */
 export const DISCS = [
-  '<svg class="ffr-d ffr-s0" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="43"/><path d="M38 38 62 62M62 38 38 62"/></svg>',
-  '<svg class="ffr-d ffr-s1" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="43"/><circle cx="50" cy="50" r="13"/></svg>',
+  '<svg class="ffr-d ffr-s0" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="40"/><path d="M38 38 62 62M62 38 38 62"/></svg>',
+  '<svg class="ffr-d ffr-s1" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="40"/><circle cx="50" cy="50" r="13"/></svg>',
 ];
 
 const count = (cells) => cells.filter((cell) => cell !== null).length;
