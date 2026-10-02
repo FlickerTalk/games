@@ -2,7 +2,7 @@
 // Arabic right to left, and on a tablet in landscape (2560×1600), in the states that matter.
 // @vitest-environment node
 import { describe, expect, it } from "vitest";
-import { CONFIGS, STATES, shotPath } from "./shots.js";
+import { CONFIGS, STATES, alternate, shotPath } from "./shots.js";
 
 describe("the screenshots for review", () => {
   it("cover a phone light and dark, Arabic right to left, and a tablet in landscape", () => {
@@ -17,6 +17,11 @@ describe("the screenshots for review", () => {
 
   it("cover the list, waiting, a match on both sides, a win, a draw and the result", () => {
     for (const state of ["list-empty", "waiting", "not-open", "mid-match", "confirm-resign", "win", "draw", "result-sent", "list"]) expect(STATES).toContain(state);
+  });
+
+  it("end a round with as many moves as the game needs, the two sides taking turns from ⭕", () => {
+    expect(alternate([1, 6], ["o", "x"])).toEqual([["o", 1], ["x", 6]]);
+    expect(alternate([4, 3, 4, 3], ["o", "x"])).toEqual([["o", 4], ["x", 3], ["o", 4], ["x", 3]]);
   });
 
   it("are saved where the review looks for them", () => {

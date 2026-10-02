@@ -17,12 +17,17 @@ export const STATES = ["list-empty", "waiting", "not-open", "mid-match", "confir
 
 /**
  * How each game is played for the screenshots: the selector of a move, the first three moves
- * (✖, ⭕, ✖), the two that end the round with ✖ winning (⭕, ✖), and a round to a draw from its
- * starter. A new game adds its own line here.
+ * (✖, ⭕, ✖), the ones that end the round with ✖ winning (⭕, ✖, …, ✖: as many as the game
+ * needs), and a round to a draw from its starter. A new game adds its own line here.
  */
 export const PLAYS = {
   tictactoe: { move: (cell) => `[data-cell="${cell}"]`, opening: [4, 0, 2], winning: [1, 6], draw: [0, 1, 2, 4, 3, 5, 7, 6, 8] },
 };
+
+/** Moves the two sides make in turn, the first side first: `[[side, move], …]`. */
+export function alternate(moves, sides) {
+  return moves.map((move, at) => [sides[at % 2], move]);
+}
 
 export function shotPath(game, config, index, state, side) {
   return join(OUT, game, config, `${String(index).padStart(2, "0")}-${state}-${side}.png`);
@@ -75,9 +80,7 @@ async function run(browser, base, game, config) {
   await touch(o, '[data-kit="resign"]');
   await shot("confirm-resign", o);
   await touch(o, '[data-kit="no"]');
-  const [o2, x3] = plays.winning;
-  await touch(o, plays.move(o2));
-  await touch(x, plays.move(x3));
+  for (const [side, move] of alternate(plays.winning, [o, x])) await touch(side, plays.move(move));
   await shot("win", x);
   await shot("win", o);
 
