@@ -176,8 +176,9 @@ describe("a match between two phones", () => {
     const [first, second] = one.table.view.myTurn ? [one, two] : [two, one];
     await press(first, '[data-move="w"]');
     await tick();
-    expect(text(first)).toContain("Toy won with w");
-    expect(text(second)).toContain("Toy won with w");
+    // Right under the status that says who won.
+    expect(first.querySelector(".ftg-hint-under").textContent).toBe("Toy won with w");
+    expect(second.querySelector(".ftg-hint-under").textContent).toBe("Toy won with w");
     expect(built.destroyed).toBe(0);
     await press(first, '[data-kit="back"]');
     expect(built.destroyed).toBe(1);
@@ -198,8 +199,8 @@ describe("a match between two phones", () => {
     await press(one, '[data-kit="resign"]');
     await press(one, '[data-kit="yes"]');
     await tick();
-    expect(text(one)).toContain("You resigned");
-    expect(text(two)).toContain("The other person resigned");
+    expect(one.querySelector(".ftg-hint-under").textContent).toBe("You resigned");
+    expect(two.querySelector(".ftg-hint-under").textContent).toBe("The other person resigned");
     expect(text(two)).toContain("You won");
   });
 

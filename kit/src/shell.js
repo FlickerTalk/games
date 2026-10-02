@@ -163,7 +163,8 @@ export function elementFor(game) {
       const status = this.status(seen);
       part("status").className = `ftg-status ${status.mine ? "mine" : "theirs"}${status.over ? " over" : ""}`;
       part("status").innerHTML = status.html;
-      part("hint").textContent = this.waitingFor(seen) ? this.t("howToInvite") : "";
+      // Under the status: what to do while the other person is missing, or how the round ended.
+      part("hint").textContent = this.waitingFor(seen) ? this.t("howToInvite") : seen.phase === "over" ? this.outcome(seen).how : "";
       part("stage").classList.toggle("dim", ["invite", "toss", "ended", "broken"].includes(seen.phase));
       part("overlay").innerHTML = this.overlayHtml(seen);
       part("result").innerHTML = this.resultHtml(seen);
@@ -311,7 +312,7 @@ export function elementFor(game) {
       const again = this.table.live
         ? `<button class="ftg-btn" data-kit="again" aria-label="${escape(t("again"))}" title="${escape(t("again"))}">🔁</button>`
         : "";
-      return `<div class="ftg-result-card" role="group" aria-label="${escape(title)}">${how ? `<p>${escape(how)}</p>` : ""}<div class="ftg-actions"><button class="ftg-pill primary" data-kit="send">📤 ${escape(t("sendResult"))}</button>${again}</div></div>`;
+      return `<div class="ftg-result-card" role="group" aria-label="${escape(how ? `${title} · ${how}` : title)}"><div class="ftg-actions"><button class="ftg-pill primary" data-kit="send">📤 ${escape(t("sendResult"))}</button>${again}</div></div>`;
     }
 
     bannerHtml(seen) {
