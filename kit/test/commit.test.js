@@ -18,6 +18,7 @@ import {
   verifyCoin,
   verifyDice,
   verifyFleet,
+  whoProof,
 } from "../src/commit.js";
 
 const G = "match-1";
@@ -33,6 +34,7 @@ const DICE_OUT = "fc933aa01aa06f111dd75a897b6d5b0620e0d2c458fe5a16fe159bfa69d0e0
 const DICE_40 = [4, 5, 5, 3, 5, 4, 6, 6, 6, 1, 6, 4, 2, 2, 1, 3, 3, 1, 5, 5, 1, 5, 4, 6, 5, 4, 5, 3, 4, 2, 1, 6, 3, 1, 4, 3, 2, 5, 2, 6];
 const FLEET = "A9,A10;E3,E4,E5";
 const FLEET_COMMIT = "116b3c477d1eacfaa46b8b9ac2dc4c76b70e2d97f941832904cf80f6534b1e1d";
+const WHO_PROOF = "1bc81ec8fb2bd366ffc13ccae99804a7671cccdda6afcf9bfa26bb4a4e5f6205";
 
 /** The same layout, built with node:crypto and Buffer, without the kit. */
 const node = (...parts) => createHash("sha256").update(Buffer.concat(parts.map((part) => Buffer.from(part)))).digest("hex");
@@ -113,5 +115,14 @@ describe("a hidden fleet", () => {
     expect(node("ftgames-ships-v1", zero, G, zero, SALT, FLEET)).toBe(FLEET_COMMIT);
     expect(await verifyFleet(G, SALT, ships, FLEET_COMMIT)).toBe(true);
     expect(await verifyFleet(G, SALT, [["E5", "E4", "E3"], ["A10", "B10"]], FLEET_COMMIT)).toBe(false);
+  });
+});
+
+describe("the proof that a phone knows the other participant", () => {
+  it("binds the other's id to the match and to a nonce that other phone chose", async () => {
+    expect(await whoProof(G, "n0nce0000000000x", "wa000000000000id")).toBe(WHO_PROOF);
+    expect(node("ftgames-who-v1", zero, G, zero, "n0nce0000000000x", zero, "wa000000000000id")).toBe(WHO_PROOF);
+    expect(await whoProof(G, "n0nce0000000000y", "wa000000000000id")).not.toBe(WHO_PROOF);
+    expect(await whoProof("match-2", "n0nce0000000000x", "wa000000000000id")).not.toBe(WHO_PROOF);
   });
 });

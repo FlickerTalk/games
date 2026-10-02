@@ -9,6 +9,7 @@
 const COIN = "ftgames-coin-v1";
 const DICE = "ftgames-dice-v1";
 const SHIPS = "ftgames-ships-v1";
+const WHO = "ftgames-who-v1";
 
 const utf8 = (text) => new TextEncoder().encode(text);
 const ZERO = new Uint8Array([0]);
@@ -112,4 +113,13 @@ export async function fleetCommit(g, salt, ships) {
 
 export async function verifyFleet(g, salt, ships, c) {
   return valid(salt) && (await fleetCommit(g, salt, ships)) === c;
+}
+
+/**
+ * The proof that a phone knows the other participant of match `g`, whose id is `id`, bound to the
+ * `nonce` that other phone chose for this session: SHA-256(domain ‖ 0x00 ‖ g ‖ 0x00 ‖ nonce ‖ 0x00 ‖ id).
+ * Only the two participants know their ids; the nonce keeps a proof from being used again.
+ */
+export async function whoProof(g, nonce, id) {
+  return hex(await sha256(utf8(WHO), ZERO, utf8(g), ZERO, utf8(nonce), ZERO, utf8(id)));
 }

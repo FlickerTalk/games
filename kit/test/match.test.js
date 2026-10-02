@@ -253,6 +253,11 @@ describe("two copies of a match coming together", () => {
     expect(view(a, toy).pending).toBe(0);
   });
 
+  it("tells a stranger from a broken message: who speaks is checked before what they say", async () => {
+    const { a } = await tossed("wa");
+    for (const game of [0, null, "x", []]) expect((await merge(a, game, toy, { from: "zz" })).verdict, String(game)).toBe("stranger");
+  });
+
   it("refuses moves that break the rules, or that were made for me", async () => {
     let { a, b } = await tossed("wa");
     const broken = { ...a.game, moves: ["x"] };

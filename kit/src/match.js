@@ -198,7 +198,13 @@ async function mergeToss(next, theirs) {
  * me: nothing taken), `stranger` (not from the other participant of this match).
  */
 export async function merge(record, theirs, rules, { from, me, g, gv, id, now = Date.now() } = {}) {
-  if (!theirs || typeof theirs !== "object") return { record, verdict: "bad", changed: false };
+  if (record) {
+    // Who speaks is checked first: nothing about this match is weighed for anyone but its other
+    // participant (or, while nobody has the other seat, the one who answers the invitation).
+    const joining = !record.game.b && record.me === record.game.a && isId(from) && from !== record.me;
+    if (!joining && from !== peerOf(record)) return { record, verdict: "stranger", changed: false };
+  }
+  if (!theirs || typeof theirs !== "object" || Array.isArray(theirs)) return { record, verdict: "bad", changed: false };
   if (new TextEncoder().encode(JSON.stringify(theirs)).length > MATCH_LIMIT) return { record, verdict: "bad", changed: false };
   if (!record) {
     if (theirs.a !== from || !isId(from) || (theirs.b !== null && theirs.b !== undefined)) return { record, verdict: "stranger", changed: false };
