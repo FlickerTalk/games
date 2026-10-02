@@ -8,29 +8,30 @@ import STYLE from "./style.css";
 import { KIT_TEXTS, direction, joinTexts, translator } from "./i18n.js";
 import { Table } from "./table.js";
 import { mediumReads } from "./colour.js";
+import { icon } from "./icons.js";
 
 const escape = (text) =>
   String(text).replace(/[&<>"']/g, (one) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[one]);
 
-const BACK = '<svg class="ftg-flip" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 4.5 7.5 12l7.5 7.5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-const FLAG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 21V4m0 0h11.5l-2.5 4.25L17.5 12.5H6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+/** The text with the controls it names drawn in it: `{invite}`, the app's mail button. */
+const withIcons = (text) => escape(text).replace(/\{invite\}/g, icon("mail-outline"));
 
 /** How each message looks: its icon, and whether it warns or only tells. */
 const NOTICES = {
-  needsChat: ["💬", false],
-  notOpen: ["👤", true],
-  unreachable: ["📵", true],
-  left: ["👋", false],
-  busy: ["⏳", false],
-  denied: ["🚫", true],
-  update: ["📦", true],
-  fork: ["🔀", true],
-  badMove: ["⚠️", true],
-  full: ["💾", true],
-  invalid: ["⚠️", true],
-  abandoned: ["⚠️", true],
-  tooLong: ["📏", true],
-  error: ["⚠️", true],
+  needsChat: ["chatbubble-outline", false],
+  notOpen: ["person-outline", true],
+  unreachable: ["cloud-offline-outline", true],
+  left: ["exit-outline", false],
+  busy: ["hourglass-outline", false],
+  denied: ["ban-outline", true],
+  update: ["arrow-up-circle-outline", true],
+  fork: ["git-branch-outline", true],
+  badMove: ["warning-outline", true],
+  full: ["save-outline", true],
+  invalid: ["warning-outline", true],
+  abandoned: ["warning-outline", true],
+  tooLong: ["warning-outline", true],
+  error: ["warning-outline", true],
 };
 /** The messages that one more hello may fix. */
 const RETRY = ["notOpen", "unreachable", "left", "denied", "error"];
@@ -193,7 +194,7 @@ export function elementFor(game) {
       part("status").className = `ftg-status ${status.mine ? "mine" : "theirs"}${status.over ? " over" : ""}`;
       part("status").innerHTML = status.html;
       // Under the status: what to do while the other person is missing, or how the round ended.
-      part("hint").textContent = this.waitingFor(seen) ? this.t("howToInvite") : seen.phase === "over" ? this.outcome(seen).how : "";
+      part("hint").innerHTML = this.waitingFor(seen) ? withIcons(this.t("howToInvite")) : seen.phase === "over" ? escape(this.outcome(seen).how) : "";
       // Waiting for a person, the board is ready in its own colours, only not playable; an ended match is dimmed.
       part("stage").classList.toggle("dim", ["ended", "broken"].includes(seen.phase));
       part("overlay").innerHTML = this.overlayHtml(seen);
@@ -233,22 +234,22 @@ export function elementFor(game) {
       const newLabel = escape(t("newMatch"));
       const disabled = table.live ? "" : "disabled";
       // The app's own bar already shows the game's name: here, the matches and a new one.
-      let html = `<header class="ftg-bar"><h1 class="ftg-title">${escape(t("matches"))}</h1><button class="ftg-btn primary" data-kit="new" aria-label="${newLabel}" title="${newLabel}" ${disabled}>＋</button></header>`;
+      let html = `<header class="ftg-bar"><h1 class="ftg-title">${escape(t("matches"))}</h1><button class="ftg-btn primary" data-kit="new" aria-label="${newLabel}" title="${newLabel}" ${disabled}>${icon("add-outline")}</button></header>`;
       html += this.bannerHtml(null);
-      if (!table.live) html += `<p class="ftg-hint">💬 ${escape(t("needsChat", { game: t("name") }))}</p>`;
+      if (!table.live) html += `<p class="ftg-hint">${icon("chatbubble-outline")} ${escape(t("needsChat", { game: t("name") }))}</p>`;
       if (!table.matches.length) {
-        html += `<div class="ftg-empty"><div class="ftg-hero" aria-hidden="true">${game.icon}</div><p>${escape(t("noMatches"))}</p>${
-          table.live ? `<button class="ftg-pill primary" data-kit="new">＋ ${newLabel}</button>` : ""
+        html += `<div class="ftg-empty"><div class="ftg-hero" aria-hidden="true">${icon("game-controller-outline")}</div><p>${escape(t("noMatches"))}</p>${
+          table.live ? `<button class="ftg-pill primary" data-kit="new">${icon("add-outline")} ${newLabel}</button>` : ""
         }</div>`;
         return html;
       }
       const day = new Intl.DateTimeFormat(this.lang, { day: "numeric", month: "short" });
       html += `<ul class="ftg-list" aria-label="${escape(t("matches"))}">`;
       for (const { record, view: seen } of table.matches) {
-        const [icon, label] = this.rowState(seen);
+        const [state, label] = this.rowState(seen);
         const score = `${this.number(seen.score.me)}–${this.number(seen.score.them)}`;
         const meta = [label, t("started", { date: day.format(new Date(record.created)) })].filter(Boolean).join(" · ");
-        html += `<li class="ftg-row${seen.myTurn ? " mine" : ""}"><button class="ftg-row-open" data-kit="enter" data-id="${escape(record.id)}" aria-label="${escape(`${meta} · ${t("score")} ${score}`)}"><span class="ftg-row-icon" aria-hidden="true">${icon}</span><span class="ftg-row-text"><span class="ftg-row-score">${escape(score)}</span><span class="ftg-row-meta">${escape(meta)}</span></span></button><button class="ftg-btn" data-kit="delete" data-id="${escape(record.id)}" aria-label="${escape(t("delete"))}" title="${escape(t("delete"))}">🗑️</button></li>`;
+        html += `<li class="ftg-row${seen.myTurn ? " mine" : ""}"><button class="ftg-row-open" data-kit="enter" data-id="${escape(record.id)}" aria-label="${escape(`${meta} · ${t("score")} ${score}`)}"><span class="ftg-row-icon" aria-hidden="true">${icon(state)}</span><span class="ftg-row-text"><span class="ftg-row-score">${escape(score)}</span><span class="ftg-row-meta">${escape(meta)}</span></span></button><button class="ftg-btn" data-kit="delete" data-id="${escape(record.id)}" aria-label="${escape(t("delete"))}" title="${escape(t("delete"))}">${icon("trash-outline")}</button></li>`;
       }
       return `${html}</ul>`;
     }
@@ -256,17 +257,17 @@ export function elementFor(game) {
     /** A row's icon and words for where its match stands. */
     rowState(seen) {
       const t = this.t;
-      if (seen.phase === "play") return seen.myTurn ? ["▶️", t("yourTurn")] : [seen.pending ? "🕓" : "⏳", t("theirTurn")];
-      if (seen.phase === "over") return ["🏁", t("over")];
-      if (seen.phase === "ended" || seen.phase === "broken") return ["⛔", t("ended")];
-      return ["⏳", ""];
+      if (seen.phase === "play") return seen.myTurn ? ["play-outline", t("yourTurn")] : [seen.pending ? "time-outline" : "hourglass-outline", t("theirTurn")];
+      if (seen.phase === "over") return ["checkmark-circle-outline", t("over")];
+      if (seen.phase === "ended" || seen.phase === "broken") return ["ban-outline", t("ended")];
+      return ["hourglass-outline", ""];
     }
 
     barHtml(seen) {
       const t = this.t;
       const can = this.table.live && seen.phase === "play" && !seen.fork;
       const score = `<span class="me">${this.number(seen.score.me)}</span><span class="dash">–</span><span class="them">${this.number(seen.score.them)}</span>`;
-      return `<button class="ftg-btn" data-kit="back" aria-label="${escape(t("back"))}" title="${escape(t("back"))}">${BACK}</button><div class="ftg-score" role="img" aria-label="${escape(`${t("score")} ${seen.score.me}–${seen.score.them}`)}">${score}</div><button class="ftg-btn" data-kit="resign" aria-label="${escape(t("resign"))}" title="${escape(t("resign"))}" ${can ? "" : "disabled"}>${FLAG}</button>`;
+      return `<button class="ftg-btn" data-kit="back" aria-label="${escape(t("back"))}" title="${escape(t("back"))}">${icon("chevron-back-outline", "ftg-flip")}</button><div class="ftg-score" role="img" aria-label="${escape(`${t("score")} ${seen.score.me}–${seen.score.them}`)}">${score}</div><button class="ftg-btn" data-kit="resign" aria-label="${escape(t("resign"))}" title="${escape(t("resign"))}" ${can ? "" : "disabled"}>${icon("flag-outline")}</button>`;
     }
 
     playersHtml(seen) {
@@ -313,7 +314,7 @@ export function elementFor(game) {
     /** Whether the other phone is missing and the user can do something about it (invite them). */
     waitingFor(seen) {
       const table = this.table;
-      // Once nobody answered, the notice with 🔄 takes the hint's place: the room has no space for both.
+      // Once nobody answered, the notice with "try again" takes the hint's place: the room has no space for both.
       return table.live && !table.peerHere && seen.phase === "invite" && table.notice?.key !== "notOpen";
     }
 
@@ -322,28 +323,28 @@ export function elementFor(game) {
       const t = this.t;
       const game_ = t("name");
       const round = seen.index > 0 ? `${escape(t("round", { n: this.number(seen.index + 1) }))} · ` : "";
-      const line = (icon, text, mine = false) => ({ html: `<span class="icon" aria-hidden="true">${icon}</span><span>${round}${escape(text)}</span>`, mine });
+      const line = (art, text, mine = false) => ({ html: `<span class="icon" aria-hidden="true">${art}</span><span>${round}${escape(text)}</span>`, mine });
       const mark = (side) => (side === null ? "" : game.sides?.[side]) || "";
-      if (seen.phase === "invite") return { html: `<span aria-hidden="true">👤</span><span>${escape(t("waiting", { game: game_ }))}</span>`, mine: true };
-      if (seen.phase === "toss") return { html: `<span aria-hidden="true">🪙</span><span>${escape(t("tossing"))}</span>`, mine: false };
-      if (seen.phase === "ended" || seen.phase === "broken") return line("⛔", t("ended"));
+      if (seen.phase === "invite") return { html: `<span class="icon" aria-hidden="true">${icon("person-outline")}</span><span>${escape(t("waiting", { game: game_ }))}</span>`, mine: true };
+      if (seen.phase === "toss") return { html: `<span class="icon" aria-hidden="true">${icon("dice-outline")}</span><span>${escape(t("tossing"))}</span>`, mine: false };
+      if (seen.phase === "ended" || seen.phase === "broken") return line(icon("ban-outline"), t("ended"));
       if (seen.phase === "over") {
         const { big, title } = this.outcome(seen);
-        return { ...line(big, title, seen.result.winner === seen.me), over: true };
+        return { ...line(icon(big), title, seen.result.winner === seen.me), over: true };
       }
       const fresh = seen.index === 0 && !seen.round.moves.length;
-      const mine = mark(seen.mySide) || "▶️";
-      const theirs = mark(1 - seen.mySide) || "⏳";
-      if (seen.myTurn) return fresh ? line("🪙", t("youStart"), true) : line(mine, t("yourTurn"), true);
-      return fresh ? line("🪙", t("theyStart")) : line(theirs, t("theirTurn"));
+      const mine = mark(seen.mySide) || icon("play-outline");
+      const theirs = mark(1 - seen.mySide) || icon("hourglass-outline");
+      if (seen.myTurn) return fresh ? line(icon("dice-outline"), t("youStart"), true) : line(mine, t("yourTurn"), true);
+      return fresh ? line(icon("dice-outline"), t("theyStart")) : line(theirs, t("theirTurn"));
     }
 
     overlayHtml(seen) {
       const t = this.t;
-      if (seen.phase === "toss") return '<div class="ftg-wait" aria-hidden="true"><span class="ftg-coin">🪙</span></div>';
+      if (seen.phase === "toss") return `<div class="ftg-wait" aria-hidden="true"><span class="ftg-coin">${icon("dice-outline")}</span></div>`;
       if (seen.phase === "ended" || seen.phase === "broken") {
         const why = seen.end?.k === "invalid" ? t("invalid") : seen.end?.k === "abandoned" ? t(abandonedBy(seen)) : t("ended");
-        return `<div class="ftg-card"><div class="ftg-big" aria-hidden="true">⚠️</div><h2>${escape(t("ended"))}</h2><p>${escape(why)}</p></div>`;
+        return `<div class="ftg-card"><div class="ftg-big" aria-hidden="true">${icon("warning-outline")}</div><h2>${escape(t("ended"))}</h2><p>${escape(why)}</p></div>`;
       }
       return "";
     }
@@ -354,7 +355,7 @@ export function elementFor(game) {
       const result = seen.result;
       const won = result.winner === seen.me;
       return {
-        big: result.winner === null ? "🤝" : won ? "🏆" : "😅",
+        big: result.winner === null ? "reorder-two-outline" : won ? "trophy-outline" : "sad-outline",
         title: result.winner === null ? t("draw") : won ? t("youWon") : t("youLost"),
         how: result.k === "resign" ? (result.by === seen.me ? t("youResigned") : t("theyResigned")) : this.why(result),
       };
@@ -376,9 +377,9 @@ export function elementFor(game) {
       if (seen.phase !== "over") return "";
       const { title, how } = this.outcome(seen);
       const again = this.table.live
-        ? `<button class="ftg-btn" data-kit="again" aria-label="${escape(t("again"))}" title="${escape(t("again"))}">🔁</button>`
+        ? `<button class="ftg-btn" data-kit="again" aria-label="${escape(t("again"))}" title="${escape(t("again"))}">${icon("repeat-outline")}</button>`
         : "";
-      return `<div class="ftg-result-card" role="group" aria-label="${escape(how ? `${title} · ${how}` : title)}"><div class="ftg-actions"><button class="ftg-pill primary" data-kit="send">📤 ${escape(t("sendResult"))}</button>${again}</div></div>`;
+      return `<div class="ftg-result-card" role="group" aria-label="${escape(how ? `${title} · ${how}` : title)}"><div class="ftg-actions"><button class="ftg-pill primary" data-kit="send">${icon("send-outline")} ${escape(t("sendResult"))}</button>${again}</div></div>`;
     }
 
     bannerHtml(seen) {
@@ -388,26 +389,26 @@ export function elementFor(game) {
       if (table.prompt) {
         const text = table.prompt.kind === "invited" ? t("invited") : t("elsewhere");
         const go = table.prompt.kind === "invited" ? t("join") : t("open");
-        html += `<div class="ftg-banner prompt" role="alert"><span class="icon" aria-hidden="true">📥</span><span class="say">${escape(text)}</span><button class="ftg-pill small" data-kit="join">${escape(go)}</button><button class="ftg-pill small quiet" data-kit="dismiss">${escape(t("dismiss"))}</button></div>`;
+        html += `<div class="ftg-banner prompt" role="alert"><span class="icon" aria-hidden="true">${icon("enter-outline")}</span><span class="say">${escape(text)}</span><button class="ftg-pill small" data-kit="join">${escape(go)}</button><button class="ftg-pill small quiet" data-kit="dismiss">${escape(t("dismiss"))}</button></div>`;
       }
       // Two phones that parted ways cannot play on until the user picks: the choice is always there.
       if (seen?.fork) {
-        html += `<div class="ftg-banner warn" role="alert"><span class="icon" aria-hidden="true">🔀</span><span class="say">${escape(t("fork"))}</span><button class="ftg-pill small" data-kit="fork-mine">${escape(t("forkMine"))}</button><button class="ftg-pill small" data-kit="fork-theirs">${escape(t("forkTheirs"))}</button></div>`;
+        html += `<div class="ftg-banner warn" role="alert"><span class="icon" aria-hidden="true">${icon("git-branch-outline")}</span><span class="say">${escape(t("fork"))}</span><button class="ftg-pill small" data-kit="fork-mine">${escape(t("forkMine"))}</button><button class="ftg-pill small" data-kit="fork-theirs">${escape(t("forkTheirs"))}</button></div>`;
       }
       const notice = table.notice?.key === "fork" ? null : table.notice;
       if (notice && (seen || !RETRY.includes(notice.key))) {
-        const [icon, warn] = NOTICES[notice.key] ?? ["ℹ️", false];
+        const [drawn, warn] = NOTICES[notice.key] ?? ["information-circle-outline", false];
         let actions = "";
-        if (seen && RETRY.includes(notice.key) && table.live) actions = `<button class="ftg-pill small" data-kit="retry">🔄 ${escape(t("retry"))}</button>`;
+        if (seen && RETRY.includes(notice.key) && table.live) actions = `<button class="ftg-pill small" data-kit="retry">${icon("refresh-outline")} ${escape(t("retry"))}</button>`;
         // While waiting for the one invited, "nobody answered" is best said as how to invite them.
         const key = notice.key === "abandoned" ? abandonedBy(seen) : notice.key === "notOpen" && seen?.phase === "invite" ? "howToInvite" : notice.key;
-        html += `<div class="ftg-banner${warn ? " warn" : ""}" role="status"><span class="icon" aria-hidden="true">${icon}</span><span class="say">${escape(t(key, { game: t("name"), ...notice.vars }))}</span>${actions}</div>`;
+        html += `<div class="ftg-banner${warn ? " warn" : ""}" role="status"><span class="icon" aria-hidden="true">${icon(drawn)}</span><span class="say">${withIcons(t(key, { game: t("name"), ...notice.vars }))}</span>${actions}</div>`;
       } else if (seen && !table.live) {
-        html += `<div class="ftg-banner" role="status"><span class="icon" aria-hidden="true">💬</span><span class="say">${escape(t("needsChat", { game: t("name") }))}</span></div>`;
+        html += `<div class="ftg-banner" role="status"><span class="icon" aria-hidden="true">${icon("chatbubble-outline")}</span><span class="say">${escape(t("needsChat", { game: t("name") }))}</span></div>`;
       } else if (seen && table.connecting && seen.phase !== "invite") {
-        html += `<div class="ftg-banner" role="status"><span class="icon" aria-hidden="true">📡</span><span class="say">${escape(t("connecting"))}</span></div>`;
+        html += `<div class="ftg-banner" role="status"><span class="icon" aria-hidden="true">${icon("radio-outline")}</span><span class="say">${escape(t("connecting"))}</span></div>`;
       } else if (seen && seen.pending > 0 && seen.phase !== "ended") {
-        html += `<div class="ftg-banner" role="status"><span class="icon" aria-hidden="true">🕓</span><span class="say">${escape(t("pending", { game: t("name") }))}</span></div>`;
+        html += `<div class="ftg-banner" role="status"><span class="icon" aria-hidden="true">${icon("time-outline")}</span><span class="say">${escape(t("pending", { game: t("name") }))}</span></div>`;
       }
       return html;
     }
@@ -416,8 +417,8 @@ export function elementFor(game) {
       const t = this.t;
       if (!this.asking) return "";
       const [question, yes] = this.asking.kind === "delete" ? [t("confirmDelete"), t("delete")] : [t("confirmResign"), t("resign")];
-      const icon = this.asking.kind === "delete" ? "🗑️" : "🏳️";
-      return `<div class="ftg-dialog"><div class="ftg-card" role="alertdialog" aria-modal="true" aria-label="${escape(question)}"><div class="ftg-big" aria-hidden="true">${icon}</div><p>${escape(question)}</p><div class="ftg-actions"><button class="ftg-pill" data-kit="no">${escape(t("cancel"))}</button><button class="ftg-pill danger" data-kit="yes">${escape(yes)}</button></div></div></div>`;
+      const drawn = this.asking.kind === "delete" ? "trash-outline" : "flag-outline";
+      return `<div class="ftg-dialog"><div class="ftg-card" role="alertdialog" aria-modal="true" aria-label="${escape(question)}"><div class="ftg-big" aria-hidden="true">${icon(drawn)}</div><p>${escape(question)}</p><div class="ftg-actions"><button class="ftg-pill" data-kit="no">${escape(t("cancel"))}</button><button class="ftg-pill danger" data-kit="yes">${escape(yes)}</button></div></div></div>`;
     }
   };
 }

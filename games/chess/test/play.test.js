@@ -242,7 +242,7 @@ describe("chess with nobody on the other side", () => {
     await vi.advanceTimersByTimeAsync(8_100 - (Date.now() - start));
     await settle([one.table]);
     expect(one.querySelector('.ftg-banner [data-kit="retry"]')).not.toBeNull();
-    expect(one.querySelector(".ftg-banner").textContent).toContain("Tap 📨 above to invite them.");
+    expect(one.querySelector(".ftg-banner").textContent.replace(/\s+/g, " ")).toContain("Tap above to invite them.");
     for (let second = 0; second < 300; second += 1) {
       await vi.advanceTimersByTimeAsync(1_000);
       await settle([one.table], 2);

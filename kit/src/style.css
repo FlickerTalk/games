@@ -106,6 +106,15 @@
   white-space: nowrap;
 }
 
+/* The icons (icons.js): Ionicons, drawn in the text's colour and sized by the text around them. */
+.ftg-ico {
+  flex: none;
+  width: 1.2em;
+  height: 1.2em;
+  vertical-align: -0.25em;
+  fill: currentColor;
+}
+
 /* Buttons: round icons, and pills where a word is needed. */
 .ftg-btn {
   appearance: none;
@@ -125,10 +134,6 @@
 .ftg-btn.primary {
   background: var(--primary);
   color: var(--on-primary);
-}
-.ftg-btn svg {
-  width: 22px;
-  height: 22px;
 }
 [dir="rtl"] .ftg-flip {
   transform: scaleX(-1);
@@ -227,7 +232,7 @@
   flex: none;
   width: 44px;
   height: 44px;
-  border-radius: 50%;
+  border-radius: 12px;
   background: var(--paper);
   font-size: 20px;
 }
@@ -351,6 +356,10 @@
   width: 34px;
   height: 34px;
   font-size: 28px;
+}
+.ftg-status.over .icon svg {
+  width: 30px;
+  height: 30px;
 }
 .ftg-status .icon {
   display: inline-grid;
@@ -554,6 +563,7 @@
   flex: 1 1 180px;
 }
 .ftg-banner .icon {
+  display: flex;
   font-size: 18px;
 }
 .ftg-banner.warn {

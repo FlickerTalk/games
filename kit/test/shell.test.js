@@ -243,15 +243,18 @@ describe("a match between two phones", () => {
     await press(one, '[data-kit="new"]');
     expect(text(one)).toContain("Waiting for the other person to open “Toy” in this conversation");
     await vi.advanceTimersByTimeAsync(8_100);
-    // Nobody answered the invitation: the notice says how to invite them, with 🔄.
-    expect(one.querySelector(".ftg-banner").textContent).toContain("The other person has to open this game too. Tap 📨 above to invite them.");
+    // Nobody answered the invitation: the notice says how to invite them (the app's mail button
+    // drawn in the sentence), with "try again".
+    const notice = one.querySelector(".ftg-banner");
+    expect(text(notice)).toContain("The other person has to open this game too. Tap above to invite them.");
+    expect(notice.querySelector(".say svg.ftg-ico")).not.toBeNull();
     const before = a.sent.length;
     await press(one, '[data-kit="retry"]');
     expect(a.sent.length).toBe(before + 1);
   });
 
   it("while nobody is on the other side, says what to do — and stops saying it once they are there", async () => {
-    const HINT = "The other person has to open this game too. Tap 📨 above to invite them.";
+    const HINT = "The other person has to open this game too. Tap above to invite them.";
     const { a, b } = phones();
     b.closed = true;
     const one = await phone(a);
@@ -262,10 +265,10 @@ describe("a match between two phones", () => {
     expect(one.querySelector(".ftg-hint-under")).not.toBeNull();
     expect(one.querySelector(".ftg-stage").classList.contains("dim")).toBe(false);
     expect(one.querySelector('[data-part="overlay"]').children).toHaveLength(0);
-    expect(one.querySelector(".ftg-status").textContent).toContain("👤");
+    expect(one.querySelector(".ftg-status svg.ftg-ico")).not.toBeNull();
     expect(one.querySelector('[data-move="p"]').disabled).toBe(true);
     await vi.advanceTimersByTimeAsync(8_100);
-    // Nobody answered: one notice with 🔄 takes the hint's place (the room is small; they do not stack),
+    // Nobody answered: one notice with "try again" takes the hint's place (the room is small; they do not stack),
     // and still says how to invite them.
     const count = (needle) => text(one).split(needle).length - 1;
     expect(count(HINT)).toBe(1);

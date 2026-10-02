@@ -55,8 +55,9 @@ if the build does not give back the committed `dist/`.
    `minCoreVersion: "1.3.0"` and `permissions: { "live": true, "send": "propose" }` — the app refuses a
    game that asks for anything else.
 2. `games/<name>/THIRD_PARTY_NOTICES.md`: the full licence text (and Apache `NOTICE`) of everything
-   bundled from elsewhere, or a line saying there is none. Runtime dependencies go in the root
-   `package.json` `dependencies`, where `npm run licenses` checks them.
+   bundled from elsewhere. Every game carries at least the kit's icons (Ionicons, MIT: copy the
+   section from Tic-Tac-Toe's). Runtime dependencies go in the root `package.json` `dependencies`,
+   where `npm run licenses` checks them.
 3. `src/rules.js`, `src/board.js`, `src/texts.js` and `src/index.js` (below).
 4. Tests in `games/<name>/test/`: the rules, the board and texts, the package (copy Tic-Tac-Toe's
    `package.test.js` and set your size cap), and two phones playing (copy `play.test.js`).
@@ -118,6 +119,16 @@ every state on a 384×853 and a 360×740 phone, in German and Spanish.
 leaves the screen or the game closes, to let go of listeners and timers. The board draws into `host` (light DOM: no shadow
 root, so a library that needs `document` or `<use href="#id">` works) and never talks to the other
 phone. `host` is always `dir="ltr"`: boards are not mirrored in Arabic.
+
+**Icons.** The interface draws no emoji: its icons are [Ionicons](https://ionic.io/ionicons) (MIT), the
+outline set the app itself uses, copied unchanged into `kit/src/icons.js` (only the ones drawn; a test
+checks each against the `ionicons` package, a development dependency). `icon(name)`, exported by the
+kit, gives one as inline SVG in `currentColor`, sized `1.2em` by the text around it and hidden from
+screen readers (the button's translated label says what it does). A board marks things with it too
+(`icon("time-outline")` on a move still on its way). A text that names a control draws it:
+`{invite}` in `howToInvite` becomes the app's mail button. Emoji stay only in what goes to the chat
+(the summary) and in a game's own `icon` field. To add one: copy its file's drawing from
+`node_modules/ionicons/dist/svg/` into `ICONS`.
 
 | `context` | |
 | --- | --- |

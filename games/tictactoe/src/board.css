@@ -39,7 +39,7 @@
   border-radius: 50%;
   background: var(--line);
 }
-.ftt-cell svg {
+.ftt-cell > svg {
   width: 100%;
   height: 100%;
   overflow: visible;
@@ -59,17 +59,19 @@
 .ftt-cell.last {
   box-shadow: 0 0 0 3px var(--line);
 }
-.ftt-cell.last svg :is(path, circle) {
+.ftt-cell.last > svg :is(path, circle) {
   stroke-dasharray: 1;
   animation: ftt-draw 0.35s ease-out both;
 }
-.ftt-cell.pending svg {
+.ftt-cell.pending > svg {
   opacity: 0.45;
 }
 .ftt-clock {
   position: absolute;
   inset-block-start: 6%;
   inset-inline-end: 6%;
+  display: flex;
+  color: var(--muted);
   font-size: 15px;
   line-height: 1;
 }
@@ -99,7 +101,7 @@
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .ftt-cell.last svg :is(path, circle),
+  .ftt-cell.last > svg :is(path, circle),
   .ftt-win line {
     animation: none;
   }
