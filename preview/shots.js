@@ -53,6 +53,14 @@ export const PLAYS = {
     winning: ["p49", "p47", "p39", "p43", "p4", "p30", "p26", "d", "d", "d", "d", "d", "p34", "p8", "p1", "p14", "p23", "p22", "d", "p24", "d", "p11", "p6", "p33c", "p48", "p42"],
     draw: ["cWZoYBVknK-OtqEIqUbE7Ixr7Ne4WLeCj-5U07bmQEIU", "stiwo6CprO_WhCWDjzGbkGguesTx8odFa", "rK8Vnc_8Z2Eqh7mrlREsZiXy2NSVzoQgL", "d", "p14", "p1", "p3", "p42", "p47", "p48", "p45", "p44", "p33s", "p2", "p8", "d", "d", "p9", "p0", "d", "d", "d", "d", "d", "d", "p26", "p37", "p27", "d", "p30", "p31", "p28", "d", "d", "p29", "d", "d", "d", "p7h", "p22", "p21", "p13", "p18", "d", "d", "p17", "d", "p4", "p11", "d", "p10", "d", "d", "p36", "d", "p34", "d", "d", "d", "d", "p20c", "p51", "p39", "p41", "p40", "p50", "d", "d", "d", "p43", "d", "d", "d", "d", "d", "p49", "d", "d", "p46d", "d", "p38", "x", "p25", "p16", "p15", "p19", "p32", "p6", "p5", "x", "p12", "x", "x"],
   },
+  // Each side types a secret word, then guesses: in the browser the taps go to a suggested word
+  // and the button beside it (`live`); the lines below play the rules out with fixed salts.
+  wordduel: {
+    live: '.fwd.empty [data-act="suggest"]:not([disabled]), .fwd [data-act="commit"]:not([disabled]), .fwd [data-act="guess"]:not([disabled]), .fwd-nop',
+    opening: ["cenDAn61c8DV_qc_CW_-mgfmW9atMLC2TImePaZPGcePas", "cllZAM_uuRvwvyKFBBhtsst-NYgLgJ-zJU1kFciUTSbU", ">stare"],
+    winning: ["bbybg>about", "ybbbb>eagle", "ggggg>other", "bbbyy", "rAQIDBAUGBwgJCgsMDQ4PEBESExQVFhcYcrane", "rWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaeagle"],
+    draw: ["cenDAn61c8DV_qc_CW_-mgfmW9atMLC2TImePaZPGcePas", "cllZAM_uuRvwvyKFBBhtsst-NYgLgJ-zJU1kFciUTSbU", ">stare", "bbybg>about", "ybbbb>eagle", "ggggg>crane", "ggggg", "rAQIDBAUGBwgJCgsMDQ4PEBESExQVFhcYcrane", "rWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaeagle"],
+  },
   fourinarow: { move: (column) => `[data-col="${column}"]`, opening: [3, 4, 3], winning: [4, 3, 4, 3], draw: [0, 1, 0, 1, 0, 0, 2, 0, 2, 0, 2, 1, 1, 1, 3, 1, 3, 2, 2, 4, 2, 4, 3, 3, 5, 3, 5, 3, 5, 4, 4, 5, 6, 5, 6, 5, 6, 6, 4, 6, 4, 6] },
   chess: {
     move: (uci) => [uci.slice(0, 2), uci.slice(2, 4)].map((square) => `rect.square[data-square="${square}"]`),
@@ -148,15 +156,18 @@ async function run(browser, base, game, config) {
   const [x, o] = (await frame("a").locator(".ftg-player.me.turn").count()) ? ["a", "b"] : ["b", "a"];
   /** Whether the round is over on either phone. */
   const over = async () => (await frame(x).locator('[data-kit="again"]').count()) + (await frame(o).locator('[data-kit="again"]').count()) > 0;
-  /** A live game: taps go to whatever each side may do, in turn, until the round is over. */
-  const liveRound = async (first, taps = Infinity) => {
-    let side = first;
-    for (let at = 0; at < taps && at < 400 && !(await over()); at += 1) {
-      await touch(side, plays.live);
-      side = side === x ? o : x;
+  /** The side to move, by its chip; `first` when neither is marked (a roll or a shuffle on its way). */
+  const mover = async (first) => ((await frame(x).locator(".ftg-player.me.turn").count()) ? x : (await frame(o).locator(".ftg-player.me.turn").count()) ? o : first);
+  /** A live game: each tap goes to whatever the side to move may do, until the round is over; a
+   *  round that goes on past `taps` touches (a long game of dice) ends with `o` resigning. */
+  const liveRound = async (first, taps = 300) => {
+    for (let at = 0; at < taps && !(await over()); at += 1) await touch(await mover(first), plays.live);
+    if (!(await over())) {
+      await touch(o, '[data-kit="resign"]');
+      await touch(o, '[data-kit="yes"]');
     }
   };
-  if (plays.live) await liveRound(x, 8);
+  if (plays.live) for (let at = 0; at < 8; at += 1) await touch(await mover(x), plays.live);
   else {
     const [x1, o1, x2] = plays.opening;
     await play(x, x1);

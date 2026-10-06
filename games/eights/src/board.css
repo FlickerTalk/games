@@ -4,9 +4,16 @@
 .fce {
   position: absolute;
   inset: 0;
+  container-type: size;
   display: grid;
-  grid-template-rows: auto 1fr auto;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr) auto;
   gap: 2%;
+  /* Cards and controls scale with the square: a hand of seven in a phone's room, and a glance
+     at the table in the small board of the waiting list or the result. */
+  --card: clamp(14px, 15cqw, 56px);
+  --big: clamp(28px, min(19cqw, 24cqh), 64px);
+  --tap: clamp(28px, 13cqh, 44px);
   --art-face: #fffdf7;
   --art-back: #2b4c7e;
   --art-back-line: #9fb7dc;
@@ -23,18 +30,18 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  min-height: 44px;
+  min-height: var(--tap);
   color: var(--paper);
-  font-size: 13px;
+  font-size: clamp(10px, 4cqw, 13px);
 }
 .fce-backs {
   display: flex;
 }
 .fce-backs i {
   display: block;
-  width: 22px;
-  height: 32px;
-  margin-inline-end: -12px;
+  width: calc(var(--card) * 0.42);
+  height: calc(var(--card) * 0.6);
+  margin-inline-end: calc(var(--card) * -0.24);
   border-radius: 4px;
   background: var(--art-back);
   border: 1px solid var(--art-back-line);
@@ -47,6 +54,16 @@
   justify-content: center;
   gap: 6%;
   min-height: 0;
+  overflow: hidden;
+}
+.fce-bottom {
+  min-width: 0;
+}
+@container (max-width: 220px) {
+  .fce-row button span,
+  .fce-them > span:not(.fce-backs) {
+    display: none;
+  }
 }
 .fce-card,
 .ftg .fce-card {
@@ -56,16 +73,16 @@
   grid-template-rows: 1fr auto;
   align-items: center;
   justify-items: center;
-  width: 52px;
-  height: 74px;
+  width: var(--card);
+  height: calc(var(--card) * 1.42);
   padding: 4px;
   border: 1px solid var(--art-back-line);
   border-radius: 7px;
   background: var(--art-face);
   color: var(--art-inkcard);
-  font: 700 18px/1 system-ui, sans-serif;
+  font: 700 calc(var(--card) * 0.34) / 1 system-ui, sans-serif;
   min-width: 0;
-  min-height: 44px;
+  min-height: 0;
   box-sizing: border-box;
 }
 .fce-card.red {
@@ -73,8 +90,8 @@
 }
 .fce-card i {
   display: block;
-  width: 20px;
-  height: 20px;
+  width: calc(var(--card) * 0.38);
+  height: calc(var(--card) * 0.38);
 }
 .fce-card i > svg,
 .fce-suit > svg,
@@ -85,27 +102,28 @@
   fill: currentColor;
 }
 .fce-card.top {
-  width: 64px;
-  height: 90px;
-  font-size: 24px;
+  width: var(--big);
+  height: calc(var(--big) * 1.4);
+  font-size: calc(var(--big) * 0.36);
   pointer-events: none;
 }
 .fce-card.top i {
-  width: 28px;
-  height: 28px;
+  width: calc(var(--big) * 0.44);
+  height: calc(var(--big) * 0.44);
 }
 .ftg .fce-draw {
-  width: 64px;
-  height: 90px;
+  width: var(--big);
+  height: calc(var(--big) * 1.4);
   border-radius: 7px;
   border: 1px solid var(--art-back-line);
   background: var(--art-back);
   color: var(--paper);
   display: grid;
   place-items: center;
-  font: 600 14px/1.2 system-ui, sans-serif;
+  font: 600 clamp(10px, 4cqw, 14px) / 1.2 system-ui, sans-serif;
   padding: 0;
   min-width: 0;
+  min-height: 0;
 }
 .ftg .fce-draw:disabled {
   opacity: 0.5;
@@ -113,13 +131,14 @@
 .fce-suit {
   display: grid;
   place-items: center;
-  width: 44px;
-  height: 44px;
+  width: var(--tap);
+  height: var(--tap);
   border-radius: 50%;
   background: var(--art-face);
   color: var(--art-inkcard);
-  padding: 9px;
+  padding: calc(var(--tap) * 0.2);
   box-sizing: border-box;
+  flex: none;
 }
 .fce-suit.red {
   color: var(--art-warm);
@@ -132,10 +151,8 @@
 .fce-hand {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px;
+  gap: 0.8cqh 1.5cqw;
   justify-content: center;
-  max-height: 160px;
-  overflow-y: auto;
 }
 .ftg .fce-hand .fce-card:disabled {
   opacity: 0.55;
@@ -150,9 +167,10 @@
   gap: 6px;
 }
 .ftg .fce-pick button {
-  width: 48px;
-  height: 44px;
-  padding: 10px;
+  width: calc(var(--tap) * 1.1);
+  height: var(--tap);
+  min-height: 0;
+  padding: calc(var(--tap) * 0.22);
   border-radius: 10px;
   background: var(--art-face);
   color: var(--art-inkcard);
@@ -172,10 +190,15 @@
   align-items: center;
 }
 .ftg .fce-row button {
-  min-height: 44px;
-  padding: 0 14px;
+  min-height: var(--tap);
+  height: var(--tap);
+  padding: 0 clamp(6px, 4cqw, 14px);
+  font-size: clamp(11px, 4.5cqw, 15px);
   color: var(--paper);
   border-color: var(--paper);
+}
+.fce-note {
+  font-size: clamp(11px, 4.5cqw, 14px);
 }
 .fce-nop {
   display: inline-block;
@@ -191,5 +214,4 @@
 .fce-note {
   color: var(--paper);
   text-align: center;
-  font-size: 14px;
 }

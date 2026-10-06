@@ -71,7 +71,12 @@ function draw(host, ctx, local) {
     : "";
   const cards = hand.map((card) => cardHtml(card, t, { open: open && playable(state, card) })).join("");
   const shuffling = state.phase === "shuffle";
-  host.innerHTML = `<div class="fce s${me}${open ? " mine" : ""}" role="group" aria-label="${escape(t("name"))}">
+  // The hand fits the square whole: one row up to seven cards, two up to sixteen, then three.
+  const rows = hand.length <= 7 ? 1 : hand.length <= 16 ? 2 : 3;
+  const perRow = Math.max(1, Math.ceil(hand.length / rows));
+  const width = Math.min(15, 92 / perRow - 1.5).toFixed(2);
+  const height = (40 / (rows * 1.42) - (rows - 1) * 0.8).toFixed(2);
+  host.innerHTML = `<div class="fce s${me}${open ? " mine" : ""}" role="group" aria-label="${escape(t("name"))}" style="--card: clamp(14px, min(${width}cqw, ${height}cqh), 56px)">
     <div class="fce-bottom">
       ${pick}
       <div class="fce-hand" role="group" aria-label="${escape(t("yourHand", { n: hand.length }))}">${cards}</div>

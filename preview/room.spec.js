@@ -5,7 +5,7 @@
 // state's own action (try again, send the result, play again) inside it. Chess stays playable in a
 // game: squares of at least 40 px.
 //
-// Run: npm run room   (after npm run build)
+// Run: npm run room   (after npm run build; `npm run room -- gomoku` for one game)
 import assert from "node:assert/strict";
 import { chromium } from "playwright";
 import { start } from "./serve.js";
@@ -16,6 +16,8 @@ const PHONES = [
   { name: "360×740 phone (room 443)", width: 360, height: 740 },
 ];
 const LANGS = ["de", "es"];
+/** Every game, or the ones named on the command line (`npm run room -- gomoku eights`). */
+const GAMES = process.argv.slice(2).length ? process.argv.slice(2) : Object.keys(PLAYS);
 
 const server = await start(0);
 const base = `http://127.0.0.1:${server.address().port}`;
@@ -43,8 +45,10 @@ async function fits(page, side, action) {
     const bottom = (node) => (node ? node.getBoundingClientRect().bottom + scrollY : null);
     const stage = document.querySelector(".ftg-stage");
     const board = document.querySelector(".ftg-board").getBoundingClientRect();
+    // What is not drawn (display: none, `hidden`) has no box and cannot spill.
     const spill = [...document.querySelectorAll(".ftg-board *")].reduce((most, node) => {
       const box = node.getBoundingClientRect();
+      if (!box.width && !box.height) return most;
       return Math.max(most, box.right - board.right, box.bottom - board.bottom, board.left - box.left);
     }, 0);
     return {
@@ -63,7 +67,7 @@ async function fits(page, side, action) {
 
 for (const phone of PHONES) {
   for (const lang of LANGS) {
-    for (const game of Object.keys(PLAYS)) {
+    for (const game of GAMES) {
       const plays = PLAYS[game];
       const context = await browser.newContext({
         viewport: { width: phone.width * 2 + 72, height: phone.height + 40 },
@@ -97,16 +101,19 @@ for (const phone of PHONES) {
       await page.waitForTimeout(400);
       const [x, o] = (await frame("a").locator(".ftg-status.mine").count()) ? ["a", "b"] : ["b", "a"];
       const over = async () => (await frame(x).locator('[data-kit="again"]').count()) + (await frame(o).locator('[data-kit="again"]').count()) > 0;
-      /** A live game (a game of chance): taps go to whatever each side may do, in turn. */
-      const liveRound = async (first, taps = Infinity) => {
-        let turn = first;
-        for (let at = 0; at < taps && at < 400 && !(await over()); at += 1) {
-          await touch(turn, plays.live);
-          turn = turn === x ? o : x;
+      /** The side to move, by its chip; `first` when neither is marked (a roll or a shuffle on its way). */
+      const mover = async (first) => ((await frame(x).locator(".ftg-player.me.turn").count()) ? x : (await frame(o).locator(".ftg-player.me.turn").count()) ? o : first);
+      /** A live game (a game of chance): each tap goes to whatever the side to move may do; a round
+       *  that goes on past `taps` touches ends with `o` resigning, so the result is seen. */
+      const liveRound = async (first, taps = 300) => {
+        for (let at = 0; at < taps && !(await over()); at += 1) await touch(await mover(first), plays.live);
+        if (!(await over())) {
+          await touch(o, '[data-kit="resign"]');
+          await touch(o, '[data-kit="yes"]');
         }
       };
       let side = x;
-      if (plays.live) await liveRound(x, 8);
+      if (plays.live) for (let at = 0; at < 8; at += 1) await touch(await mover(x), plays.live);
       else {
         for (const move of plays.opening) {
           await play(side, move);
