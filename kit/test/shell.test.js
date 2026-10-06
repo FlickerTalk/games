@@ -3,6 +3,7 @@
 // messages, the language and the colours. The toy game and its toy board stand in for a real one.
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { defineGame } from "../src/index.js";
+import { FRAME_START } from "../src/shell.js";
 import { fakeCore, phones, settle, toy } from "./helpers.js";
 
 /** A board with three buttons, one per toy move; it counts how often it was built and told. */
@@ -77,6 +78,58 @@ afterEach(() => {
   expect(globalThis.alert).not.toHaveBeenCalled();
   expect(globalThis.prompt).not.toHaveBeenCalled();
   vi.useRealTimers();
+});
+
+describe("the first paint", () => {
+  /** The toy in the page, as the frame script puts it there, before the app opens it. */
+  const unopened = (core) => {
+    const element = document.createElement("ft-toy");
+    element.ft = core.ft;
+    document.body.append(element);
+    return element;
+  };
+
+  it("draws nothing before the app says the language and the conversation, and keeps the frame at the height it opened with", async () => {
+    const core = fakeCore();
+    const element = unopened(core);
+    // Something arriving from the other phone before the opening draws again: still nothing.
+    await core.hear("not yet");
+    await tick();
+    expect(text(element).trim()).toBe("");
+    expect(element.querySelector(".ftg-empty, .ftg-hero, .ftg-hint, svg, button")).toBeNull();
+    expect(element.querySelector(".ftg").style.minHeight).toBe(`${FRAME_START}px`);
+  });
+
+  it("paints the shell already in the user's language, never in English first", async () => {
+    const core = fakeCore();
+    const element = unopened(core);
+    // What is on the screen from the moment the element is in the page, and after every paint.
+    const painted = [text(element).trim()];
+    const paint = element.paint.bind(element);
+    element.paint = () => {
+      paint();
+      painted.push(text(element).trim());
+    };
+    await core.open({ lang: "es" });
+    await tick();
+    const visible = painted.filter(Boolean);
+    expect(visible.length).toBeGreaterThan(0);
+    for (const seen of visible) {
+      expect(seen).toContain("Partidas");
+      expect(seen).not.toMatch(/Matches|No matches/);
+    }
+    expect(element.querySelector(".ftg").style.minHeight).toBe("");
+  });
+
+  it("still paints the shell, in the user's language, when the matches cannot be read", async () => {
+    vi.spyOn(console, "warn").mockImplementation(() => {});
+    const core = fakeCore();
+    core.ft.records.keys = async () => {
+      throw new Error("records unavailable");
+    };
+    const element = await phone(core, { lang: "es" });
+    expect(text(element)).toContain("Partidas");
+  });
 });
 
 describe("the list", () => {

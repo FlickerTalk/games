@@ -50,6 +50,9 @@ export class Table {
     this.chat = null;
     this.lang = "en";
     this.dark = false;
+    // Whether the app has opened the game (`onOpen`): until then the language and the
+    // conversation are unknown, and nothing is drawn.
+    this.ready = false;
     this.notice = null;
     this.prompt = null;
     this.peerHere = false;
@@ -232,7 +235,11 @@ export class Table {
     this.chat = isChat(opening.chat) ? opening.chat : null;
     this.live = Boolean(opening.live) && this.chat !== null;
     this.dark = Boolean(opening.dark);
-    if (!this.record) await this.reload();
+    try {
+      if (!this.record) await this.reload();
+    } finally {
+      this.ready = true;
+    }
   }
 
   async reload() {
