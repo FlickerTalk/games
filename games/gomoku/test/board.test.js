@@ -103,3 +103,24 @@ describe("the board", () => {
     expect(host.querySelectorAll(".fgm-cell:enabled")).toHaveLength(0);
   });
 });
+
+describe("the players' chips", () => {
+  // The chips sit outside the board (the kit draws them above it), so a stone's colour cannot hang
+  // on a custom property set only inside the board: there the white stone came out black.
+  it("draw the black stone black and the white stone white outside the board", async () => {
+    const { STYLE } = await import("../src/board.js");
+    const style = document.createElement("style");
+    style.textContent = STYLE;
+    document.head.append(style);
+    const chips = document.createElement("div");
+    chips.innerHTML = `<div class="ftg-player me"><span class="mark">${STONES[0]}</span></div><div class="ftg-player them"><span class="mark">${STONES[1]}</span></div>`;
+    document.body.append(chips);
+    const [black, white] = [...chips.querySelectorAll("svg")].map((stone) => getComputedStyle(stone));
+    expect(black.getPropertyValue("--art-stone-0").trim()).toBe("#1d1d1d");
+    expect(white.getPropertyValue("--art-stone-1").trim()).toBe("#f6f3ea");
+    // The edge of the stone too, or a white stone vanishes on a light background.
+    expect(white.getPropertyValue("--art-line").trim()).toBe("#6b4a24");
+    chips.remove();
+    style.remove();
+  });
+});

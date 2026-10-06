@@ -87,7 +87,9 @@ function draw(host, ctx, local) {
   const canGuess = open && guessing && mine.length < MAX_GUESSES && solvedAt(state, me) === null;
   const done = state.phase === "done";
   const theirWord = done && state.reveals[they] ? state.reveals[they].word : null;
-  const note = local.lost ? t("secretLost") : done && theirWord ? t("theirWordWas", { word: theirWord.toUpperCase() }) : typed && !valid ? t("notAWord") : solvedAt(state, me) !== null ? t("youGotIt") : "";
+  // The other side's word, once revealed, is the one note a small board keeps.
+  const revealed = !local.lost && done && Boolean(theirWord);
+  const note = local.lost ? t("secretLost") : revealed ? t("theirWordWas", { word: theirWord.toUpperCase() }) : typed && !valid ? t("notAWord") : solvedAt(state, me) !== null ? t("youGotIt") : "";
   host.innerHTML = `<div class="fwd${empty ? " empty" : ""} s${me}">
     <div class="fwd-boards">
       ${gridHtml(mine, myAnswers, t, { pending: ctx.pending, label: `${MARKS[me]} ${escape(t("yourGuesses"))}` })}
@@ -101,7 +103,7 @@ function draw(host, ctx, local) {
              <button data-act="guess" ${canGuess && valid ? "" : "disabled"}>${icon("send-outline")}<span>${escape(t("guess"))}</span></button>`
           : ""
       }
-      ${note ? `<p class="fwd-note${typed && !valid && guessing ? " warn" : ""}">${escape(note)}</p>` : ""}
+      ${note ? `<p class="fwd-note${typed && !valid && guessing ? " warn" : ""}${revealed ? " reveal" : ""}">${escape(note)}</p>` : ""}
     </div>
     <i class="fwd-nop"></i>
   </div>`;

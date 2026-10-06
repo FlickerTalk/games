@@ -3,7 +3,7 @@
 // the card on the table, an eight asking for a suit, drawing and passing.
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { KIT_TEXTS, joinTexts, translator } from "../../../kit/src/i18n.js";
-import { MARKS, SIGNS, board, cardName, storeKey } from "../src/board.js";
+import { MARKS, SIGNS, STYLE, board, cardName, storeKey } from "../src/board.js";
 import { TEXTS } from "../src/texts.js";
 import { commitText, initial, play, playableCards, result, revealText, seedText, turn } from "../src/rules.js";
 import { fromBase64url } from "../src/sha256.js";
@@ -148,5 +148,22 @@ describe("the table", () => {
     board.mount(other, { ...base, canPlay: false });
     expect(other.querySelectorAll(".fce-hand [data-card]:not([disabled])")).toHaveLength(0);
     expect(other.querySelector('[data-act="draw"]').disabled).toBe(true);
+  });
+});
+
+/** The declarations of the top-level rule of `STYLE` for exactly `selector`. */
+const ruleFor = (selector) => {
+  const found = [...STYLE.replace(/\/\*[\s\S]*?\*\//g, "").matchAll(/([^{}]+)\{([^}]*)\}/g)].find(([, head]) => head.split(",").map((one) => one.trim()).includes(selector));
+  return found ? found[2] : "";
+};
+
+describe("the other side's hand", () => {
+  // Seen on the phones: the count ("7 cards") ran over the last card of the fan, and was written in
+  // the app's background colour, dark on the green felt in a dark theme.
+  it("ends the fan of backs before the count, written in a colour of the felt's own", () => {
+    expect(ruleFor(".fce-backs i:last-child")).toMatch(/margin-inline-end:\s*0/);
+    const ink = ruleFor(".fce-them").match(/(?:^|;|\s)color:\s*([^;]+);/)?.[1].trim();
+    expect(ink).toBe("var(--art-felt-ink)");
+    expect(STYLE).toMatch(/--art-felt-ink:\s*#ffffff/);
   });
 });

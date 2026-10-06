@@ -46,6 +46,13 @@ const abandonedBy = (seen) => (seen?.end?.by === seen?.me ? "abandonedYou" : "ab
  */
 export const ROOM_CHROME = 297;
 
+/**
+ * The height the app gives a plugin's frame before the frame says its own (PluginSheet). Until the
+ * game is open the shell keeps the frame there, empty, so the frame changes height at most once:
+ * with the first paint, which is already the real one.
+ */
+export const FRAME_START = 320;
+
 /** The height of the room the game is given, in CSS pixels. */
 function roomHeight() {
   return (globalThis.screen?.height || 853) - ROOM_CHROME;
@@ -159,6 +166,14 @@ export function elementFor(game) {
     paint() {
       const table = this.table;
       const root = this.root;
+      // Nothing before the app says the language and the conversation: a shell drawn in English
+      // and then replaced would flash and move (Ioan's rule: nothing moves after the first paint).
+      if (!table.ready) {
+        root.innerHTML = "";
+        root.style.minHeight = `${FRAME_START}px`;
+        return;
+      }
+      root.style.removeProperty("min-height");
       root.setAttribute("dir", direction(this.lang));
       root.setAttribute("lang", this.lang);
       root.toggleAttribute("data-dark", table.dark);
