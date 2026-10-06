@@ -26,6 +26,7 @@ export const STATES = ["list-empty", "waiting", "not-open", "mid-match", "confir
  */
 export const PLAYS = {
   tictactoe: { move: (cell) => `[data-cell="${cell}"]`, opening: [4, 0, 2], winning: [1, 6], draw: [0, 1, 2, 4, 3, 5, 7, 6, 8] },
+  reversi: { move: (cell) => `[data-cell="${cell}"]`, opening: [19,34,44], winning: [37,41,21,46,11,10,53,42,33,51,38,25,55,14,32,24,1,20,7,30,39,40,58,29,26,2,43,59,12,47,3,45,60,17,8,18,54,16,9,52,13,5,22,63,4,31,62,23,48,6,49,56,61,57,15,0,50], draw: [44,45,19,20,37,29,30,18,12,31,46,34,23,15,10,13,33,2,14,4,21,6,1,51,5,43,59,55,9,22,47,32,39,11,26,52,53,16,42,0,38,60,63,41,50,61,54,49,62,25,24,3,17,57,8,40,48,56,7,58] },
   fourinarow: { move: (column) => `[data-col="${column}"]`, opening: [3, 4, 3], winning: [4, 3, 4, 3], draw: [0, 1, 0, 1, 0, 0, 2, 0, 2, 0, 2, 1, 1, 1, 3, 1, 3, 2, 2, 4, 2, 4, 3, 3, 5, 3, 5, 3, 5, 4, 4, 5, 6, 5, 6, 5, 6, 6, 4, 6, 4, 6] },
   chess: {
     move: (uci) => [uci.slice(0, 2), uci.slice(2, 4)].map((square) => `rect.square[data-square="${square}"]`),
