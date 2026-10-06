@@ -3,7 +3,7 @@
 // back, a pass, the lists and the scores.
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { KIT_TEXTS, joinTexts, translator } from "../../../kit/src/i18n.js";
-import { MARKS, board, storeKey } from "../src/board.js";
+import { MARKS, STYLE, board, storeKey } from "../src/board.js";
 import { TEXTS } from "../src/texts.js";
 import { commitText, initial, play, result, revealText, seedText, turn } from "../src/rules.js";
 import { fromBase64url } from "../src/sha256.js";
@@ -137,5 +137,52 @@ describe("the grid", () => {
     expect(other.querySelectorAll(".fwg-tile:not([disabled])")).toHaveLength(0);
     expect(other.querySelector('[data-act="pass"]').disabled).toBe(true);
     expect(MARKS).toHaveLength(2);
+  });
+});
+
+/** The rules of `STYLE` as [selector, declarations, inside a container query], flattened. */
+function rulesOf() {
+  const rules = [];
+  const walk = (text, small) => {
+    let at = 0;
+    while (at < text.length) {
+      const open = text.indexOf("{", at);
+      if (open < 0) break;
+      const head = text.slice(at, open).replace(/\/\*[\s\S]*?\*\//g, "").trim();
+      let depth = 1;
+      let end = open + 1;
+      while (depth) {
+        if (text[end] === "{") depth += 1;
+        if (text[end] === "}") depth -= 1;
+        end += 1;
+      }
+      const body = text.slice(open + 1, end - 1);
+      if (head.startsWith("@container")) walk(body, true);
+      else if (!head.startsWith("@")) for (const selector of head.split(",")) rules.push([selector.trim(), body, small]);
+      at = end;
+    }
+  };
+  walk(STYLE, false);
+  return rules;
+}
+
+describe("the result", () => {
+  // On a phone the result card leaves the board small, and the small board used to hide the lists
+  // of words said: at the end they are what the user wants to read, so they stay, and scroll.
+  it("keeps the lists of words said on a small board once the round is over, scrolling if long", async () => {
+    const host = document.createElement("div");
+    const ctx = onGrid("catsoxeetnrfdlmp");
+    const said = ["cat", "coats", "toes", "nets", "rents", "dent", "tent", "sent"];
+    const over = { ...ctx.state, phase: "done", said: [said, ["sex"]], score: [12, 1], end: { winner: 0, reason: "passed", score: [12, 1] } };
+    board.mount(host, { ...ctx, state: over, canPlay: false, mySide: 0, result: { k: "rules", winner: 0, result: result(over) } });
+    await tick();
+    const lists = host.querySelector(".fwg-lists");
+    expect(lists.textContent).toContain("rents");
+    const rules = rulesOf();
+    const hidden = rules.filter(([selector, body, small]) => small && /display:\s*none/.test(body)).map(([selector]) => selector);
+    expect(hidden.length).toBeGreaterThan(0);
+    for (const selector of hidden) expect(lists.matches(selector), selector).toBe(false);
+    const scrolls = rules.some(([selector, body]) => lists.matches(selector) && /overflow(-y)?:\s*auto/.test(body));
+    expect(scrolls).toBe(true);
   });
 });

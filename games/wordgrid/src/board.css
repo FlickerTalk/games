@@ -136,9 +136,18 @@
   width: 4px;
   height: 4px;
 }
+/* The round over: the lists of words said are what is left to read, so they scroll. */
+.fwg.done .fwg-lists {
+  overflow-y: auto;
+}
 @container (max-height: 260px) {
-  .fwg-lists,
+  .fwg:not(.done) .fwg-lists,
   .fwg-word {
     display: none;
+  }
+  /* A small board in the result (on a phone, the result card takes the room): the lists stay,
+     with half the board, and the grid gets smaller. */
+  .fwg.done .fwg-lists {
+    max-height: 50cqh;
   }
 }
