@@ -1,0 +1,97 @@
+{
+  "id": "com.flickertalk.game.mancala",
+  "name": "Mancala",
+  "version": "1.0.0",
+  "minCoreVersion": "1.3.0",
+  "kind": "game",
+  "components": [
+    "ft-mancala"
+  ],
+  "permissions": {
+    "live": true,
+    "send": "propose"
+  },
+  "summary": "Mancala with the other person in the chat, over the direct connection between your phones.",
+  "locales": {
+    "es": {
+      "name": "Mancala",
+      "summary": "Mancala con la otra persona del chat, por la conexión directa entre los dos teléfonos."
+    },
+    "pt": {
+      "name": "Mancala",
+      "summary": "Mancala com a outra pessoa da conversa, pela conexão direta entre os dois telefones."
+    },
+    "fr": {
+      "name": "Mancala",
+      "summary": "Mancala avec l’autre personne de la conversation, par la connexion directe entre vos deux téléphones."
+    },
+    "de": {
+      "name": "Mancala",
+      "summary": "Mancala mit der anderen Person im Chat, über die direkte Verbindung zwischen euren Telefonen."
+    },
+    "it": {
+      "name": "Mancala",
+      "summary": "Mancala con l’altra persona della chat, sulla connessione diretta tra i vostri telefoni."
+    },
+    "ro": {
+      "name": "Mancala",
+      "summary": "Mancala cu cealaltă persoană din conversație, prin conexiunea directă dintre telefoanele voastre."
+    },
+    "ru": {
+      "name": "Манкала",
+      "summary": "Манкала с собеседником по чату, по прямому соединению между вашими телефонами."
+    },
+    "uk": {
+      "name": "Манкала",
+      "summary": "Манкала зі співрозмовником у чаті, через пряме з’єднання між вашими телефонами."
+    },
+    "pl": {
+      "name": "Mankala",
+      "summary": "Mankala z drugą osobą z czatu, przez bezpośrednie połączenie między waszymi telefonami."
+    },
+    "tr": {
+      "name": "Mangala",
+      "summary": "Sohbetteki diğer kişiyle mangala, telefonlarınız arasındaki doğrudan bağlantı üzerinden."
+    },
+    "ar": {
+      "name": "المنقلة",
+      "summary": "المنقلة مع الطرف الآخر في المحادثة، عبر الاتصال المباشر بين هاتفيكما."
+    },
+    "hi": {
+      "name": "मंकला",
+      "summary": "चैट में दूसरे व्यक्ति के साथ मंकला, आपके फ़ोनों के बीच सीधे कनेक्शन से।"
+    },
+    "bn": {
+      "name": "মানকালা",
+      "summary": "চ্যাটের অন্য ব্যক্তির সাথে মানকালা, আপনাদের ফোনের মধ্যে সরাসরি সংযোগে।"
+    },
+    "id": {
+      "name": "Congklak",
+      "summary": "Congklak dengan lawan bicara di obrolan, lewat koneksi langsung antara ponsel kalian."
+    },
+    "vi": {
+      "name": "Ô ăn quan",
+      "summary": "Ô ăn quan với người kia trong cuộc trò chuyện, qua kết nối trực tiếp giữa hai điện thoại."
+    },
+    "th": {
+      "name": "หมากขุม",
+      "summary": "หมากขุมกับอีกฝ่ายในแชต ผ่านการเชื่อมต่อโดยตรงระหว่างโทรศัพท์ของคุณทั้งสอง"
+    },
+    "ja": {
+      "name": "マンカラ",
+      "summary": "チャットの相手とマンカラ。2台の端末の直接接続で遊びます。"
+    },
+    "ko": {
+      "name": "만칼라",
+      "summary": "채팅 상대와 만칼라를, 두 휴대폰 사이의 직접 연결로 즐기세요."
+    },
+    "zh-CN": {
+      "name": "播棋",
+      "summary": "与聊天对象玩播棋，通过两部手机之间的直接连接进行。"
+    },
+    "zh-TW": {
+      "name": "播棋",
+      "summary": "與聊天對象玩播棋，透過兩支手機之間的直接連線進行。"
+    }
+  }
+}
