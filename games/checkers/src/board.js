@@ -2,14 +2,17 @@
 // it knows nothing of the other phone: it draws what the kit hands it and passes the user's move
 // back as the squares it touches. A move takes two taps or more: the piece, then where it goes,
 // and on through every jump; when the squares tapped make a whole legal move, it is played. The
+// piece can also be dragged (the kit's `makeDraggable`): to the end of a move, which is played
+// when only one move ends there, or to a square on the way, which goes on as the taps do. The
 // dark side starts on the top rows of the numbering, so for it the board is turned around: each
 // side sees its own pieces at the bottom.
 
-import STYLE from "./board.css";
+import BOARD_STYLE from "./board.css";
+import { DRAG_STYLE, makeDraggable } from "../../../kit/src/drag.js";
 import { icon } from "../../../kit/src/icons.js";
 import { SIZE, count, isDark, isKing, legalMoves, sideOf, squaresOf } from "./rules.js";
 
-export { STYLE };
+export const STYLE = `${BOARD_STYLE}\n${DRAG_STYLE}`;
 
 const piece = (side, king) =>
   `<svg class="fck-p fck-s${side}" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="40"/>${king ? '<circle class="crown" cx="50" cy="50" r="20"/>' : ""}</svg>`;
@@ -46,11 +49,24 @@ function draw(host, ctx, path) {
     const landed = lastSquares.at(-1) === index;
     if (landed && ctx.pending) classes.push("pending");
     const open = ctx.canPlay && (from.has(index) || to.has(index) || path.includes(index));
-    html += `<button class="${classes.join(" ")}" data-cell="${index}" aria-label="${name}" ${open ? "" : "disabled"}>${one === null ? "" : piece(sideOf(one), isKing(one))}${
+    const drag = ctx.canPlay && (from.has(index) || path[0] === index);
+    html += `<button class="${classes.join(" ")}" data-cell="${index}" aria-label="${name}" ${drag ? "data-drag" : ""} ${open ? "" : "disabled"}>${one === null ? "" : piece(sideOf(one), isKing(one))}${
       landed && ctx.pending ? `<span class="fck-clock" aria-hidden="true">${icon("time-outline")}</span>` : ""
     }</button>`;
   }
   host.innerHTML = `${html}</div>`;
+}
+
+/** The squares a dragged piece may be let go on: the next square of each move, and where each ends. */
+function dropSquares(legal, prefix) {
+  const squares = new Set();
+  for (const move of legal) {
+    const steps = move.split("-").map(Number);
+    if (steps.slice(0, prefix.length).join("-") !== prefix.join("-") || steps.length <= prefix.length) continue;
+    squares.add(steps[prefix.length]);
+    squares.add(steps.at(-1));
+  }
+  return squares;
 }
 
 export const board = {
@@ -58,6 +74,31 @@ export const board = {
     let ctx = first;
     /** The squares tapped so far of the move being made. */
     let path = [];
+    const legalNow = () => (ctx.canPlay && ctx.mySide !== null ? legalMoves(ctx.state, ctx.mySide) : []);
+    /** The start of the move a dragged piece makes: the path chosen so far, or the piece alone. */
+    const prefixOf = (piece) => (path[0] === piece ? path : [piece]);
+    const drag = makeDraggable(host, {
+      canDrag: () => ctx.canPlay && ctx.mySide !== null,
+      ghost: (el) => el.querySelector("svg") ?? el,
+      targets: (el) => {
+        const squares = dropSquares(legalNow(), prefixOf(Number(el.dataset.cell)));
+        return [...squares].map((index) => host.querySelector(`[data-cell="${index}"]`));
+      },
+      onDrop: (el, target) => {
+        const prefix = prefixOf(Number(el.dataset.cell));
+        const index = Number(target.dataset.cell);
+        const legal = legalNow();
+        const next = [...prefix, index].join("-");
+        const ending = legal.filter((move) => move.startsWith(`${prefix.join("-")}-`) && Number(move.split("-").at(-1)) === index);
+        if (legal.includes(next) || ending.length === 1) {
+          path = [];
+          ctx.play(legal.includes(next) ? next : ending[0]);
+          return;
+        }
+        path = [...prefix, index];
+        draw(host, ctx, path);
+      },
+    });
     host.addEventListener("click", (event) => {
       const square = event.target.closest?.("[data-cell]");
       if (!square || square.disabled || !ctx.canPlay || ctx.mySide === null) return;
@@ -82,10 +123,14 @@ export const board = {
     draw(host, ctx, path);
     return {
       update(next) {
-        // Another position: whatever was being chosen is forgotten.
+        // Another position, or the turn over: whatever was being chosen, or dragged, is forgotten.
+        if (next.state !== ctx.state || !next.canPlay) drag.cancel();
         if (next.state !== ctx.state) path = [];
         ctx = next;
         draw(host, ctx, path);
+      },
+      destroy() {
+        drag.destroy();
       },
     };
   },
