@@ -100,7 +100,7 @@ for (const phone of PHONES) {
       // The chips may be hidden in a short room: the turn is known once one is marked.
       await frame("a").locator(".ftg-player.turn").first().waitFor({ state: "attached" });
       await page.waitForTimeout(400);
-      const [x, o] = (await frame("a").locator(".ftg-status.mine").count()) ? ["a", "b"] : ["b", "a"];
+      const [x, o] = (await frame("a").locator(".ftg-player.me.turn").count()) ? ["a", "b"] : ["b", "a"];
       const over = async () => (await frame(x).locator('[data-kit="again"]').count()) + (await frame(o).locator('[data-kit="again"]').count()) > 0;
       /** The side to move, by its chip; `first` when neither is marked (a roll or a shuffle on its way). */
       const mover = async (first) => ((await frame(x).locator(".ftg-player.me.turn").count()) ? x : (await frame(o).locator(".ftg-player.me.turn").count()) ? o : first);

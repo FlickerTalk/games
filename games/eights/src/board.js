@@ -1,17 +1,19 @@
 // The table of Crazy Eights (README, "A game": `board.mount`). The other side's cards face down,
 // the stock and the card on the table, the user's hand face up with the playable cards raised;
-// a tap plays a card (an eight asks for a suit first), a tap on the stock draws, and a button
+// a tap plays a card (an eight asks for a suit first), or the card is dragged with the finger onto
+// the card on the table (the kit's `makeDraggable`); a tap on the stock draws, and a button
 // passes when the stock is gone. The shuffle at the start of a round happens on its own: the
 // dealer's secret seed is kept in the plugin's store, under this participant and round, until it
 // is revealed. The board never talks to the other phone: it draws what the kit hands it and passes
 // the moves back.
 
-import STYLE from "./board.css";
+import BOARD_STYLE from "./board.css";
+import { DRAG_STYLE, makeDraggable } from "../../../kit/src/drag.js";
 import { icon } from "../../../kit/src/icons.js";
 import { fromBase64url, toBase64url } from "./sha256.js";
 import { SEED_BYTES, SUITS, commitText, isEight, playable, rankOf, revealText, seedText, suitOf } from "./rules.js";
 
-export { STYLE };
+export const STYLE = `${BOARD_STYLE}\n${DRAG_STYLE}`;
 
 /** The suits' signs, drawn in SVG (the interface draws no emoji), in the order of `SUITS`. */
 export const SIGNS = [
@@ -50,12 +52,19 @@ function cardHtml(card, t, { top = false, open = false } = {}) {
   if (top) classes.push("top");
   const name = cardName(card, t);
   if (top) return `<div class="${classes.join(" ")}" role="img" aria-label="${escape(t("onTable", { card: name }))}"><b>${face(card)}</b><i>${SIGNS[suitOf(card)]}</i></div>`;
-  return `<button class="${classes.join(" ")}" data-card="${card}" aria-label="${escape(t("playCard", { card: name }))}" ${open ? "" : "disabled"}><b>${face(card)}</b><i>${SIGNS[suitOf(card)]}</i></button>`;
+  return `<button class="${classes.join(" ")}" data-card="${card}" aria-label="${escape(t("playCard", { card: name }))}" ${open ? "data-drag" : "disabled"}><b>${face(card)}</b><i>${SIGNS[suitOf(card)]}</i></button>`;
+}
+
+/** Says a note once, as a passing notice at the top (the kit's toast), never in the board, where it would move the rest. */
+function tell(ctx, local, text) {
+  if (text && text !== local.told) ctx.notify?.(text);
+  local.told = text;
 }
 
 function draw(host, ctx, local) {
   const { state } = ctx;
   const t = ctx.t;
+  tell(ctx, local, local.lost ? t("seedLost") : "");
   const me = ctx.mySide ?? 0;
   const they = 1 - me;
   const open = ctx.canPlay && state.phase === "play";
@@ -81,7 +90,6 @@ function draw(host, ctx, local) {
       ${pick}
       <div class="fce-hand" role="group" aria-label="${escape(t("yourHand", { n: hand.length }))}">${cards}</div>
       <div class="fce-row">
-        ${local.lost ? `<span>${escape(t("seedLost"))}</span>` : ""}
         <button data-act="pass" ${open && !state.stock.length ? "" : "disabled"} ${state.phase === "play" && !state.stock.length ? "" : "hidden"}>${icon("play-outline")}<span>${escape(t("passTurn"))}</span></button>
       </div>
     </div>
@@ -159,8 +167,25 @@ export const board = {
       }
     };
 
+    const open = () => ctx.canPlay && ctx.mySide !== null && ctx.state.phase === "play";
+    /** A card played, by a tap or a drop on the table: an eight asks for its suit first. */
+    const playCard = (index) => {
+      if (isEight(index)) {
+        local.eight = index;
+        draw(host, ctx, local);
+      } else {
+        local.eight = null;
+        ctx.play(`p${index}`);
+      }
+    };
+    const drag = makeDraggable(host, {
+      canDrag: (el) => open() && playable(ctx.state, Number(el.dataset.card)),
+      targets: (el) => (open() && playable(ctx.state, Number(el.dataset.card)) ? [host.querySelector(".fce-card.top")] : []),
+      onDrop: (el) => playCard(Number(el.dataset.card)),
+    });
+
     host.addEventListener("click", (event) => {
-      if (!ctx.canPlay || ctx.mySide === null || ctx.state.phase !== "play") return;
+      if (!open()) return;
       const button = event.target.closest?.("button");
       if (!button || button.disabled) return;
       const { act, card, suit } = button.dataset;
@@ -175,14 +200,7 @@ export const board = {
         local.eight = null;
         ctx.play(`p${eight}${suit}`);
       } else if (card !== undefined) {
-        const index = Number(card);
-        if (isEight(index)) {
-          local.eight = index;
-          draw(host, ctx, local);
-        } else {
-          local.eight = null;
-          ctx.play(`p${index}`);
-        }
+        playCard(Number(card));
       }
     });
 
@@ -190,7 +208,10 @@ export const board = {
     recall();
     return {
       update(next) {
-        if (next.view?.round?.moves?.length !== ctx.view?.round?.moves?.length || !next.canPlay) local.eight = null;
+        if (next.view?.round?.moves?.length !== ctx.view?.round?.moves?.length || !next.canPlay) {
+          local.eight = null;
+          drag.cancel();
+        }
         if (next.view?.index !== ctx.view?.index) {
           local.seed = null;
           local.lost = false;
@@ -199,6 +220,9 @@ export const board = {
         ctx = next;
         draw(host, ctx, local);
         settle();
+      },
+      destroy() {
+        drag.destroy();
       },
     };
   },

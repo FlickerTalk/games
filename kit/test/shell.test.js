@@ -3,7 +3,8 @@
 // messages, the language and the colours. The toy game and its toy board stand in for a real one.
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { defineGame } from "../src/index.js";
-import { FRAME_START } from "../src/shell.js";
+import { FRAME_START, PENDING_GRACE_MS } from "../src/shell.js";
+import { FLASH_MS } from "../src/toast.js";
 import { fakeCore, phones, settle, toy } from "./helpers.js";
 
 /** A board with three buttons, one per toy move; it counts how often it was built and told. */
@@ -61,6 +62,11 @@ const press = async (element, selector) => {
   await tick();
 };
 const text = (element) => element.textContent.replace(/\s+/g, " ");
+/** What the toast at the top says (its words, without the icon), when the frame draws it (an app without `ft.notify`). */
+const toastText = (element) => {
+  const node = element.querySelector(".ftg-toast");
+  return node && !node.hidden ? text(node.querySelector(".say")).trim() : "";
+};
 
 beforeEach(() => {
   vi.useFakeTimers();
@@ -229,9 +235,9 @@ describe("a match between two phones", () => {
     const [first, second] = one.table.view.myTurn ? [one, two] : [two, one];
     await press(first, '[data-move="w"]');
     await tick();
-    // Right under the status that says who won.
-    expect(first.querySelector(".ftg-hint-under").textContent).toBe("Toy won with w");
-    expect(second.querySelector(".ftg-hint-under").textContent).toBe("Toy won with w");
+    // With the line that says who won, in the toast at the top.
+    expect(toastText(first)).toBe("You won · Toy won with w");
+    expect(toastText(second)).toBe("You lost · Toy won with w");
     expect(built.destroyed).toBe(0);
     await press(first, '[data-kit="back"]');
     expect(built.destroyed).toBe(1);
@@ -284,8 +290,8 @@ describe("a match between two phones", () => {
     await press(one, '[data-kit="resign"]');
     await press(one, '[data-kit="yes"]');
     await tick();
-    expect(one.querySelector(".ftg-hint-under").textContent).toBe("You resigned");
-    expect(two.querySelector(".ftg-hint-under").textContent).toBe("The other person resigned");
+    expect(toastText(one)).toContain("You resigned");
+    expect(toastText(two)).toContain("The other person resigned");
     expect(text(two)).toContain("You won");
   });
 
@@ -294,13 +300,15 @@ describe("a match between two phones", () => {
     b.closed = true;
     const one = await phone(a);
     await press(one, '[data-kit="new"]');
-    expect(text(one)).toContain("Waiting for the other person to open “Toy” in this conversation");
+    // Waiting for them, the toast says how to invite them (an app with its own toast says it is waiting).
+    expect(toastText(one)).toContain("The other person has to open this game too.");
     await vi.advanceTimersByTimeAsync(8_100);
-    // Nobody answered the invitation: the notice says how to invite them (the app's mail button
-    // drawn in the sentence), with "try again".
-    const notice = one.querySelector(".ftg-banner");
+    // Nobody answered the invitation: the toast says how to invite them (the app's mail button
+    // drawn in the sentence), and "try again" is in the bar.
+    const notice = one.querySelector(".ftg-toast");
     expect(text(notice)).toContain("The other person has to open this game too. Tap above to invite them.");
     expect(notice.querySelector(".say svg.ftg-ico")).not.toBeNull();
+    expect(one.querySelector('.ftg-bar [data-kit="retry"]')).not.toBeNull();
     const before = a.sent.length;
     await press(one, '[data-kit="retry"]');
     expect(a.sent.length).toBe(before + 1);
@@ -314,19 +322,16 @@ describe("a match between two phones", () => {
     await press(one, '[data-kit="new"]');
     // Waiting for a person, not loading: the board ready in its own colours (only not playable),
     // nothing over it and nothing moving; the person who is missing is in the line read first.
-    expect(text(one)).toContain(HINT);
-    expect(one.querySelector(".ftg-hint-under")).not.toBeNull();
+    expect(toastText(one)).toContain(HINT);
     expect(one.querySelector(".ftg-stage").classList.contains("dim")).toBe(false);
     expect(one.querySelector('[data-part="overlay"]').children).toHaveLength(0);
-    expect(one.querySelector(".ftg-status svg.ftg-ico")).not.toBeNull();
+    expect(one.querySelector(".ftg-toast svg.ftg-ico")).not.toBeNull();
     expect(one.querySelector('[data-move="p"]').disabled).toBe(true);
     await vi.advanceTimersByTimeAsync(8_100);
-    // Nobody answered: one notice with "try again" takes the hint's place (the room is small; they do not stack),
-    // and still says how to invite them.
+    // Nobody answered: the toast still says how to invite them, once, and "try again" is in the bar.
     const count = (needle) => text(one).split(needle).length - 1;
     expect(count(HINT)).toBe(1);
-    expect(one.querySelector(".ftg-hint-under").textContent).toBe("");
-    expect(one.querySelector('.ftg-banner [data-kit="retry"]')).not.toBeNull();
+    expect(one.querySelector('.ftg-bar [data-kit="retry"]')).not.toBeNull();
     // They open the game: the invitation goes again, they join, and the hint is gone.
     b.closed = false;
     const two = await phone(b);
@@ -340,9 +345,8 @@ describe("a match between two phones", () => {
     two.remove();
     await press(one, '[data-kit="enter"]');
     await vi.advanceTimersByTimeAsync(8_100);
-    expect(text(one)).toContain("The other person does not have “Toy” open in this conversation.");
-    expect(one.querySelector(".ftg-hint-under").textContent).toBe("");
-    expect(one.querySelector('.ftg-banner [data-kit="retry"]')).not.toBeNull();
+    expect(toastText(one)).toContain("The other person does not have “Toy” open in this conversation.");
+    expect(one.querySelector('.ftg-bar [data-kit="retry"]')).not.toBeNull();
   });
 
   it("says it is reaching the other phone while the hello is on its way, until the answer or its absence", async () => {
@@ -382,7 +386,8 @@ describe("a match between two phones", () => {
     one.table.notice = { key: "notOpen" };
     one.paint();
     expect(text(one)).toContain("Your two phones disagree about this match. Which one goes on?");
-    expect(one.querySelector('[data-kit="fork-mine"]')).not.toBeNull();
+    // A choice over the board, which cannot be played until it is made: nothing above it moves.
+    expect(one.querySelector('[data-part="overlay"] [data-kit="fork-mine"]')).not.toBeNull();
     expect(one.querySelector('[data-kit="fork-theirs"]')).not.toBeNull();
     expect(text(one)).toContain("The other person does not have “Toy” open in this conversation.");
   });
@@ -398,10 +403,205 @@ describe("a match between two phones", () => {
     await tick();
     expect(text(two)).toContain("The other person started a new match.");
     expect(text(one)).toContain("The other person is in another match.");
+    expect(two.querySelector('[data-part="overlay"] [data-kit="join"]')).not.toBeNull();
     await press(two, '[data-kit="join"]');
     await tick();
     expect(two.table.record.id).toBe(one.table.record.id);
     expect(one.table.view.phase).toBe("play");
+  });
+});
+
+describe("what the user is told: a toast at the top, the board never moves", () => {
+  /** Everything laid out above the board, as it is drawn: what would push the board down. */
+  const above = (element) => {
+    const stage = element.querySelector(".ftg-stage");
+    const flow = [];
+    for (let node = stage; node && node !== element.querySelector(".ftg"); node = node.parentElement) {
+      for (let before = node.previousElementSibling; before; before = before.previousElementSibling) flow.push(before.outerHTML);
+    }
+    return flow;
+  };
+  /** A match on this phone whose other side never answers: a turn, then a notice. */
+  const match = async (core) => {
+    const one = await phone(core);
+    await press(one, '[data-kit="new"]');
+    return one;
+  };
+  const css = () => document.head.querySelector("style[data-ftg]").textContent.replace(/\/\*[\s\S]*?\*\//g, "").replace(/\s+/g, " ");
+  const rule = (selector) => ` }${css()}`.match(new RegExp(`\\}\\s*${selector.replace(/[.[\]]/g, "\\$&")} \\{([^}]*)\\}`))?.[1] ?? "";
+
+  it("floats the toast over the page from a band kept at the top since the first paint, always as tall", async () => {
+    const core = fakeCore();
+    const element = document.createElement("ft-toy");
+    element.ft = core.ft;
+    document.body.append(element);
+    const root = element.querySelector(".ftg");
+    // Before the app opens the game, the band is already there.
+    expect(root.hasAttribute("data-band")).toBe(true);
+    expect(rule(".ftg")).toMatch(/position: relative/);
+    expect(rule(".ftg")).toMatch(/--ftg-band: \d+px/);
+    expect(rule(".ftg[data-band]")).toMatch(/padding-top: calc\(var\(--ftg-band\)/);
+    expect(rule(".ftg-toast")).toMatch(/position: absolute/);
+    await core.open();
+    await tick();
+    expect(root.hasAttribute("data-band")).toBe(true);
+    // The toast is the root's own child, out of what is laid out above the board.
+    await press(element, '[data-kit="new"]');
+    expect(element.querySelector(".ftg-toast").parentElement).toBe(root);
+    expect(element.querySelector(".ftg-main .ftg-toast, .ftg-status, .ftg-hint-under, .ftg-banners")).toBeNull();
+  });
+
+  it("shows a notice without changing anything above the board", async () => {
+    const one = await match(fakeCore());
+    const before = above(one);
+    one.table.notice = { key: "badMove" };
+    one.paint();
+    expect(toastText(one)).toContain("breaks the rules");
+    expect(above(one)).toEqual(before);
+    vi.advanceTimersByTime(FLASH_MS);
+    one.paint();
+    expect(above(one)).toEqual(before);
+  });
+
+  it("shows one notice at a time: the next one takes the last one's place", async () => {
+    const one = await match(fakeCore());
+    one.table.notice = { key: "unreachable" };
+    one.paint();
+    one.table.notice = { key: "badMove" };
+    one.paint();
+    expect(one.querySelectorAll(".ftg-toast")).toHaveLength(1);
+    expect(toastText(one)).toContain("breaks the rules");
+    expect(toastText(one)).not.toContain("cannot be reached");
+  });
+
+  it("lets a notice go after a few seconds, back to the line that says where the match stands", async () => {
+    const one = await match(fakeCore());
+    const standing = toastText(one);
+    one.table.notice = { key: "badMove" };
+    one.paint();
+    vi.advanceTimersByTime(FLASH_MS - 1);
+    expect(toastText(one)).toContain("breaks the rules");
+    vi.advanceTimersByTime(1);
+    expect(toastText(one)).toBe(standing);
+  });
+
+  it("keeps whose turn it is up for as long as it holds", async () => {
+    const { a, b } = phones();
+    const one = await phone(a);
+    const two = await phone(b);
+    await press(one, '[data-kit="new"]');
+    await tick();
+    const [first] = one.table.view.myTurn ? [one, two] : [two, one];
+    await press(first, '[data-move="p"]');
+    await tick();
+    const second = first === one ? two : one;
+    await vi.advanceTimersByTimeAsync(FLASH_MS * 5);
+    expect(toastText(second)).toBe("Your turn");
+    expect(toastText(first)).toBe("Their turn");
+  });
+
+  // Seen on the phones (2026-10-06): after every move both showed "has not reached the other phone
+  // yet" for a few seconds, both games open and the connection direct: a move on its way is not a
+  // stuck one.
+  it("never says a move has not arrived while it is only on its way, and acknowledged within the grace", async () => {
+    const { a, b } = phones();
+    const one = await phone(a);
+    const two = await phone(b);
+    await press(one, '[data-kit="new"]');
+    await tick();
+    // A slow but working connection: each message takes a second, so the answer comes in two.
+    for (const [from, to] of [[a, b], [b, a]]) from.wire = (data) => setTimeout(() => to.hear(data), 1000);
+    const [first, second] = one.table.view.myTurn ? [one, two] : [two, one];
+    const told = [];
+    const watch = new MutationObserver(() => told.push(toastText(first)));
+    watch.observe(first, { subtree: true, childList: true, characterData: true, attributes: true });
+    await press(first, '[data-move="p"]');
+    expect(first.table.view.pending).toBeGreaterThan(0);
+    for (let at = 0; at < PENDING_GRACE_MS - 500; at += 250) {
+      await vi.advanceTimersByTimeAsync(250);
+      told.push(toastText(first));
+    }
+    await tick();
+    expect(first.table.view.pending).toBe(0);
+    expect(second.querySelector("output").textContent).toBe("p");
+    // And the next move counts its own wait, not from the first one's.
+    await press(second, '[data-move="p"]');
+    await vi.advanceTimersByTimeAsync(PENDING_GRACE_MS);
+    await tick();
+    await press(first, '[data-move="p"]');
+    for (let at = 0; at < PENDING_GRACE_MS - 500; at += 250) {
+      await vi.advanceTimersByTimeAsync(250);
+      told.push(toastText(first));
+    }
+    watch.disconnect();
+    expect(first.table.view.pending).toBe(0);
+    expect(second.querySelector("output").textContent).toBe("ppp");
+    expect(told.filter((one) => one.includes("has not reached"))).toEqual([]);
+  });
+
+  it("still says a move has not arrived once it has waited longer than the grace (the other phone closed)", async () => {
+    const { a, b } = phones();
+    const one = await phone(a);
+    const two = await phone(b);
+    await press(one, '[data-kit="new"]');
+    await tick();
+    const [first] = one.table.view.myTurn ? [one, two] : [two, one];
+    (first === one ? b : a).closed = true;
+    await press(first, '[data-move="p"]');
+    await vi.advanceTimersByTimeAsync(PENDING_GRACE_MS - 100);
+    expect(toastText(first)).not.toContain("has not reached");
+    await vi.advanceTimersByTimeAsync(200);
+    expect(toastText(first)).toContain("Your move has not reached the other phone yet.");
+  });
+
+  it("hands every text to the app's own toast when it has one, and keeps no band for it", async () => {
+    const { a, b } = phones();
+    a.ft.notify = vi.fn();
+    b.ft.notify = vi.fn();
+    const one = await phone(a);
+    const two = await phone(b);
+    expect(one.querySelector(".ftg").hasAttribute("data-band")).toBe(false);
+    await press(one, '[data-kit="new"]');
+    await tick();
+    const [first, second] = one.table.view.myTurn ? [one, two] : [two, one];
+    expect(first.ft.notify).toHaveBeenLastCalledWith("The coin says you start", { sticky: true });
+    expect(second.ft.notify).toHaveBeenLastCalledWith("The coin says they start", { sticky: true });
+    expect(one.querySelector(".ftg-toast")).toBeNull();
+    // A notice goes to the app too, and nothing above the board moves.
+    const before = above(first);
+    first.table.notice = { key: "badMove" };
+    first.paint();
+    expect(first.ft.notify).toHaveBeenLastCalledWith("The other phone sent a move that breaks the rules. It was not applied.", { sticky: false });
+    expect(above(first)).toEqual(before);
+    vi.advanceTimersByTime(FLASH_MS);
+    expect(first.ft.notify).toHaveBeenLastCalledWith("The coin says you start", { sticky: true });
+    // Leaving the match takes the standing text away.
+    await press(first, '[data-kit="back"]');
+    expect(first.ft.notify).toHaveBeenLastCalledWith("", { sticky: false });
+  });
+
+  it("never hides the end of a round behind a passing notice", async () => {
+    const { a, b } = phones();
+    const one = await phone(a);
+    const two = await phone(b);
+    await press(one, '[data-kit="new"]');
+    await tick();
+    const [first] = one.table.view.myTurn ? [one, two] : [two, one];
+    first.boardContext(first.table.view).notify("Nice move");
+    expect(toastText(first)).toBe("Nice move");
+    await press(first, '[data-move="w"]');
+    await tick();
+    expect(toastText(first)).toBe("You won · Toy won with w");
+  });
+
+  it("passes on what a board has to say, as a passing notice", async () => {
+    const one = await match(fakeCore());
+    one.board = null;
+    const ctx = one.boardContext(one.table.view);
+    ctx.notify("Already said");
+    expect(toastText(one)).toBe("Already said");
+    vi.advanceTimersByTime(FLASH_MS);
+    expect(toastText(one)).not.toBe("Already said");
   });
 });
 

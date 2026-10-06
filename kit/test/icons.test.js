@@ -136,7 +136,7 @@ describe("no emoji in the interface", () => {
       b.closed = true;
       const one = await phone(a, { lang });
       await press(one, '[data-kit="new"]');
-      const hint = one.querySelector(".ftg-hint-under");
+      const hint = one.querySelector(".ftg-toast");
       expect(hint.querySelector("svg.ftg-ico"), lang).not.toBeNull();
       const mail = document.createElement("p");
       mail.innerHTML = icon("mail-outline");

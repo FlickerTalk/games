@@ -133,9 +133,6 @@
   color: var(--ink);
   font-weight: 600;
 }
-.fwd-note.warn {
-  color: var(--danger);
-}
 .fwd-nop {
   display: inline-block;
   width: 4px;

@@ -29,6 +29,7 @@ function context(moves, extra = {}) {
     lang: "en",
     t: (key, vars) => translate("en", key, vars),
     play: vi.fn(),
+    notify: vi.fn(),
     ...extra,
   };
 }
@@ -77,7 +78,9 @@ describe("the draw", () => {
     await tick();
     await tick();
     expect(stuck.play).not.toHaveBeenCalled();
-    expect(lost.textContent).toContain("The draw was lost");
+    // Said as a passing notice at the top (the kit's toast), never in the board, where it would move the tiles.
+    expect(stuck.notify).toHaveBeenCalledWith(expect.stringContaining("The draw was lost"));
+    expect(lost.textContent).not.toContain("The draw was lost");
   });
 });
 
@@ -106,17 +109,38 @@ describe("the grid", () => {
   it("takes a letter back, cuts the path at a lit tile tapped again, and says why a word will not do", async () => {
     const host = document.createElement("div");
     const ctx = onGrid("catsoxeetnrfdlmp");
-    board.mount(host, ctx);
+    const mounted = board.mount(host, ctx);
     await tick();
     for (const cell of [0, 1, 2]) host.querySelector(`[data-cell="${cell}"]`).click();
     host.querySelector('[data-act="undo"]').click();
     expect(host.querySelector(".fwg-word b").textContent).toBe("ca");
     host.querySelector('[data-cell="0"]').click();
     expect(host.querySelector(".fwg-word b").textContent).toBe("");
-    // t, a, c: "tac" is not a word.
+    // t, a, c: "tac" is not a word. Nothing is said while the word is being built; saying it
+    // tells why it will not do, as a passing notice at the top, and keeps the word to fix.
     for (const cell of [2, 1, 0]) host.querySelector(`[data-cell="${cell}"]`).click();
-    expect(host.querySelector('[data-act="say"]').disabled).toBe(true);
-    expect(host.textContent).toContain("Not in the word list");
+    expect(ctx.notify).not.toHaveBeenCalled();
+    expect(host.querySelector('[data-act="say"]').disabled).toBe(false);
+    host.querySelector('[data-act="say"]').click();
+    expect(ctx.notify).toHaveBeenCalledWith("Not in the word list");
+    expect(ctx.play).not.toHaveBeenCalled();
+    expect(host.querySelector(".fwg-word b").textContent).toBe("tac");
+    // Never in the board, where it would move the tiles; drawn again, it is not said again.
+    expect(host.textContent).not.toContain("Not in the word list");
+    expect(host.querySelector(".fwg-note")).toBeNull();
+    mounted.update(ctx);
+    expect(ctx.notify).toHaveBeenCalledTimes(1);
+  });
+
+  it("says a word already said is already said, at the top", async () => {
+    const host = document.createElement("div");
+    const ctx = onGrid("catsoxeetnrfdlmp");
+    ctx.state = { ...ctx.state, said: [["cat"], []] };
+    board.mount(host, ctx);
+    await tick();
+    for (const cell of [0, 1, 2]) host.querySelector(`[data-cell="${cell}"]`).click();
+    host.querySelector('[data-act="say"]').click();
+    expect(ctx.notify).toHaveBeenCalledWith("Already said");
     expect(ctx.play).not.toHaveBeenCalled();
   });
 

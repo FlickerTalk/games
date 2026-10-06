@@ -2,19 +2,24 @@
 // match with whose turn it is, the honest messages, the result and the way to the chat. It is
 // drawn in the light DOM — a frame holds one game and nothing else — so a board that needs the
 // document (an SVG sprite, a library's own markup) finds it. The board is built once per match
-// and told of every change; everything around it is drawn again.
+// and told of every change; everything around it is drawn again. What the user is told goes to
+// one toast at the top (toast.js), never into the page, so nothing above the board ever moves.
 
 import STYLE from "./style.css";
 import { KIT_TEXTS, direction, joinTexts, translator } from "./i18n.js";
 import { Table } from "./table.js";
 import { mediumReads } from "./colour.js";
 import { icon } from "./icons.js";
+import { Toast } from "./toast.js";
 
 const escape = (text) =>
   String(text).replace(/[&<>"']/g, (one) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[one]);
 
 /** The text with the controls it names drawn in it: `{invite}`, the app's mail button. */
 const withIcons = (text) => escape(text).replace(/\{invite\}/g, icon("mail-outline"));
+
+/** A note for the toast (toast.js): the plain text, and what the frame's own toast draws. */
+const note = (drawn, text, warn = false) => ({ text: text.replace(/\s*\{invite\}/g, ""), html: withIcons(text), icon: drawn, warn });
 
 /** How each message looks: its icon, and whether it warns or only tells. */
 const NOTICES = {
@@ -53,6 +58,11 @@ export const ROOM_CHROME = 297;
  */
 export const FRAME_START = 320;
 
+/** How long a move may be on its way before the toast says it has not reached the other phone, in
+ *  milliseconds: over a working connection the answer comes well within it (seen on the phones,
+ *  2026-10-06: the line flashed after every move, both games open and the connection direct). */
+export const PENDING_GRACE_MS = 3000;
+
 /** The height of the room the game is given, in CSS pixels. */
 function roomHeight() {
   return (globalThis.screen?.height || 853) - ROOM_CHROME;
@@ -84,7 +94,11 @@ export function elementFor(game) {
 
   return class GameElement extends HTMLElement {
     disconnectedCallback() {
+      clearTimeout(this.pendingTimer);
+      this.pendingSince = null;
       this.watch?.disconnect();
+      this.toast?.clear();
+      this.told = "";
       this.letBoardGo();
       this.shown = null;
     }
@@ -111,6 +125,11 @@ export function elementFor(game) {
       this.root = document.createElement("div");
       this.root.className = "ftg";
       this.append(this.root);
+      // The app's own toast when it has one (`ft.notify`, app 1.4.1), otherwise one in the frame,
+      // floating in a band kept at the top from this first paint.
+      this.toast = new Toast({ ft });
+      this.toast.attach(this.root);
+      this.told = "";
       // The app switches its theme on the frame's root while the game is open.
       this.watch = new MutationObserver(() => this.retheme());
       this.watch.observe(document.documentElement, { attributes: true, attributeFilter: ["style", "class", "data-dark"] });
@@ -171,6 +190,7 @@ export function elementFor(game) {
       if (!table.ready) {
         root.innerHTML = "";
         root.style.minHeight = `${FRAME_START}px`;
+        this.toast.attach(root);
         return;
       }
       root.style.removeProperty("min-height");
@@ -183,6 +203,8 @@ export function elementFor(game) {
       if (shown === "list") {
         this.shown = shown;
         root.innerHTML = this.listHtml() + this.dialogHtml();
+        this.toast.attach(root);
+        this.tell(null);
         return;
       }
       const seen = table.view;
@@ -191,13 +213,11 @@ export function elementFor(game) {
         root.innerHTML = `<header class="ftg-bar" data-part="bar"></header>
 <div class="ftg-main">
   <div class="ftg-players" data-part="players"></div>
-  <p class="ftg-status" role="status" aria-live="polite" data-part="status"></p>
-  <p class="ftg-hint-under" data-part="hint"></p>
   <div class="ftg-result" data-part="result"></div>
-  <div class="ftg-banners" data-part="banner"></div>
   <div class="ftg-stage" data-part="stage"><div class="ftg-board" data-part="board" dir="ltr"></div><div class="ftg-overlay" data-part="overlay"></div></div>
 </div>
 <div data-part="dialog"></div>`;
+        this.toast.attach(root);
         this.board = game.board.mount(root.querySelector('[data-part="board"]'), this.boardContext(seen));
       } else {
         this.board?.update?.(this.boardContext(seen));
@@ -205,16 +225,11 @@ export function elementFor(game) {
       const part = (name) => root.querySelector(`[data-part="${name}"]`);
       part("bar").innerHTML = this.barHtml(seen);
       part("players").innerHTML = this.playersHtml(seen);
-      const status = this.status(seen);
-      part("status").className = `ftg-status ${status.mine ? "mine" : "theirs"}${status.over ? " over" : ""}`;
-      part("status").innerHTML = status.html;
-      // Under the status: what to do while the other person is missing, or how the round ended.
-      part("hint").innerHTML = this.waitingFor(seen) ? withIcons(this.t("howToInvite")) : seen.phase === "over" ? escape(this.outcome(seen).how) : "";
+      this.tell(seen);
       // Waiting for a person, the board is ready in its own colours, only not playable; an ended match is dimmed.
       part("stage").classList.toggle("dim", ["ended", "broken"].includes(seen.phase));
       part("overlay").innerHTML = this.overlayHtml(seen);
       part("result").innerHTML = this.resultHtml(seen);
-      part("banner").innerHTML = this.bannerHtml(seen);
       part("dialog").innerHTML = this.dialogHtml();
       this.fitBoard();
     }
@@ -240,6 +255,8 @@ export function elementFor(game) {
         lang: this.lang,
         t: this.t,
         play: (move) => table.play(move),
+        // What the board has to say (a word refused, a seed lost): a passing notice at the top.
+        notify: (text) => this.toast.flash(text ? note(icon("information-circle-outline"), String(text)) : null),
       };
     }
 
@@ -250,7 +267,7 @@ export function elementFor(game) {
       const disabled = table.live ? "" : "disabled";
       // The app's own bar already shows the game's name: here, the matches and a new one.
       let html = `<header class="ftg-bar"><h1 class="ftg-title">${escape(t("matches"))}</h1><button class="ftg-btn primary" data-kit="new" aria-label="${newLabel}" title="${newLabel}" ${disabled}>${icon("add-outline")}</button></header>`;
-      html += this.bannerHtml(null);
+      html += this.promptHtml("banner");
       if (!table.live) html += `<p class="ftg-hint">${icon("chatbubble-outline")} ${escape(t("needsChat", { game: t("name") }))}</p>`;
       if (!table.matches.length) {
         html += `<div class="ftg-empty"><div class="ftg-hero" aria-hidden="true">${icon("game-controller-outline")}</div><p>${escape(t("noMatches"))}</p>${
@@ -282,7 +299,11 @@ export function elementFor(game) {
       const t = this.t;
       const can = this.table.live && seen.phase === "play" && !seen.fork;
       const score = `<span class="me">${this.number(seen.score.me)}</span><span class="dash">–</span><span class="them">${this.number(seen.score.them)}</span>`;
-      return `<button class="ftg-btn" data-kit="back" aria-label="${escape(t("back"))}" title="${escape(t("back"))}">${icon("chevron-back-outline", "ftg-flip")}</button><div class="ftg-score" role="img" aria-label="${escape(`${t("score")} ${seen.score.me}–${seen.score.them}`)}">${score}</div><button class="ftg-btn" data-kit="resign" aria-label="${escape(t("resign"))}" title="${escape(t("resign"))}" ${can ? "" : "disabled"}>${icon("flag-outline")}</button>`;
+      // "Try again" when one more hello may help: in the bar, which is always as tall.
+      const retry = this.table.live && RETRY.includes(this.table.notice?.key)
+        ? `<button class="ftg-btn" data-kit="retry" aria-label="${escape(t("retry"))}" title="${escape(t("retry"))}">${icon("refresh-outline")}</button>`
+        : "";
+      return `<button class="ftg-btn" data-kit="back" aria-label="${escape(t("back"))}" title="${escape(t("back"))}">${icon("chevron-back-outline", "ftg-flip")}</button><div class="ftg-score" role="img" aria-label="${escape(`${t("score")} ${seen.score.me}–${seen.score.them}`)}">${score}</div>${retry}<button class="ftg-btn" data-kit="resign" aria-label="${escape(t("resign"))}" title="${escape(t("resign"))}" ${can ? "" : "disabled"}>${icon("flag-outline")}</button>`;
     }
 
     playersHtml(seen) {
@@ -326,35 +347,100 @@ export function elementFor(game) {
       root.style.setProperty("--ftg-board", `${board}px`);
     }
 
-    /** Whether the other phone is missing and the user can do something about it (invite them). */
-    waitingFor(seen) {
+    /**
+     * What the toast says: the standing line for as long as it holds, and each new notice in its
+     * place for a few seconds (toast.js). `seen` is null on the list, where nothing stands.
+     */
+    tell(seen) {
+      // The end of a round goes first: whatever was passing gives way to it.
+      if (seen?.phase === "over" && this.phase !== "over") this.toast.flash(null);
+      this.phase = seen?.phase;
+      this.toast.hold(seen ? this.standing(seen) : null);
+      const notice = this.noticeNow(seen);
+      const told = notice?.text ?? "";
+      if (told === this.told) return;
+      this.told = told;
+      this.toast.flash(notice);
+    }
+
+    /** The line that stands while it holds: why nothing can be played, or where the match stands. */
+    standing(seen) {
+      const t = this.t;
       const table = this.table;
-      // Once nobody answered, the notice with "try again" takes the hint's place: the room has no space for both.
-      return table.live && !table.peerHere && seen.phase === "invite" && table.notice?.key !== "notOpen";
+      // Counted on every paint, whatever the line says, so an answer always starts the count again.
+      const long = this.pendingLong(seen);
+      if (!table.live) return note(icon("chatbubble-outline"), t("needsChat", { game: t("name") }));
+      // Waiting for the other phone: how to invite them (the app's mail button drawn in the
+      // sentence); the app's own toast cannot draw it, so there it says what the match waits for.
+      if (seen.phase === "invite" && !table.peerHere && !this.toast.native) return note(icon("person-outline"), t("howToInvite"));
+      if (table.connecting && seen.phase !== "invite") return note(icon("radio-outline"), t("connecting"));
+      if (seen.pending > 0 && seen.phase !== "ended" && long) return note(icon("time-outline"), t("pending", { game: t("name") }));
+      return this.status(seen);
+    }
+
+    /** Whether moves have been waiting for the other phone longer than the grace (`PENDING_GRACE_MS`);
+     *  until then, a paint is asked for when it runs out. Any answer starts the count again. */
+    pendingLong(seen) {
+      if (!(seen.pending > 0)) {
+        clearTimeout(this.pendingTimer);
+        this.pendingSince = null;
+        return false;
+      }
+      if (this.pendingSince == null) {
+        this.pendingSince = Date.now();
+        clearTimeout(this.pendingTimer);
+        this.pendingTimer = setTimeout(() => this.paint(), PENDING_GRACE_MS);
+      }
+      return Date.now() - this.pendingSince >= PENDING_GRACE_MS;
+    }
+
+    /** The notice the table has for the user now, if any (the parted ways have their own choice). */
+    noticeNow(seen) {
+      const t = this.t;
+      const notice = this.table.notice;
+      if (!notice || notice.key === "fork") return null;
+      // On the list, nothing can be tried again; while inviting, "nobody answered" is what the
+      // standing line says already.
+      if (!seen && RETRY.includes(notice.key)) return null;
+      if (seen?.phase === "invite" && notice.key === "notOpen") return null;
+      const [drawn, warn] = NOTICES[notice.key] ?? ["information-circle-outline", false];
+      const key = notice.key === "abandoned" ? abandonedBy(seen) : notice.key;
+      return note(icon(drawn), t(key, { game: t("name"), ...notice.vars }), warn);
     }
 
     /** The line that always says where the match stands, and honestly. */
     status(seen) {
       const t = this.t;
       const game_ = t("name");
-      const round = seen.index > 0 ? `${escape(t("round", { n: this.number(seen.index + 1) }))} · ` : "";
-      const line = (art, text, mine = false) => ({ html: `<span class="icon" aria-hidden="true">${art}</span><span>${round}${escape(text)}</span>`, mine });
+      const round = seen.index > 0 ? `${t("round", { n: this.number(seen.index + 1) })} · ` : "";
+      const line = (art, text) => note(art, `${round}${text}`);
       const mark = (side) => (side === null ? "" : game.sides?.[side]) || "";
-      if (seen.phase === "invite") return { html: `<span class="icon" aria-hidden="true">${icon("person-outline")}</span><span>${escape(t("waiting", { game: game_ }))}</span>`, mine: true };
-      if (seen.phase === "toss") return { html: `<span class="icon" aria-hidden="true">${icon("dice-outline")}</span><span>${escape(t("tossing"))}</span>`, mine: false };
+      if (seen.phase === "invite") return note(icon("person-outline"), t("waiting", { game: game_ }));
+      if (seen.phase === "toss") return note(icon("dice-outline"), t("tossing"));
       if (seen.phase === "ended" || seen.phase === "broken") return line(icon("ban-outline"), t("ended"));
       if (seen.phase === "over") {
-        const { big, title } = this.outcome(seen);
-        return { ...line(icon(big), title, seen.result.winner === seen.me), over: true };
+        const { big, title, how } = this.outcome(seen);
+        return line(icon(big), how ? `${title} · ${how}` : title);
       }
       const fresh = seen.index === 0 && !seen.round.moves.length;
       const mine = mark(seen.mySide) || icon("play-outline");
       const theirs = mark(1 - seen.mySide) || icon("hourglass-outline");
-      if (seen.myTurn) return fresh ? line(icon("dice-outline"), t("youStart"), true) : line(mine, t("yourTurn"), true);
+      if (seen.myTurn) return fresh ? line(icon("dice-outline"), t("youStart")) : line(mine, t("yourTurn"));
       return fresh ? line(icon("dice-outline"), t("theyStart")) : line(theirs, t("theirTurn"));
     }
 
+    /** Over the board: a choice that has to be made, the coin, or why the match ended. */
     overlayHtml(seen) {
+      return this.promptHtml("card") + (seen.fork ? this.forkHtml() : this.phaseHtml(seen));
+    }
+
+    /** Two phones that parted ways cannot play on until the user picks: the choice is always there. */
+    forkHtml() {
+      const t = this.t;
+      return `<div class="ftg-card" role="alert"><div class="ftg-big" aria-hidden="true">${icon("git-branch-outline")}</div><p>${escape(t("fork"))}</p><div class="ftg-actions"><button class="ftg-pill" data-kit="fork-mine">${escape(t("forkMine"))}</button><button class="ftg-pill" data-kit="fork-theirs">${escape(t("forkTheirs"))}</button></div></div>`;
+    }
+
+    phaseHtml(seen) {
       const t = this.t;
       if (seen.phase === "toss") return `<div class="ftg-wait" aria-hidden="true"><span class="ftg-coin">${icon("dice-outline")}</span></div>`;
       if (seen.phase === "ended" || seen.phase === "broken") {
@@ -397,35 +483,16 @@ export function elementFor(game) {
       return `<div class="ftg-result-card" role="group" aria-label="${escape(how ? `${title} · ${how}` : title)}"><div class="ftg-actions"><button class="ftg-pill primary" data-kit="send">${icon("send-outline")} ${escape(t("sendResult"))}</button>${again}</div></div>`;
     }
 
-    bannerHtml(seen) {
+    /** The other person started or is in another match: a banner on the list, a card over a board. */
+    promptHtml(kind) {
       const t = this.t;
-      const table = this.table;
-      let html = "";
-      if (table.prompt) {
-        const text = table.prompt.kind === "invited" ? t("invited") : t("elsewhere");
-        const go = table.prompt.kind === "invited" ? t("join") : t("open");
-        html += `<div class="ftg-banner prompt" role="alert"><span class="icon" aria-hidden="true">${icon("enter-outline")}</span><span class="say">${escape(text)}</span><button class="ftg-pill small" data-kit="join">${escape(go)}</button><button class="ftg-pill small quiet" data-kit="dismiss">${escape(t("dismiss"))}</button></div>`;
-      }
-      // Two phones that parted ways cannot play on until the user picks: the choice is always there.
-      if (seen?.fork) {
-        html += `<div class="ftg-banner warn" role="alert"><span class="icon" aria-hidden="true">${icon("git-branch-outline")}</span><span class="say">${escape(t("fork"))}</span><button class="ftg-pill small" data-kit="fork-mine">${escape(t("forkMine"))}</button><button class="ftg-pill small" data-kit="fork-theirs">${escape(t("forkTheirs"))}</button></div>`;
-      }
-      const notice = table.notice?.key === "fork" ? null : table.notice;
-      if (notice && (seen || !RETRY.includes(notice.key))) {
-        const [drawn, warn] = NOTICES[notice.key] ?? ["information-circle-outline", false];
-        let actions = "";
-        if (seen && RETRY.includes(notice.key) && table.live) actions = `<button class="ftg-pill small" data-kit="retry">${icon("refresh-outline")} ${escape(t("retry"))}</button>`;
-        // While waiting for the one invited, "nobody answered" is best said as how to invite them.
-        const key = notice.key === "abandoned" ? abandonedBy(seen) : notice.key === "notOpen" && seen?.phase === "invite" ? "howToInvite" : notice.key;
-        html += `<div class="ftg-banner${warn ? " warn" : ""}" role="status"><span class="icon" aria-hidden="true">${icon(drawn)}</span><span class="say">${withIcons(t(key, { game: t("name"), ...notice.vars }))}</span>${actions}</div>`;
-      } else if (seen && !table.live) {
-        html += `<div class="ftg-banner" role="status"><span class="icon" aria-hidden="true">${icon("chatbubble-outline")}</span><span class="say">${escape(t("needsChat", { game: t("name") }))}</span></div>`;
-      } else if (seen && table.connecting && seen.phase !== "invite") {
-        html += `<div class="ftg-banner" role="status"><span class="icon" aria-hidden="true">${icon("radio-outline")}</span><span class="say">${escape(t("connecting"))}</span></div>`;
-      } else if (seen && seen.pending > 0 && seen.phase !== "ended") {
-        html += `<div class="ftg-banner" role="status"><span class="icon" aria-hidden="true">${icon("time-outline")}</span><span class="say">${escape(t("pending", { game: t("name") }))}</span></div>`;
-      }
-      return html;
+      const prompt = this.table.prompt;
+      if (!prompt) return "";
+      const text = prompt.kind === "invited" ? t("invited") : t("elsewhere");
+      const go = prompt.kind === "invited" ? t("join") : t("open");
+      const buttons = `<button class="ftg-pill small" data-kit="join">${escape(go)}</button><button class="ftg-pill small quiet" data-kit="dismiss">${escape(t("dismiss"))}</button>`;
+      if (kind === "card") return `<div class="ftg-card prompt" role="alert"><div class="ftg-big" aria-hidden="true">${icon("enter-outline")}</div><p>${escape(text)}</p><div class="ftg-actions">${buttons}</div></div>`;
+      return `<div class="ftg-banner prompt" role="alert"><span class="icon" aria-hidden="true">${icon("enter-outline")}</span><span class="say">${escape(text)}</span>${buttons}</div>`;
     }
 
     dialogHtml() {

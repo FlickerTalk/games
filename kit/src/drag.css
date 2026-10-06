@@ -1,0 +1,21 @@
+/* Dragging a piece (drag.js), added by the boards that drag to their own stylesheet: the sheet
+   must not take a finger on a piece for a scroll; the copy under the finger floats over the board;
+   the legal places are ringed while it moves. */
+.ftg [data-drag] {
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+.ftg [data-dragging] {
+  opacity: 0.4;
+}
+.ftg .ftg-ghost {
+  z-index: 20;
+  opacity: 0.9;
+  filter: drop-shadow(0 6px 10px var(--shade-scrim));
+  will-change: transform;
+}
+.ftg [data-drop-ok] {
+  box-shadow: inset 0 0 0 3px var(--good);
+}

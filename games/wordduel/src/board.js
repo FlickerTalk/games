@@ -41,6 +41,15 @@ function gridHtml(guesses, answers, t, { small = false, pending = false, label }
   return `<div><p class="fwd-label">${label}</p><div class="fwd-grid${small ? " small" : ""}" role="grid">${rows}</div></div>`;
 }
 
+/** Says a note once, as a passing notice at the top (the kit's toast), never in the board, where it would move the rest. */
+function tell(ctx, local, text) {
+  if (text && text !== local.told) ctx.notify?.(text);
+  local.told = text;
+}
+
+/** A whole word that is not in the list: said once it is whole, not while it is typed. */
+const refused = (lang, typed) => typed.length === LENGTH && !accepted(lang, typed);
+
 function draw(host, ctx, local) {
   const { state } = ctx;
   const t = ctx.t;
@@ -54,7 +63,9 @@ function draw(host, ctx, local) {
   if (state.phase === "place") {
     const committed = ctx.mySide !== null && state.commits[me] !== null;
     const valid = accepted(lang, typed);
-    const note = local.lost ? t("secretLost") : committed ? t("secretWait") : typed && !valid ? t("notAWord") : t("secretHint");
+    // The line under the word is always there and says what to do; a refused word floats at the top.
+    const note = local.lost ? t("secretLost") : committed ? t("secretWait") : t("secretHint");
+    tell(ctx, local, !committed && refused(lang, typed) ? t("notAWord") : "");
     host.innerHTML = `<div class="fwd${empty ? " empty" : ""} s${me}">
       <div class="fwd-secret">
         <p class="fwd-label">${escape(t("yourSecret"))}</p>
@@ -67,7 +78,7 @@ function draw(host, ctx, local) {
             : `<button data-act="suggest" aria-label="${escape(t("suggest"))}">${icon("dice-outline")}</button>
                <input name="secret" maxlength="${LENGTH}" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="${escape(t("yourSecret"))}" value="${escape(typed)}">
                <button data-act="commit" ${open && valid ? "" : "disabled"}>${icon("checkmark-circle-outline")}<span>${escape(t("setWord"))}</span></button>
-               <p class="fwd-note${typed && !valid ? " warn" : ""}">${escape(note)}</p>`
+               <p class="fwd-note">${escape(note)}</p>`
         }
       </div>
       <i class="fwd-nop"></i>
@@ -87,9 +98,11 @@ function draw(host, ctx, local) {
   const canGuess = open && guessing && mine.length < MAX_GUESSES && solvedAt(state, me) === null;
   const done = state.phase === "done";
   const theirWord = done && state.reveals[they] ? state.reveals[they].word : null;
-  // The other side's word, once revealed, is the one note a small board keeps.
+  // The other side's word, once revealed, is the one note a small board keeps; on the way, what
+  // happens floats at the top (the kit's toast).
   const revealed = !local.lost && done && Boolean(theirWord);
-  const note = local.lost ? t("secretLost") : revealed ? t("theirWordWas", { word: theirWord.toUpperCase() }) : typed && !valid ? t("notAWord") : solvedAt(state, me) !== null ? t("youGotIt") : "";
+  const note = revealed ? t("theirWordWas", { word: theirWord.toUpperCase() }) : "";
+  tell(ctx, local, local.lost ? t("secretLost") : guessing && refused(lang, typed) ? t("notAWord") : solvedAt(state, me) !== null && !done ? t("youGotIt") : "");
   host.innerHTML = `<div class="fwd${empty ? " empty" : ""} s${me}">
     <div class="fwd-boards">
       ${gridHtml(mine, myAnswers, t, { pending: ctx.pending, label: `${MARKS[me]} ${escape(t("yourGuesses"))}` })}
@@ -103,7 +116,7 @@ function draw(host, ctx, local) {
              <button data-act="guess" ${canGuess && valid ? "" : "disabled"}>${icon("send-outline")}<span>${escape(t("guess"))}</span></button>`
           : ""
       }
-      ${note ? `<p class="fwd-note${typed && !valid && guessing ? " warn" : ""}${revealed ? " reveal" : ""}">${escape(note)}</p>` : ""}
+      ${note ? `<p class="fwd-note${revealed ? " reveal" : ""}">${escape(note)}</p>` : ""}
     </div>
     <i class="fwd-nop"></i>
   </div>`;
@@ -196,11 +209,7 @@ export const board = {
       host.querySelector(".fwd")?.classList.toggle("empty", !local.typed);
       const button = host.querySelector('[data-act="commit"], [data-act="guess"]');
       if (button) button.disabled = !(ctx.canPlay && valid);
-      const note = host.querySelector(".fwd-note");
-      if (note) {
-        note.textContent = local.typed && !valid ? ctx.t("notAWord") : ctx.state.phase === "place" ? ctx.t("secretHint") : "";
-        note.classList.toggle("warn", Boolean(local.typed && !valid));
-      }
+      if (["place", "guess"].includes(ctx.state.phase)) tell(ctx, local, refused(lang(), local.typed) ? ctx.t("notAWord") : "");
     });
     host.addEventListener("keydown", (event) => {
       if (event.key === "Enter") host.querySelector('[data-act="commit"], [data-act="guess"]')?.click();
