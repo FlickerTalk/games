@@ -1,0 +1,144 @@
+/* The board of Letter Grid: sixteen letter tiles, the path of the word being built lit, the word
+   under them with its buttons, and the two lists of words said, with the scores. */
+
+.fwg {
+  position: absolute;
+  inset: 0;
+  container-type: size;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr) auto auto;
+  gap: 2cqh;
+  --art-tile: #f3e9d2;
+  --art-tile-ink: #2b2b2b;
+  --art-lit: #f0b429;
+  --tap: clamp(28px, 13cqh, 44px);
+}
+.fwg-scores {
+  display: flex;
+  justify-content: space-between;
+  gap: 2cqw;
+  font-size: clamp(10px, 4cqw, 14px);
+  color: var(--muted);
+}
+.fwg-scores b {
+  color: var(--ink);
+}
+.fwg-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(4, 1fr);
+  gap: 1.5cqw;
+  min-height: 0;
+  aspect-ratio: 1;
+  max-height: 100%;
+  margin: 0 auto;
+  width: 100%;
+  max-width: 100cqh;
+}
+.ftg .fwg-tile {
+  appearance: none;
+  position: relative;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 12%;
+  background: var(--art-tile);
+  color: var(--art-tile-ink);
+  font: 700 clamp(14px, 9cqw, 40px) / 1 system-ui, sans-serif;
+  text-transform: uppercase;
+  min-width: 0;
+  min-height: 0;
+}
+.ftg .fwg-tile:disabled {
+  opacity: 1;
+}
+.fwg.mine .fwg-tile:not(:disabled) {
+  box-shadow: inset 0 0 0 2px var(--me);
+}
+.fwg-tile.lit {
+  background: var(--art-lit);
+}
+.fwg-tile.lit i {
+  position: absolute;
+  inset-block-start: 4%;
+  inset-inline-end: 8%;
+  font: 600 clamp(8px, 3cqw, 12px) / 1 system-ui, sans-serif;
+  font-style: normal;
+}
+.fwg-word {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2cqw;
+  min-height: var(--tap);
+}
+.fwg-word b {
+  flex: 1;
+  min-width: 0;
+  text-align: center;
+  font: 700 clamp(14px, 6cqw, 22px) / 1 system-ui, sans-serif;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.ftg .fwg-word button {
+  min-height: var(--tap);
+  height: var(--tap);
+  min-width: var(--tap);
+  padding: 0 clamp(6px, 3cqw, 12px);
+  font-size: clamp(11px, 4cqw, 15px);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.fwg-lists {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2cqw;
+  font-size: clamp(9px, 3.5cqw, 13px);
+  color: var(--muted);
+  max-height: 22cqh;
+  overflow: hidden;
+}
+.fwg-lists p {
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.fwg-note {
+  color: var(--danger);
+  font-size: clamp(10px, 3.5cqw, 13px);
+}
+.fwg-mark {
+  display: inline-block;
+  width: 1.2em;
+  height: 1.2em;
+  vertical-align: -0.2em;
+}
+.fwg-mark.s0 {
+  fill: var(--side-0);
+}
+.fwg-mark.s1 {
+  fill: var(--side-1);
+}
+.fwg.s0 {
+  --me: var(--side-0);
+}
+.fwg.s1 {
+  --me: var(--side-1);
+}
+.fwg-nop {
+  display: inline-block;
+  width: 4px;
+  height: 4px;
+}
+@container (max-height: 260px) {
+  .fwg-lists,
+  .fwg-word {
+    display: none;
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "id": "com.flickertalk.game.wordgrid",
+  "name": "Letter Grid",
+  "version": "1.0.0",
+  "minCoreVersion": "1.3.0",
+  "kind": "game",
+  "components": [
+    "ft-wordgrid"
+  ],
+  "permissions": {
+    "live": true,
+    "send": "propose"
+  },
+  "summary": "Letter Grid with the other person in the chat: sixteen letters drawn by both phones, words said in turn, English or Spanish, over the direct connection.",
+  "locales": {
+    "es": { "name": "Cuadrícula de letras", "summary": "Cuadrícula de letras con la otra persona del chat: dieciséis letras sacadas por los dos teléfonos, palabras por turnos, en español o inglés." },
+    "pt": { "name": "Grelha de letras", "summary": "Grelha de letras com a outra pessoa da conversa: dezasseis letras tiradas pelos dois telefones, palavras à vez, em inglês ou espanhol." },
+    "fr": { "name": "Grille de lettres", "summary": "Grille de lettres avec l’autre personne de la conversation : seize lettres tirées par les deux téléphones, des mots à tour de rôle, en anglais ou en espagnol." },
+    "de": { "name": "Buchstabengitter", "summary": "Buchstabengitter mit der anderen Person im Chat: sechzehn von beiden Telefonen gezogene Buchstaben, Wörter abwechselnd, auf Englisch oder Spanisch." },
+    "it": { "name": "Griglia di lettere", "summary": "Griglia di lettere con l’altra persona della chat: sedici lettere estratte dai due telefoni, parole a turno, in inglese o spagnolo." },
+    "ro": { "name": "Grilă de litere", "summary": "Grilă de litere cu cealaltă persoană din conversație: șaisprezece litere trase de ambele telefoane, cuvinte pe rând, în engleză sau spaniolă." },
+    "ru": { "name": "Сетка букв", "summary": "Сетка букв с собеседником из чата: шестнадцать букв выбирают оба телефона, слова по очереди, по-английски или по-испански." },
+    "uk": { "name": "Сітка літер", "summary": "Сітка літер зі співрозмовником із чату: шістнадцять літер вибирають обидва телефони, слова по черзі, англійською або іспанською." },
+    "pl": { "name": "Siatka liter", "summary": "Siatka liter z drugą osobą z czatu: szesnaście liter losowanych przez oba telefony, słowa na zmianę, po angielsku lub hiszpańsku." },
+    "tr": { "name": "Harf Izgarası", "summary": "Sohbetteki diğer kişiyle Harf Izgarası: iki telefonun birlikte çektiği on altı harf, sırayla kelimeler, İngilizce veya İspanyolca." },
+    "ar": { "name": "شبكة الحروف", "summary": "شبكة الحروف مع الشخص الآخر في الدردشة: ستة عشر حرفًا يسحبها الهاتفان معًا، وكلمات بالتناوب، بالإنجليزية أو الإسبانية." },
+    "hi": { "name": "अक्षर ग्रिड", "summary": "चैट के दूसरे व्यक्ति के साथ अक्षर ग्रिड: दोनों फ़ोनों द्वारा निकाले गए सोलह अक्षर, बारी-बारी शब्द, अंग्रेज़ी या स्पेनिश में।" },
+    "bn": { "name": "অক্ষরের গ্রিড", "summary": "চ্যাটের অন্য ব্যক্তির সঙ্গে অক্ষরের গ্রিড: দুই ফোন মিলে তোলা ষোলোটি অক্ষর, পালা করে শব্দ, ইংরেজি বা স্প্যানিশে।" },
+    "id": { "name": "Kisi Huruf", "summary": "Kisi Huruf dengan orang lain di obrolan: enam belas huruf diundi oleh kedua ponsel, kata bergantian, dalam bahasa Inggris atau Spanyol." },
+    "vi": { "name": "Lưới chữ", "summary": "Lưới chữ với người kia trong cuộc trò chuyện: mười sáu chữ cái do cả hai điện thoại rút, lần lượt nói từ, bằng tiếng Anh hoặc tiếng Tây Ban Nha." },
+    "th": { "name": "ตารางตัวอักษร", "summary": "ตารางตัวอักษรกับอีกคนในแชท: สิบหกตัวอักษรที่โทรศัพท์ทั้งสองสุ่มร่วมกัน ผลัดกันบอกคำ เป็นภาษาอังกฤษหรือสเปน" },
+    "ja": { "name": "文字グリッド", "summary": "チャットの相手と文字グリッド。16文字は2台の端末が一緒に引き、交互に単語を言います。英語またはスペイン語。" },
+    "ko": { "name": "글자 격자", "summary": "채팅 상대와 글자 격자: 두 휴대폰이 함께 뽑은 열여섯 글자로 번갈아 단어를 말해요. 영어 또는 스페인어." },
+    "zh-CN": { "name": "字母格", "summary": "与聊天中的对方玩字母格：十六个字母由两部手机共同抽取，轮流说出单词，英语或西班牙语。" },
+    "zh-TW": { "name": "字母格", "summary": "與聊天中的對方玩字母格：十六個字母由兩支手機共同抽取，輪流說出單字，英語或西班牙語。" }
+  }
+}
