@@ -1,0 +1,37 @@
+{
+  "id": "com.flickertalk.game.wordduel",
+  "name": "Word Duel",
+  "version": "1.0.0",
+  "minCoreVersion": "1.3.0",
+  "kind": "game",
+  "components": [
+    "ft-wordduel"
+  ],
+  "permissions": {
+    "live": true,
+    "send": "propose"
+  },
+  "summary": "Word Duel with the other person in the chat: each hides a five-letter word, both guess in turn, English or Spanish, over the direct connection between your phones.",
+  "locales": {
+    "es": { "name": "Duelo de palabras", "summary": "Duelo de palabras con la otra persona del chat: cada uno esconde una palabra de cinco letras y los dos adivinan por turnos, en español o inglés." },
+    "pt": { "name": "Duelo de palavras", "summary": "Duelo de palavras com a outra pessoa da conversa: cada um esconde uma palavra de cinco letras e ambos adivinham à vez, em inglês ou espanhol." },
+    "fr": { "name": "Duel de mots", "summary": "Duel de mots avec l’autre personne de la conversation : chacun cache un mot de cinq lettres et les deux devinent à tour de rôle, en anglais ou en espagnol." },
+    "de": { "name": "Wortduell", "summary": "Wortduell mit der anderen Person im Chat: jeder versteckt ein Wort aus fünf Buchstaben, beide raten abwechselnd, auf Englisch oder Spanisch." },
+    "it": { "name": "Duello di parole", "summary": "Duello di parole con l’altra persona della chat: ognuno nasconde una parola di cinque lettere ed entrambi indovinano a turno, in inglese o spagnolo." },
+    "ro": { "name": "Duel de cuvinte", "summary": "Duel de cuvinte cu cealaltă persoană din conversație: fiecare ascunde un cuvânt de cinci litere și amândoi ghicesc pe rând, în engleză sau spaniolă." },
+    "ru": { "name": "Дуэль слов", "summary": "Дуэль слов с собеседником из чата: каждый прячет слово из пяти букв, и оба угадывают по очереди, по-английски или по-испански." },
+    "uk": { "name": "Дуель слів", "summary": "Дуель слів зі співрозмовником із чату: кожен ховає слово з п’яти літер, і обидва вгадують по черзі, англійською або іспанською." },
+    "pl": { "name": "Pojedynek na słowa", "summary": "Pojedynek na słowa z drugą osobą z czatu: każdy ukrywa pięcioliterowe słowo, oboje zgadują na zmianę, po angielsku lub hiszpańsku." },
+    "tr": { "name": "Kelime Düellosu", "summary": "Sohbetteki diğer kişiyle Kelime Düellosu: herkes beş harfli bir kelime saklar, ikisi sırayla tahmin eder, İngilizce veya İspanyolca." },
+    "ar": { "name": "مبارزة الكلمات", "summary": "مبارزة الكلمات مع الشخص الآخر في الدردشة: يخفي كل منكما كلمة من خمسة أحرف ويخمّنان بالتناوب، بالإنجليزية أو الإسبانية." },
+    "hi": { "name": "शब्द द्वंद्व", "summary": "चैट के दूसरे व्यक्ति के साथ शब्द द्वंद्व: हर कोई पाँच अक्षरों का शब्द छिपाता है और दोनों बारी-बारी बूझते हैं, अंग्रेज़ी या स्पेनिश में।" },
+    "bn": { "name": "শব্দ দ্বৈরথ", "summary": "চ্যাটের অন্য ব্যক্তির সঙ্গে শব্দ দ্বৈরথ: প্রত্যেকে পাঁচ অক্ষরের একটি শব্দ লুকায়, দুজনে পালা করে অনুমান করে, ইংরেজি বা স্প্যানিশে।" },
+    "id": { "name": "Duel Kata", "summary": "Duel Kata dengan orang lain di obrolan: masing-masing menyembunyikan kata lima huruf dan keduanya menebak bergantian, dalam bahasa Inggris atau Spanyol." },
+    "vi": { "name": "Đấu từ", "summary": "Đấu từ với người kia trong cuộc trò chuyện: mỗi bên giấu một từ năm chữ cái, cả hai lần lượt đoán, bằng tiếng Anh hoặc tiếng Tây Ban Nha." },
+    "th": { "name": "ดวลคำ", "summary": "ดวลคำกับอีกคนในแชท: แต่ละฝ่ายซ่อนคำห้าตัวอักษร แล้วผลัดกันทาย เป็นภาษาอังกฤษหรือสเปน" },
+    "ja": { "name": "ワードデュエル", "summary": "チャットの相手とワードデュエル。互いに5文字の単語を隠し、交互に当てます。英語またはスペイン語。" },
+    "ko": { "name": "단어 대결", "summary": "채팅 상대와 단어 대결: 서로 다섯 글자 단어를 숨기고 번갈아 맞혀요. 영어 또는 스페인어." },
+    "zh-CN": { "name": "猜词对决", "summary": "与聊天中的对方进行猜词对决：各藏一个五字母单词，轮流猜测，英语或西班牙语。" },
+    "zh-TW": { "name": "猜詞對決", "summary": "與聊天中的對方進行猜詞對決：各藏一個五字母單字，輪流猜測，英語或西班牙語。" }
+  }
+}
