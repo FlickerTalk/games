@@ -1,16 +1,18 @@
 // The board of Backgammon (README, "A game": `board.mount`). The points in two rows with the bar
 // between, the checkers stacked, the trays at the side; under the board the dice, the pips and
 // the pass. A checker moves in two taps: one on its point (or the bar), which shows where it may
-// go, one on the destination. The dice are rolled on their own before each turn, the roller's
+// go, one on the destination; or it is dragged there with the finger (the kit's `makeDraggable`),
+// onto a point or, bearing off, onto the tray. The dice are rolled on their own before each turn, the roller's
 // secret seed kept in the plugin's store until it is revealed; a side with no move passes on its
 // own. The board never talks to the other phone.
 
-import STYLE from "./board.css";
+import BOARD_STYLE from "./board.css";
+import { DRAG_STYLE, makeDraggable } from "../../../kit/src/drag.js";
 import { icon } from "../../../kit/src/icons.js";
 import { fromBase64url, toBase64url } from "./sha256.js";
 import { CHECKERS, POINTS, SEED_BYTES, commitText, legalMoves, moveText, pips, revealText, seedText } from "./rules.js";
 
-export { STYLE };
+export const STYLE = `${BOARD_STYLE}\n${DRAG_STYLE}`;
 
 /** The two sides' marks: a checker in each side's colour, shown on the players' chips. */
 export const MARKS = [
@@ -83,7 +85,7 @@ function draw(host, ctx, local) {
       const classes = ["fbg-point", at % 2 === 0 ? "even" : "odd"];
       if (sources.has(at)) classes.push("from");
       if (from === at) classes.push("selected");
-      quarters += `<button class="${classes.join(" ")}" data-point="${at}" ${sources.has(at) ? `data-from="${at}"` : ""} aria-label="${escape(label)}" ${sources.has(at) ? "" : "disabled"}>${checkersHtml(point, side ?? 0)}</button>`;
+      quarters += `<button class="${classes.join(" ")}" data-point="${at}" ${sources.has(at) ? `data-from="${at}" data-drag` : ""} aria-label="${escape(label)}" ${sources.has(at) ? "" : "disabled"}>${checkersHtml(point, side ?? 0)}</button>`;
     }
     quarters += "</div>";
   });
@@ -98,12 +100,12 @@ function draw(host, ctx, local) {
   const barFrom = sources.has("b");
   const barChecker = (side, count) => `<span class="fbg-checker s${side}"></span>`.repeat(Math.min(count, 3));
   const bar = `<div class="fbg-bar">
-    <button data-point="b" ${barFrom ? 'data-from="b"' : ""} class="${barFrom ? "from" : ""}${from === "b" ? " selected" : ""}" aria-label="${escape(t("bar", { n: state.bar[me] }))}" ${barFrom ? "" : "disabled"}>${barChecker(me, state.bar[me])}</button>
+    <button data-point="b" ${barFrom ? 'data-from="b" data-drag' : ""} class="${barFrom ? "from" : ""}${from === "b" ? " selected" : ""}" aria-label="${escape(t("bar", { n: state.bar[me] }))}" ${barFrom ? "" : "disabled"}>${barChecker(me, state.bar[me])}</button>
     <button data-point="b2" aria-label="${escape(t("bar", { n: state.bar[they] }))}" disabled>${barChecker(they, state.bar[they])}</button>
   </div>`;
   const tray = (side) => {
     const to = side === me && targets.includes("o");
-    return `<button class="fbg-tray${to ? " to" : ""}" ${to ? 'data-to="o"' : ""} aria-label="${escape(t("off", { n: state.off[side] }))}" ${to ? "" : "disabled"}><i class="s${side}"></i>${state.off[side]}</button>`;
+    return `<button class="fbg-tray${to ? " to" : ""}" data-tray="${side}" ${to ? 'data-to="o"' : ""} aria-label="${escape(t("off", { n: state.off[side] }))}" ${to ? "" : "disabled"}><i class="s${side}"></i>${state.off[side]}</button>`;
   };
   const trays = `<div class="fbg-off">${tray(they)}${tray(me)}</div>`;
 
@@ -192,8 +194,35 @@ export const board = {
       }
     };
 
+    const open = () => ctx.canPlay && ctx.mySide !== null && ctx.state.dice !== null;
+    const sourceOf = (el) => (el.dataset.from === "b" ? "b" : Number(el.dataset.from));
+    /** Where a checker dropped on `target` goes: the point under it, its finger-sized target, or off into the tray. */
+    const destOf = (target) => {
+      const to = target.dataset.to ?? target.dataset.point ?? (target.dataset.tray !== undefined ? "o" : undefined);
+      return to === "o" ? "o" : Number(to);
+    };
+    const drag = makeDraggable(host, {
+      canDrag: () => open(),
+      ghost: (el) => [...el.querySelectorAll(".fbg-checker")].at(-1) ?? el,
+      targets: (el) => {
+        if (!open()) return [];
+        const source = sourceOf(el);
+        return legalMoves(ctx.state)
+          .filter((move) => move.from === source)
+          .flatMap((move) =>
+            move.to === "o" ? [host.querySelector(`[data-tray="${ctx.mySide}"]`)] : [...host.querySelectorAll(`[data-point="${move.to}"], [data-to="${move.to}"]`)],
+          );
+      },
+      onDrop: (el, target) => {
+        const move = { from: sourceOf(el), to: destOf(target) };
+        local.from = null;
+        if (legalMoves(ctx.state).some((one) => one.from === move.from && one.to === move.to)) ctx.play(moveText(move));
+        else draw(host, ctx, local);
+      },
+    });
+
     host.addEventListener("click", (event) => {
-      if (!ctx.canPlay || ctx.mySide === null || ctx.state.dice === null) return;
+      if (!open()) return;
       const button = event.target.closest?.("button");
       if (!button || button.disabled) return;
       const { from, to, act } = button.dataset;
@@ -216,7 +245,10 @@ export const board = {
     recall();
     return {
       update(next) {
-        if (next.view?.round?.moves?.length !== ctx.view?.round?.moves?.length || !next.canPlay) local.from = null;
+        if (next.view?.round?.moves?.length !== ctx.view?.round?.moves?.length || !next.canPlay) {
+          local.from = null;
+          drag.cancel();
+        }
         if (next.state.rolls !== ctx.state.rolls || next.view?.index !== ctx.view?.index) {
           local.seed = null;
           local.lost = false;
@@ -224,6 +256,9 @@ export const board = {
         ctx = next;
         draw(host, ctx, local);
         settle();
+      },
+      destroy() {
+        drag.destroy();
       },
     };
   },
