@@ -41,6 +41,9 @@
   --side-0: color-mix(in srgb, var(--hue-side-0) 80%, var(--ink));
   --side-1: color-mix(in srgb, var(--hue-side-1) 80%, var(--ink));
   --shadow: 0 12px 32px var(--fb-shade);
+  /* The band at the top where the frame's own toast floats (toast.js), always as tall. */
+  --ftg-band: 44px;
+  position: relative;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
@@ -104,6 +107,60 @@
   overflow: hidden;
   clip: rect(0 0 0 0);
   white-space: nowrap;
+}
+
+/* What the user is told: one toast at the top, floating over the page so that nothing moves. The
+   app draws it when it can (ft.notify); otherwise the frame does, in a band kept from the first paint. */
+.ftg[data-band] {
+  padding-top: calc(var(--ftg-band) + 4px);
+}
+.ftg-toast {
+  position: absolute;
+  z-index: 5;
+  inset-block-start: 2px;
+  inset-inline: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: fit-content;
+  max-width: calc(100% - 16px);
+  min-height: calc(var(--ftg-band) - 4px);
+  margin-inline: auto;
+  padding: 4px 14px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: var(--paper);
+  color: var(--ink);
+  box-shadow: var(--shadow);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.3;
+  pointer-events: none;
+}
+.ftg-toast[hidden] {
+  display: none;
+}
+.ftg-toast.warn {
+  background: var(--warn-bg);
+  color: var(--warn-ink);
+}
+.ftg-toast .icon {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: 20px;
+  height: 20px;
+  font-size: 18px;
+}
+.ftg-toast .icon svg {
+  width: 20px;
+  height: 20px;
+}
+.ftg-toast .say {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
 }
 
 /* The icons (icons.js): Ionicons, drawn in the text's colour and sized by the text around them. */
@@ -289,8 +346,8 @@
   font-size: 14px;
 }
 
-/* A match on a phone: who plays, whose turn it is, what the user is told and what they can do, all
-   above the board, which takes what is left of the room (the kit sizes it, see shell.js). */
+/* A match on a phone: who plays and what they can do above the board, which takes what is left of
+   the room (the kit sizes it, see shell.js). What they are told floats in the toast. */
 .ftg-main {
   display: flex;
   flex-direction: column;
@@ -299,31 +356,15 @@
 .ftg-players {
   grid-area: players;
 }
-/* A short room: the chips go, the status line says whose turn it is, with the side's mark. */
+/* A short room: the chips go, the toast says whose turn it is, with the side's mark. */
 .ftg[data-compact] .ftg-players {
   display: none;
-}
-.ftg-status {
-  grid-area: status;
 }
 .ftg-stage {
   grid-area: stage;
 }
 .ftg-result {
   grid-area: result;
-}
-/* What to do while nobody is on the other side: a hint, quieter than the status, never an error. */
-.ftg-hint-under {
-  grid-area: hint;
-  margin: -6px auto 0;
-  max-width: 34em;
-  color: var(--muted);
-  font-size: 13px;
-  line-height: 1.4;
-  text-align: center;
-}
-.ftg-hint-under:empty {
-  display: none;
 }
 .ftg-result:empty {
   display: none;
@@ -348,37 +389,6 @@
 }
 .ftg-result-card .ftg-btn {
   background: var(--surface-2);
-}
-.ftg-status.over {
-  font-size: 22px;
-}
-.ftg-status.over .icon {
-  width: 34px;
-  height: 34px;
-  font-size: 28px;
-}
-.ftg-status.over .icon svg {
-  width: 30px;
-  height: 30px;
-}
-.ftg-status .icon {
-  display: inline-grid;
-  place-items: center;
-  width: 24px;
-  height: 24px;
-}
-.ftg-status .icon svg {
-  width: 22px;
-  height: 22px;
-}
-.ftg-banners {
-  grid-area: banner;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-.ftg-banners:empty {
-  display: none;
 }
 .ftg-players {
   display: flex;
@@ -436,23 +446,6 @@
 }
 .ftg-player.here .ftg-dot {
   background: var(--good);
-}
-.ftg-status {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  min-height: 28px;
-  margin: 0;
-  font-size: 17px;
-  font-weight: 650;
-  text-align: center;
-}
-.ftg-status.mine {
-  color: var(--ink);
-}
-.ftg-status.theirs {
-  color: var(--muted);
 }
 .ftg-stage {
   position: relative;
@@ -548,7 +541,7 @@
   }
 }
 
-/* What the user is told: honest, short, with the one action that helps. */
+/* What the user is asked on the list: honest, short, with the one action that helps. */
 .ftg-banner {
   display: flex;
   flex-wrap: wrap;
@@ -565,10 +558,6 @@
 .ftg-banner .icon {
   display: flex;
   font-size: 18px;
-}
-.ftg-banner.warn {
-  background: var(--warn-bg);
-  color: var(--warn-ink);
 }
 .ftg-banner.prompt {
   background: var(--primary);
@@ -609,8 +598,8 @@
   .ftg-main {
     display: grid;
     grid-template-columns: auto minmax(260px, 420px);
-    grid-template-rows: auto auto auto auto 1fr;
-    grid-template-areas: "stage players" "stage status" "stage hint" "stage result" "stage banner";
+    grid-template-rows: auto 1fr;
+    grid-template-areas: "stage players" "stage result";
     justify-content: center;
     align-items: start;
     column-gap: 32px;
@@ -622,19 +611,8 @@
   .ftg-players {
     flex-direction: column;
   }
-  .ftg-status {
-    justify-content: flex-start;
-    min-height: 44px;
-    font-size: 20px;
-    text-align: start;
-  }
   .ftg-list {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  }
-  .ftg-hint-under {
-    margin: -8px 0 0;
-    font-size: 14px;
-    text-align: start;
   }
 }

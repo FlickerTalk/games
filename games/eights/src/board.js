@@ -53,9 +53,16 @@ function cardHtml(card, t, { top = false, open = false } = {}) {
   return `<button class="${classes.join(" ")}" data-card="${card}" aria-label="${escape(t("playCard", { card: name }))}" ${open ? "" : "disabled"}><b>${face(card)}</b><i>${SIGNS[suitOf(card)]}</i></button>`;
 }
 
+/** Says a note once, as a passing notice at the top (the kit's toast), never in the board, where it would move the rest. */
+function tell(ctx, local, text) {
+  if (text && text !== local.told) ctx.notify?.(text);
+  local.told = text;
+}
+
 function draw(host, ctx, local) {
   const { state } = ctx;
   const t = ctx.t;
+  tell(ctx, local, local.lost ? t("seedLost") : "");
   const me = ctx.mySide ?? 0;
   const they = 1 - me;
   const open = ctx.canPlay && state.phase === "play";
@@ -81,7 +88,6 @@ function draw(host, ctx, local) {
       ${pick}
       <div class="fce-hand" role="group" aria-label="${escape(t("yourHand", { n: hand.length }))}">${cards}</div>
       <div class="fce-row">
-        ${local.lost ? `<span>${escape(t("seedLost"))}</span>` : ""}
         <button data-act="pass" ${open && !state.stock.length ? "" : "disabled"} ${state.phase === "play" && !state.stock.length ? "" : "hidden"}>${icon("play-outline")}<span>${escape(t("passTurn"))}</span></button>
       </div>
     </div>

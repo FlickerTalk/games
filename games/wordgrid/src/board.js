@@ -22,7 +22,16 @@ export const storeKey = (me, round) => `wordgrid/${me}/${round}`;
 
 const escape = (text) => String(text).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 
+/** What the user is told when a word will not do, by `refusal`'s reason. */
+const REASONS = { unknown: "notAWord", used: "alreadySaid", grid: "notOnGrid" };
+
 const touching = (a, b) => Math.abs(Math.floor(a / SIZE) - Math.floor(b / SIZE)) <= 1 && Math.abs((a % SIZE) - (b % SIZE)) <= 1;
+
+/** Says a note once, as a passing notice at the top (the kit's toast), never in the board, where it would move the rest. */
+function tell(ctx, local, text) {
+  if (text && text !== local.told) ctx.notify?.(text);
+  local.told = text;
+}
 
 function draw(host, ctx, local) {
   const { state } = ctx;
@@ -34,8 +43,8 @@ function draw(host, ctx, local) {
   const path = local.path;
   const word = path.map((cell) => grid[cell]).join("");
   const last = path.at(-1);
-  const why = word.length ? refusal(state, word) : null;
-  const canSay = open && word.length >= 3 && !why;
+  // Why a word will not do is said when the user says it (the kit's toast), not while it is built.
+  const canSay = open && word.length >= 3;
   const tiles = grid
     .map((letter, cell) => {
       const at = path.indexOf(cell);
@@ -46,7 +55,7 @@ function draw(host, ctx, local) {
     })
     .join("");
   const list = (side) => state.said[side].map((one) => `${one} <small>${points(one)}</small>`).join(", ");
-  const note = local.lost ? t("seedLost") : why && word.length >= 3 ? t({ unknown: "notAWord", used: "alreadySaid", grid: "notOnGrid" }[why] ?? "notAWord") : "";
+  tell(ctx, local, local.lost ? t("seedLost") : "");
   host.innerHTML = `<div class="fwg s${me}${open ? " mine" : ""}${state.phase === "done" ? " done" : ""}" role="group" aria-label="${escape(t("name"))}">
     <div class="fwg-scores"><span>${MARKS[me]} <b>${state.score[me]}</b> ${escape(t("yourWords", { n: state.said[me].length }))}</span><span>${escape(t("theirWords", { n: state.said[they].length }))} <b>${state.score[they]}</b> ${MARKS[they]}</span></div>
     <div class="fwg-grid" role="grid" aria-label="${escape(t("grid"))}">${state.phase === "shuffle" ? `<p class="fwg-note">${escape(t("shuffling"))}</p>` : tiles}</div>
@@ -56,7 +65,7 @@ function draw(host, ctx, local) {
       <button data-act="say" ${canSay ? "" : "disabled"}>${icon("send-outline")}<span>${escape(t("sayWord"))}</span></button>
       <button data-act="pass" aria-label="${escape(t("pass"))}" ${open ? "" : "disabled"}>${icon("play-outline")}</button>
     </div>
-    <div class="fwg-lists"><p>${list(me)}</p><p>${list(they)}</p>${note ? `<span class="fwg-note">${escape(note)}</span>` : ""}</div>
+    <div class="fwg-lists"><p>${list(me)}</p><p>${list(they)}</p></div>
     <i class="fwg-nop"></i>
   </div>`;
 }
@@ -131,9 +140,14 @@ export const board = {
         draw(host, ctx, local);
       } else if (act === "say") {
         const word = local.path.map((at) => ctx.state.grid[at]).join("");
+        const why = refusal(ctx.state, word);
+        if (why) {
+          // The word stays, to fix; why it will not do floats at the top.
+          ctx.notify?.(ctx.t(REASONS[why] ?? "notAWord"));
+          return;
+        }
         local.path = [];
-        if (!refusal(ctx.state, word)) ctx.play(`w${word}`);
-        else draw(host, ctx, local);
+        ctx.play(`w${word}`);
       } else if (cell !== undefined) {
         const index = Number(cell);
         const at = local.path.indexOf(index);

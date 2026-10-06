@@ -27,6 +27,7 @@ function context(moves, extra = {}) {
     lang: "en",
     t: (key, vars) => translate("en", key, vars),
     play: vi.fn(),
+    notify: vi.fn(),
     ...extra,
   };
 }
@@ -93,7 +94,8 @@ describe("placing the fleet", () => {
     const mounted = board.mount(host, ctx);
     await tick();
     mounted.update({ ...ctx, canPlay: true, state: play(ctx.state, ">21", 0).state, mySide: 1 });
-    expect(host.textContent).toContain("no longer on this phone");
+    expect(ctx.notify).toHaveBeenCalledWith(expect.stringContaining("no longer on this phone"));
+    expect(host.textContent).not.toContain("no longer on this phone");
     expect(ctx.play).not.toHaveBeenCalled();
   });
 });

@@ -70,6 +70,12 @@ function outcomes(state, side) {
   return map;
 }
 
+/** Says a note once, as a passing notice at the top (the kit's toast), never in the board, where it would move the rest. */
+function tell(ctx, local, text) {
+  if (text && text !== local.told) ctx.notify?.(text);
+  local.told = text;
+}
+
 function draw(host, ctx, local) {
   const { state } = ctx;
   const t = ctx.t;
@@ -95,6 +101,8 @@ function draw(host, ctx, local) {
   });
 
   const placing = state.phase === "place";
+  // While placing, the line under the sea says it; later, a passing notice.
+  tell(ctx, local, local.lost && !placing ? t("fleetLost") : "");
   if (placing) {
     const committed = me !== null && state.commits[me] !== null;
     const lost = committed && local.lost;
@@ -139,7 +147,6 @@ function draw(host, ctx, local) {
       <div class="fsb-info">
         <span class="fsb-row">${MARKS[they]} <b>${escape(t("shipsLeft", { n: SHIPS.length - state.sunk[they].length }))}</b> ${ships(they)}</span>
         <span class="fsb-row">${MARKS[me ?? 0]} ${escape(t("shipsLeft", { n: SHIPS.length - state.sunk[me ?? 0].length }))} ${ships(me ?? 0)}</span>
-        ${local.lost ? `<span>${escape(t("fleetLost"))}</span>` : ""}
       </div>
     </div>
   </div>`;

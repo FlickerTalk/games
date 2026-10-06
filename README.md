@@ -108,9 +108,10 @@ and deterministic.
 ### The board
 
 On a phone the game lives in the conversation's room, between the app's game bar and its composer,
-and the whole page fits it without scrolling: everything else of a state (bar, chips, status, hint,
-notices, the result's actions) is laid out above the board, and the board, square, takes what is
-left of the room. The room is the screen's height less the app's chrome, `ROOM_CHROME` in
+and the whole page fits it without scrolling: everything else of a state (bar, chips, the result's
+actions) is laid out above the board, and the board, square, takes what is left of the room. What
+the user is told (whose turn it is, how a round ended, a notice) is never laid out: it is one toast
+at the top, floating, so nothing above the board ever moves (see "Notices"). The room is the screen's height less the app's chrome, `ROOM_CHROME` in
 `kit/src/shell.js` (297 px, measured on a Samsung S20+): the one number to change when the app's
 room changes. When even the game's `minBoard` does not fit, the players' chips go first. A board
 must draw inside the square it is given, whatever its size. `npm run room` checks every game in
@@ -143,6 +144,17 @@ screen readers (the button's translated label says what it does). A board marks 
 | `result` | When the round has ended by the rules: `{ k: "rules", winner, result }`; else `null`. |
 | `t(key, vars)`, `lang` | The texts, in the user's language; numbers and dates through `Intl`. |
 | `view` | Everything the shell knows (phase, rounds, score…), for boards that need more. |
+| `notify(text)` | Tell the user something that passes (a word refused, a seed lost): the kit's toast at the top, gone after a few seconds. Never draw such a line inside the board, where it would move the rest. |
+
+**Notices.** One toast at a time, at the top: a new one takes the last one's place. The standing line
+(whose turn it is, why nothing can be played, how a round ended) stays for as long as it holds; a
+notice or a board's `notify` passes after four seconds, then the standing line comes back; the end
+of a round cuts a passing one short. In an app with the Plugin API's `ft.notify(text, { sticky })`
+(app 1.4.1) the app draws it, an `ion-toast`, and the kit sends an empty text to take a standing one
+away; in an older app the kit draws it in the frame (`role="status"`, `aria-live="polite"`), in a
+band at the top kept from the first paint and always as tall (`--ftg-band`). "Try again" is a button
+in the bar; a choice that has to be made (two phones that parted ways, a match the other person
+started) is a card over the board.
 
 `ctx.last` and the moves in `view.round.moves` come from the other phone: they have passed the game's
 `play` and nothing else. A board never puts them into markup unescaped (use them as numbers, look them up,

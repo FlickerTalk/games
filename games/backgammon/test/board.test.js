@@ -29,6 +29,7 @@ function context(moves, extra = {}) {
     lang: "en",
     t: (key, vars) => translate("en", key, vars),
     play: vi.fn(),
+    notify: vi.fn(),
     ...extra,
   };
 }
@@ -86,7 +87,8 @@ describe("the roll", () => {
     await tick();
     await tick();
     expect(stuck.play).not.toHaveBeenCalled();
-    expect(lost.textContent).toContain("The roll was lost");
+    expect(stuck.notify).toHaveBeenCalledWith(expect.stringContaining("The roll was lost"));
+    expect(lost.textContent).not.toContain("The roll was lost");
   });
 });
 

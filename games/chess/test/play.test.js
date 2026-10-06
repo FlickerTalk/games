@@ -95,7 +95,7 @@ describe("chess between two phones", () => {
     await game(white, black, ["e2e4", "e7e5", "f1c4", "b8c6", "d1h5", "g8f6", "h5f7"]);
     for (const side of [white, black]) {
       expect(fen(side)).toBe("r1bqkb1r/pppp1Qpp/2n2n2/4p3/2B1P3/8/PPPP1PPP/RNB1K1NR b KQkq - 0 4");
-      expect(side.querySelector(".ftg-hint-under").textContent).toBe("Checkmate");
+      expect(side.querySelector(".ftg-toast").textContent).toContain("Checkmate");
       expect(side.querySelector(".ftc-end")).toBeNull();
     }
     expect(text(white)).toContain("You won");
@@ -238,11 +238,11 @@ describe("chess with nobody on the other side", () => {
     });
     one.querySelector('[data-kit="new"]').click();
     await settle([one.table]);
-    expect(text(one)).toContain("Waiting for the other person");
+    expect(text(one)).toContain("The other person has to open this game too.");
     await vi.advanceTimersByTimeAsync(8_100 - (Date.now() - start));
     await settle([one.table]);
-    expect(one.querySelector('.ftg-banner [data-kit="retry"]')).not.toBeNull();
-    expect(one.querySelector(".ftg-banner").textContent.replace(/\s+/g, " ")).toContain("Tap above to invite them.");
+    expect(one.querySelector('.ftg-bar [data-kit="retry"]')).not.toBeNull();
+    expect(one.querySelector(".ftg-toast").textContent.replace(/\s+/g, " ")).toContain("Tap above to invite them.");
     for (let second = 0; second < 300; second += 1) {
       await vi.advanceTimersByTimeAsync(1_000);
       await settle([one.table], 2);

@@ -29,6 +29,7 @@ function context(moves, extra = {}) {
     lang: "en",
     t: (key, vars) => translate("en", key, vars),
     play: vi.fn(),
+    notify: vi.fn(),
     ...extra,
   };
 }
@@ -53,8 +54,13 @@ describe("the secret word", () => {
     await tick();
     expect(host.textContent).toContain("Five letters");
     expect(host.querySelector('[data-act="commit"]').disabled).toBe(true);
+    // A word not in the list is said once it is whole, as a passing notice; the hint stays where it is.
+    type(host, "secret", "ZZZ");
+    expect(ctx.notify).not.toHaveBeenCalled();
     type(host, "secret", "ZZZZZ");
-    expect(host.textContent).toContain("Not in the word list");
+    expect(ctx.notify).toHaveBeenCalledWith(expect.stringContaining("Not in the word list"));
+    expect(host.textContent).not.toContain("Not in the word list");
+    expect(host.textContent).toContain("Five letters");
     expect(host.querySelector('[data-act="commit"]').disabled).toBe(true);
     type(host, "secret", "Crane");
     expect(host.querySelector('[data-act="commit"]').disabled).toBe(false);
@@ -105,7 +111,8 @@ describe("the secret word", () => {
     board.mount(host, ctx);
     await tick();
     await tick();
-    expect(host.textContent).toContain("no longer on this phone");
+    expect(ctx.notify).toHaveBeenCalledWith(expect.stringContaining("no longer on this phone"));
+    expect(host.textContent).not.toContain("no longer on this phone");
     expect(ctx.play).not.toHaveBeenCalled();
   });
 });
@@ -154,7 +161,8 @@ describe("guessing", () => {
     const answerA = (s) => honestAnswer(s, 0, "crane");
     const moves = [...PLACED, ">stare", (s) => `${answerB(s)}>about`, (s) => `${answerA(s)}>eagle`, (s) => `${answerB(s)}>other`];
     const { host, ctx, mounted } = await kept(moves, 0, "crane");
-    expect(host.textContent).toContain("You have the word!");
+    expect(ctx.notify).toHaveBeenCalledWith("You have the word!");
+    expect(host.textContent).not.toContain("You have the word!");
     expect(ctx.play).toHaveBeenCalledTimes(1);
     expect(ctx.play.mock.calls[0][0]).toBe(feedback("other", "crane"));
     const revealPhase = context([...moves, answerA], { mySide: 0, play: ctx.play });

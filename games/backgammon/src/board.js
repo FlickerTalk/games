@@ -54,9 +54,16 @@ function checkersHtml(point, side) {
   return html;
 }
 
+/** Says a note once, as a passing notice at the top (the kit's toast), never in the board, where it would move the rest. */
+function tell(ctx, local, text) {
+  if (text && text !== local.told) ctx.notify?.(text);
+  local.told = text;
+}
+
 function draw(host, ctx, local) {
   const { state } = ctx;
   const t = ctx.t;
+  tell(ctx, local, local.lost ? t("seedLost") : "");
   const me = ctx.mySide ?? 0;
   const they = 1 - me;
   const open = ctx.canPlay && ctx.mySide !== null && state.dice !== null;
@@ -116,7 +123,6 @@ function draw(host, ctx, local) {
     <div class="fbg-under">
       ${dice}
       <span class="fbg-pips">${MARKS[me]} ${pips(state, me)} · ${MARKS[they]} ${pips(state, they)}</span>
-      ${local.lost ? `<span class="fbg-note">${escape(t("seedLost"))}</span>` : ""}
       <button data-act="pass" aria-label="${escape(t("pass"))}" ${open && !legal.length ? "" : "disabled"} ${open && !legal.length ? "" : "hidden"}>${icon("play-outline")}</button>
     </div>
     <i class="fbg-nop"></i>
