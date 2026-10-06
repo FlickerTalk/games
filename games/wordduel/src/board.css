@@ -121,12 +121,17 @@
   font-size: clamp(10px, 4cqw, 13px);
   text-align: center;
 }
-/* A small board (waiting, the result): the words go, the tiles stay. */
+/* A small board (waiting, the result): the words go, the tiles stay; but not the other side's
+   word, revealed at the end, which is what the result is about. */
 @container (max-height: 280px) {
-  .fwd-note,
+  .fwd-note:not(.reveal),
   .fwd-label {
     display: none;
   }
+}
+.fwd-note.reveal {
+  color: var(--ink);
+  font-weight: 600;
 }
 .fwd-note.warn {
   color: var(--danger);
