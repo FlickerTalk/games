@@ -58,6 +58,11 @@ export const ROOM_CHROME = 297;
  */
 export const FRAME_START = 320;
 
+/** How long a move may be on its way before the toast says it has not reached the other phone, in
+ *  milliseconds: over a working connection the answer comes well within it (seen on the phones,
+ *  2026-10-06: the line flashed after every move, both games open and the connection direct). */
+export const PENDING_GRACE_MS = 3000;
+
 /** The height of the room the game is given, in CSS pixels. */
 function roomHeight() {
   return (globalThis.screen?.height || 853) - ROOM_CHROME;
@@ -89,6 +94,8 @@ export function elementFor(game) {
 
   return class GameElement extends HTMLElement {
     disconnectedCallback() {
+      clearTimeout(this.pendingTimer);
+      this.pendingSince = null;
       this.watch?.disconnect();
       this.toast?.clear();
       this.told = "";
@@ -360,13 +367,31 @@ export function elementFor(game) {
     standing(seen) {
       const t = this.t;
       const table = this.table;
+      // Counted on every paint, whatever the line says, so an answer always starts the count again.
+      const long = this.pendingLong(seen);
       if (!table.live) return note(icon("chatbubble-outline"), t("needsChat", { game: t("name") }));
       // Waiting for the other phone: how to invite them (the app's mail button drawn in the
       // sentence); the app's own toast cannot draw it, so there it says what the match waits for.
       if (seen.phase === "invite" && !table.peerHere && !this.toast.native) return note(icon("person-outline"), t("howToInvite"));
       if (table.connecting && seen.phase !== "invite") return note(icon("radio-outline"), t("connecting"));
-      if (seen.pending > 0 && seen.phase !== "ended") return note(icon("time-outline"), t("pending", { game: t("name") }));
+      if (seen.pending > 0 && seen.phase !== "ended" && long) return note(icon("time-outline"), t("pending", { game: t("name") }));
       return this.status(seen);
+    }
+
+    /** Whether moves have been waiting for the other phone longer than the grace (`PENDING_GRACE_MS`);
+     *  until then, a paint is asked for when it runs out. Any answer starts the count again. */
+    pendingLong(seen) {
+      if (!(seen.pending > 0)) {
+        clearTimeout(this.pendingTimer);
+        this.pendingSince = null;
+        return false;
+      }
+      if (this.pendingSince == null) {
+        this.pendingSince = Date.now();
+        clearTimeout(this.pendingTimer);
+        this.pendingTimer = setTimeout(() => this.paint(), PENDING_GRACE_MS);
+      }
+      return Date.now() - this.pendingSince >= PENDING_GRACE_MS;
     }
 
     /** The notice the table has for the user now, if any (the parted ways have their own choice). */

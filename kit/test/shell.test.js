@@ -3,7 +3,7 @@
 // messages, the language and the colours. The toy game and its toy board stand in for a real one.
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { defineGame } from "../src/index.js";
-import { FRAME_START } from "../src/shell.js";
+import { FRAME_START, PENDING_GRACE_MS } from "../src/shell.js";
 import { FLASH_MS } from "../src/toast.js";
 import { fakeCore, phones, settle, toy } from "./helpers.js";
 
@@ -498,6 +498,60 @@ describe("what the user is told: a toast at the top, the board never moves", () 
     await vi.advanceTimersByTimeAsync(FLASH_MS * 5);
     expect(toastText(second)).toBe("Your turn");
     expect(toastText(first)).toBe("Their turn");
+  });
+
+  // Seen on the phones (2026-10-06): after every move both showed "has not reached the other phone
+  // yet" for a few seconds, both games open and the connection direct: a move on its way is not a
+  // stuck one.
+  it("never says a move has not arrived while it is only on its way, and acknowledged within the grace", async () => {
+    const { a, b } = phones();
+    const one = await phone(a);
+    const two = await phone(b);
+    await press(one, '[data-kit="new"]');
+    await tick();
+    // A slow but working connection: each message takes a second, so the answer comes in two.
+    for (const [from, to] of [[a, b], [b, a]]) from.wire = (data) => setTimeout(() => to.hear(data), 1000);
+    const [first, second] = one.table.view.myTurn ? [one, two] : [two, one];
+    const told = [];
+    const watch = new MutationObserver(() => told.push(toastText(first)));
+    watch.observe(first, { subtree: true, childList: true, characterData: true, attributes: true });
+    await press(first, '[data-move="p"]');
+    expect(first.table.view.pending).toBeGreaterThan(0);
+    for (let at = 0; at < PENDING_GRACE_MS - 500; at += 250) {
+      await vi.advanceTimersByTimeAsync(250);
+      told.push(toastText(first));
+    }
+    await tick();
+    expect(first.table.view.pending).toBe(0);
+    expect(second.querySelector("output").textContent).toBe("p");
+    // And the next move counts its own wait, not from the first one's.
+    await press(second, '[data-move="p"]');
+    await vi.advanceTimersByTimeAsync(PENDING_GRACE_MS);
+    await tick();
+    await press(first, '[data-move="p"]');
+    for (let at = 0; at < PENDING_GRACE_MS - 500; at += 250) {
+      await vi.advanceTimersByTimeAsync(250);
+      told.push(toastText(first));
+    }
+    watch.disconnect();
+    expect(first.table.view.pending).toBe(0);
+    expect(second.querySelector("output").textContent).toBe("ppp");
+    expect(told.filter((one) => one.includes("has not reached"))).toEqual([]);
+  });
+
+  it("still says a move has not arrived once it has waited longer than the grace (the other phone closed)", async () => {
+    const { a, b } = phones();
+    const one = await phone(a);
+    const two = await phone(b);
+    await press(one, '[data-kit="new"]');
+    await tick();
+    const [first] = one.table.view.myTurn ? [one, two] : [two, one];
+    (first === one ? b : a).closed = true;
+    await press(first, '[data-move="p"]');
+    await vi.advanceTimersByTimeAsync(PENDING_GRACE_MS - 100);
+    expect(toastText(first)).not.toContain("has not reached");
+    await vi.advanceTimersByTimeAsync(200);
+    expect(toastText(first)).toContain("Your move has not reached the other phone yet.");
   });
 
   it("hands every text to the app's own toast when it has one, and keeps no band for it", async () => {
