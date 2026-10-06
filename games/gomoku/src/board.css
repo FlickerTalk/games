@@ -1,15 +1,19 @@
 /* The board of Five in a Row: fifteen lines each way on a wooden board, the stones on the
    intersections, a stone the user is about to place shown as a ghost until they tap it again. */
 
+/* The colours on the stones as well as the board: the players' chips show a stone outside it. */
+.fgm,
+.fgm-stone {
+  --art-wood: #d9a86c;
+  --art-line: #6b4a24;
+  --art-stone-0: #1d1d1d;
+  --art-stone-1: #f6f3ea;
+}
 .fgm {
   position: absolute;
   inset: 0;
   border-radius: 12px;
   background: var(--art-wood);
-  --art-wood: #d9a86c;
-  --art-line: #6b4a24;
-  --art-stone-0: #1d1d1d;
-  --art-stone-1: #f6f3ea;
 }
 .fgm-grid {
   position: absolute;
