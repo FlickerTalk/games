@@ -1,7 +1,8 @@
 // The board of checkers: the dark squares are buttons named for a screen reader in the user's
 // language, the pieces in SVG with a crown ring on a king; only the pieces that may move are open;
 // a move takes the piece and then its squares, jump after jump, and is played when whole; the
-// board is turned around for the light side; the last move marked, a pending one too.
+// board is turned around for the dark side, so each side has its own pieces at the bottom; the last
+// move marked, a pending one too.
 import { describe, expect, it, vi } from "vitest";
 import { KIT_TEXTS, joinTexts, translator } from "../../../kit/src/i18n.js";
 import { board, PIECES } from "../src/board.js";
@@ -46,8 +47,10 @@ describe("the board", () => {
     expect(square(host, 28).getAttribute("aria-label")).toBe("Row 4, column 5: empty");
     expect(square(host, 1).querySelector("svg.fck-s0")).not.toBeNull();
     expect(PIECES).toHaveLength(2);
-    // The dark side sees itself at the top, as the squares are numbered: the first button is square 1.
-    expect(host.querySelector("button.fck-sq").dataset.cell).toBe("1");
+    // The dark side starts on the top rows of the numbering, so its board is turned around to have
+    // its own pieces at the bottom: the first button is square 62, and the dark men are drawn last.
+    expect(host.querySelector("button.fck-sq").dataset.cell).toBe("62");
+    expect([...host.querySelectorAll("button.fck-sq")].at(-1).dataset.cell).toBe("1");
   });
 
   it("opens the pieces that may move, then the squares the chosen one may go to, and plays the whole move", () => {
@@ -83,10 +86,12 @@ describe("the board", () => {
     expect(ctx.play).toHaveBeenCalledWith("21-35-49");
   });
 
-  it("turns the board around for the light side, opens nothing out of turn, and speaks the user's language", () => {
+  it("keeps the numbering for the light side, whose pieces start on the bottom rows, opens nothing out of turn, and speaks the user's language", () => {
     const host = document.createElement("div");
     board.mount(host, context(initial(), { mySide: 1, canPlay: false, lang: "es", t: (key, vars) => translate("es", key, vars) }));
-    expect(host.querySelector("button.fck-sq").dataset.cell).toBe("62");
+    // The light side's own pieces at the bottom: the first button is square 1, a dark piece of the other side.
+    expect(host.querySelector("button.fck-sq").dataset.cell).toBe("1");
+    expect([...host.querySelectorAll("button.fck-sq")].at(-1).querySelector("svg.fck-s1")).not.toBeNull();
     expect(host.querySelectorAll(".fck-sq:enabled")).toHaveLength(0);
     expect(square(host, 62).getAttribute("aria-label")).toBe("Fila 8, columna 7: ficha clara");
     expect(host.querySelector('[role="group"]').getAttribute("aria-label")).toBe("Tablero: 12 oscuras, 12 claras");
