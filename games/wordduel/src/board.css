@@ -1,0 +1,159 @@
+/* The board of Word Duel: the user's guesses in rows of five tiles, each tile coloured by what the
+   other side answered; the other side's guesses smaller beside them; a field and a button to guess;
+   first, a field to choose the secret word. */
+
+.fwd {
+  position: absolute;
+  inset: 0;
+  container-type: size;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr) auto;
+  gap: 2%;
+  --tile: clamp(12px, 9cqh, 40px);
+  --tap: clamp(30px, 14cqh, 44px);
+  --art-tile: #d7d7d7;
+  --art-tile-ink: #1a1a1a;
+  --art-right: #5a9c48;
+  --art-near: #c9a227;
+  --art-wrong: #6b6b6b;
+  --art-on-tile: #fffdf7;
+}
+.fwd-boards {
+  display: grid;
+  grid-template-columns: 3fr 2fr;
+  gap: 4%;
+  min-height: 0;
+  align-items: start;
+}
+.fwd-grid {
+  display: grid;
+  gap: clamp(2px, 0.8cqh, 4px);
+}
+.fwd-row {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: clamp(2px, 0.8cqh, 4px);
+}
+.fwd-tile {
+  height: var(--tile);
+  display: grid;
+  place-items: center;
+  border-radius: 15%;
+  background: var(--art-tile);
+  color: var(--art-tile-ink);
+  font: 700 calc(var(--tile) * 0.55) / 1 system-ui, sans-serif;
+  text-transform: uppercase;
+}
+.fwd-grid.small .fwd-tile {
+  height: calc(var(--tile) * 0.7);
+  font-size: calc(var(--tile) * 0.38);
+}
+.fwd-tile.g {
+  background: var(--art-right);
+  color: var(--art-on-tile);
+}
+.fwd-tile.y {
+  background: var(--art-near);
+  color: var(--art-on-tile);
+}
+.fwd-tile.b {
+  background: var(--art-wrong);
+  color: var(--art-on-tile);
+}
+.fwd-tile.pending {
+  opacity: 0.5;
+}
+.fwd-label {
+  color: var(--muted);
+  font-size: clamp(9px, 3.5cqw, 12px);
+  margin: 0 0 4px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.fwd-form {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
+  min-width: 0;
+}
+.fwd-secret,
+.fwd-boards {
+  min-width: 0;
+}
+@container (max-width: 220px) {
+  .fwd-form button span {
+    display: none;
+  }
+}
+.ftg .fwd-form input {
+  flex: 1;
+  min-width: 0;
+  width: 60px;
+  height: var(--tap);
+  padding: 0 10px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--ink);
+  font: 600 clamp(13px, 5.5cqw, 18px) / 1 system-ui, sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  box-sizing: border-box;
+}
+.ftg .fwd-form button {
+  min-height: var(--tap);
+  height: var(--tap);
+  min-width: var(--tap);
+  padding: 0 clamp(6px, 4cqw, 12px);
+  font-size: clamp(11px, 4.5cqw, 15px);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.fwd-note {
+  flex-basis: 100%;
+  margin: 0;
+  color: var(--muted);
+  font-size: clamp(10px, 4cqw, 13px);
+  text-align: center;
+}
+/* A small board (waiting, the result): the words go, the tiles stay. */
+@container (max-height: 280px) {
+  .fwd-note,
+  .fwd-label {
+    display: none;
+  }
+}
+.fwd-note.warn {
+  color: var(--danger);
+}
+.fwd-nop {
+  display: inline-block;
+  width: 4px;
+  height: 4px;
+}
+.fwd-secret {
+  display: grid;
+  place-items: center;
+  gap: 10px;
+  align-content: center;
+}
+.fwd-secret .fwd-row {
+  width: min(100%, 260px);
+}
+.fwd-mark {
+  display: inline-block;
+  width: 1.2em;
+  height: 1.2em;
+  vertical-align: -0.2em;
+}
+.fwd-mark.s0 {
+  fill: var(--side-0);
+}
+.fwd-mark.s1 {
+  fill: var(--side-1);
+}

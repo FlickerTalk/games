@@ -1,0 +1,37 @@
+{
+  "id": "com.flickertalk.game.seabattle",
+  "name": "Sea Battle",
+  "version": "1.0.0",
+  "minCoreVersion": "1.3.0",
+  "kind": "game",
+  "components": [
+    "ft-seabattle"
+  ],
+  "permissions": {
+    "live": true,
+    "send": "propose"
+  },
+  "summary": "Sea Battle with the other person in the chat: hidden fleets, checked at the end, over the direct connection between your phones.",
+  "locales": {
+    "es": { "name": "Batalla naval", "summary": "Batalla naval con la otra persona del chat: flotas ocultas, comprobadas al final, por la conexión directa entre los dos teléfonos." },
+    "pt": { "name": "Batalha naval", "summary": "Batalha naval com a outra pessoa da conversa: frotas escondidas, verificadas no fim, pela conexão direta entre os dois telefones." },
+    "fr": { "name": "Bataille navale", "summary": "Bataille navale avec l’autre personne de la conversation : flottes cachées, vérifiées à la fin, par la connexion directe entre vos téléphones." },
+    "de": { "name": "Seeschlacht", "summary": "Seeschlacht mit der anderen Person im Chat: versteckte Flotten, am Ende geprüft, über die direkte Verbindung zwischen euren Telefonen." },
+    "it": { "name": "Battaglia navale", "summary": "Battaglia navale con l’altra persona della chat: flotte nascoste, verificate alla fine, sulla connessione diretta tra i vostri telefoni." },
+    "ro": { "name": "Bătălie navală", "summary": "Bătălie navală cu cealaltă persoană din conversație: flote ascunse, verificate la final, prin conexiunea directă dintre telefoanele voastre." },
+    "ru": { "name": "Морской бой", "summary": "Морской бой с собеседником из чата: скрытые флоты, проверяемые в конце, по прямому соединению между вашими телефонами." },
+    "uk": { "name": "Морський бій", "summary": "Морський бій зі співрозмовником із чату: приховані флоти, перевірені наприкінці, через пряме з’єднання між телефонами." },
+    "pl": { "name": "Bitwa morska", "summary": "Bitwa morska z drugą osobą z czatu: ukryte floty, sprawdzane na końcu, przez bezpośrednie połączenie między telefonami." },
+    "tr": { "name": "Deniz Savaşı", "summary": "Sohbetteki diğer kişiyle Deniz Savaşı: gizli filolar, sonunda doğrulanır, telefonlarınız arasındaki doğrudan bağlantı üzerinden." },
+    "ar": { "name": "معركة بحرية", "summary": "معركة بحرية مع الشخص الآخر في الدردشة: أساطيل مخفية تُتحقق في النهاية، عبر الاتصال المباشر بين هاتفيكما." },
+    "hi": { "name": "समुद्री युद्ध", "summary": "चैट के दूसरे व्यक्ति के साथ समुद्री युद्ध: छिपे बेड़े, अंत में जाँचे गए, आपके फ़ोनों के बीच सीधे कनेक्शन पर।" },
+    "bn": { "name": "নৌযুদ্ধ", "summary": "চ্যাটের অন্য ব্যক্তির সঙ্গে নৌযুদ্ধ: লুকানো নৌবহর, শেষে যাচাই করা, আপনাদের ফোনের মধ্যে সরাসরি সংযোগে।" },
+    "id": { "name": "Perang Laut", "summary": "Perang Laut dengan orang lain di obrolan: armada tersembunyi, diperiksa di akhir, lewat koneksi langsung antara ponsel kalian." },
+    "vi": { "name": "Hải chiến", "summary": "Hải chiến với người kia trong cuộc trò chuyện: hạm đội ẩn, kiểm tra ở cuối, qua kết nối trực tiếp giữa hai điện thoại." },
+    "th": { "name": "เรือรบ", "summary": "เรือรบกับอีกคนในแชท: กองเรือที่ซ่อนไว้ ตรวจสอบตอนจบ ผ่านการเชื่อมต่อโดยตรงระหว่างโทรศัพท์ของคุณทั้งสอง" },
+    "ja": { "name": "海戦", "summary": "チャットの相手と海戦。隠した艦隊は最後に検証され、2台の端末の直接接続で遊びます。" },
+    "ko": { "name": "해전", "summary": "채팅 상대와 해전을, 숨긴 함대는 마지막에 검증되며, 두 휴대폰 사이의 직접 연결로 즐기세요." },
+    "zh-CN": { "name": "海战棋", "summary": "与聊天中的对方玩海战棋：隐藏的舰队在最后核对，通过两部手机之间的直接连接。" },
+    "zh-TW": { "name": "海戰棋", "summary": "與聊天中的對方玩海戰棋：隱藏的艦隊在最後核對，透過兩支手機之間的直接連線。" }
+  }
+}

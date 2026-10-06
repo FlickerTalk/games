@@ -1,0 +1,166 @@
+/* The board of Five in a Row: fifteen lines each way on a wooden board, the stones on the
+   intersections, a stone the user is about to place shown as a ghost until they tap it again. */
+
+.fgm {
+  position: absolute;
+  inset: 0;
+  border-radius: 12px;
+  background: var(--art-wood);
+  --art-wood: #d9a86c;
+  --art-line: #6b4a24;
+  --art-stone-0: #1d1d1d;
+  --art-stone-1: #f6f3ea;
+}
+.fgm-grid {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: repeat(15, 1fr);
+  grid-template-rows: repeat(15, 1fr);
+}
+.ftg .fgm-cell {
+  appearance: none;
+  position: relative;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  min-width: 0;
+  min-height: 0;
+}
+.ftg .fgm-cell:disabled {
+  opacity: 1;
+}
+/* The lines meet at the middle of each cell; the edge cells stop at the middle. */
+.fgm-cell::before,
+.fgm-cell::after {
+  content: "";
+  position: absolute;
+  background: var(--art-line);
+  pointer-events: none;
+}
+.fgm-cell::before {
+  inset-block: 0;
+  inset-inline-start: calc(50% - 0.5px);
+  width: 1px;
+}
+.fgm-cell::after {
+  inset-inline: 0;
+  inset-block-start: calc(50% - 0.5px);
+  height: 1px;
+}
+.fgm-cell.top::before {
+  inset-block-start: 50%;
+}
+.fgm-cell.bottom::before {
+  inset-block-end: 50%;
+}
+.fgm-cell.left::after {
+  inset-inline-start: 50%;
+}
+.fgm-cell.right::after {
+  inset-inline-end: 50%;
+}
+.fgm-cell.star > i {
+  position: absolute;
+  inset: 50%;
+  width: 6px;
+  height: 6px;
+  margin: -3px;
+  border-radius: 50%;
+  background: var(--art-line);
+  pointer-events: none;
+}
+.fgm-cell > svg {
+  position: absolute;
+  inset: 6%;
+  width: 88%;
+  height: 88%;
+  z-index: 1;
+  overflow: visible;
+}
+.fgm-s0 {
+  fill: var(--art-stone-0);
+}
+.fgm-s1 {
+  fill: var(--art-stone-1);
+}
+.fgm-stone circle {
+  stroke: var(--art-line);
+  stroke-width: 3;
+}
+.fgm-cell.last > svg circle {
+  stroke: var(--side-0);
+  stroke-width: 8;
+}
+.fgm.s1 .fgm-cell.last > svg circle {
+  stroke: var(--side-1);
+}
+.fgm-cell.won > svg {
+  animation: fgm-pulse 1.2s ease-in-out infinite alternate;
+}
+.fgm-cell.pending > svg {
+  opacity: 0.45;
+}
+.fgm-clock {
+  position: absolute;
+  inset-block-start: -40%;
+  inset-inline-end: -40%;
+  z-index: 2;
+  display: flex;
+  color: var(--ink);
+  font-size: 12px;
+  line-height: 1;
+}
+/* The ghost: the stone about to be placed, with a finger-sized target over it to confirm. */
+.ftg .fgm-ghost {
+  --fgm-stone: 20px;
+  position: absolute;
+  z-index: 3;
+  width: 44px;
+  height: 44px;
+  margin: -22px 0 0 -22px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  min-width: 0;
+  min-height: 0;
+}
+.fgm-ghost > svg {
+  position: absolute;
+  inset: 50%;
+  width: var(--fgm-stone);
+  height: var(--fgm-stone);
+  margin: calc(var(--fgm-stone) / -2);
+  overflow: visible;
+  opacity: 0.6;
+  animation: fgm-pulse 0.8s ease-in-out infinite alternate;
+}
+.fgm-ghost::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px dashed var(--me);
+}
+.fgm.s0 {
+  --me: var(--side-0);
+}
+.fgm.s1 {
+  --me: var(--side-1);
+}
+@keyframes fgm-pulse {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.12);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .fgm-cell.won > svg,
+  .fgm-ghost > svg {
+    animation: none;
+  }
+}

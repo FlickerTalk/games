@@ -1,0 +1,27 @@
+// What dots and boxes adds to the kit's texts, in the 21 languages of the app: its name, what a
+// screen reader says of each line, and the count of boxes. English is the source. Data only
+// (README, "Texts").
+
+export const TEXTS = {
+  en: { name: "Dots and Boxes", board: "Board", flatLine: "Line across, row {row}, box {col}", uprightLine: "Line down, box {row}, column {col}", free: "free", drawn: "drawn", markX: "X", markO: "O", count: "{first} boxes to {second}" },
+  es: { name: "Puntos y cajas", board: "Tablero", flatLine: "Línea horizontal, fila {row}, casilla {col}", uprightLine: "Línea vertical, casilla {row}, columna {col}", free: "libre", drawn: "trazada", markX: "X", markO: "O", count: "{first} cajas a {second}" },
+  fr: { name: "La pipopipette", board: "Plateau", flatLine: "Trait horizontal, ligne {row}, case {col}", uprightLine: "Trait vertical, case {row}, colonne {col}", free: "libre", drawn: "tracé", markX: "X", markO: "O", count: "{first} cases à {second}" },
+  de: { name: "Käsekästchen", board: "Spielfeld", flatLine: "Waagerechte Linie, Zeile {row}, Kästchen {col}", uprightLine: "Senkrechte Linie, Kästchen {row}, Spalte {col}", free: "frei", drawn: "gezogen", markX: "X", markO: "O", count: "{first} Kästchen zu {second}" },
+  it: { name: "Punti e quadretti", board: "Griglia", flatLine: "Linea orizzontale, riga {row}, casella {col}", uprightLine: "Linea verticale, casella {row}, colonna {col}", free: "libera", drawn: "tracciata", markX: "X", markO: "O", count: "{first} caselle a {second}" },
+  pt: { name: "Pontos e caixas", board: "Tabuleiro", flatLine: "Linha horizontal, fila {row}, caixa {col}", uprightLine: "Linha vertical, caixa {row}, coluna {col}", free: "livre", drawn: "traçada", markX: "X", markO: "O", count: "{first} caixas a {second}" },
+  ro: { name: "Puncte și pătrate", board: "Tabla", flatLine: "Linie orizontală, rândul {row}, pătratul {col}", uprightLine: "Linie verticală, pătratul {row}, coloana {col}", free: "liberă", drawn: "trasată", markX: "X", markO: "0", count: "{first} pătrate la {second}" },
+  pl: { name: "Kropki i kwadraty", board: "Plansza", flatLine: "Linia pozioma, wiersz {row}, pole {col}", uprightLine: "Linia pionowa, pole {row}, kolumna {col}", free: "wolna", drawn: "narysowana", markX: "krzyżyk", markO: "kółko", count: "{first} kwadratów do {second}" },
+  ru: { name: "Точки и квадраты", board: "Поле", flatLine: "Горизонтальная линия, ряд {row}, клетка {col}", uprightLine: "Вертикальная линия, клетка {row}, столбец {col}", free: "свободна", drawn: "проведена", markX: "крестик", markO: "нолик", count: "{first} квадратов против {second}" },
+  uk: { name: "Крапки й квадрати", board: "Поле", flatLine: "Горизонтальна лінія, ряд {row}, клітинка {col}", uprightLine: "Вертикальна лінія, клітинка {row}, стовпець {col}", free: "вільна", drawn: "проведена", markX: "хрестик", markO: "нулик", count: "{first} квадратів проти {second}" },
+  tr: { name: "Noktalar ve kutular", board: "Tahta", flatLine: "Yatay çizgi, satır {row}, kutu {col}", uprightLine: "Dikey çizgi, kutu {row}, sütun {col}", free: "boş", drawn: "çizildi", markX: "X", markO: "O", count: "{first} kutuya {second}" },
+  ar: { name: "النقاط والمربعات", board: "اللوحة", flatLine: "خط أفقي، الصف {row}، المربع {col}", uprightLine: "خط رأسي، المربع {row}، العمود {col}", free: "حر", drawn: "مرسوم", markX: "إكس", markO: "أو", count: "{first} مربعًا مقابل {second}" },
+  hi: { name: "बिंदु और डिब्बे", board: "बोर्ड", flatLine: "आड़ी रेखा, पंक्ति {row}, डिब्बा {col}", uprightLine: "खड़ी रेखा, डिब्बा {row}, स्तंभ {col}", free: "खाली", drawn: "खींची गई", markX: "क्रॉस", markO: "गोला", count: "{first} डिब्बे बनाम {second}" },
+  bn: { name: "বিন্দু ও বাক্স", board: "বোর্ড", flatLine: "আড়াআড়ি রেখা, সারি {row}, বাক্স {col}", uprightLine: "খাড়া রেখা, বাক্স {row}, কলাম {col}", free: "খালি", drawn: "আঁকা", markX: "ক্রস", markO: "গোল", count: "{first} বাক্স বনাম {second}" },
+  id: { name: "Titik dan kotak", board: "Papan", flatLine: "Garis mendatar, baris {row}, kotak {col}", uprightLine: "Garis tegak, kotak {row}, kolom {col}", free: "kosong", drawn: "tergambar", markX: "X", markO: "O", count: "{first} kotak lawan {second}" },
+  vi: { name: "Chấm và ô vuông", board: "Bàn chơi", flatLine: "Nét ngang, hàng {row}, ô {col}", uprightLine: "Nét dọc, ô {row}, cột {col}", free: "trống", drawn: "đã vẽ", markX: "X", markO: "O", count: "{first} ô so với {second}" },
+  th: { name: "จุดและกล่อง", board: "กระดาน", flatLine: "เส้นแนวนอน แถว {row} กล่อง {col}", uprightLine: "เส้นแนวตั้ง กล่อง {row} คอลัมน์ {col}", free: "ว่าง", drawn: "ขีดแล้ว", markX: "X", markO: "O", count: "{first} กล่อง ต่อ {second}" },
+  ja: { name: "ドットとボックス", board: "盤面", flatLine: "横線、{row}行、{col}マス目", uprightLine: "縦線、{row}マス目、{col}列", free: "空き", drawn: "引き済み", markX: "バツ", markO: "マル", count: "{first} 対 {second} マス" },
+  ko: { name: "점과 상자", board: "판", flatLine: "가로선, {row}행, {col}번째 칸", uprightLine: "세로선, {row}번째 칸, {col}열", free: "비어 있음", drawn: "그어짐", markX: "X", markO: "O", count: "{first} 대 {second} 상자" },
+  "zh-CN": { name: "点格棋", board: "棋盘", flatLine: "横线，第 {row} 行第 {col} 格", uprightLine: "竖线，第 {row} 格第 {col} 列", free: "空", drawn: "已画", markX: "叉", markO: "圈", count: "{first} 格对 {second} 格" },
+  "zh-TW": { name: "點格棋", board: "棋盤", flatLine: "橫線，第 {row} 列第 {col} 格", uprightLine: "直線，第 {row} 格第 {col} 欄", free: "空", drawn: "已畫", markX: "叉", markO: "圈", count: "{first} 格對 {second} 格" },
+};

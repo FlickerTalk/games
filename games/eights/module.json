@@ -1,0 +1,37 @@
+{
+  "id": "com.flickertalk.game.eights",
+  "name": "Crazy Eights",
+  "version": "1.0.0",
+  "minCoreVersion": "1.3.0",
+  "kind": "game",
+  "components": [
+    "ft-eights"
+  ],
+  "permissions": {
+    "live": true,
+    "send": "propose"
+  },
+  "summary": "Crazy Eights with the other person in the chat: a deck shuffled by both phones, over the direct connection between them.",
+  "locales": {
+    "es": { "name": "Ochos locos", "summary": "Ochos locos con la otra persona del chat: una baraja mezclada por los dos teléfonos, por la conexión directa entre ellos." },
+    "pt": { "name": "Oitos malucos", "summary": "Oitos malucos com a outra pessoa da conversa: um baralho baralhado pelos dois telefones, pela conexão direta entre eles." },
+    "fr": { "name": "Huit américain", "summary": "Huit américain avec l’autre personne de la conversation : un jeu mélangé par les deux téléphones, par leur connexion directe." },
+    "de": { "name": "Verrückte Achten", "summary": "Verrückte Achten mit der anderen Person im Chat: ein von beiden Telefonen gemischtes Blatt, über ihre direkte Verbindung." },
+    "it": { "name": "Otto matto", "summary": "Otto matto con l’altra persona della chat: un mazzo mescolato dai due telefoni, sulla connessione diretta tra loro." },
+    "ro": { "name": "Optarii nebuni", "summary": "Optarii nebuni cu cealaltă persoană din conversație: un pachet amestecat de ambele telefoane, prin conexiunea lor directă." },
+    "ru": { "name": "Сумасшедшие восьмёрки", "summary": "Сумасшедшие восьмёрки с собеседником из чата: колоду тасуют оба телефона, по прямому соединению между ними." },
+    "uk": { "name": "Божевільні вісімки", "summary": "Божевільні вісімки зі співрозмовником із чату: колоду тасують обидва телефони, через пряме з’єднання між ними." },
+    "pl": { "name": "Szalone ósemki", "summary": "Szalone ósemki z drugą osobą z czatu: talia tasowana przez oba telefony, przez bezpośrednie połączenie między nimi." },
+    "tr": { "name": "Çılgın Sekizler", "summary": "Sohbetteki diğer kişiyle Çılgın Sekizler: iki telefonun birlikte kardığı deste, aralarındaki doğrudan bağlantı üzerinden." },
+    "ar": { "name": "الثمانيات المجنونة", "summary": "الثمانيات المجنونة مع الشخص الآخر في الدردشة: أوراق يخلطها الهاتفان معًا، عبر الاتصال المباشر بينهما." },
+    "hi": { "name": "क्रेज़ी एट्स", "summary": "चैट के दूसरे व्यक्ति के साथ क्रेज़ी एट्स: दोनों फ़ोनों द्वारा फेंटी गई गड्डी, उनके बीच सीधे कनेक्शन पर।" },
+    "bn": { "name": "ক্রেজি এইটস", "summary": "চ্যাটের অন্য ব্যক্তির সঙ্গে ক্রেজি এইটস: দুই ফোন মিলে ফেটানো কার্ড, তাদের মধ্যে সরাসরি সংযোগে।" },
+    "id": { "name": "Delapan Gila", "summary": "Delapan Gila dengan orang lain di obrolan: kartu dikocok oleh kedua ponsel, lewat koneksi langsung di antaranya." },
+    "vi": { "name": "Tám điên", "summary": "Tám điên với người kia trong cuộc trò chuyện: bộ bài do cả hai điện thoại xáo, qua kết nối trực tiếp giữa chúng." },
+    "th": { "name": "แปดบ้า", "summary": "แปดบ้ากับอีกคนในแชท: สำรับที่โทรศัพท์ทั้งสองสับร่วมกัน ผ่านการเชื่อมต่อโดยตรงระหว่างกัน" },
+    "ja": { "name": "クレイジーエイト", "summary": "チャットの相手とクレイジーエイト。山札は2台の端末が一緒に混ぜ、直接接続で遊びます。" },
+    "ko": { "name": "크레이지 에이트", "summary": "채팅 상대와 크레이지 에이트를, 두 휴대폰이 함께 섞은 카드로, 직접 연결로 즐기세요." },
+    "zh-CN": { "name": "疯狂八", "summary": "与聊天中的对方玩疯狂八：牌由两部手机共同洗过，通过它们之间的直接连接。" },
+    "zh-TW": { "name": "瘋狂八", "summary": "與聊天中的對方玩瘋狂八：牌由兩支手機共同洗過，透過它們之間的直接連線。" }
+  }
+}

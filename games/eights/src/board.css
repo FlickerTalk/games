@@ -1,0 +1,217 @@
+/* The table of Crazy Eights: the other side's cards face down at the top, the stock and the card
+   on the table in the middle, the user's hand at the bottom, a suit picker when an eight is played. */
+
+.fce {
+  position: absolute;
+  inset: 0;
+  container-type: size;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  gap: 2%;
+  /* Cards and controls scale with the square: a hand of seven in a phone's room, and a glance
+     at the table in the small board of the waiting list or the result. */
+  --card: clamp(14px, 15cqw, 56px);
+  --big: clamp(28px, min(19cqw, 24cqh), 64px);
+  --tap: clamp(28px, 13cqh, 44px);
+  --art-face: #fffdf7;
+  --art-back: #2b4c7e;
+  --art-back-line: #9fb7dc;
+  --art-warm: #c62828;
+  --art-inkcard: #1a1a1a;
+  --art-felt: #2e7d4f;
+  border-radius: 12px;
+  background: var(--art-felt);
+  padding: 3%;
+  box-sizing: border-box;
+}
+.fce-them {
+  order: 1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: var(--tap);
+  color: var(--paper);
+  font-size: clamp(10px, 4cqw, 13px);
+}
+.fce-backs {
+  display: flex;
+}
+.fce-backs i {
+  display: block;
+  width: calc(var(--card) * 0.42);
+  height: calc(var(--card) * 0.6);
+  margin-inline-end: calc(var(--card) * -0.24);
+  border-radius: 4px;
+  background: var(--art-back);
+  border: 1px solid var(--art-back-line);
+  box-sizing: border-box;
+}
+.fce-table {
+  order: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6%;
+  min-height: 0;
+  overflow: hidden;
+}
+.fce-bottom {
+  min-width: 0;
+}
+@container (max-width: 220px) {
+  .fce-row button span,
+  .fce-them > span:not(.fce-backs) {
+    display: none;
+  }
+}
+.fce-card,
+.ftg .fce-card {
+  appearance: none;
+  position: relative;
+  display: grid;
+  grid-template-rows: 1fr auto;
+  align-items: center;
+  justify-items: center;
+  width: var(--card);
+  height: calc(var(--card) * 1.42);
+  padding: 4px;
+  border: 1px solid var(--art-back-line);
+  border-radius: 7px;
+  background: var(--art-face);
+  color: var(--art-inkcard);
+  font: 700 calc(var(--card) * 0.34) / 1 system-ui, sans-serif;
+  min-width: 0;
+  min-height: 0;
+  box-sizing: border-box;
+}
+.fce-card.red {
+  color: var(--art-warm);
+}
+.fce-card i {
+  display: block;
+  width: calc(var(--card) * 0.38);
+  height: calc(var(--card) * 0.38);
+}
+.fce-card i > svg,
+.fce-suit > svg,
+.fce-pick button > svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  fill: currentColor;
+}
+.fce-card.top {
+  width: var(--big);
+  height: calc(var(--big) * 1.4);
+  font-size: calc(var(--big) * 0.36);
+  pointer-events: none;
+}
+.fce-card.top i {
+  width: calc(var(--big) * 0.44);
+  height: calc(var(--big) * 0.44);
+}
+.ftg .fce-draw {
+  width: var(--big);
+  height: calc(var(--big) * 1.4);
+  border-radius: 7px;
+  border: 1px solid var(--art-back-line);
+  background: var(--art-back);
+  color: var(--paper);
+  display: grid;
+  place-items: center;
+  font: 600 clamp(10px, 4cqw, 14px) / 1.2 system-ui, sans-serif;
+  padding: 0;
+  min-width: 0;
+  min-height: 0;
+}
+.ftg .fce-draw:disabled {
+  opacity: 0.5;
+}
+.fce-suit {
+  display: grid;
+  place-items: center;
+  width: var(--tap);
+  height: var(--tap);
+  border-radius: 50%;
+  background: var(--art-face);
+  color: var(--art-inkcard);
+  padding: calc(var(--tap) * 0.2);
+  box-sizing: border-box;
+  flex: none;
+}
+.fce-suit.red {
+  color: var(--art-warm);
+}
+.fce-bottom {
+  order: 3;
+  display: grid;
+  gap: 6px;
+}
+.fce-hand {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8cqh 1.5cqw;
+  justify-content: center;
+}
+.ftg .fce-hand .fce-card:disabled {
+  opacity: 0.55;
+}
+.fce.mine .fce-hand .fce-card:not(:disabled) {
+  box-shadow: 0 0 0 2px var(--me);
+  transform: translateY(-4px);
+}
+.fce-pick {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+}
+.ftg .fce-pick button {
+  width: calc(var(--tap) * 1.1);
+  height: var(--tap);
+  min-height: 0;
+  padding: calc(var(--tap) * 0.22);
+  border-radius: 10px;
+  background: var(--art-face);
+  color: var(--art-inkcard);
+  border: 1px solid var(--art-back-line);
+  min-width: 0;
+  padding: 0;
+}
+.ftg .fce-pick button.red {
+  color: var(--art-warm);
+}
+.fce-row {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  color: var(--paper);
+  font-size: 13px;
+  align-items: center;
+}
+.ftg .fce-row button {
+  min-height: var(--tap);
+  height: var(--tap);
+  padding: 0 clamp(6px, 4cqw, 14px);
+  font-size: clamp(11px, 4.5cqw, 15px);
+  color: var(--paper);
+  border-color: var(--paper);
+}
+.fce-note {
+  font-size: clamp(11px, 4.5cqw, 14px);
+}
+.fce-nop {
+  display: inline-block;
+  width: 4px;
+  height: 4px;
+}
+.fce.s0 {
+  --me: var(--side-0);
+}
+.fce.s1 {
+  --me: var(--side-1);
+}
+.fce-note {
+  color: var(--paper);
+  text-align: center;
+}
