@@ -21,7 +21,9 @@ export const STATES = ["list-empty", "waiting", "not-open", "mid-match", "confir
  * How each game is played for the screenshots: what a move touches (one selector, or several in
  * order), the first three moves (the starter, the other, the starter), the ones that end the
  * round with the starter winning (as many as the game needs, the other side first), and a round to
- * a draw from its starter (`null` for a game whose rounds never end in a draw). A new game adds its own line
+ * a draw from its starter (`null` for a game whose rounds never end in a draw). A game of chance
+ * (`live`: a selector) cannot follow a fixed line in the browser: each tap goes to the first
+ * element the selector finds on the side to move, and its lines only play the rules out. A new game adds its own line
  * here; `scenes` adds states of its own at the end, from where the common ones leave the phones.
  */
 export const PLAYS = {
@@ -40,6 +42,16 @@ export const PLAYS = {
     opening: ["cHylBzX_QL9xX7EJmtGaXgT7W0tpLMc_qasA9wX2ROrM", "cSET3K6E5KL_ylB5tTa6mcoJ9BpmysoECalcGWGpp35I", ">11"],
     winning: ["h>0", "m>12", "h>1", "m>13", "h>2", "m>14", "h>3", "m>15", "s11h5>4", "m>31", "h>5", "m>41", "h>6", "m>51", "h>7", "m>61", "s31v4>8", "m>36", "h>9", "m>37", "h>10", "m>38", "s36h3>16", "m>73", "h>17", "m>74", "h>18", "m>75", "s73h3>19", "m>58", "h>20", "m>68", "s58v2", "rAQIDBAUGBwgJCgsMDQ4PEBESExQVFhcY11h531v436h358v273h3", "rWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpa11h531v436h358v273h3"],
     draw: null,
+  },
+  // The deck is shuffled by both phones from random seeds, so no fixed line can be followed in
+  // the browser: the game is `live`, and each tap goes to the first thing the side may do (a suit
+  // when an eight asks for one, a playable card, the stock, pass, or nothing). Every move passes
+  // the turn, so the sides alternate. The lines below play the rules out with fixed seeds.
+  eights: {
+    live: '.fce-pick [data-suit], .fce-hand [data-card]:not([disabled]), .fce [data-act="draw"]:not([disabled]), .fce [data-act="pass"]:not([disabled]), .fce-nop',
+    opening: ["cx8jxSSANsElcUhyWYQnHbPHMpMPnPB8HpL930Inpl-s", "s80JcE8EJ3mxGXfHp3HKxP9jNGT5PQhij", "rA2PgYn7__fThFZ_Ii73ZzJ-OvK5a5t_B"],
+    winning: ["p49", "p47", "p39", "p43", "p4", "p30", "p26", "d", "d", "d", "d", "d", "p34", "p8", "p1", "p14", "p23", "p22", "d", "p24", "d", "p11", "p6", "p33c", "p48", "p42"],
+    draw: ["cWZoYBVknK-OtqEIqUbE7Ixr7Ne4WLeCj-5U07bmQEIU", "stiwo6CprO_WhCWDjzGbkGguesTx8odFa", "rK8Vnc_8Z2Eqh7mrlREsZiXy2NSVzoQgL", "d", "p14", "p1", "p3", "p42", "p47", "p48", "p45", "p44", "p33s", "p2", "p8", "d", "d", "p9", "p0", "d", "d", "d", "d", "d", "d", "p26", "p37", "p27", "d", "p30", "p31", "p28", "d", "d", "p29", "d", "d", "d", "p7h", "p22", "p21", "p13", "p18", "d", "d", "p17", "d", "p4", "p11", "d", "p10", "d", "d", "p36", "d", "p34", "d", "d", "d", "d", "p20c", "p51", "p39", "p41", "p40", "p50", "d", "d", "d", "p43", "d", "d", "d", "d", "d", "p49", "d", "d", "p46d", "d", "p38", "x", "p25", "p16", "p15", "p19", "p32", "p6", "p5", "x", "p12", "x", "x"],
   },
   fourinarow: { move: (column) => `[data-col="${column}"]`, opening: [3, 4, 3], winning: [4, 3, 4, 3], draw: [0, 1, 0, 1, 0, 0, 2, 0, 2, 0, 2, 1, 1, 1, 3, 1, 3, 2, 2, 4, 2, 4, 3, 3, 5, 3, 5, 3, 5, 4, 4, 5, 6, 5, 6, 5, 6, 6, 4, 6, 4, 6] },
   chess: {
@@ -134,26 +146,43 @@ async function run(browser, base, game, config) {
   await touch("a", '[data-kit="retry"]');
   await frame("a").locator(".ftg-player.turn").waitFor({ state: "attached" });
   const [x, o] = (await frame("a").locator(".ftg-player.me.turn").count()) ? ["a", "b"] : ["b", "a"];
-  const [x1, o1, x2] = plays.opening;
-  await play(x, x1);
-  await play(o, o1);
-  await play(x, x2);
+  /** Whether the round is over on either phone. */
+  const over = async () => (await frame(x).locator('[data-kit="again"]').count()) + (await frame(o).locator('[data-kit="again"]').count()) > 0;
+  /** A live game: taps go to whatever each side may do, in turn, until the round is over. */
+  const liveRound = async (first, taps = Infinity) => {
+    let side = first;
+    for (let at = 0; at < taps && at < 400 && !(await over()); at += 1) {
+      await touch(side, plays.live);
+      side = side === x ? o : x;
+    }
+  };
+  if (plays.live) await liveRound(x, 8);
+  else {
+    const [x1, o1, x2] = plays.opening;
+    await play(x, x1);
+    await play(o, o1);
+    await play(x, x2);
+  }
   await shot("mid-match", o);
   await shot("mid-match", x);
   await touch(o, '[data-kit="resign"]');
   await shot("confirm-resign", o);
   await touch(o, '[data-kit="no"]');
-  for (const [side, move] of alternate(plays.winning, [o, x])) await play(side, move);
+  if (plays.live) await liveRound(o);
+  else for (const [side, move] of alternate(plays.winning, [o, x])) await play(side, move);
   await shot("win", x);
   await shot("win", o);
 
   // The next round starts with the other person; a game that has no draw plays its winning line
   // again, the other way round, and the shots of the draw show that round instead.
   await touch(o, '[data-kit="again"]');
-  let side = o;
-  for (const move of plays.draw ?? [...plays.opening, ...plays.winning]) {
-    await play(side, move);
-    side = side === x ? o : x;
+  if (plays.live) await liveRound(o);
+  else {
+    let side = o;
+    for (const move of plays.draw ?? [...plays.opening, ...plays.winning]) {
+      await play(side, move);
+      side = side === x ? o : x;
+    }
   }
   await shot("draw", o);
   await shot("draw", x);

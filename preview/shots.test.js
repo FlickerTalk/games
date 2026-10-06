@@ -27,9 +27,10 @@ describe("the screenshots for review", () => {
     expect(alternate([4, 3, 4, 3], ["o", "x"])).toEqual([["o", 4], ["x", 3], ["o", 4], ["x", 3]]);
   });
 
-  it("touch what each game's move needs: one cell, or a piece and then its square", () => {
+  it("touch what each game's move needs: one cell, or a piece and then its square; a game of chance says what to touch live", () => {
     expect(touches(PLAYS.tictactoe, 4)).toEqual(['[data-cell="4"]']);
     expect(touches(PLAYS.chess, "e2e4")).toEqual(['rect.square[data-square="e2"]', 'rect.square[data-square="e4"]']);
+    for (const [game, plays] of Object.entries(PLAYS)) expect(typeof plays.move === "function" || typeof plays.live === "string", game).toBe(true);
   });
 
   it("play lines that do what they claim: the starter wins the first round, the second is a draw (or, with no draw in the game, the same win)", async () => {

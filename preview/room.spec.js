@@ -96,10 +96,22 @@ for (const phone of PHONES) {
       await frame("a").locator(".ftg-player.turn").first().waitFor({ state: "attached" });
       await page.waitForTimeout(400);
       const [x, o] = (await frame("a").locator(".ftg-status.mine").count()) ? ["a", "b"] : ["b", "a"];
+      const over = async () => (await frame(x).locator('[data-kit="again"]').count()) + (await frame(o).locator('[data-kit="again"]').count()) > 0;
+      /** A live game (a game of chance): taps go to whatever each side may do, in turn. */
+      const liveRound = async (first, taps = Infinity) => {
+        let turn = first;
+        for (let at = 0; at < taps && at < 400 && !(await over()); at += 1) {
+          await touch(turn, plays.live);
+          turn = turn === x ? o : x;
+        }
+      };
       let side = x;
-      for (const move of plays.opening) {
-        await play(side, move);
-        side = side === x ? o : x;
+      if (plays.live) await liveRound(x, 8);
+      else {
+        for (const move of plays.opening) {
+          await play(side, move);
+          side = side === x ? o : x;
+        }
       }
       await page.waitForTimeout(400);
       for (const who of [x, o]) await check(label(`in a game (${who === x ? "first" : "second"})`), () => fits(page, who));
@@ -110,9 +122,12 @@ for (const phone of PHONES) {
         });
       }
       side = o;
-      for (const move of plays.winning) {
-        await play(side, move);
-        side = side === x ? o : x;
+      if (plays.live) await liveRound(o);
+      else {
+        for (const move of plays.winning) {
+          await play(side, move);
+          side = side === x ? o : x;
+        }
       }
       await page.waitForTimeout(600);
       for (const who of [x, o]) {

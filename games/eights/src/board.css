@@ -1,0 +1,195 @@
+/* The table of Crazy Eights: the other side's cards face down at the top, the stock and the card
+   on the table in the middle, the user's hand at the bottom, a suit picker when an eight is played. */
+
+.fce {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  gap: 2%;
+  --art-face: #fffdf7;
+  --art-back: #2b4c7e;
+  --art-back-line: #9fb7dc;
+  --art-warm: #c62828;
+  --art-inkcard: #1a1a1a;
+  --art-felt: #2e7d4f;
+  border-radius: 12px;
+  background: var(--art-felt);
+  padding: 3%;
+  box-sizing: border-box;
+}
+.fce-them {
+  order: 1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  color: var(--paper);
+  font-size: 13px;
+}
+.fce-backs {
+  display: flex;
+}
+.fce-backs i {
+  display: block;
+  width: 22px;
+  height: 32px;
+  margin-inline-end: -12px;
+  border-radius: 4px;
+  background: var(--art-back);
+  border: 1px solid var(--art-back-line);
+  box-sizing: border-box;
+}
+.fce-table {
+  order: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6%;
+  min-height: 0;
+}
+.fce-card,
+.ftg .fce-card {
+  appearance: none;
+  position: relative;
+  display: grid;
+  grid-template-rows: 1fr auto;
+  align-items: center;
+  justify-items: center;
+  width: 52px;
+  height: 74px;
+  padding: 4px;
+  border: 1px solid var(--art-back-line);
+  border-radius: 7px;
+  background: var(--art-face);
+  color: var(--art-inkcard);
+  font: 700 18px/1 system-ui, sans-serif;
+  min-width: 0;
+  min-height: 44px;
+  box-sizing: border-box;
+}
+.fce-card.red {
+  color: var(--art-warm);
+}
+.fce-card i {
+  display: block;
+  width: 20px;
+  height: 20px;
+}
+.fce-card i > svg,
+.fce-suit > svg,
+.fce-pick button > svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  fill: currentColor;
+}
+.fce-card.top {
+  width: 64px;
+  height: 90px;
+  font-size: 24px;
+  pointer-events: none;
+}
+.fce-card.top i {
+  width: 28px;
+  height: 28px;
+}
+.ftg .fce-draw {
+  width: 64px;
+  height: 90px;
+  border-radius: 7px;
+  border: 1px solid var(--art-back-line);
+  background: var(--art-back);
+  color: var(--paper);
+  display: grid;
+  place-items: center;
+  font: 600 14px/1.2 system-ui, sans-serif;
+  padding: 0;
+  min-width: 0;
+}
+.ftg .fce-draw:disabled {
+  opacity: 0.5;
+}
+.fce-suit {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--art-face);
+  color: var(--art-inkcard);
+  padding: 9px;
+  box-sizing: border-box;
+}
+.fce-suit.red {
+  color: var(--art-warm);
+}
+.fce-bottom {
+  order: 3;
+  display: grid;
+  gap: 6px;
+}
+.fce-hand {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  justify-content: center;
+  max-height: 160px;
+  overflow-y: auto;
+}
+.ftg .fce-hand .fce-card:disabled {
+  opacity: 0.55;
+}
+.fce.mine .fce-hand .fce-card:not(:disabled) {
+  box-shadow: 0 0 0 2px var(--me);
+  transform: translateY(-4px);
+}
+.fce-pick {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+}
+.ftg .fce-pick button {
+  width: 48px;
+  height: 44px;
+  padding: 10px;
+  border-radius: 10px;
+  background: var(--art-face);
+  color: var(--art-inkcard);
+  border: 1px solid var(--art-back-line);
+  min-width: 0;
+  padding: 0;
+}
+.ftg .fce-pick button.red {
+  color: var(--art-warm);
+}
+.fce-row {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  color: var(--paper);
+  font-size: 13px;
+  align-items: center;
+}
+.ftg .fce-row button {
+  min-height: 44px;
+  padding: 0 14px;
+  color: var(--paper);
+  border-color: var(--paper);
+}
+.fce-nop {
+  display: inline-block;
+  width: 4px;
+  height: 4px;
+}
+.fce.s0 {
+  --me: var(--side-0);
+}
+.fce.s1 {
+  --me: var(--side-1);
+}
+.fce-note {
+  color: var(--paper);
+  text-align: center;
+  font-size: 14px;
+}
