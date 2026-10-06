@@ -47,7 +47,7 @@ function draw(host, ctx, local) {
     .join("");
   const list = (side) => state.said[side].map((one) => `${one} <small>${points(one)}</small>`).join(", ");
   const note = local.lost ? t("seedLost") : why && word.length >= 3 ? t({ unknown: "notAWord", used: "alreadySaid", grid: "notOnGrid" }[why] ?? "notAWord") : "";
-  host.innerHTML = `<div class="fwg s${me}${open ? " mine" : ""}" role="group" aria-label="${escape(t("name"))}">
+  host.innerHTML = `<div class="fwg s${me}${open ? " mine" : ""}${state.phase === "done" ? " done" : ""}" role="group" aria-label="${escape(t("name"))}">
     <div class="fwg-scores"><span>${MARKS[me]} <b>${state.score[me]}</b> ${escape(t("yourWords", { n: state.said[me].length }))}</span><span>${escape(t("theirWords", { n: state.said[they].length }))} <b>${state.score[they]}</b> ${MARKS[they]}</span></div>
     <div class="fwg-grid" role="grid" aria-label="${escape(t("grid"))}">${state.phase === "shuffle" ? `<p class="fwg-note">${escape(t("shuffling"))}</p>` : tiles}</div>
     <div class="fwg-word">

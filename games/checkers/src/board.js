@@ -1,8 +1,9 @@
 // The checkers board (README, "A game": `board.mount`). Sixty-four squares, the dark ones buttons;
 // it knows nothing of the other phone: it draws what the kit hands it and passes the user's move
 // back as the squares it touches. A move takes two taps or more: the piece, then where it goes,
-// and on through every jump; when the squares tapped make a whole legal move, it is played. For
-// the light side the board is turned around, so one's own pieces are at the bottom.
+// and on through every jump; when the squares tapped make a whole legal move, it is played. The
+// dark side starts on the top rows of the numbering, so for it the board is turned around: each
+// side sees its own pieces at the bottom.
 
 import STYLE from "./board.css";
 import { icon } from "../../../kit/src/icons.js";
@@ -27,7 +28,7 @@ function draw(host, ctx, path) {
   const to = new Set(path.length ? legal.filter((move) => move === prefix || move.startsWith(`${prefix}-`)).map((move) => Number(move.split("-")[path.length])).filter((square) => !Number.isNaN(square)) : []);
   const lastSquares = squaresOf(ctx.last) ?? [];
   const [dark, light] = count(cells);
-  const flipped = ctx.mySide === 1;
+  const flipped = ctx.mySide === 0;
   let html = `<div class="fck s${ctx.mySide ?? 0}${ctx.canPlay ? " mine" : ""}" role="group" aria-label="${t("board")}: ${t("count", { dark, light })}">`;
   for (let shown = 0; shown < SIZE * SIZE; shown += 1) {
     const index = flipped ? SIZE * SIZE - 1 - shown : shown;

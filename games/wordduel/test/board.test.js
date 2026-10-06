@@ -4,7 +4,7 @@
 // on their own, and the other side's word shown at the end.
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { KIT_TEXTS, joinTexts, translator } from "../../../kit/src/i18n.js";
-import { MARKS, board, cleaned, storeKey } from "../src/board.js";
+import { MARKS, STYLE, board, cleaned, storeKey } from "../src/board.js";
 import { TEXTS } from "../src/texts.js";
 import { commitHash, commitText, commitTextSecond, feedback, honestAnswer, initial, play, result, revealText, turn } from "../src/rules.js";
 import { fromBase64url } from "../src/sha256.js";
@@ -166,5 +166,40 @@ describe("guessing", () => {
     mounted.update(done);
     expect(host.textContent).toContain("Their word was EAGLE");
     expect(MARKS).toHaveLength(2);
+  });
+});
+
+/** The selectors a container query of `STYLE` hides (`display: none`) when the board is small. */
+function hiddenWhenSmall() {
+  const selectors = [];
+  for (const start of [...STYLE.matchAll(/@container[^{]*\{/g)].map((found) => found.index + found[0].length)) {
+    let depth = 1;
+    let end = start;
+    while (depth) {
+      if (STYLE[end] === "{") depth += 1;
+      if (STYLE[end] === "}") depth -= 1;
+      end += 1;
+    }
+    for (const [, selector, body] of STYLE.slice(start, end - 1).matchAll(/([^{}]+)\{([^}]*)\}/g)) {
+      if (/display:\s*none/.test(body)) selectors.push(...selector.split(",").map((one) => one.trim()));
+    }
+  }
+  return selectors;
+}
+
+describe("the result", () => {
+  // The other side's word is what the loser most wants to see; on a phone the result card leaves
+  // the board small, and the small board used to hide it with the other notes.
+  it("shows the other side's word to the side that lost, even on a small board", async () => {
+    const answerB = (s) => honestAnswer(s, 1, "eagle");
+    const answerA = (s) => honestAnswer(s, 0, "crane");
+    const moves = [...PLACED, ">stare", (s) => `${answerB(s)}>about`, (s) => `${answerA(s)}>eagle`, (s) => `${answerB(s)}>other`, answerA, revealText(SALT, "crane"), revealText(SALT, "eagle")];
+    const { host, ctx } = await kept(moves, 1, "eagle");
+    expect(ctx.result.winner).toBe(0);
+    const reveal = [...host.querySelectorAll("p")].find((one) => one.textContent.includes("Their word was CRANE"));
+    expect(reveal).toBeTruthy();
+    const hidden = hiddenWhenSmall();
+    expect(hidden.length).toBeGreaterThan(0);
+    for (const selector of hidden) expect(reveal.matches(selector), selector).toBe(false);
   });
 });

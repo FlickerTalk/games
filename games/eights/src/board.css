@@ -20,6 +20,7 @@
   --art-warm: #c62828;
   --art-inkcard: #1a1a1a;
   --art-felt: #2e7d4f;
+  --art-felt-ink: #ffffff;
   border-radius: 12px;
   background: var(--art-felt);
   padding: 3%;
@@ -31,7 +32,7 @@
   align-items: center;
   gap: 6px;
   min-height: var(--tap);
-  color: var(--paper);
+  color: var(--art-felt-ink);
   font-size: clamp(10px, 4cqw, 13px);
 }
 .fce-backs {
@@ -46,6 +47,10 @@
   background: var(--art-back);
   border: 1px solid var(--art-back-line);
   box-sizing: border-box;
+}
+/* The last back shown whole, so the count beside it does not run over it. */
+.fce-backs i:last-child {
+  margin-inline-end: 0;
 }
 .fce-table {
   order: 2;
