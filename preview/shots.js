@@ -19,9 +19,9 @@ export const STATES = ["list-empty", "waiting", "not-open", "mid-match", "confir
 
 /**
  * How each game is played for the screenshots: what a move touches (one selector, or several in
- * order), the first three moves (the starter, the other, the starter), the ones that end the
- * round with the starter winning (as many as the game needs, the other side first), and a round to
- * a draw from its starter (`null` for a game whose rounds never end in a draw). A game of chance
+ * order), the first three moves, the ones that end the round with the starter winning (as many as
+ * the game needs), and a round to a draw from its starter (`null` for a game whose rounds never end
+ * in a draw). Who makes each move is the rules' to say (`turns`): a side that may move again does. A game of chance
  * (`live`: a selector) cannot follow a fixed line in the browser: each tap goes to the first
  * element the selector finds on the side to move, and its lines only play the rules out. A new game adds its own line
  * here; `scenes` adds states of its own at the end, from where the common ones leave the phones.
@@ -121,9 +121,21 @@ export function touches(plays, move) {
   return [plays.move(move)].flat();
 }
 
-/** Moves the two sides make in turn, the first side first: `[[side, move], …]`. */
-export function alternate(moves, sides) {
-  return moves.map((move, at) => [sides[at % 2], move]);
+/**
+ * Who makes each move of a line, from the start of a round: the side the game's `rules` say moves
+ * (`sides[0]` the starter), so a move that lets its side move again (a box closed, a last seed in
+ * the store) is followed by another of the same side: `[[side, move], …]`. A move the rules refuse
+ * throws.
+ */
+export function turns(rules, moves, sides) {
+  let state = rules.initial();
+  return moves.map((move) => {
+    const side = rules.turn(state);
+    const played = rules.play(state, move, side);
+    if (played.error) throw new Error(`${move}: ${played.error}`);
+    state = played.state;
+    return [sides[side], move];
+  });
 }
 
 export function shotPath(game, config, index, state, side) {
@@ -132,6 +144,7 @@ export function shotPath(game, config, index, state, side) {
 
 async function run(browser, base, game, config) {
   const plays = PLAYS[game];
+  const rules = await import(`../games/${game}/src/rules.js`);
   const viewport = { width: config.device.width * 2 + 72, height: config.device.height + 40 };
   // The phone's screen: the app's room is what its chrome leaves of it.
   const context = await browser.newContext({ viewport, deviceScaleFactor: config.scale, colorScheme: config.dark ? "dark" : "light", screen: config.device });
@@ -186,20 +199,17 @@ async function run(browser, base, game, config) {
       await touch(o, '[data-kit="yes"]');
     }
   };
+  // The first round, by the rules: the opening, then the moves that win it.
+  const round = plays.live ? [] : turns(rules, [...plays.opening, ...plays.winning], [x, o]);
   if (plays.live) for (let at = 0; at < 8; at += 1) await touch(await mover(x), plays.live);
-  else {
-    const [x1, o1, x2] = plays.opening;
-    await play(x, x1);
-    await play(o, o1);
-    await play(x, x2);
-  }
+  else for (const [side, move] of round.slice(0, plays.opening.length)) await play(side, move);
   await shot("mid-match", o);
   await shot("mid-match", x);
   await touch(o, '[data-kit="resign"]');
   await shot("confirm-resign", o);
   await touch(o, '[data-kit="no"]');
   if (plays.live) await liveRound(o);
-  else for (const [side, move] of alternate(plays.winning, [o, x])) await play(side, move);
+  else for (const [side, move] of round.slice(plays.opening.length)) await play(side, move);
   await shot("win", x);
   await shot("win", o);
 
@@ -207,13 +217,7 @@ async function run(browser, base, game, config) {
   // again, the other way round, and the shots of the draw show that round instead.
   await touch(o, '[data-kit="again"]');
   if (plays.live) await liveRound(o);
-  else {
-    let side = o;
-    for (const move of plays.draw ?? [...plays.opening, ...plays.winning]) {
-      await play(side, move);
-      side = side === x ? o : x;
-    }
-  }
+  else for (const [side, move] of turns(rules, plays.draw ?? [...plays.opening, ...plays.winning], [o, x])) await play(side, move);
   await shot("draw", o);
   await shot("draw", x);
   await touch(x, '[data-kit="send"]');

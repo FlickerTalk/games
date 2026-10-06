@@ -9,7 +9,7 @@
 import assert from "node:assert/strict";
 import { chromium } from "playwright";
 import { start } from "./serve.js";
-import { PLAYS } from "./shots.js";
+import { PLAYS, turns } from "./shots.js";
 
 const PHONES = [
   { name: "Samsung S20+ (room 556)", width: 384, height: 853 },
@@ -69,6 +69,7 @@ for (const phone of PHONES) {
   for (const lang of LANGS) {
     for (const game of GAMES) {
       const plays = PLAYS[game];
+      const rules = await import(`../games/${game}/src/rules.js`);
       const context = await browser.newContext({
         viewport: { width: phone.width * 2 + 72, height: phone.height + 40 },
         screen: { width: phone.width, height: phone.height },
@@ -112,14 +113,10 @@ for (const phone of PHONES) {
           await touch(o, '[data-kit="yes"]');
         }
       };
-      let side = x;
+      // The round, by the rules: a side that may move again (a box closed) makes the next move too.
+      const round = plays.live ? [] : turns(rules, [...plays.opening, ...plays.winning], [x, o]);
       if (plays.live) for (let at = 0; at < 8; at += 1) await touch(await mover(x), plays.live);
-      else {
-        for (const move of plays.opening) {
-          await play(side, move);
-          side = side === x ? o : x;
-        }
-      }
+      else for (const [side, move] of round.slice(0, plays.opening.length)) await play(side, move);
       await page.waitForTimeout(400);
       for (const who of [x, o]) await check(label(`in a game (${who === x ? "first" : "second"})`), () => fits(page, who));
       if (game === "chess") {
@@ -128,14 +125,8 @@ for (const phone of PHONES) {
           assert.ok(board.width / 8 >= 40, `squares of ${(board.width / 8).toFixed(1)} px`);
         });
       }
-      side = o;
       if (plays.live) await liveRound(o);
-      else {
-        for (const move of plays.winning) {
-          await play(side, move);
-          side = side === x ? o : x;
-        }
-      }
+      else for (const [side, move] of round.slice(plays.opening.length)) await play(side, move);
       await page.waitForTimeout(600);
       for (const who of [x, o]) {
         await check(label(`result (${who === x ? "winner" : "loser"}): send`), () => fits(page, who, '[data-kit="send"]'));

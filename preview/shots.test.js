@@ -2,7 +2,9 @@
 // Arabic right to left, and on a tablet in landscape (2560×1600), in the states that matter.
 // @vitest-environment node
 import { describe, expect, it } from "vitest";
-import { CONFIGS, PLAYS, STATES, alternate, shotPath, touches } from "./shots.js";
+import { CONFIGS, PLAYS, STATES, shotPath, touches, turns } from "./shots.js";
+import * as boxes from "../games/dotsandboxes/src/rules.js";
+import * as tictactoe from "../games/tictactoe/src/rules.js";
 
 describe("the screenshots for review", () => {
   it("cover a phone light and dark, Arabic right to left, and a tablet in landscape", () => {
@@ -22,9 +24,18 @@ describe("the screenshots for review", () => {
     for (const state of ["list-empty", "waiting", "not-open", "mid-match", "confirm-resign", "win", "draw", "result-sent", "list"]) expect(STATES).toContain(state);
   });
 
-  it("end a round with as many moves as the game needs, the two sides taking turns from ⭕", () => {
-    expect(alternate([1, 6], ["o", "x"])).toEqual([["o", 1], ["x", 6]]);
-    expect(alternate([4, 3, 4, 3], ["o", "x"])).toEqual([["o", 4], ["x", 3], ["o", 4], ["x", 3]]);
+  it("give each move of a line to the side the rules say moves, the starter first", () => {
+    expect(turns(tictactoe, [4, 0, 2, 1], ["x", "o"])).toEqual([["x", 4], ["o", 0], ["x", 2], ["o", 1]]);
+    expect(turns(tictactoe, [4, 0], ["o", "x"])).toEqual([["o", 4], ["x", 0]]);
+  });
+
+  it("give the next move to the same side when the rules let it move again (a box closed)", () => {
+    // ⭕ draws the fourth side of the top left box (21) and draws again (1).
+    expect(turns(boxes, [0, 20, 4, 21, 1], ["x", "o"])).toEqual([["x", 0], ["o", 20], ["x", 4], ["o", 21], ["o", 1]]);
+  });
+
+  it("refuse a line the rules refuse", () => {
+    expect(() => turns(tictactoe, [4, 4], ["x", "o"])).toThrow("4: taken");
   });
 
   it("touch what each game's move needs: one cell, or a piece and then its square; a game of chance says what to touch live", () => {
