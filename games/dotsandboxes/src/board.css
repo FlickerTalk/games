@@ -1,0 +1,111 @@
+/* The dots and boxes board: five by five dots on a tray, every line between two dots a button
+   (a thick finger-wide strip over a thin line), drawn in the side's colour once taken, each box
+   closed filled in its owner's colour with its mark. */
+
+.fdb {
+  position: absolute;
+  inset: 0;
+  padding: 6%;
+  border-radius: 20px;
+  background: var(--surface);
+  --art-dot: var(--ink);
+}
+.fdb.s0 {
+  --me: var(--side-0);
+}
+.fdb.s1 {
+  --me: var(--side-1);
+}
+.fdb-field {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+.fdb-dot {
+  position: absolute;
+  width: 4.5%;
+  height: 4.5%;
+  border-radius: 50%;
+  background: var(--art-dot);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 2;
+}
+.fdb-box {
+  position: absolute;
+  border-radius: 6px;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+}
+.fdb-box.b0 {
+  background: color-mix(in srgb, var(--side-0) 30%, transparent);
+}
+.fdb-box.b1 {
+  background: color-mix(in srgb, var(--side-1) 30%, transparent);
+}
+.fdb-box > svg {
+  width: 45%;
+  height: 45%;
+}
+.ftg .fdb-line {
+  appearance: none;
+  position: absolute;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  transform: translate(-50%, -50%);
+  z-index: 1;
+}
+.ftg .fdb-line:disabled {
+  opacity: 1;
+}
+/* The strip is the tap target; the line itself is drawn inside, thin while free. */
+.fdb-line::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  border-radius: 999px;
+  background: var(--line);
+}
+.fdb-line.h::before {
+  height: 14%;
+  width: 100%;
+}
+.fdb-line.v::before {
+  width: 14%;
+  height: 100%;
+}
+.fdb.mine .fdb-line.free:is(:hover, :focus-visible, :active)::before {
+  background: color-mix(in srgb, var(--me) 55%, transparent);
+}
+.fdb-line.d0::before {
+  background: var(--side-0);
+}
+.fdb-line.d1::before {
+  background: var(--side-1);
+}
+.fdb-line.h.drawn::before {
+  height: 28%;
+}
+.fdb-line.v.drawn::before {
+  width: 28%;
+}
+.fdb-line.last::before {
+  box-shadow: 0 0 0 3px var(--paper);
+}
+.fdb-line.pending::before {
+  opacity: 0.45;
+}
+.fdb-clock {
+  position: absolute;
+  inset-block-start: 50%;
+  inset-inline-start: 50%;
+  display: flex;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1;
+  transform: translate(-50%, -50%);
+  z-index: 3;
+}

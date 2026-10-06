@@ -1,0 +1,97 @@
+{
+  "id": "com.flickertalk.game.dotsandboxes",
+  "name": "Dots and Boxes",
+  "version": "1.0.0",
+  "minCoreVersion": "1.3.0",
+  "kind": "game",
+  "components": [
+    "ft-dotsandboxes"
+  ],
+  "permissions": {
+    "live": true,
+    "send": "propose"
+  },
+  "summary": "Dots and boxes with the other person in the chat, over the direct connection between your phones.",
+  "locales": {
+    "es": {
+      "name": "Puntos y cajas",
+      "summary": "Puntos y cajas con la otra persona del chat, por la conexión directa entre los dos teléfonos."
+    },
+    "pt": {
+      "name": "Pontos e caixas",
+      "summary": "Pontos e caixas com a outra pessoa da conversa, pela conexão direta entre os dois telefones."
+    },
+    "fr": {
+      "name": "La pipopipette",
+      "summary": "La pipopipette avec l’autre personne de la conversation, par la connexion directe entre vos deux téléphones."
+    },
+    "de": {
+      "name": "Käsekästchen",
+      "summary": "Käsekästchen mit der anderen Person im Chat, über die direkte Verbindung zwischen euren Telefonen."
+    },
+    "it": {
+      "name": "Punti e quadretti",
+      "summary": "Punti e quadretti con l’altra persona della chat, sulla connessione diretta tra i vostri telefoni."
+    },
+    "ro": {
+      "name": "Puncte și pătrate",
+      "summary": "Puncte și pătrate cu cealaltă persoană din conversație, prin conexiunea directă dintre telefoanele voastre."
+    },
+    "ru": {
+      "name": "Точки и квадраты",
+      "summary": "Точки и квадраты с собеседником по чату, по прямому соединению между вашими телефонами."
+    },
+    "uk": {
+      "name": "Крапки й квадрати",
+      "summary": "Крапки й квадрати зі співрозмовником у чаті, через пряме з’єднання між вашими телефонами."
+    },
+    "pl": {
+      "name": "Kropki i kwadraty",
+      "summary": "Kropki i kwadraty z drugą osobą z czatu, przez bezpośrednie połączenie między waszymi telefonami."
+    },
+    "tr": {
+      "name": "Noktalar ve kutular",
+      "summary": "Sohbetteki diğer kişiyle noktalar ve kutular, telefonlarınız arasındaki doğrudan bağlantı üzerinden."
+    },
+    "ar": {
+      "name": "النقاط والمربعات",
+      "summary": "النقاط والمربعات مع الطرف الآخر في المحادثة، عبر الاتصال المباشر بين هاتفيكما."
+    },
+    "hi": {
+      "name": "बिंदु और डिब्बे",
+      "summary": "चैट में दूसरे व्यक्ति के साथ बिंदु और डिब्बे, आपके फ़ोनों के बीच सीधे कनेक्शन से।"
+    },
+    "bn": {
+      "name": "বিন্দু ও বাক্স",
+      "summary": "চ্যাটের অন্য ব্যক্তির সাথে বিন্দু ও বাক্স, আপনাদের ফোনের মধ্যে সরাসরি সংযোগে।"
+    },
+    "id": {
+      "name": "Titik dan kotak",
+      "summary": "Titik dan kotak dengan lawan bicara di obrolan, lewat koneksi langsung antara ponsel kalian."
+    },
+    "vi": {
+      "name": "Chấm và ô vuông",
+      "summary": "Chấm và ô vuông với người kia trong cuộc trò chuyện, qua kết nối trực tiếp giữa hai điện thoại."
+    },
+    "th": {
+      "name": "จุดและกล่อง",
+      "summary": "จุดและกล่องกับอีกฝ่ายในแชต ผ่านการเชื่อมต่อโดยตรงระหว่างโทรศัพท์ของคุณทั้งสอง"
+    },
+    "ja": {
+      "name": "ドットとボックス",
+      "summary": "チャットの相手とドットとボックス。2台の端末の直接接続で遊びます。"
+    },
+    "ko": {
+      "name": "점과 상자",
+      "summary": "채팅 상대와 점과 상자를, 두 휴대폰 사이의 직접 연결로 즐기세요."
+    },
+    "zh-CN": {
+      "name": "点格棋",
+      "summary": "与聊天对象玩点格棋，通过两部手机之间的直接连接进行。"
+    },
+    "zh-TW": {
+      "name": "點格棋",
+      "summary": "與聊天對象玩點格棋，透過兩支手機之間的直接連線進行。"
+    }
+  }
+}
