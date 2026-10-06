@@ -13,7 +13,7 @@
   },
   "summary": "Word Duel with the other person in the chat: each hides a five-letter word, both guess in turn, English or Spanish, over the direct connection between your phones.",
   "locales": {
-    "es": { "name": "Duelo de palabras", "summary": "Duelo de palabras con la otra persona del chat: cada uno esconde una palabra de cinco letras y los dos adivinan por turnos, en español o inglés." },
+    "es": { "name": "Palabra oculta", "summary": "Palabra oculta con la otra persona del chat: cada uno esconde una palabra de cinco letras y los dos adivinan por turnos, en español o inglés." },
     "pt": { "name": "Duelo de palavras", "summary": "Duelo de palavras com a outra pessoa da conversa: cada um esconde uma palavra de cinco letras e ambos adivinham à vez, em inglês ou espanhol." },
     "fr": { "name": "Duel de mots", "summary": "Duel de mots avec l’autre personne de la conversation : chacun cache un mot de cinq lettres et les deux devinent à tour de rôle, en anglais ou en espagnol." },
     "de": { "name": "Wortduell", "summary": "Wortduell mit der anderen Person im Chat: jeder versteckt ein Wort aus fünf Buchstaben, beide raten abwechselnd, auf Englisch oder Spanisch." },

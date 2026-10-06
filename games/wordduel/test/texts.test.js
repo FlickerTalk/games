@@ -13,7 +13,7 @@ describe("the texts of Word Duel", () => {
   it("speak the 21 languages, the kit's and the game's together", () => {
     checkTexts(catalogue);
     expect(translate("en", "name")).toBe("Word Duel");
-    expect(translate("es", "name")).toBe("Duelo de palabras");
+    expect(translate("es", "name")).toBe("Palabra oculta");
     expect(translate("es", "theirWordWas", { word: "CASA" })).toBe("Su palabra era CASA");
     expect(translate("de", "right")).toBe("an der richtigen Stelle");
   });
