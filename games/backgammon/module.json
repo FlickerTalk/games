@@ -1,0 +1,37 @@
+{
+  "id": "com.flickertalk.game.backgammon",
+  "name": "Backgammon",
+  "version": "1.0.0",
+  "minCoreVersion": "1.3.0",
+  "kind": "game",
+  "components": [
+    "ft-backgammon"
+  ],
+  "permissions": {
+    "live": true,
+    "send": "propose"
+  },
+  "summary": "Backgammon with the other person in the chat: dice rolled by both phones, over the direct connection between them.",
+  "locales": {
+    "es": { "name": "Backgammon", "summary": "Backgammon con la otra persona del chat: dados tirados por los dos teléfonos, por la conexión directa entre ellos." },
+    "pt": { "name": "Gamão", "summary": "Gamão com a outra pessoa da conversa: dados lançados pelos dois telefones, pela conexão direta entre eles." },
+    "fr": { "name": "Backgammon", "summary": "Backgammon avec l’autre personne de la conversation : des dés lancés par les deux téléphones, par leur connexion directe." },
+    "de": { "name": "Backgammon", "summary": "Backgammon mit der anderen Person im Chat: von beiden Telefonen geworfene Würfel, über ihre direkte Verbindung." },
+    "it": { "name": "Backgammon", "summary": "Backgammon con l’altra persona della chat: dadi lanciati da entrambi i telefoni, sulla connessione diretta tra loro." },
+    "ro": { "name": "Table", "summary": "Table cu cealaltă persoană din conversație: zaruri aruncate de ambele telefoane, prin conexiunea lor directă." },
+    "ru": { "name": "Нарды", "summary": "Нарды с собеседником из чата: кости бросают оба телефона, по прямому соединению между ними." },
+    "uk": { "name": "Нарди", "summary": "Нарди зі співрозмовником із чату: кості кидають обидва телефони, через пряме з’єднання між ними." },
+    "pl": { "name": "Tryktrak", "summary": "Tryktrak z drugą osobą z czatu: kości rzucane przez oba telefony, przez bezpośrednie połączenie między nimi." },
+    "tr": { "name": "Tavla", "summary": "Sohbetteki diğer kişiyle tavla: iki telefonun birlikte attığı zarlar, aralarındaki doğrudan bağlantı üzerinden." },
+    "ar": { "name": "طاولة", "summary": "طاولة مع الشخص الآخر في الدردشة: زهر يرميه الهاتفان معًا، عبر الاتصال المباشر بينهما." },
+    "hi": { "name": "बैकगैमन", "summary": "चैट के दूसरे व्यक्ति के साथ बैकगैमन: दोनों फ़ोनों द्वारा फेंके गए पासे, उनके बीच सीधे कनेक्शन पर।" },
+    "bn": { "name": "ব্যাকগ্যামন", "summary": "চ্যাটের অন্য ব্যক্তির সঙ্গে ব্যাকগ্যামন: দুই ফোন মিলে গড়ানো ছক্কা, তাদের মধ্যে সরাসরি সংযোগে।" },
+    "id": { "name": "Backgammon", "summary": "Backgammon dengan orang lain di obrolan: dadu dilempar oleh kedua ponsel, lewat koneksi langsung di antaranya." },
+    "vi": { "name": "Cờ tào cáo", "summary": "Cờ tào cáo với người kia trong cuộc trò chuyện: xúc xắc do cả hai điện thoại gieo, qua kết nối trực tiếp giữa chúng." },
+    "th": { "name": "แบ็กแกมมอน", "summary": "แบ็กแกมมอนกับอีกคนในแชท: ลูกเต๋าที่โทรศัพท์ทั้งสองทอยร่วมกัน ผ่านการเชื่อมต่อโดยตรงระหว่างกัน" },
+    "ja": { "name": "バックギャモン", "summary": "チャットの相手とバックギャモン。ダイスは2台の端末が一緒に振り、直接接続で遊びます。" },
+    "ko": { "name": "백개먼", "summary": "채팅 상대와 백개먼을, 두 휴대폰이 함께 굴린 주사위로, 직접 연결로 즐기세요." },
+    "zh-CN": { "name": "双陆棋", "summary": "与聊天中的对方下双陆棋：骰子由两部手机共同投掷，通过它们之间的直接连接。" },
+    "zh-TW": { "name": "雙陸棋", "summary": "與聊天中的對方下雙陸棋：骰子由兩支手機共同投擲，透過它們之間的直接連線。" }
+  }
+}

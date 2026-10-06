@@ -1,0 +1,279 @@
+/* The board of Backgammon: twenty-four points in two rows with the bar between, the checkers
+   stacked on them, the trays for borne-off checkers at the side, and under the board the dice,
+   the pips and the pass. Everything in the square's own units, so it reads small in the list and
+   plays large in the room. */
+
+.fbg {
+  position: absolute;
+  inset: 0;
+  container-type: size;
+  display: grid;
+  grid-template-rows: 1fr auto;
+  gap: 2cqh;
+  --art-wood: #8a5a2b;
+  --art-felt: #e9dcc3;
+  --art-dark: #6d4221;
+  --art-light: #c9a66b;
+  --art-bar: #5a3818;
+  --art-die: #fffdf7;
+  --art-pip: #1a1a1a;
+}
+.fbg-table {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 7cqw 1fr 8cqw;
+  grid-template-rows: 1fr 1fr;
+  gap: 0;
+  padding: 2cqw;
+  border-radius: 8px;
+  background: var(--art-wood);
+  min-height: 0;
+}
+.fbg-quarter {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  background: var(--art-felt);
+  min-height: 0;
+}
+.fbg-quarter.top {
+  align-items: start;
+}
+.fbg-quarter.bottom {
+  align-items: end;
+}
+.ftg .fbg-point {
+  appearance: none;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  min-width: 0;
+  min-height: 0;
+}
+.fbg-quarter.bottom .fbg-point {
+  flex-direction: column-reverse;
+}
+.fbg-point::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--art-dark);
+  clip-path: polygon(0 0, 100% 0, 50% 90%);
+  opacity: 0.9;
+}
+.fbg-point.even::before {
+  background: var(--art-light);
+}
+.fbg-quarter.bottom .fbg-point::before {
+  clip-path: polygon(0 100%, 100% 100%, 50% 10%);
+}
+.ftg .fbg-point:disabled {
+  opacity: 1;
+}
+.fbg-point.from {
+  outline: 3px solid var(--primary);
+  outline-offset: -3px;
+}
+.fbg-point.selected::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--primary);
+  opacity: 0.25;
+  pointer-events: none;
+}
+.fbg-checker {
+  position: relative;
+  z-index: 1;
+  width: 86%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  margin: -14% 0 0;
+  box-shadow: inset 0 0 0 2px var(--paper);
+  display: grid;
+  place-items: center;
+  color: var(--paper);
+  font: 700 clamp(8px, 3.4cqw, 14px) / 1 system-ui, sans-serif;
+}
+.fbg-quarter.top .fbg-checker:first-child,
+.fbg-quarter.bottom .fbg-checker:first-child {
+  margin: 0;
+}
+.fbg-checker.s0 {
+  background: var(--side-0);
+}
+.fbg-checker.s1 {
+  background: var(--side-1);
+}
+.fbg-bar {
+  grid-row: 1 / span 2;
+  grid-column: 2;
+  background: var(--art-bar);
+  display: grid;
+  grid-template-rows: 1fr 1fr;
+  align-items: center;
+  justify-items: center;
+}
+.ftg .fbg-bar button {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  min-width: 0;
+  min-height: 0;
+  width: 100%;
+  height: 100%;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+}
+.fbg-bar .fbg-checker {
+  width: 80%;
+  margin: 0 0 -10%;
+}
+.fbg-off {
+  grid-row: 1 / span 2;
+  grid-column: 4;
+  display: grid;
+  grid-template-rows: 1fr 1fr;
+  gap: 2cqw;
+  padding-inline-start: 2cqw;
+}
+.ftg .fbg-tray {
+  appearance: none;
+  border: 1px solid var(--art-light);
+  border-radius: 4px;
+  background: var(--art-felt);
+  padding: 0;
+  min-width: 0;
+  min-height: 0;
+  display: grid;
+  place-items: center;
+  color: var(--art-pip);
+  font: 700 clamp(9px, 3.5cqw, 14px) / 1 system-ui, sans-serif;
+}
+.ftg .fbg-tray:disabled {
+  opacity: 1;
+}
+.fbg-tray.to {
+  outline: 3px solid var(--primary);
+  outline-offset: -3px;
+}
+.fbg-tray i {
+  display: block;
+  width: 60%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  margin-bottom: 4px;
+}
+.fbg-tray i.s0 {
+  background: var(--side-0);
+}
+.fbg-tray i.s1 {
+  background: var(--side-1);
+}
+/* The destinations of a chosen checker: a target over the whole column of each point it may go
+   to (the top or the bottom half of the table), so no two overlap; a ring marks the point. */
+.fbg-dests {
+  position: absolute;
+  inset: 2cqw;
+  pointer-events: none;
+}
+.ftg .fbg-dest {
+  position: absolute;
+  pointer-events: auto;
+  height: 50%;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  padding: 0;
+  min-width: 0;
+  min-height: 0;
+  z-index: 3;
+  display: grid;
+  place-items: center;
+}
+.fbg-dest::after {
+  content: "";
+  width: 70%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  border: 3px dashed var(--primary);
+  box-sizing: border-box;
+}
+.fbg-under {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2cqw;
+  min-height: var(--tap);
+  --tap: clamp(28px, 13cqh, 44px);
+}
+.fbg-dice {
+  display: flex;
+  gap: 1.5cqw;
+  align-items: center;
+}
+.fbg-die {
+  width: var(--tap);
+  height: var(--tap);
+  border-radius: 18%;
+  background: var(--art-die);
+  color: var(--art-pip);
+  display: grid;
+  place-items: center;
+  font: 700 calc(var(--tap) * 0.5) / 1 system-ui, sans-serif;
+  box-shadow: inset 0 0 0 1px var(--art-light);
+}
+.fbg-die.used {
+  opacity: 0.35;
+}
+.fbg-pips {
+  color: var(--muted);
+  font-size: clamp(9px, 3.5cqw, 13px);
+  display: flex;
+  gap: 1.5cqw;
+  align-items: center;
+}
+.fbg-mark {
+  display: inline-block;
+  width: 1.2em;
+  height: 1.2em;
+  vertical-align: -0.2em;
+}
+.fbg-mark.s0 {
+  fill: var(--side-0);
+}
+.fbg-mark.s1 {
+  fill: var(--side-1);
+}
+.ftg .fbg-under button {
+  min-height: var(--tap);
+  height: var(--tap);
+  padding: 0 clamp(6px, 3cqw, 12px);
+  font-size: clamp(11px, 4cqw, 15px);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.fbg-note {
+  color: var(--muted);
+  font-size: clamp(9px, 3.5cqw, 13px);
+}
+.fbg-nop {
+  display: inline-block;
+  width: 4px;
+  height: 4px;
+}
+@container (max-height: 240px) {
+  .fbg-pips,
+  .fbg-note {
+    display: none;
+  }
+}
