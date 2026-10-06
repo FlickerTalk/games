@@ -32,7 +32,7 @@ describe("the screenshots for review", () => {
     expect(touches(PLAYS.chess, "e2e4")).toEqual(['rect.square[data-square="e2"]', 'rect.square[data-square="e4"]']);
   });
 
-  it("play lines that do what they claim: the starter wins the first round, the second is a draw", async () => {
+  it("play lines that do what they claim: the starter wins the first round, the second is a draw (or, with no draw in the game, the same win)", async () => {
     for (const [game, plays] of Object.entries(PLAYS)) {
       const rules = await import(`../games/${game}/src/rules.js`);
       const after = (moves) => moves.reduce((state, move) => {
@@ -42,7 +42,8 @@ describe("the screenshots for review", () => {
       }, rules.initial());
       expect(rules.result(after([...plays.opening, ...plays.winning])), game).toMatchObject({ winner: 0 });
       expect(rules.result(after(plays.opening)), game).toBeNull();
-      expect(rules.result(after(plays.draw)), game).toMatchObject({ winner: null });
+      if (plays.draw) expect(rules.result(after(plays.draw)), game).toMatchObject({ winner: null });
+      else expect(rules.result(after([...plays.opening, ...plays.winning])), game).toMatchObject({ winner: 0 });
     }
     expect(typeof PLAYS.chess.scenes).toBe("function");
   });

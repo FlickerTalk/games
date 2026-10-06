@@ -21,7 +21,7 @@ export const STATES = ["list-empty", "waiting", "not-open", "mid-match", "confir
  * How each game is played for the screenshots: what a move touches (one selector, or several in
  * order), the first three moves (the starter, the other, the starter), the ones that end the
  * round with the starter winning (as many as the game needs, the other side first), and a round to
- * a draw from its starter. A new game adds its own line
+ * a draw from its starter (`null` for a game whose rounds never end in a draw). A new game adds its own line
  * here; `scenes` adds states of its own at the end, from where the common ones leave the phones.
  */
 export const PLAYS = {
@@ -31,6 +31,16 @@ export const PLAYS = {
   dotsandboxes: { move: (line) => `[data-line="${line}"]`, opening: [20, 36, 31], winning: [11, 29, 13, 19, 26, 25, 10, 3, 16, 37, 39, 21, 35, 27, 12, 2, 4, 9, 5, 8, 18, 24, 23, 32, 0, 6, 14, 7, 15, 30, 1, 38, 34, 17, 28, 33, 22], draw: [13, 27, 0, 20, 6, 2, 17, 5, 7, 11, 39, 38, 26, 36, 4, 9, 30, 34, 14, 35, 28, 37, 16, 22, 23, 3, 1, 25, 19, 8, 21, 12, 24, 29, 33, 18, 10, 15, 32, 31] },
   mancala: { move: (pit) => `[data-move="${pit}"]`, opening: [3, 1, 5], winning: [1, 4, 0, 1, 3, 2, 1, 1, 2, 3, 3, 1, 5, 0, 0, 1, 3, 3, 2, 0, 5, 2, 4, 0, 0, 5, 5, 0, 2, 3, 3, 0, 5], draw: [0, 0, 2, 4, 3, 5, 1, 3, 1, 4, 3, 1, 5, 0, 4, 3, 2, 5, 5, 2, 0, 4, 1, 1, 5, 3, 0, 2, 3, 5] },
   gomoku: { move: (cell) => [`[data-cell="${cell}"]`, ".fgm-ghost"], opening: [112, 113, 97], winning: [114, 96, 130, 98, 145, 95, 160, 99], draw: [0,2,1,3,5,4,9,6,10,7,13,8,14,11,15,12,19,16,23,17,27,18,30,20,31,21,34,22,35,24,37,25,39,26,41,28,42,29,43,32,45,33,46,36,47,38,49,40,50,44,53,48,54,51,56,52,57,55,58,59,61,60,63,62,64,67,65,71,66,72,68,73,69,76,70,77,74,78,75,79,80,84,81,85,82,88,83,89,86,93,87,95,90,96,91,97,92,98,94,100,99,101,103,102,106,104,109,105,112,107,115,108,119,110,120,111,123,113,125,114,126,116,127,117,128,118,130,121,132,122,133,124,134,129,135,131,136,137,139,138,143,140,145,141,147,142,151,144,152,146,155,148,159,149,161,150,162,153,165,154,166,156,169,157,171,158,172,160,173,163,174,164,177,167,178,168,180,170,184,175,185,176,186,179,188,181,193,182,194,183,195,187,196,189,198,190,199,191,200,192,202,197,204,201,205,203,207,206,208,209,210,212,211,213,214,216,215,217,218,221,219,222,220,224,223] },
+  // The fleets are hidden: the board itself answers each shot and reveals at the end, so a move
+  // that is an answer alone or a reveal touches nothing; firing is two taps, as placing a stone.
+  // The two sides keep the fleet the board starts with, and the starter sinks it cell by cell.
+  // No round of Sea Battle ends in a draw by play alone (only two dishonest fleets do): no draw line.
+  seabattle: {
+    move: (move) => (move.startsWith("c") ? ['[data-act="ready"]'] : move.includes(">") ? [`[data-cell="${move.split(">")[1]}"]`, ".fsb-ghost"] : []),
+    opening: ["cHylBzX_QL9xX7EJmtGaXgT7W0tpLMc_qasA9wX2ROrM", "cSET3K6E5KL_ylB5tTa6mcoJ9BpmysoECalcGWGpp35I", ">11"],
+    winning: ["h>0", "m>12", "h>1", "m>13", "h>2", "m>14", "h>3", "m>15", "s11h5>4", "m>31", "h>5", "m>41", "h>6", "m>51", "h>7", "m>61", "s31v4>8", "m>36", "h>9", "m>37", "h>10", "m>38", "s36h3>16", "m>73", "h>17", "m>74", "h>18", "m>75", "s73h3>19", "m>58", "h>20", "m>68", "s58v2", "rAQIDBAUGBwgJCgsMDQ4PEBESExQVFhcY11h531v436h358v273h3", "rWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpa11h531v436h358v273h3"],
+    draw: null,
+  },
   fourinarow: { move: (column) => `[data-col="${column}"]`, opening: [3, 4, 3], winning: [4, 3, 4, 3], draw: [0, 1, 0, 1, 0, 0, 2, 0, 2, 0, 2, 1, 1, 1, 3, 1, 3, 2, 2, 4, 2, 4, 3, 3, 5, 3, 5, 3, 5, 4, 4, 5, 6, 5, 6, 5, 6, 6, 4, 6, 4, 6] },
   chess: {
     move: (uci) => [uci.slice(0, 2), uci.slice(2, 4)].map((square) => `rect.square[data-square="${square}"]`),
@@ -137,10 +147,11 @@ async function run(browser, base, game, config) {
   await shot("win", x);
   await shot("win", o);
 
-  // The next round starts with the other person.
+  // The next round starts with the other person; a game that has no draw plays its winning line
+  // again, the other way round, and the shots of the draw show that round instead.
   await touch(o, '[data-kit="again"]');
   let side = o;
-  for (const move of plays.draw) {
+  for (const move of plays.draw ?? [...plays.opening, ...plays.winning]) {
     await play(side, move);
     side = side === x ? o : x;
   }
