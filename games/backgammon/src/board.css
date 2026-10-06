@@ -80,6 +80,16 @@
   outline: 3px solid var(--primary);
   outline-offset: -3px;
 }
+/* While a checker is dragged, the points it may reach are ringed over their triangles (the kit's
+   ring, an inset shadow, would sit under them). */
+.fbg-point[data-drop-ok]::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border: 3px dashed var(--primary);
+  box-sizing: border-box;
+  pointer-events: none;
+}
 .fbg-point.selected::after {
   content: "";
   position: absolute;

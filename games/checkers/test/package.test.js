@@ -30,8 +30,9 @@ describe("the checkers package", () => {
     expect(readFileSync(join(out, "THIRD_PARTY_NOTICES.md")).equals(readFileSync(join(dir, "dist", "THIRD_PARTY_NOTICES.md")))).toBe(true);
   });
 
-  it("stays under 128 KB, says its one third-party work is Ionicons, and loads nothing from outside", () => {
-    expect(checkDist(dir, { cap: 128 * 1024 })).toBeGreaterThan(20_000);
+  // The cap of the other new games: with the kit's drag (2026-10-06) checkers passed the 128 KB of the small ones.
+  it("stays under 160 KB, says its one third-party work is Ionicons, and loads nothing from outside", () => {
+    expect(checkDist(dir, { cap: 160 * 1024 })).toBeGreaterThan(20_000);
     const notices = readFileSync(join(dir, "dist", "THIRD_PARTY_NOTICES.md"), "utf8");
     expect(notices).toContain("its one third-party work is Ionicons");
   });

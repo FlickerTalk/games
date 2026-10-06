@@ -3,9 +3,10 @@
 // a move takes the piece and then its squares, jump after jump, and is played when whole; the
 // board is turned around for the dark side, so each side has its own pieces at the bottom; the last
 // move marked, a pending one too.
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { KIT_TEXTS, joinTexts, translator } from "../../../kit/src/i18n.js";
-import { board, PIECES } from "../src/board.js";
+import { DRAG_STYLE } from "../../../kit/src/drag.js";
+import { board, PIECES, STYLE } from "../src/board.js";
 import { TEXTS } from "../src/texts.js";
 import { initial, play, result, turn } from "../src/rules.js";
 
@@ -30,6 +31,24 @@ function context(state, extra = {}) {
     play: vi.fn(),
     ...extra,
   };
+}
+
+const realFromPoint = document.elementFromPoint;
+afterEach(() => {
+  document.elementFromPoint = realFromPoint;
+});
+
+const pointer = (node, type, x, y) => node.dispatchEvent(new PointerEvent(type, { bubbles: true, cancelable: true, clientX: x, clientY: y, pointerId: 1, isPrimary: true, button: 0, pointerType: "touch" }));
+
+/** A finger on the piece of square `from`, dragged and let go over square `to` (null: over nothing). */
+function drag(host, from, to) {
+  const piece = square(host, from);
+  pointer(piece.querySelector("svg") ?? piece, "pointerdown", 10, 10);
+  pointer(piece, "pointermove", 40, 40);
+  const lit = [...host.querySelectorAll("[data-drop-ok]")].map((one) => Number(one.dataset.cell)).sort((a, b) => a - b);
+  document.elementFromPoint = () => (to === null ? null : square(host, to));
+  pointer(host, "pointerup", 40, 40);
+  return lit;
 }
 
 const square = (host, index) => host.querySelector(`[data-cell="${index}"]`);
@@ -110,5 +129,60 @@ describe("the board", () => {
     mounted.update(context(king));
     expect(square(host, 28).querySelector("svg .crown")).not.toBeNull();
     expect(square(host, 28).getAttribute("aria-label")).toBe("Row 4, column 5: dark king");
+  });
+
+  it("plays a move by dragging the piece to a legal square, lighting where it may go, as the taps do", () => {
+    const host = document.createElement("div");
+    document.body.append(host);
+    const ctx = context(initial());
+    board.mount(host, ctx);
+    expect([...host.querySelectorAll("[data-drag]")].map((one) => Number(one.dataset.cell)).sort((a, b) => a - b)).toEqual([17, 19, 21, 23]);
+    const lit = drag(host, 21, 30);
+    expect(lit).toEqual([28, 30]);
+    expect(ctx.play).toHaveBeenCalledWith("21-30");
+    host.remove();
+  });
+
+  it("sends the piece back and plays nothing when it is let go on a square it may not reach, or off the board", () => {
+    const host = document.createElement("div");
+    document.body.append(host);
+    const ctx = context(initial());
+    board.mount(host, ctx);
+    drag(host, 21, 37);
+    drag(host, 21, null);
+    expect(ctx.play).not.toHaveBeenCalled();
+    expect(classesOf(host, "from")).toEqual([]);
+    host.remove();
+  });
+
+  it("plays a whole capture dragged to where it ends, and stops halfway when dropped on a square between", () => {
+    const rows = ["........", "........", ".....d..", "....l...", "........", "..l.....", "........", "........"];
+    const host = document.createElement("div");
+    document.body.append(host);
+    const ctx = context(fromRows(rows, 0));
+    board.mount(host, ctx);
+    expect(drag(host, 21, 49)).toEqual([35, 49]);
+    expect(ctx.play).toHaveBeenCalledWith("21-35-49");
+
+    const half = document.createElement("div");
+    document.body.append(half);
+    const ctx2 = context(fromRows(rows, 0));
+    board.mount(half, ctx2);
+    drag(half, 21, 35);
+    expect(ctx2.play).not.toHaveBeenCalled();
+    expect(classesOf(half, "from")).toEqual([21, 35]);
+    pointer(square(half, 49), "pointerdown", 60, 60);
+    pointer(square(half, 49), "pointerup", 60, 60);
+    square(half, 49).click();
+    expect(ctx2.play).toHaveBeenCalledWith("21-35-49");
+    host.remove();
+    half.remove();
+  });
+
+  it("drags nothing out of turn, and carries the kit's look for a drag", () => {
+    const host = document.createElement("div");
+    board.mount(host, context(initial(), { canPlay: false }));
+    expect(host.querySelectorAll("[data-drag]")).toHaveLength(0);
+    expect(STYLE).toContain(DRAG_STYLE);
   });
 });

@@ -1,8 +1,9 @@
 // The table of Crazy Eights: the shuffle made on its own (the dealer's seed kept in the store),
 // the hand face up with the playable cards open, the other side's cards face down, the stock and
 // the card on the table, an eight asking for a suit, drawing and passing.
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { KIT_TEXTS, joinTexts, translator } from "../../../kit/src/i18n.js";
+import { DRAG_STYLE } from "../../../kit/src/drag.js";
 import { MARKS, SIGNS, STYLE, board, cardName, storeKey } from "../src/board.js";
 import { TEXTS } from "../src/texts.js";
 import { commitText, initial, play, playableCards, result, revealText, seedText, turn } from "../src/rules.js";
@@ -167,5 +168,73 @@ describe("the other side's hand", () => {
     const ink = ruleFor(".fce-them").match(/(?:^|;|\s)color:\s*([^;]+);/)?.[1].trim();
     expect(ink).toBe("var(--art-felt-ink)");
     expect(STYLE).toMatch(/--art-felt-ink:\s*#ffffff/);
+  });
+});
+
+describe("dragging a card", () => {
+  const realFromPoint = document.elementFromPoint;
+  afterEach(() => {
+    document.elementFromPoint = realFromPoint;
+    document.body.innerHTML = "";
+  });
+  const pointer = (node, type, x, y) => node.dispatchEvent(new PointerEvent(type, { bubbles: true, cancelable: true, clientX: x, clientY: y, pointerId: 1, isPrimary: true, button: 0, pointerType: "touch" }));
+  /** A finger on card `card` of the hand, let go over `over`; whether the card on the table was lit. */
+  function drag(host, card, over) {
+    const node = host.querySelector(`[data-card="${card}"]`);
+    pointer(node.querySelector("b") ?? node, "pointerdown", 10, 100);
+    pointer(node, "pointermove", 10, 60);
+    const lit = host.querySelector(".fce-card.top").hasAttribute("data-drop-ok");
+    document.elementFromPoint = () => (typeof over === "function" ? over() : over);
+    pointer(host, "pointerup", 10, 60);
+    return lit;
+  }
+  // Side 1 to move with the ace of spades, the eight of hearts and the two of hearts; nine of spades on the table.
+  async function table() {
+    const host = document.createElement("div");
+    document.body.append(host);
+    const base = context(OPENING);
+    const state = { ...base.state, hands: [[1, 2, 3], [0, 20, 14]], pile: [8], suit: 0, next: 1, stock: [40, 41] };
+    const ctx = { ...base, state, mySide: 1 };
+    board.mount(host, ctx);
+    await tick();
+    return { host, ctx };
+  }
+
+  it("plays a card dragged onto the card on the table, as a tap does, and only the playable ones drag", async () => {
+    const { host, ctx } = await table();
+    expect([...host.querySelectorAll("[data-drag]")].map((one) => Number(one.dataset.card)).sort((a, b) => a - b)).toEqual([0, 20]);
+    expect(drag(host, 0, host.querySelector(".fce-card.top b"))).toBe(true);
+    expect(ctx.play).toHaveBeenCalledWith("p0");
+  });
+
+  it("asks for the suit of an eight dragged onto the table", async () => {
+    const { host, ctx } = await table();
+    drag(host, 20, host.querySelector(".fce-card.top"));
+    expect(ctx.play).not.toHaveBeenCalled();
+    // A real tap: a press, then its click (a click with no press right after a drag is the drag's tail).
+    pointer(host.querySelector('.fce-pick [data-suit="c"]'), "pointerdown", 20, 20);
+    pointer(host.querySelector('.fce-pick [data-suit="c"]'), "pointerup", 20, 20);
+    host.querySelector('.fce-pick [data-suit="c"]').click();
+    expect(ctx.play).toHaveBeenCalledWith("p20c");
+  });
+
+  it("sends the card back to the hand and plays nothing when it is let go anywhere but the table's card", async () => {
+    const { host, ctx } = await table();
+    drag(host, 0, host.querySelector('[data-act="draw"]'));
+    drag(host, 0, null);
+    expect(ctx.play).not.toHaveBeenCalled();
+    expect(host.querySelector(".fce-pick")).toBeNull();
+  });
+
+  // Seen in Chromium: the card on the table let touches through, so the finger over it found the table.
+  it("lets the card on the table be found under the finger, where a dragged card is let go", () => {
+    expect(ruleFor(".fce-card.top")).not.toMatch(/pointer-events:\s*none/);
+  });
+
+  it("drags nothing off turn, and carries the kit's look for a drag", async () => {
+    const host = document.createElement("div");
+    board.mount(host, { ...context(OPENING), canPlay: false });
+    expect(host.querySelectorAll("[data-drag]")).toHaveLength(0);
+    expect(STYLE).toContain(DRAG_STYLE);
   });
 });

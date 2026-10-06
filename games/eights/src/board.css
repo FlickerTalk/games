@@ -110,7 +110,6 @@
   width: var(--big);
   height: calc(var(--big) * 1.4);
   font-size: calc(var(--big) * 0.36);
-  pointer-events: none;
 }
 .fce-card.top i {
   width: calc(var(--big) * 0.44);
