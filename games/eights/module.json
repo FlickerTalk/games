@@ -1,7 +1,7 @@
 {
   "id": "com.flickertalk.game.eights",
   "name": "Crazy Eights",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "minCoreVersion": "1.3.0",
   "kind": "game",
   "components": [

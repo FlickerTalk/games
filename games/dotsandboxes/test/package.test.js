@@ -15,7 +15,7 @@ const dir = join(import.meta.dirname, "..");
 describe("the dots and boxes package", () => {
   it("says it is a game that needs the core 1.3.0, the live channel and sending, and nothing else", () => {
     const manifest = checkManifest(dir, { id: "com.flickertalk.game.dotsandboxes", name: "Dots and Boxes", component: "ft-dotsandboxes" });
-    expect(manifest.version).toBe("1.0.0");
+    expect(manifest.version).toBe("1.0.1");
   });
 
   it("names and describes itself in the app's other 20 languages, the name its own title there", () => {
