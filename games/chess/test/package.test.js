@@ -20,7 +20,7 @@ const notices = () => read(dir, "dist", "THIRD_PARTY_NOTICES.md");
 describe("the Chess package", () => {
   it("says it is a game that needs the core 1.3.0, the live channel and sending, and nothing else", () => {
     const manifest = checkManifest(dir, { id: "com.flickertalk.game.chess", name: "Chess", component: "ft-chess" });
-    expect(manifest.version).toBe("1.0.1");
+    expect(manifest.version).toBe("1.0.2");
   });
 
   it("names and describes itself in the app's other 20 languages, the name its own title there", () => {

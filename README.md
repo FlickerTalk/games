@@ -371,6 +371,8 @@ package's contents. So:
   manifest, `locales` included, changes `dist/` and needs a new version too.
 - The three games were first published at `1.0.0`; `1.0.1` adds their names and summaries in the
   app's other 20 languages (`locales`).
+- The kit's in-app notices (`ft.notify`), drag and drop and single first paint shipped as one more
+  patch for every game: `1.0.1` for the ten games first published at `1.0.0`, `1.0.2` for the first three.
 
 ## Preview
 

@@ -15,7 +15,7 @@ const dir = join(import.meta.dirname, "..");
 describe("the Sea Battle package", () => {
   it("says it is a game that needs the core 1.3.0, the live channel and sending, and nothing else", () => {
     const manifest = checkManifest(dir, { id: "com.flickertalk.game.seabattle", name: "Sea Battle", component: "ft-seabattle" });
-    expect(manifest.version).toBe("1.0.0");
+    expect(manifest.version).toBe("1.0.1");
     for (const brand of BRANDS) expect(`${manifest.name} ${manifest.summary}`).not.toMatch(brand);
   });
 
