@@ -15,7 +15,7 @@ const dir = join(import.meta.dirname, "..");
 describe("the Word Duel package", () => {
   it("says it is a game that needs the core 1.3.0, the live channel and sending, and nothing else", () => {
     const manifest = checkManifest(dir, { id: "com.flickertalk.game.wordduel", name: "Word Duel", component: "ft-wordduel" });
-    expect(manifest.version).toBe("1.0.1");
+    expect(manifest.version).toBe("1.0.2");
     for (const brand of BRANDS) expect(`${manifest.name} ${manifest.summary}`).not.toMatch(brand);
   });
 
