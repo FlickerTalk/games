@@ -107,6 +107,8 @@ export function checkManifest(dir, { id, name, component }) {
     version: expect.stringMatching(/^\d+\.\d+\.\d+$/),
     minCoreVersion: "1.3.0",
     kind: "game",
+    // The Ionicon the app's Apps grid shows (plugin-sdk's module.schema.json).
+    icon: expect.stringMatching(/^[a-z0-9-]+$/),
     components: [component],
     permissions: { live: true, send: "propose" },
     summary: expect.any(String),

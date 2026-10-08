@@ -1,9 +1,10 @@
 {
   "id": "com.flickertalk.game.mancala",
   "name": "Mancala",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "minCoreVersion": "1.3.0",
   "kind": "game",
+  "icon": "basket-outline",
   "components": [
     "ft-mancala"
   ],
