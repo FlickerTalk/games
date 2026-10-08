@@ -4,6 +4,7 @@
   "version": "1.0.1",
   "minCoreVersion": "1.3.0",
   "kind": "game",
+  "icon": "dice-outline",
   "components": [
     "ft-backgammon"
   ],
