@@ -1,7 +1,7 @@
 // The build (README, "Build"): each game folder becomes the package the catalogue signs —
 // `module.json` beside a `dist/` with one minified ES module (the kit compiled in, styles as text)
 // and the game's third-party notices. A game whose sources did not change builds the same bytes.
-import { mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it, onTestFinished } from "vitest";
@@ -87,5 +87,23 @@ describe("building a game", () => {
   it("finds every game of the repository", () => {
     const root = join(import.meta.dirname, "..", "..");
     expect(gameFolders(root).every((dir) => dir.startsWith(join(root, "games")))).toBe(true);
+  });
+});
+
+describe("the image of the Apps grid", () => {
+  // Each game carries icon.svg beside module.json and dist/, signed with the rest: the app draws it
+  // on the tile; the Ionicon in module.json stays as the fallback (2026-10-08).
+  it("is in every game: a square 64 × 64 SVG of at most 4 KB at the root of the package, not inside dist/", () => {
+    const games = gameFolders(join(import.meta.dirname, "..", ".."));
+    expect(games).toHaveLength(13);
+    for (const dir of games) {
+      const image = join(dir, "icon.svg");
+      expect(existsSync(image), image).toBe(true);
+      expect(statSync(image).size, image).toBeLessThanOrEqual(4096);
+      const svg = readFileSync(image, "utf8");
+      expect(svg.startsWith("<svg"), image).toBe(true);
+      expect(svg, image).toContain('viewBox="0 0 64 64"');
+      expect(existsSync(join(dir, "dist", "icon.svg")), image).toBe(false);
+    }
   });
 });
