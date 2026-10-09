@@ -44,6 +44,29 @@ describe("the review harness", () => {
     expect(code.headers.get("content-security-policy")).toBe(policy(base));
   });
 
+  it("lends Ionic to the frame as the app does: its stylesheet and components before the game's module", async () => {
+    const html = await (await fetch(`${base}/frame/tictactoe/a/frame.html`)).text();
+    const css = html.indexOf('href="./ft-ionic/ionic.bundle.css"');
+    const lender = html.indexOf('src="./ft-ionic/ionic.js"');
+    expect(css).toBeGreaterThan(0);
+    expect(lender).toBeGreaterThan(css);
+    expect(html.indexOf('src="./frame.js"')).toBeGreaterThan(lender);
+    const script = await fetch(`${base}/frame/tictactoe/a/ft-ionic/ionic.js`);
+    expect(script.status).toBe(200);
+    expect(script.headers.get("content-type")).toContain("javascript");
+    expect(script.headers.get("content-security-policy")).toBe(policy(base));
+    const code = await script.text();
+    for (const tag of ["ion-alert", "ion-button", "ion-buttons", "ion-content", "ion-header", "ion-title", "ion-toolbar"]) expect(code, tag).toContain(tag);
+    // Nothing the frame's policy refuses.
+    expect(code).not.toMatch(/\beval\(|new Function\(|\bimport\(/);
+    const sheet = await fetch(`${base}/frame/tictactoe/a/ft-ionic/ionic.bundle.css`);
+    expect(sheet.headers.get("content-type")).toContain("text/css");
+    expect(await sheet.text()).toContain("ion-color-primary");
+    // The frame says how tall the game is, whatever Ionic's stylesheet does to the body.
+    const bridge = await (await fetch(`${base}/frame/tictactoe/a/frame.js`)).text();
+    expect(bridge).toContain('document.getElementById("view")');
+  });
+
   it("serves the host page, and nothing outside a game's dist/", async () => {
     expect((await fetch(`${base}/?game=tictactoe`)).status).toBe(200);
     expect((await fetch(`${base}/frame/tictactoe/a/src/rules.js`)).status).toBe(404);
