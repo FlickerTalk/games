@@ -3,7 +3,7 @@
 // messages, the language and the colours. The toy game and its toy board stand in for a real one.
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { KIT_TEXTS, defineGame } from "../src/index.js";
-import { FRAME_START, PENDING_GRACE_MS } from "../src/shell.js";
+import { FRAME_START, PENDING_GRACE_MS, whenDrawn } from "../src/shell.js";
 import { FLASH_MS } from "../src/toast.js";
 import { fakeCore, phones, settle, toy, within, words } from "./helpers.js";
 
@@ -767,6 +767,55 @@ describe("Ionic's structure, lent by the app", () => {
     expect(alert.message).toBe(KIT_TEXTS.ar.confirmDelete);
     expect(alert.buttons.map((one) => [one.role, one.htmlAttributes["data-kit"]])).toEqual([["cancel", "no"], ["destructive", "yes"]]);
     expect(element.querySelector(".ftg-dialog")).toBeNull();
+  });
+
+  it("waits for Ionic to have drawn the page (Stencil marks a drawn component hydrated) before the first screen", async () => {
+    customElements.define("ft-stand-in", class extends HTMLElement {});
+    const one = document.createElement("ft-stand-in");
+    const two = document.createElement("ft-stand-in");
+    const plain = document.createElement("ft-not-registered");
+    document.body.append(one, two, plain);
+    let done = false;
+    const waiting = whenDrawn([one, two, plain]).then(() => (done = true));
+    one.classList.add("hydrated");
+    await Promise.resolve();
+    expect(done).toBe(false);
+    two.classList.add("hydrated");
+    await waiting;
+    expect(done).toBe(true);
+    // Nothing to wait for: what is drawn, and what no one will draw (Ionic not lent).
+    await whenDrawn([one, plain]);
+    // And the shell's own page, with Ionic lent: drawn before the first screen is.
+    const element = await phone(fakeCore());
+    for (const node of element.querySelectorAll(".ftg > ion-header, .ftg > ion-content")) expect(node.classList.contains("hydrated")).toBe(true);
+    expect(element.querySelector(".ftg-empty")).not.toBeNull();
+    expect(built.mounts).toBe(0);
+    await press(element, '[data-kit="new"]');
+    expect(built.mounts).toBe(1);
+  });
+
+  it("mounts the board at its size: what is around it is drawn and the board fitted first", async () => {
+    const seen = [];
+    const mount = toyBoard.mount;
+    toyBoard.mount = (host, ctx) => {
+      const root = host.closest(".ftg");
+      seen.push({ board: root.style.getPropertyValue("--ftg-board"), players: root.querySelector('[data-part="players"]').children.length });
+      return mount(host, ctx);
+    };
+    try {
+      const one = await phone(fakeCore());
+      await press(one, '[data-kit="new"]');
+      expect(seen).toHaveLength(1);
+      expect(seen[0].board).toMatch(/^\d+px$/);
+      expect(seen[0].players).toBe(2);
+    } finally {
+      toyBoard.mount = mount;
+    }
+  });
+
+  it("keeps the kit's box sizing inside Ionic's content, whose slot would hand down the browser's", () => {
+    const css = document.head.querySelector("style[data-ftg]").textContent.replace(/\/\*[\s\S]*?\*\//g, "");
+    expect(css).toMatch(/\.ftg\s*>\s*ion-content\s*>\s*\*\s*\{[^}]*box-sizing:\s*border-box/);
   });
 
   it("gives the content the height of what it holds, so the frame still follows its content", async () => {

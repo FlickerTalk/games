@@ -180,6 +180,10 @@
   --color: var(--ink);
   flex: none;
 }
+/* What the content holds inherits from Ionic's slot, not from the page: the kit's box sizing again. */
+.ftg > ion-content > * {
+  box-sizing: border-box;
+}
 /* Ionic's buttons, at least a finger tall; the host holds that height before Ionic draws it, so
    nothing moves when it does. */
 .ftg ion-button {

@@ -81,6 +81,24 @@ export const FRAME_START = 320;
  *  2026-10-06: the line flashed after every move, both games open and the connection direct). */
 export const PENDING_GRACE_MS = 3000;
 
+/**
+ * Resolves once Ionic has drawn each of `nodes`: Stencil marks a drawn component `hydrated`. Until
+ * then its children are not laid out, so a board mounted inside would measure nothing. A node that
+ * no one will draw (not a registered component: Ionic not lent) is not waited for.
+ */
+export function whenDrawn(nodes) {
+  const waiting = nodes.filter((node) => customElements.get(node.localName) && !node.classList.contains("hydrated"));
+  if (!waiting.length) return Promise.resolve();
+  return new Promise((resolve) => {
+    const watch = new MutationObserver(() => {
+      if (!waiting.every((node) => node.classList.contains("hydrated"))) return;
+      watch.disconnect();
+      resolve();
+    });
+    for (const node of waiting) watch.observe(node, { attributes: true, attributeFilter: ["class"] });
+  });
+}
+
 /** The height of the room the game is given, in CSS pixels. */
 function roomHeight() {
   return (globalThis.screen?.height || 853) - ROOM_CHROME;
@@ -247,12 +265,25 @@ export function elementFor(game) {
         this.toast.attach(root);
         return;
       }
-      root.style.removeProperty("min-height");
       root.setAttribute("dir", direction(this.lang));
       root.setAttribute("lang", this.lang);
       root.toggleAttribute("data-dark", table.dark);
       this.retheme();
       this.page();
+      // The first screen waits for Ionic to draw the page, the frame still as it opened, so the
+      // board is measured and mounted once, at its size (a frame later at most, in a browser).
+      if (!this.pageDrawn) {
+        root.style.minHeight = `${FRAME_START}px`;
+        const content = this.content;
+        this.drawing ??= whenDrawn([...root.querySelectorAll(":scope > ion-header, :scope > ion-header > ion-toolbar, :scope > ion-content")]).then(() => {
+          if (this.content !== content) return;
+          this.drawing = null;
+          this.pageDrawn = true;
+          if (this.isConnected) this.paint();
+        });
+        return;
+      }
+      root.style.removeProperty("min-height");
       const shown = table.screen === "match" && table.record ? `match:${table.record.id}` : "list";
       if (shown !== this.shown) this.letBoardGo();
       if (shown === "list") {
@@ -264,12 +295,10 @@ export function elementFor(game) {
         return;
       }
       const seen = table.view;
-      if (shown !== this.shown) {
+      const fresh = shown !== this.shown;
+      if (fresh) {
         this.shown = shown;
         this.matchScreen();
-        this.board = game.board.mount(root.querySelector('[data-part="board"]'), this.boardContext(seen));
-      } else {
-        this.board?.update?.(this.boardContext(seen));
       }
       const part = (name) => root.querySelector(`[data-part="${name}"]`);
       this.paintBar(seen);
@@ -280,6 +309,9 @@ export function elementFor(game) {
       this.set(part("overlay"), this.overlayHtml(seen));
       this.set(part("result"), this.resultHtml(seen));
       this.fitBoard();
+      // The board last, into a square already its size: built once, never resized as it appears.
+      if (fresh) this.board = game.board.mount(part("board"), this.boardContext(seen));
+      else this.board?.update?.(this.boardContext(seen));
     }
 
     /**
@@ -294,6 +326,8 @@ export function elementFor(game) {
       this.bar = root.querySelector('[data-part="bar"]');
       this.content = root.querySelector('[data-part="content"]');
       this.shown = null;
+      this.pageDrawn = false;
+      this.drawing = null;
       this.sizes?.observe(root.firstElementChild);
     }
 
