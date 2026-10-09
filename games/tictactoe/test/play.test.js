@@ -3,7 +3,7 @@
 // the next hello, one side closing the game and coming back, and a state that breaks the rules.
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { KV, PROTOCOL, fromBase64, seal } from "../../../kit/src/envelope.js";
-import { fakeCore, phones, settle } from "../../../kit/test/helpers.js";
+import { fakeCore, phones, settle, within } from "../../../kit/test/helpers.js";
 import "../src/index.js";
 
 const tick = () => settle([...document.querySelectorAll("ft-tictactoe")].map((element) => element.table));
@@ -21,7 +21,7 @@ async function phone(core, opening = {}) {
 }
 
 async function touch(element, target) {
-  const node = typeof target === "number" ? cell(element, target) : element.querySelector(target);
+  const node = typeof target === "number" ? cell(element, target) : within(element, target);
   if (!node) throw new Error(`nothing to touch: ${target}`);
   node.click();
   await tick();

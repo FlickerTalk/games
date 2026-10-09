@@ -9,7 +9,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ICONS, icon } from "../src/icons.js";
 import { KIT_TEXTS, LANGUAGES } from "../src/i18n.js";
 import { defineGame } from "../src/index.js";
-import { fakeCore, phones, settle, toy } from "./helpers.js";
+import { fakeCore, phones, settle, toy, within } from "./helpers.js";
 
 const root = join(import.meta.dirname, "..", "..");
 const EMOJI = /\p{Extended_Pictographic}/u;
@@ -43,7 +43,7 @@ async function phone(core, opening = {}) {
   return element;
 }
 const press = async (element, selector) => {
-  element.querySelector(selector).click();
+  within(element, selector).click();
   await tick();
 };
 
@@ -75,7 +75,8 @@ describe("the icons", () => {
 describe("no emoji in the interface", () => {
   it("in any state of the shell", async () => {
     const seen = [];
-    const look = (element, state) => seen.push([state, emojiIn(element.innerHTML)]);
+    // The page and the question over it (Ionic's alert, in the frame's body).
+    const look = (element, state) => seen.push([state, emojiIn(element.innerHTML + (element.alert?.innerHTML ?? ""))]);
     const { a, b } = phones();
     b.closed = true;
     const one = await phone(a);

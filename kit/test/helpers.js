@@ -1,6 +1,6 @@
 // What the kit's tests and every game's tests share: a toy game, a fake core (one phone's `ft`),
 // two fake cores wired together as two phones in one conversation, and the checks every package
-// must pass (manifest, size, nothing loaded from outside, the 21 languages).
+// must pass (manifest, size, nothing loaded from outside, no Ionic inside, the 21 languages).
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { extname, join } from "node:path";
 import { expect, vi } from "vitest";
@@ -98,6 +98,29 @@ export async function settle(tables, rounds = 12) {
   }
 }
 
+/**
+ * What a phone's game shows that a test can touch: its page, and its question (Ionic moves an
+ * alert to the frame's body when it shows it, out of the game's element).
+ */
+export function within(element, selector) {
+  return element.querySelector(selector) ?? element.alert?.querySelector(selector) ?? null;
+}
+
+/** The DOM's own `childNodes`, which Stencil does not replace. */
+const CHILDREN = (globalThis.Node && Object.getOwnPropertyDescriptor(Node.prototype, "childNodes")?.get) ?? function () {
+  return this.childNodes;
+};
+
+/**
+ * The words on the screen, from the text itself: Stencil gives some of Ionic's components a
+ * `textContent` and `childNodes` of their own that leave out what they hold until they have drawn.
+ */
+export function words(node) {
+  if (!node) return "";
+  if (node.nodeType === 3) return node.data;
+  return [...CHILDREN.call(node)].map(words).join("");
+}
+
 /** The checks every game package passes: what `module.json` says. */
 export function checkManifest(dir, { id, name, component }) {
   const manifest = JSON.parse(readFileSync(join(dir, "module.json"), "utf8"));
@@ -105,7 +128,8 @@ export function checkManifest(dir, { id, name, component }) {
     id,
     name,
     version: expect.stringMatching(/^\d+\.\d+\.\d+$/),
-    minCoreVersion: "1.3.0",
+    // The core that lends Ionic to the frame (app 1.6.0): the kit draws with its components.
+    minCoreVersion: "1.6.0",
     kind: "game",
     // The Ionicon the app's Apps grid shows (plugin-sdk's module.schema.json).
     icon: expect.stringMatching(/^[a-z0-9-]+$/),
@@ -181,6 +205,11 @@ export function checkDist(dir, { cap }) {
   expect(notices).toContain(`## Ionicons ${JSON.parse(readFileSync(join(ionicons, "package.json"), "utf8")).version}`);
   expect(squash(notices)).toContain(squash(readFileSync(join(ionicons, "LICENSE"), "utf8")));
   expect(total).toBeLessThan(cap);
+  // Ionic is the app's, lent to the frame: a package never carries a copy of it.
+  const code = readFileSync(join(dist, "index.js"), "utf8");
+  for (const mark of ["@ionic/core", "@stencil/core", "proxyCustomElement", "defineCustomElement", "ionicframework", "ion-ripple-effect"]) {
+    expect(code.includes(mark), `${mark} in ${dist}`).toBe(false);
+  }
   for (const path of files) {
     if (path.endsWith(`/${NOTICES}`)) continue;
     expect(LOADED, path).toContain(extname(path));

@@ -52,7 +52,7 @@ if the build does not give back the committed `dist/`.
 
 1. `games/<name>/module.json`, copied from Tic-Tac-Toe: `id` `com.flickertalk.game.<name>`, `name`
    (English), `components: ["ft-<name>"]`, `version` `1.0.0`. Keep `kind: "game"`,
-   `minCoreVersion: "1.3.0"` and `permissions: { "live": true, "send": "propose" }` — the app refuses a
+   `minCoreVersion: "1.6.0"` and `permissions: { "live": true, "send": "propose" }` — the app refuses a
    game that asks for anything else. Add `locales` (plugin-sdk's `module.schema.json`): the `name` and
    `summary` in the app's other 20 languages, the name being the game's own `TEXTS.<lang>.name`, so
    the app shows them in the phone's language (`checkLocales` checks them).
@@ -117,6 +117,21 @@ room changes. When even the game's `minBoard` does not fit, the players' chips g
 must draw inside the square it is given, whatever its size. `npm run room` checks every game in
 every state on a 384×853 and a 360×740 phone, in German and Spanish.
 
+**The page is Ionic's.** Since app 1.6.0 the app lends Ionic to every plugin frame (all of
+`@ionic/core`'s components and its stylesheet but for `structure.css`'s body rules, loaded before the
+game's module; the root says `data-ionic`, `mode`, `dir` and `lang`), and the kit draws with it: an
+`ion-header` with its `ion-toolbar` (the list's title and a new match; in a match the way back, the
+score and the actions), then an `ion-content` that does not scroll and holds the players, the result
+and the board. The kit's actions are `ion-button`s and its one question (delete a match, resign a
+round) is an `ion-alert`, which Ionic shows over the page in the frame's body. In the game room the
+frame is as tall as its content, so an overlay is placed within it: the kit keeps the alert for what
+the user must answer, and says everything else through the app's toast (`ft.notify`). Header, toolbar and
+content are made once and patched, so an Ionic component is never drawn again for nothing. Ionic's
+content has no height of its own: the kit gives it that of what it holds, so the frame, as tall as its
+content, still follows it. A package never carries Ionic (each game's package test checks its `dist/`);
+the games ask for core 1.6.0, the first one that lends it. A board is not touched by any of this: it
+draws what it likes in its square, and its buttons are its own.
+
 `board.mount(host, context)` is called once when a match opens; `update(context)` after every change
 (a move from either side, a new round, a message); `destroy()`, if the board has it, when the match
 leaves the screen or the game closes, to let go of listeners and timers. The board draws into `host` (light DOM: no shadow
@@ -153,8 +168,8 @@ of a round cuts a passing one short. In an app with the Plugin API's `ft.notify(
 (app 1.4.1) the app draws it, an `ion-toast`, and the kit sends an empty text to take a standing one
 away; in an older app the kit draws it in the frame (`role="status"`, `aria-live="polite"`), in a
 band at the top kept from the first paint and always as tall (`--ftg-band`). "Try again" is a button
-in the bar; a choice that has to be made (two phones that parted ways, a match the other person
-started) is a card over the board.
+in the toolbar; a choice that has to be made (two phones that parted ways, a match the other person
+started) is a card over the board; a question before something that cannot be undone is Ionic's alert.
 
 `ctx.last` and the moves in `view.round.moves` come from the other phone: they have passed the game's
 `play` and nothing else. A board never puts them into markup unescaped (use them as numbers, look them up,
@@ -354,7 +369,11 @@ Fixed vectors (in `kit/test/commit.test.js`), computed independently by `kit/tes
   (`http://www.w3.org/2000/svg`…) are allowed: browsers never fetch them. `THIRD_PARTY_NOTICES.md` is
   not scanned: it may quote a licence's address, and the frame never loads it.
 - `kit/test/helpers.js` gives every game's tests the same tools: `fakeCore()` (one phone's `ft`),
-  `phones()` (two of them wired as one conversation), `checkManifest`, `checkLocales`, `checkDist`, `checkTexts`.
+  `phones()` (two of them wired as one conversation), `checkManifest`, `checkLocales`, `checkDist`, `checkTexts`,
+  `within(element, selector)` (the game's page, or the alert it is asking with) and `words(node)` (the
+  text on the screen: Stencil gives some of Ionic's components a `textContent` of their own).
+- The tests register Ionic's components as the app lends them (`kit/test/ionic.js`, Vitest's setup),
+  from `@ionic/core`, a development dependency at the version the app pins.
 
 ## Publishing
 
@@ -373,12 +392,14 @@ package's contents. So:
   app's other 20 languages (`locales`).
 - The kit's in-app notices (`ft.notify`), drag and drop and single first paint shipped as one more
   patch for every game: `1.0.1` for the ten games first published at `1.0.0`, `1.0.2` for the first three.
+- The kit in Ionic's page (core 1.6.0) is one more patch for every game: `1.0.3` for the ten, `1.0.4` for
+  the first three.
 
 ## Preview
 
 `npm run preview` serves two phones side by side; each runs the game in an iframe built like the app's
 plugin sheet (`sandbox="allow-scripts"`, the Content-Security-Policy the core gives a plugin without
-network), and the page between them plays the core: records in memory, the live channel (with a switch
+network, and Ionic lent as the app lends it), and the page between them plays the core: records in memory, the live channel (with a switch
 for the connection), “close” and “open” for each phone, and `say` into a mock composer.
 `npm run shots` plays each game there in Chromium (Playwright) and saves the screens for review: a phone
 (360×740) light and dark, Arabic, and a tablet in landscape (2560×1600).

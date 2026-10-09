@@ -48,7 +48,7 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
-  padding: 4px 0;
+  padding: 0 0 4px;
   color: var(--ink);
   font: 16px/1.35 system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", sans-serif;
   -webkit-tap-highlight-color: transparent;
@@ -172,73 +172,33 @@
   fill: currentColor;
 }
 
-/* Buttons: round icons, and pills where a word is needed. */
-.ftg-btn {
-  appearance: none;
-  display: inline-grid;
-  place-items: center;
+/* Ionic's page, with the components the app lends the frame. The content does not scroll and has
+   no height of its own: the kit gives it that of what it holds (shell.js), so the frame still
+   follows its content; it shows the room behind it, as the page did before. */
+.ftg > ion-content {
+  --background: transparent;
+  --color: var(--ink);
   flex: none;
-  width: 44px;
-  height: 44px;
-  min-width: 44px;
-  min-height: 44px;
-  border: 0;
-  border-radius: 50%;
-  background: var(--surface);
-  font-size: 20px;
-  line-height: 1;
 }
-.ftg-btn.primary {
-  background: var(--primary);
-  color: var(--on-primary);
+/* What the content holds inherits from Ionic's slot, not from the page: the kit's box sizing again. */
+.ftg > ion-content > * {
+  box-sizing: border-box;
+}
+/* Ionic's buttons, at least a finger tall; the host holds that height before Ionic draws it, so
+   nothing moves when it does. */
+.ftg ion-button {
+  min-height: 44px;
+}
+/* An Ionic button's own display wins over the browser's `hidden`: say it again here. */
+.ftg ion-button[hidden] {
+  display: none;
 }
 [dir="rtl"] .ftg-flip {
   transform: scaleX(-1);
 }
-.ftg-pill {
-  appearance: none;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  min-height: 44px;
-  padding: 0 18px;
-  border: 0;
-  border-radius: 22px;
-  background: var(--surface-2);
-  font-weight: 600;
-}
-.ftg-pill.primary {
-  background: var(--primary);
-  color: var(--on-primary);
-}
-.ftg-pill.danger {
-  background: var(--danger);
-  color: var(--on-danger);
-}
-.ftg-pill.small {
-  min-height: 44px;
-  padding: 0 14px;
-  font-size: 14px;
-}
 
-/* The bar at the top. */
-.ftg-bar {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  min-height: 48px;
-}
-.ftg-title {
-  flex: 1;
-  min-width: 0;
-  margin: 0;
-  padding-inline-start: 4px;
-  font-size: 22px;
-  font-weight: 750;
-}
+/* The score, in the toolbar's title. */
 .ftg-score {
-  flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -383,12 +343,9 @@
   flex-wrap: nowrap;
   margin: 0;
 }
-.ftg-result-card .ftg-pill {
+.ftg-result-card .ftg-send {
   flex: 1;
   min-width: 0;
-}
-.ftg-result-card .ftg-btn {
-  background: var(--surface-2);
 }
 .ftg-players {
   display: flex;
@@ -506,7 +463,7 @@
   margin-top: 10px;
   width: 100%;
 }
-.ftg-card .ftg-actions .ftg-pill {
+.ftg-card .ftg-actions ion-button {
   flex: 1 1 100%;
 }
 .ftg-big {
@@ -563,31 +520,13 @@
   background: var(--primary);
   color: var(--on-primary);
 }
-.ftg-banner.prompt .ftg-pill {
-  background: var(--on-primary);
-  color: var(--primary);
+.ftg-banner.prompt ion-button {
+  --background: var(--on-primary);
+  --color: var(--primary);
 }
-.ftg-banner.prompt .ftg-pill.quiet {
-  background: transparent;
-  color: var(--on-primary);
-  box-shadow: inset 0 0 0 1px currentColor;
-}
-
-/* A question asked inside the plugin: the frame has no confirm(). */
-.ftg-dialog {
-  position: fixed;
-  inset: 0;
-  z-index: 10;
-  display: grid;
-  place-items: center;
-  padding: 16px;
-  background: var(--shade-scrim);
-}
-.ftg-dialog .ftg-card {
-  gap: 10px;
-}
-.ftg-dialog .ftg-actions .ftg-pill {
-  flex: 1 1 0;
+.ftg-banner.prompt ion-button.quiet {
+  --background: transparent;
+  --color: var(--on-primary);
 }
 
 /* A tablet, or a phone on its side: the board, and everything else beside it. */

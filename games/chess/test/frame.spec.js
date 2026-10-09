@@ -39,14 +39,16 @@ const check = async (name, run) => {
 
 /** The harness with both phones open, everything the frames do on the console and the network kept. */
 async function open(options) {
-  const context = await browser.newContext({ viewport: { width: 840, height: 860 }, ...options });
+  // A Samsung S20+ (384 × 853), the same for the harness's phone and the screen, so the kit fits the
+  // room the phone shows, as in the app.
+  const context = await browser.newContext({ viewport: { width: 840, height: 900 }, screen: { width: 384, height: 853 }, ...options });
   await context.addInitScript(WATCH);
   const page = await context.newPage();
   const log = { errors: [], requests: [] };
   page.on("console", (message) => ["error", "warning"].includes(message.type()) && log.errors.push(message.text()));
   page.on("pageerror", (error) => log.errors.push(`pageerror: ${error.message}`));
   page.on("request", (request) => log.requests.push(request.url()));
-  await page.goto(`${base}/?game=chess&lang=en`);
+  await page.goto(`${base}/?game=chess&lang=en&screen=384x853`);
   const frames = {};
   for (const side of ["a", "b"]) {
     await page.waitForFunction((id) => document.getElementById(`frame-${id}`), side);
@@ -104,7 +106,8 @@ async function mouseDrag(page, frame, uci) {
 }
 
 function cleanNetwork(log) {
-  const allowed = new Set(["/", ...["a", "b"].flatMap((side) => ["frame.html", "frame.js", "dist/index.js"].map((file) => `/frame/chess/${side}/${file}`))]);
+  // The package's own files, and Ionic, which the app lends the frame (app 1.6.0).
+  const allowed = new Set(["/", ...["a", "b"].flatMap((side) => ["frame.html", "frame.js", "ionic/ionic.css", "ionic/ionic.js", "dist/index.js"].map((file) => `/frame/chess/${side}/${file}`))]);
   return log.requests.filter((url) => !url.startsWith(base) || !allowed.has(new URL(url).pathname));
 }
 

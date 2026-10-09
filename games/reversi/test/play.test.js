@@ -3,7 +3,7 @@
 // that goes with the next hello, and a resignation that ends the round and sends the result.
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { fromBase64 } from "../../../kit/src/envelope.js";
-import { phones, settle } from "../../../kit/test/helpers.js";
+import { phones, settle, within } from "../../../kit/test/helpers.js";
 import "../src/index.js";
 
 const tick = () => settle([...document.querySelectorAll("ft-reversi")].map((element) => element.table));
@@ -22,7 +22,7 @@ async function phone(core, opening = {}) {
 }
 
 async function touch(element, target) {
-  const node = typeof target === "number" ? cell(element, target) : element.querySelector(target);
+  const node = typeof target === "number" ? cell(element, target) : within(element, target);
   if (!node) throw new Error(`nothing to touch: ${target}`);
   node.click();
   await tick();

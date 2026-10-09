@@ -2,10 +2,10 @@
 // between two phones from the coin to the result, the confirmations inside the plugin, the honest
 // messages, the language and the colours. The toy game and its toy board stand in for a real one.
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { defineGame } from "../src/index.js";
-import { FRAME_START, PENDING_GRACE_MS } from "../src/shell.js";
+import { KIT_TEXTS, defineGame } from "../src/index.js";
+import { FRAME_START, PENDING_GRACE_MS, whenDrawn } from "../src/shell.js";
 import { FLASH_MS } from "../src/toast.js";
-import { fakeCore, phones, settle, toy } from "./helpers.js";
+import { fakeCore, phones, settle, toy, within, words } from "./helpers.js";
 
 /** A board with three buttons, one per toy move; it counts how often it was built and told. */
 const built = { mounts: 0, updates: 0, destroyed: 0 };
@@ -56,12 +56,16 @@ async function phone(core, opening = {}) {
 }
 
 const press = async (element, selector) => {
-  const target = element.querySelector(selector);
+  const target = within(element, selector);
   if (!target) throw new Error(`nothing matches ${selector}`);
   target.click();
   await tick();
 };
-const text = (element) => element.textContent.replace(/\s+/g, " ");
+const text = (element) => words(element).replace(/\s+/g, " ");
+/** What the user reads now: the page, and the question asked over it (Ionic's alert, in the frame's body). */
+const shown = (element) => `${text(element)} ${text(element.alert)}`;
+/** A button's name for screen readers: Ionic hands it to the native button inside its own. */
+const nameOf = (node) => node.getAttribute("aria-label") ?? node.shadowRoot?.querySelector("button")?.getAttribute("aria-label") ?? null;
 /** What the toast at the top says (its words, without the icon), when the frame draws it (an app without `ft.notify`). */
 const toastText = (element) => {
   const node = element.querySelector(".ftg-toast");
@@ -143,7 +147,7 @@ describe("the list", () => {
     const core = fakeCore();
     const element = await phone(core);
     expect(text(element)).toContain("No matches yet");
-    expect(element.querySelector('[data-kit="new"]').getAttribute("aria-label")).toBe("New match");
+    expect(nameOf(element.querySelector('[data-kit="new"]'))).toBe("New match");
     expect(core.sent).toEqual([]);
   });
 
@@ -177,7 +181,7 @@ describe("the list", () => {
     await press(element, '[data-kit="back"]');
     expect(element.querySelectorAll(".ftg-row")).toHaveLength(1);
     await press(element, '[data-kit="delete"]');
-    expect(text(element)).toContain("Delete this match? It is gone from this phone for good.");
+    expect(shown(element)).toContain("Delete this match? It is gone from this phone for good.");
     await press(element, '[data-kit="no"]');
     expect(core.records.size).toBe(1);
     await press(element, '[data-kit="delete"]');
@@ -284,7 +288,7 @@ describe("a match between two phones", () => {
     await press(one, '[data-kit="new"]');
     await tick();
     await press(one, '[data-kit="resign"]');
-    expect(text(one)).toContain("Resign this round? The other person wins it.");
+    expect(shown(one)).toContain("Resign this round? The other person wins it.");
     await press(one, '[data-kit="no"]');
     expect(one.table.view.phase).toBe("play");
     await press(one, '[data-kit="resign"]');
@@ -608,7 +612,7 @@ describe("what the user is told: a toast at the top, the board never moves", () 
 describe("the look", () => {
   it("speaks the phone's language, runs right to left in Arabic, and paints dark when the app is dark", async () => {
     const es = await phone(fakeCore(), { lang: "es" });
-    expect(es.querySelector('[data-kit="new"]').getAttribute("aria-label")).toBe("Nueva partida");
+    expect(nameOf(es.querySelector('[data-kit="new"]'))).toBe("Nueva partida");
     expect(es.querySelector(".ftg").getAttribute("dir")).toBe("ltr");
     document.body.innerHTML = "";
     const ar = await phone(fakeCore(), { lang: "ar", dark: true });
@@ -658,10 +662,175 @@ describe("the look", () => {
   it("gives every button a name in the user's language and a finger-sized target", async () => {
     const element = await phone(fakeCore(), { lang: "fr" });
     await press(element, '[data-kit="new"]');
-    for (const button of element.querySelectorAll("button[data-kit]")) {
-      expect(button.getAttribute("aria-label") || button.textContent.trim(), button.outerHTML).toBeTruthy();
+    for (const button of element.querySelectorAll("[data-kit]")) {
+      expect(nameOf(button) || text(button).trim(), button.outerHTML).toBeTruthy();
     }
-    expect(element.querySelector('[data-kit="resign"]').getAttribute("aria-label")).toBe("Abandonner");
+    expect(nameOf(element.querySelector('[data-kit="resign"]'))).toBe("Abandonner");
     expect(document.head.querySelector("style[data-ftg]").textContent).toMatch(/min-height:\s*44px/);
+  });
+});
+
+describe("Ionic's structure, lent by the app", () => {
+  const ionic = (node) => [...node.children].map((one) => one.localName).filter((name) => name.startsWith("ion-"));
+
+  it("lays the list out as a page: a header with its toolbar, then the content, and no footer", async () => {
+    const element = await phone(fakeCore());
+    const root = element.querySelector(".ftg");
+    expect(ionic(root)).toEqual(["ion-header", "ion-content"]);
+    const toolbar = root.querySelector(":scope > ion-header > ion-toolbar");
+    expect(text(toolbar.querySelector(":scope > ion-title"))).toBe("Matches");
+    expect(nameOf(toolbar.querySelector(':scope > ion-buttons > ion-button[data-kit="new"]'))).toBe("New match");
+    const content = root.querySelector(":scope > ion-content");
+    expect(content.getAttribute("scroll-y")).toBe("false");
+    expect(content.querySelector(".ftg-empty")).not.toBeNull();
+    expect(element.querySelector("ion-footer")).toBeNull();
+  });
+
+  it("lays a match out the same way: the way back, the score and the actions in the toolbar, the board in the content", async () => {
+    const { a, b } = phones();
+    const one = await phone(a);
+    await phone(b);
+    await press(one, '[data-kit="new"]');
+    await tick();
+    const root = one.querySelector(".ftg");
+    expect(ionic(root)).toEqual(["ion-header", "ion-content"]);
+    const toolbar = root.querySelector(":scope > ion-header > ion-toolbar.ftg-bar");
+    expect(toolbar.querySelector(':scope > ion-buttons[slot="start"] > ion-button[data-kit="back"]')).not.toBeNull();
+    expect(toolbar.querySelector(":scope > ion-title .ftg-score")).not.toBeNull();
+    expect(toolbar.querySelector(':scope > ion-buttons[slot="end"] > ion-button[data-kit="resign"]')).not.toBeNull();
+    const content = root.querySelector(":scope > ion-content");
+    expect(content.getAttribute("scroll-y")).toBe("false");
+    const main = content.querySelector(":scope > .ftg-main");
+    for (const part of ["players", "result", "stage"]) expect(main.querySelector(`:scope > [data-part="${part}"]`), part).not.toBeNull();
+    expect(main.querySelector('[data-part="stage"] > [data-part="board"]').getAttribute("dir")).toBe("ltr");
+    expect(one.querySelector("ion-footer")).toBeNull();
+  });
+
+  it("draws every action as Ionic's button; the one hand-made button left opens a match from the list", async () => {
+    const { a, b } = phones();
+    const one = await phone(a);
+    const two = await phone(b);
+    await press(one, '[data-kit="new"]');
+    await tick();
+    const [first] = one.table.view.myTurn ? [one, two] : [two, one];
+    await press(first, '[data-move="w"]');
+    await tick();
+    const kinds = (element) => [...element.querySelectorAll(".ftg [data-kit]")].map((node) => `${node.localName}:${node.dataset.kit}`);
+    // The result: send and another round, besides the bar.
+    expect(kinds(first)).toEqual(expect.arrayContaining(["ion-button:back", "ion-button:resign", "ion-button:send", "ion-button:again"]));
+    await press(first, '[data-kit="back"]');
+    for (const kind of kinds(first)) expect(kind, kind).toMatch(/^ion-button:|^button:enter$/);
+    expect(kinds(first)).toEqual(expect.arrayContaining(["ion-button:new", "button:enter", "ion-button:delete"]));
+  });
+
+  it("keeps the toolbar and its buttons across repaints, so nothing flashes while a match goes on", async () => {
+    const { a, b } = phones();
+    const one = await phone(a);
+    const two = await phone(b);
+    await press(one, '[data-kit="new"]');
+    await tick();
+    const [first] = one.table.view.myTurn ? [one, two] : [two, one];
+    // The same nodes, not only alike: a node drawn again is a frame without it.
+    const same = (element, selectors) => {
+      const kept = selectors.map((selector) => element.querySelector(selector));
+      for (const node of kept) expect(node).not.toBeNull();
+      return () => selectors.forEach((selector, at) => expect(element.querySelector(selector) === kept[at], selector).toBe(true));
+    };
+    const still = same(first, ["ion-header", "ion-toolbar", "ion-content", '[data-kit="back"]', '[data-kit="resign"]']);
+    await press(first, '[data-move="p"]');
+    await tick();
+    first.table.notice = { key: "badMove" };
+    first.paint();
+    still();
+    // The resignation is still there, only not playable on the other side's turn.
+    expect(first.querySelector('[data-kit="resign"]').disabled).toBe(false);
+    await press(first, '[data-kit="back"]');
+    const listed = same(first, ["ion-toolbar", '[data-kit="new"]', "ion-content"]);
+    first.paint();
+    listed();
+  });
+
+  it("asks with Ionic's alert, in the user's language and direction", async () => {
+    const element = await phone(fakeCore(), { lang: "ar" });
+    await press(element, '[data-kit="new"]');
+    await press(element, '[data-kit="back"]');
+    await press(element, '[data-kit="delete"]');
+    // Shown by Ionic over the page, in the frame's body; one question at a time.
+    const alert = document.querySelector("ion-alert");
+    expect(alert).not.toBeNull();
+    expect(document.querySelectorAll("ion-alert")).toHaveLength(1);
+    await press(element, '[data-kit="no"]');
+    await press(element, '[data-kit="delete"]');
+    expect(document.querySelectorAll("ion-alert")).toHaveLength(1);
+    expect(element.alert).toBe(document.querySelector("ion-alert"));
+    expect(alert.getAttribute("dir")).toBe("rtl");
+    expect(alert.message).toBe(KIT_TEXTS.ar.confirmDelete);
+    expect(alert.buttons.map((one) => [one.role, one.htmlAttributes["data-kit"]])).toEqual([["cancel", "no"], ["destructive", "yes"]]);
+    expect(element.querySelector(".ftg-dialog")).toBeNull();
+  });
+
+  it("waits for Ionic to have drawn the page (Stencil marks a drawn component hydrated) before the first screen", async () => {
+    customElements.define("ft-stand-in", class extends HTMLElement {});
+    const one = document.createElement("ft-stand-in");
+    const two = document.createElement("ft-stand-in");
+    const plain = document.createElement("ft-not-registered");
+    document.body.append(one, two, plain);
+    let done = false;
+    const waiting = whenDrawn([one, two, plain]).then(() => (done = true));
+    one.classList.add("hydrated");
+    await Promise.resolve();
+    expect(done).toBe(false);
+    two.classList.add("hydrated");
+    await waiting;
+    expect(done).toBe(true);
+    // Nothing to wait for: what is drawn, and what no one will draw (Ionic not lent).
+    await whenDrawn([one, plain]);
+    // And the shell's own page, with Ionic lent: drawn before the first screen is.
+    const element = await phone(fakeCore());
+    for (const node of element.querySelectorAll(".ftg > ion-header, .ftg > ion-content")) expect(node.classList.contains("hydrated")).toBe(true);
+    expect(element.querySelector(".ftg-empty")).not.toBeNull();
+    expect(built.mounts).toBe(0);
+    await press(element, '[data-kit="new"]');
+    expect(built.mounts).toBe(1);
+  });
+
+  it("mounts the board at its size: what is around it is drawn and the board fitted first", async () => {
+    const seen = [];
+    const mount = toyBoard.mount;
+    toyBoard.mount = (host, ctx) => {
+      const root = host.closest(".ftg");
+      seen.push({ board: root.style.getPropertyValue("--ftg-board"), players: root.querySelector('[data-part="players"]').children.length });
+      return mount(host, ctx);
+    };
+    try {
+      const one = await phone(fakeCore());
+      await press(one, '[data-kit="new"]');
+      expect(seen).toHaveLength(1);
+      expect(seen[0].board).toMatch(/^\d+px$/);
+      expect(seen[0].players).toBe(2);
+    } finally {
+      toyBoard.mount = mount;
+    }
+  });
+
+  it("keeps the kit's box sizing inside Ionic's content, whose slot would hand down the browser's", () => {
+    const css = document.head.querySelector("style[data-ftg]").textContent.replace(/\/\*[\s\S]*?\*\//g, "");
+    expect(css).toMatch(/\.ftg\s*>\s*ion-content\s*>\s*\*\s*\{[^}]*box-sizing:\s*border-box/);
+  });
+
+  it("gives the content the height of what it holds, so the frame still follows its content", async () => {
+    const measured = HTMLElement.prototype.getBoundingClientRect;
+    const spy = vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockImplementation(function () {
+      const rect = measured.call(this);
+      return this.classList.contains("ftg-main") || this.classList.contains("ftg-body") ? { ...rect, height: 432, bottom: rect.top + 432 } : rect;
+    });
+    try {
+      const element = await phone(fakeCore());
+      expect(element.querySelector("ion-content").style.height).toBe("432px");
+      await press(element, '[data-kit="new"]');
+      expect(element.querySelector("ion-content").style.height).toBe("432px");
+    } finally {
+      spy.mockRestore();
+    }
   });
 });
