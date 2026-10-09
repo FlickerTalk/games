@@ -3,7 +3,7 @@
 // with no connection that goes with the next hello, a whole round, and a resignation.
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { fromBase64 } from "../../../kit/src/envelope.js";
-import { phones, settle } from "../../../kit/test/helpers.js";
+import { phones, settle, within } from "../../../kit/test/helpers.js";
 import "../src/index.js";
 
 const tick = () => settle([...document.querySelectorAll("ft-backgammon")].map((element) => element.table));
@@ -20,7 +20,7 @@ async function phone(core, opening = {}) {
 }
 
 async function touch(element, selector) {
-  const node = element.querySelector(selector);
+  const node = within(element, selector);
   if (!node) throw new Error(`nothing to touch: ${selector}`);
   node.click();
   await tick();

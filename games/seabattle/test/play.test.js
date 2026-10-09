@@ -3,7 +3,7 @@
 // with no connection that goes with the next hello, a whole round to its end, and a resignation.
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { fromBase64 } from "../../../kit/src/envelope.js";
-import { phones, settle } from "../../../kit/test/helpers.js";
+import { phones, settle, within } from "../../../kit/test/helpers.js";
 import { DEFAULT_FLEET, shipCells } from "../src/rules.js";
 import "../src/index.js";
 
@@ -22,7 +22,7 @@ async function phone(core, opening = {}) {
 }
 
 async function touch(element, target) {
-  const node = typeof target === "number" ? cell(element, target) : element.querySelector(target);
+  const node = typeof target === "number" ? cell(element, target) : within(element, target);
   if (!node) throw new Error(`nothing to touch: ${target}`);
   node.click();
   await tick();

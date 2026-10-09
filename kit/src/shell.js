@@ -1,9 +1,13 @@
 // The shell every game shares (README, "The shell"): the list of matches kept on this phone, a
 // match with whose turn it is, the honest messages, the result and the way to the chat. It is
 // drawn in the light DOM — a frame holds one game and nothing else — so a board that needs the
-// document (an SVG sprite, a library's own markup) finds it. The board is built once per match
-// and told of every change; everything around it is drawn again. What the user is told goes to
-// one toast at the top (toast.js), never into the page, so nothing above the board ever moves.
+// document (an SVG sprite, a library's own markup) finds it. It is laid out as an Ionic page with
+// the components the app lends the frame (app 1.6.0): `ion-header` with its `ion-toolbar`, then
+// `ion-content`, both made once and kept while the game is open; each screen fills them, and what
+// changes is patched, so an Ionic component is never drawn again for nothing (a component drawn
+// again is a frame without it). The board is built once per match and told of every change. What
+// the user is told goes to one toast at the top (toast.js), never into the page, so nothing above
+// the board ever moves; a question is Ionic's alert.
 
 import STYLE from "./style.css";
 import { KIT_TEXTS, direction, joinTexts, translator } from "./i18n.js";
@@ -17,6 +21,20 @@ const escape = (text) =>
 
 /** The text with the controls it names drawn in it: `{invite}`, the app's mail button. */
 const withIcons = (text) => escape(text).replace(/\{invite\}/g, icon("mail-outline"));
+
+/** An icon in one of an Ionic button's slots (`icon-only`, `start`). */
+const slotted = (drawn, slot) => drawn.replace("<svg ", `<svg slot="${slot}" `);
+
+/** An Ionic button: the kit's action, its name for screen readers, and what it draws. */
+const ionButton = (act, name, inside, attributes = "") =>
+  `<ion-button data-kit="${act}" aria-label="${escape(name)}" title="${escape(name)}"${attributes ? ` ${attributes}` : ""}>${inside}</ion-button>`;
+
+/** A button's name, said again only when it changed (the language may change on a new opening). */
+function label(node, name) {
+  if (!node) return;
+  if (node.getAttribute("aria-label") !== name) node.setAttribute("aria-label", name);
+  if (node.getAttribute("title") !== name) node.setAttribute("title", name);
+}
 
 /** A note for the toast (toast.js): the plain text, and what the frame's own toast draws. */
 const note = (drawn, text, warn = false) => ({ text: text.replace(/\s*\{invite\}/g, ""), html: withIcons(text), icon: drawn, warn });
@@ -95,6 +113,8 @@ export function elementFor(game) {
   return class GameElement extends HTMLElement {
     disconnectedCallback() {
       clearTimeout(this.pendingTimer);
+      this.sizes?.disconnect();
+      this.ask(null);
       this.pendingSince = null;
       this.watch?.disconnect();
       this.toast?.clear();
@@ -120,7 +140,11 @@ export function elementFor(game) {
       this.asking = null;
       this.shown = null;
       this.board = null;
+      this.drawn = new WeakMap();
       this.style.display = "block";
+      // What Ionic draws a moment later (its components), and anything else that changes size
+      // inside the page, fits the board and the content again.
+      this.sizes = globalThis.ResizeObserver ? new ResizeObserver(() => this.fitBoard()) : null;
       addEventListener("resize", () => this.fitBoard());
       this.root = document.createElement("div");
       this.root.className = "ftg";
@@ -158,18 +182,48 @@ export function elementFor(game) {
       else if (act === "fork-theirs") table.pickFork("theirs");
       else if (act === "delete") this.ask({ kind: "delete", id });
       else if (act === "resign") this.ask({ kind: "resign" });
-      else if (act === "no") this.ask(null);
-      else if (act === "yes") {
-        const asked = this.asking;
-        this.ask(null);
-        if (asked?.kind === "delete") table.remove(asked.id);
-        if (asked?.kind === "resign") table.resign();
-      }
     }
 
+    /**
+     * A question inside the plugin (the frame has no confirm()): Ionic's alert, in the user's
+     * language and direction, beside the page so no repaint takes it away. `null` takes it away.
+     */
     ask(question) {
       this.asking = question;
-      this.paint();
+      // The last alert, gone or going (in a page that cannot animate, it would stay).
+      this.asked?.remove();
+      this.alert = null;
+      if (!question) return;
+      const t = this.t;
+      const [message, yes] = question.kind === "delete" ? [t("confirmDelete"), t("delete")] : [t("confirmResign"), t("resign")];
+      const alert = document.createElement("ion-alert");
+      alert.setAttribute("dir", direction(this.lang));
+      alert.setAttribute("lang", this.lang);
+      alert.message = message;
+      alert.buttons = [
+        { text: t("cancel"), role: "cancel", htmlAttributes: { "data-kit": "no" } },
+        { text: yes, role: "destructive", htmlAttributes: { "data-kit": "yes" } },
+      ];
+      // What the user chose, as the alert starts to go; a tap beside it is a "no".
+      alert.addEventListener("ionAlertWillDismiss", (event) => {
+        if (this.alert !== alert) return;
+        this.alert = null;
+        this.asking = null;
+        if (event.detail?.role !== "destructive") return;
+        if (question.kind === "delete") this.table.remove(question.id);
+        if (question.kind === "resign") this.table.resign();
+      });
+      this.alert = alert;
+      this.asked = alert;
+      this.append(alert);
+      alert.present?.();
+    }
+
+    /** Puts `html` in `node`, only when it is not what was put there last. */
+    set(node, html) {
+      if (!node || this.drawn.get(node) === html) return;
+      this.drawn.set(node, html);
+      node.innerHTML = html;
     }
 
     // ---- Drawing ----
@@ -198,40 +252,81 @@ export function elementFor(game) {
       root.setAttribute("lang", this.lang);
       root.toggleAttribute("data-dark", table.dark);
       this.retheme();
+      this.page();
       const shown = table.screen === "match" && table.record ? `match:${table.record.id}` : "list";
       if (shown !== this.shown) this.letBoardGo();
       if (shown === "list") {
+        if (shown !== this.shown) this.listScreen();
         this.shown = shown;
-        root.innerHTML = this.listHtml() + this.dialogHtml();
-        this.toast.attach(root);
+        this.paintList();
         this.tell(null);
+        this.fitBoard();
         return;
       }
       const seen = table.view;
       if (shown !== this.shown) {
         this.shown = shown;
-        root.innerHTML = `<header class="ftg-bar" data-part="bar"></header>
-<div class="ftg-main">
-  <div class="ftg-players" data-part="players"></div>
-  <div class="ftg-result" data-part="result"></div>
-  <div class="ftg-stage" data-part="stage"><div class="ftg-board" data-part="board" dir="ltr"></div><div class="ftg-overlay" data-part="overlay"></div></div>
-</div>
-<div data-part="dialog"></div>`;
-        this.toast.attach(root);
+        this.matchScreen();
         this.board = game.board.mount(root.querySelector('[data-part="board"]'), this.boardContext(seen));
       } else {
         this.board?.update?.(this.boardContext(seen));
       }
       const part = (name) => root.querySelector(`[data-part="${name}"]`);
-      part("bar").innerHTML = this.barHtml(seen);
-      part("players").innerHTML = this.playersHtml(seen);
+      this.paintBar(seen);
+      this.set(part("players"), this.playersHtml(seen));
       this.tell(seen);
       // Waiting for a person, the board is ready in its own colours, only not playable; an ended match is dimmed.
       part("stage").classList.toggle("dim", ["ended", "broken"].includes(seen.phase));
-      part("overlay").innerHTML = this.overlayHtml(seen);
-      part("result").innerHTML = this.resultHtml(seen);
-      part("dialog").innerHTML = this.dialogHtml();
+      this.set(part("overlay"), this.overlayHtml(seen));
+      this.set(part("result"), this.resultHtml(seen));
       this.fitBoard();
+    }
+
+    /**
+     * The page, once the game is open: Ionic's header with its toolbar, then the content, which
+     * does not scroll (the page fits the room, see `fitBoard`). Both stay while the game is open.
+     */
+    page() {
+      const root = this.root;
+      if (this.content?.parentNode === root) return;
+      root.innerHTML = '<ion-header><ion-toolbar class="ftg-bar" data-part="bar"></ion-toolbar></ion-header><ion-content scroll-y="false" data-part="content"></ion-content>';
+      this.toast.attach(root);
+      this.bar = root.querySelector('[data-part="bar"]');
+      this.content = root.querySelector('[data-part="content"]');
+      this.shown = null;
+      this.sizes?.observe(root.firstElementChild);
+    }
+
+    /** What a screen holds in the content: one wrapper, whose height the content takes. */
+    fill(html) {
+      this.content.innerHTML = html;
+      this.sizes?.observe(this.content.firstElementChild);
+    }
+
+    /** The list: its name and a new match in the toolbar, the matches in the content. */
+    listScreen() {
+      this.bar.innerHTML = `<ion-title class="ftg-title" data-part="title"></ion-title><ion-buttons slot="end">${ionButton("new", this.t("newMatch"), slotted(icon("add-outline"), "icon-only"))}</ion-buttons>`;
+      this.fill('<div class="ftg-body" data-part="body"></div>');
+    }
+
+    paintList() {
+      const t = this.t;
+      this.set(this.bar.querySelector('[data-part="title"]'), escape(t("matches")));
+      const add = this.bar.querySelector('[data-kit="new"]');
+      label(add, t("newMatch"));
+      add.toggleAttribute("disabled", !this.table.live);
+      this.set(this.content.querySelector('[data-part="body"]'), this.listHtml());
+    }
+
+    /** A match: the way back, the score and the actions in the toolbar; players, result and board in the content. */
+    matchScreen() {
+      const t = this.t;
+      this.bar.innerHTML = `<ion-buttons slot="start">${ionButton("back", t("back"), slotted(icon("chevron-back-outline", "ftg-flip"), "icon-only"))}</ion-buttons><ion-title><div class="ftg-score" data-part="score" role="img"></div></ion-title><ion-buttons slot="end" data-part="actions">${ionButton("resign", t("resign"), slotted(icon("flag-outline"), "icon-only"))}</ion-buttons>`;
+      this.fill(`<div class="ftg-main" data-part="main">
+  <div class="ftg-players" data-part="players"></div>
+  <div class="ftg-result" data-part="result"></div>
+  <div class="ftg-stage" data-part="stage"><div class="ftg-board" data-part="board" dir="ltr"></div><div class="ftg-overlay" data-part="overlay"></div></div>
+</div>`);
     }
 
     /** Whether the app gave its colours, and whether its secondary-text colour reads (README, "Colours"). */
@@ -264,14 +359,12 @@ export function elementFor(game) {
       const t = this.t;
       const table = this.table;
       const newLabel = escape(t("newMatch"));
-      const disabled = table.live ? "" : "disabled";
-      // The app's own bar already shows the game's name: here, the matches and a new one.
-      let html = `<header class="ftg-bar"><h1 class="ftg-title">${escape(t("matches"))}</h1><button class="ftg-btn primary" data-kit="new" aria-label="${newLabel}" title="${newLabel}" ${disabled}>${icon("add-outline")}</button></header>`;
-      html += this.promptHtml("banner");
+      // The app's own bar already shows the game's name; the toolbar, the matches and a new one.
+      let html = this.promptHtml("banner");
       if (!table.live) html += `<p class="ftg-hint">${icon("chatbubble-outline")} ${escape(t("needsChat", { game: t("name") }))}</p>`;
       if (!table.matches.length) {
         html += `<div class="ftg-empty"><div class="ftg-hero" aria-hidden="true">${icon("game-controller-outline")}</div><p>${escape(t("noMatches"))}</p>${
-          table.live ? `<button class="ftg-pill primary" data-kit="new">${icon("add-outline")} ${newLabel}</button>` : ""
+          table.live ? `<ion-button data-kit="new" shape="round">${slotted(icon("add-outline"), "start")}${newLabel}</ion-button>` : ""
         }</div>`;
         return html;
       }
@@ -281,7 +374,7 @@ export function elementFor(game) {
         const [state, label] = this.rowState(seen);
         const score = `${this.number(seen.score.me)}–${this.number(seen.score.them)}`;
         const meta = [label, t("started", { date: day.format(new Date(record.created)) })].filter(Boolean).join(" · ");
-        html += `<li class="ftg-row${seen.myTurn ? " mine" : ""}"><button class="ftg-row-open" data-kit="enter" data-id="${escape(record.id)}" aria-label="${escape(`${meta} · ${t("score")} ${score}`)}"><span class="ftg-row-icon" aria-hidden="true">${icon(state)}</span><span class="ftg-row-text"><span class="ftg-row-score">${escape(score)}</span><span class="ftg-row-meta">${escape(meta)}</span></span></button><button class="ftg-btn" data-kit="delete" data-id="${escape(record.id)}" aria-label="${escape(t("delete"))}" title="${escape(t("delete"))}">${icon("trash-outline")}</button></li>`;
+        html += `<li class="ftg-row${seen.myTurn ? " mine" : ""}"><button class="ftg-row-open" data-kit="enter" data-id="${escape(record.id)}" aria-label="${escape(`${meta} · ${t("score")} ${score}`)}"><span class="ftg-row-icon" aria-hidden="true">${icon(state)}</span><span class="ftg-row-text"><span class="ftg-row-score">${escape(score)}</span><span class="ftg-row-meta">${escape(meta)}</span></span></button>${ionButton("delete", t("delete"), slotted(icon("trash-outline"), "icon-only"), `data-id="${escape(record.id)}" fill="clear" color="medium"`)}</li>`;
       }
       return `${html}</ul>`;
     }
@@ -295,15 +388,29 @@ export function elementFor(game) {
       return ["hourglass-outline", ""];
     }
 
-    barHtml(seen) {
+    /** The toolbar of a match: its buttons stay, only what they say and whether they work change. */
+    paintBar(seen) {
       const t = this.t;
+      const bar = this.bar;
       const can = this.table.live && seen.phase === "play" && !seen.fork;
-      const score = `<span class="me">${this.number(seen.score.me)}</span><span class="dash">–</span><span class="them">${this.number(seen.score.them)}</span>`;
-      // "Try again" when one more hello may help: in the bar, which is always as tall.
-      const retry = this.table.live && RETRY.includes(this.table.notice?.key)
-        ? `<button class="ftg-btn" data-kit="retry" aria-label="${escape(t("retry"))}" title="${escape(t("retry"))}">${icon("refresh-outline")}</button>`
-        : "";
-      return `<button class="ftg-btn" data-kit="back" aria-label="${escape(t("back"))}" title="${escape(t("back"))}">${icon("chevron-back-outline", "ftg-flip")}</button><div class="ftg-score" role="img" aria-label="${escape(`${t("score")} ${seen.score.me}–${seen.score.them}`)}">${score}</div>${retry}<button class="ftg-btn" data-kit="resign" aria-label="${escape(t("resign"))}" title="${escape(t("resign"))}" ${can ? "" : "disabled"}>${icon("flag-outline")}</button>`;
+      label(bar.querySelector('[data-kit="back"]'), t("back"));
+      const score = bar.querySelector('[data-part="score"]');
+      this.set(score, `<span class="me">${this.number(seen.score.me)}</span><span class="dash">–</span><span class="them">${this.number(seen.score.them)}</span>`);
+      score.setAttribute("aria-label", `${t("score")} ${seen.score.me}–${seen.score.them}`);
+      const resign = bar.querySelector('[data-kit="resign"]');
+      label(resign, t("resign"));
+      resign.toggleAttribute("disabled", !can);
+      // "Try again" when one more hello may help: in the toolbar, which is always as tall.
+      const retrying = this.table.live && RETRY.includes(this.table.notice?.key);
+      let retry = bar.querySelector('[data-kit="retry"]');
+      if (retrying && !retry) {
+        bar.querySelector('[data-part="actions"]').insertAdjacentHTML("afterbegin", ionButton("retry", t("retry"), slotted(icon("refresh-outline"), "icon-only")));
+        retry = bar.querySelector('[data-kit="retry"]');
+      } else if (!retrying && retry) {
+        retry.remove();
+        retry = null;
+      }
+      label(retry, t("retry"));
     }
 
     playersHtml(seen) {
@@ -328,16 +435,24 @@ export function elementFor(game) {
     fitBoard() {
       const root = this.root;
       const stage = root.querySelector('[data-part="stage"]');
-      if (!stage) return;
+      if (!stage) {
+        this.sizeContent();
+        return;
+      }
       if (globalThis.matchMedia?.("(min-width: 720px)").matches) {
         // A tablet: the board beside everything else, as tall as the room under the kit's top bar.
         root.removeAttribute("data-compact");
         root.style.setProperty("--ftg-board", `${Math.max(240, roomHeight() - 72)}px`);
+        this.sizeContent();
         return;
       }
-      const width = stage.parentElement.clientWidth;
+      const main = stage.parentElement;
+      const content = this.content;
+      const width = main.clientWidth;
       const room = roomHeight();
-      const left = () => room - (root.getBoundingClientRect().height - stage.getBoundingClientRect().height);
+      // Everything but the board: the page around the content, and the content around the board.
+      const height = (node) => node.getBoundingClientRect().height;
+      const left = () => room - (height(root) - height(content) + height(main) - height(stage));
       const playing = this.table.view?.phase === "play";
       const least = playing ? (game.minBoard ?? 200) : 120;
       root.removeAttribute("data-compact");
@@ -345,6 +460,18 @@ export function elementFor(game) {
       if (left() < Math.min(least, width)) root.setAttribute("data-compact", "");
       const board = Math.floor(Math.max(Math.min(width, left()), Math.min(least, width)));
       root.style.setProperty("--ftg-board", `${board}px`);
+      this.sizeContent();
+    }
+
+    /**
+     * Ionic's content has no height of its own (it is made to fill a page of a known height): it
+     * takes that of what it holds, so the frame, as tall as its content, keeps following it.
+     */
+    sizeContent() {
+      const inner = this.content?.firstElementChild;
+      if (!inner) return;
+      const height = `${Math.ceil(inner.getBoundingClientRect().height)}px`;
+      if (this.content.style.height !== height) this.content.style.height = height;
     }
 
     /**
@@ -437,7 +564,7 @@ export function elementFor(game) {
     /** Two phones that parted ways cannot play on until the user picks: the choice is always there. */
     forkHtml() {
       const t = this.t;
-      return `<div class="ftg-card" role="alert"><div class="ftg-big" aria-hidden="true">${icon("git-branch-outline")}</div><p>${escape(t("fork"))}</p><div class="ftg-actions"><button class="ftg-pill" data-kit="fork-mine">${escape(t("forkMine"))}</button><button class="ftg-pill" data-kit="fork-theirs">${escape(t("forkTheirs"))}</button></div></div>`;
+      return `<div class="ftg-card" role="alert"><div class="ftg-big" aria-hidden="true">${icon("git-branch-outline")}</div><p>${escape(t("fork"))}</p><div class="ftg-actions"><ion-button data-kit="fork-mine" fill="outline">${escape(t("forkMine"))}</ion-button><ion-button data-kit="fork-theirs" fill="outline">${escape(t("forkTheirs"))}</ion-button></div></div>`;
     }
 
     phaseHtml(seen) {
@@ -478,9 +605,9 @@ export function elementFor(game) {
       if (seen.phase !== "over") return "";
       const { title, how } = this.outcome(seen);
       const again = this.table.live
-        ? `<button class="ftg-btn" data-kit="again" aria-label="${escape(t("again"))}" title="${escape(t("again"))}">${icon("repeat-outline")}</button>`
+        ? ionButton("again", t("again"), slotted(icon("repeat-outline"), "icon-only"), 'class="ftg-again" fill="outline" shape="round"')
         : "";
-      return `<div class="ftg-result-card" role="group" aria-label="${escape(how ? `${title} · ${how}` : title)}"><div class="ftg-actions"><button class="ftg-pill primary" data-kit="send">${icon("send-outline")} ${escape(t("sendResult"))}</button>${again}</div></div>`;
+      return `<div class="ftg-result-card" role="group" aria-label="${escape(how ? `${title} · ${how}` : title)}"><div class="ftg-actions"><ion-button class="ftg-send" data-kit="send" shape="round">${slotted(icon("send-outline"), "start")}${escape(t("sendResult"))}</ion-button>${again}</div></div>`;
     }
 
     /** The other person started or is in another match: a banner on the list, a card over a board. */
@@ -490,17 +617,9 @@ export function elementFor(game) {
       if (!prompt) return "";
       const text = prompt.kind === "invited" ? t("invited") : t("elsewhere");
       const go = prompt.kind === "invited" ? t("join") : t("open");
-      const buttons = `<button class="ftg-pill small" data-kit="join">${escape(go)}</button><button class="ftg-pill small quiet" data-kit="dismiss">${escape(t("dismiss"))}</button>`;
+      const buttons = `<ion-button data-kit="join" shape="round">${escape(go)}</ion-button><ion-button class="quiet" data-kit="dismiss" fill="clear">${escape(t("dismiss"))}</ion-button>`;
       if (kind === "card") return `<div class="ftg-card prompt" role="alert"><div class="ftg-big" aria-hidden="true">${icon("enter-outline")}</div><p>${escape(text)}</p><div class="ftg-actions">${buttons}</div></div>`;
       return `<div class="ftg-banner prompt" role="alert"><span class="icon" aria-hidden="true">${icon("enter-outline")}</span><span class="say">${escape(text)}</span>${buttons}</div>`;
-    }
-
-    dialogHtml() {
-      const t = this.t;
-      if (!this.asking) return "";
-      const [question, yes] = this.asking.kind === "delete" ? [t("confirmDelete"), t("delete")] : [t("confirmResign"), t("resign")];
-      const drawn = this.asking.kind === "delete" ? "trash-outline" : "flag-outline";
-      return `<div class="ftg-dialog"><div class="ftg-card" role="alertdialog" aria-modal="true" aria-label="${escape(question)}"><div class="ftg-big" aria-hidden="true">${icon(drawn)}</div><p>${escape(question)}</p><div class="ftg-actions"><button class="ftg-pill" data-kit="no">${escape(t("cancel"))}</button><button class="ftg-pill danger" data-kit="yes">${escape(yes)}</button></div></div></div>`;
     }
   };
 }

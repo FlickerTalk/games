@@ -7,7 +7,7 @@ import { Chess } from "chess.js";
 import { Chessboard } from "cm-chessboard/src/Chessboard.js";
 import { KV, PROTOCOL, fromBase64, seal } from "../../../kit/src/envelope.js";
 import { MATCH_LIMIT } from "../../../kit/src/table.js";
-import { fakeCore, phones, settle } from "../../../kit/test/helpers.js";
+import { fakeCore, phones, settle, within } from "../../../kit/test/helpers.js";
 import { initial, play, result, turn } from "../src/rules.js";
 import "../src/index.js";
 
@@ -33,7 +33,7 @@ async function phone(core, opening = {}) {
 }
 
 async function touch(element, selector) {
-  const node = element.querySelector(selector);
+  const node = within(element, selector);
   if (!node) throw new Error(`nothing to touch: ${selector}`);
   node.click();
   await tick();

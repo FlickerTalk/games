@@ -98,6 +98,29 @@ export async function settle(tables, rounds = 12) {
   }
 }
 
+/**
+ * What a phone's game shows that a test can touch: its page, and its question (Ionic moves an
+ * alert to the frame's body when it shows it, out of the game's element).
+ */
+export function within(element, selector) {
+  return element.querySelector(selector) ?? element.alert?.querySelector(selector) ?? null;
+}
+
+/** The DOM's own `childNodes`, which Stencil does not replace. */
+const CHILDREN = (globalThis.Node && Object.getOwnPropertyDescriptor(Node.prototype, "childNodes")?.get) ?? function () {
+  return this.childNodes;
+};
+
+/**
+ * The words on the screen, from the text itself: Stencil gives some of Ionic's components a
+ * `textContent` and `childNodes` of their own that leave out what they hold until they have drawn.
+ */
+export function words(node) {
+  if (!node) return "";
+  if (node.nodeType === 3) return node.data;
+  return [...CHILDREN.call(node)].map(words).join("");
+}
+
 /** The checks every game package passes: what `module.json` says. */
 export function checkManifest(dir, { id, name, component }) {
   const manifest = JSON.parse(readFileSync(join(dir, "module.json"), "utf8"));

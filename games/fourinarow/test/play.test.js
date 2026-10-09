@@ -4,7 +4,7 @@
 // the other phone claims.
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { KV, PROTOCOL, fromBase64, seal } from "../../../kit/src/envelope.js";
-import { fakeCore, phones, settle } from "../../../kit/test/helpers.js";
+import { fakeCore, phones, settle, within } from "../../../kit/test/helpers.js";
 import "../src/index.js";
 
 const tick = () => settle([...document.querySelectorAll("ft-fourinarow")].map((element) => element.table));
@@ -27,7 +27,7 @@ async function phone(core, opening = {}) {
 }
 
 async function touch(element, target) {
-  const node = typeof target === "number" ? column(element, target) : element.querySelector(target);
+  const node = typeof target === "number" ? column(element, target) : within(element, target);
   if (!node) throw new Error(`nothing to touch: ${target}`);
   node.click();
   await tick();
