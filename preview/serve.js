@@ -4,8 +4,10 @@
 // the game closed or the connection is off), `say` into a mock composer. Nothing of the app is
 // copied: the bridge below is written from the Plugin API (plugin-sdk, MIT); the policy string is
 // the one the core builds for a plugin without network, with this server's origin. Like the app
-// (1.6.0), it lends Ionic to the frame: `ionic.bundle.css` and Ionic's components, from the
-// @ionic/core the app pins (a development dependency here), before the game's module runs.
+// (1.6.0), it lends Ionic to the frame, before the game's module runs: `ionic/ionic.css` (Ionic's
+// stylesheet but for structure.css's body rules, so a frame sized by its content keeps following
+// it) and `ionic/ionic.js` (Ionic's components), from the @ionic/core the app pins (a development
+// dependency here). The app's theme derivation is not reproduced: the harness gives the nine colours.
 import { build } from "esbuild";
 import { existsSync, readFileSync, statSync } from "node:fs";
 import { createServer } from "node:http";
@@ -25,12 +27,12 @@ export function policy(origin) {
 /** The frame document: the game's component and the bridge, as the app's frame has them. */
 function frameHtml(component) {
   return `<!doctype html>
-<html lang="en">
+<html lang="en" data-ionic="${IONIC}">
 <head>
 <meta charset="utf-8">
 <style>html{color-scheme:light dark}html,body{margin:0;padding:0;background:transparent}</style>
-<link rel="stylesheet" href="./ft-ionic/ionic.bundle.css">
-<script type="module" src="./ft-ionic/ionic.js"></script>
+<link rel="stylesheet" href="./ionic/ionic.css">
+<script type="module" src="./ionic/ionic.js"></script>
 <script type="module" src="./frame.js"></script>
 </head>
 <body>
@@ -80,10 +82,8 @@ globalThis.ft = {
   close: () => post({ type: "ft.close" }),
 };
 await import("./dist/index.js");
-// How tall the game is: its element's bottom. Ionic's stylesheet makes the body as tall as the
-// frame (structure.css), so the body would never say less than the frame already is.
-const view = document.getElementById("view");
-const tell = () => post({ type: "ft.height", height: Math.ceil(view.getBoundingClientRect().bottom + scrollY) });
+// How tall the game is, as the app measures it: the bottom of the body.
+const tell = () => post({ type: "ft.height", height: Math.ceil(document.body.getBoundingClientRect().bottom + scrollY) });
 /** The app's colours on the root, as the app's frame sets them: Ionic's variables and data-dark. */
 const THEMED = ["--ion-background-color", "--ion-text-color", "--ion-color-medium", "--ion-item-background", "--ion-border-color", "--ion-color-primary", "--ion-color-primary-contrast", "--ion-color-success", "--ion-color-danger"];
 const theme = (vars, dark) => {
@@ -114,14 +114,27 @@ addEventListener("message", (event) => {
 });
 const sizes = new ResizeObserver(tell);
 sizes.observe(document.documentElement);
-sizes.observe(view);
+sizes.observe(document.body);
 post({ type: "ft.ready" });
 `;
 
 /** The components the app lends a frame, at least those the kit draws with (kit/test/ionic.js). */
 const LENT = ["ion-alert", "ion-button", "ion-buttons", "ion-content", "ion-header", "ion-title", "ion-toolbar"];
 
-/** What the app serves a frame as `ft-ionic/ionic.js`: Ionic set up, its components registered. */
+const IONIC_CSS = join(root, "node_modules", "@ionic", "core", "css");
+/** The version of Ionic lent, as the frame's root says it (`data-ionic`). */
+const IONIC = JSON.parse(readFileSync(join(root, "node_modules", "@ionic", "core", "package.json"), "utf8")).version;
+
+/** What the app serves a frame as `ionic/ionic.css`: ionic.bundle.css's parts but structure.css,
+ *  of which only its first rule (border-box, no tap highlight) is kept. */
+function ionicCss() {
+  const read = (name) => readFileSync(join(IONIC_CSS, `${name}.css`), "utf8").replace(/\/\*# sourceMappingURL=[^*]*\*\/\s*$/, "").trim();
+  const first = /^\*\{[^}]*\}/.exec(read("structure"));
+  if (!first) throw new Error("structure.css no longer starts with its * rule");
+  return [...["normalize", "core", "typography", "display", "padding", "float-elements", "text-alignment", "text-transformation", "flex-utils"].map(read), first[0]].join("\n");
+}
+
+/** What the app serves a frame as `ionic/ionic.js`: Ionic set up, its components registered. */
 let lender = null;
 function ionicLender() {
   lender ??= build({
@@ -160,8 +173,8 @@ async function route(url, origin) {
   const file = match[3];
   if (file === "frame.html") return framed(frameHtml(JSON.parse(readFileSync(join(dir, "module.json"), "utf8")).components[0]), TYPES[".html"]);
   if (file === "frame.js") return framed(BRIDGE, TYPES[".js"]);
-  if (file === "ft-ionic/ionic.js") return framed(await ionicLender(), TYPES[".js"]);
-  if (file === "ft-ionic/ionic.bundle.css") return framed(readFileSync(join(root, "node_modules", "@ionic", "core", "css", "ionic.bundle.css")), TYPES[".css"]);
+  if (file === "ionic/ionic.js") return framed(await ionicLender(), TYPES[".js"]);
+  if (file === "ionic/ionic.css") return framed(ionicCss(), TYPES[".css"]);
   if (!file.startsWith("dist/")) return null;
   const dist = join(dir, "dist");
   const target = normalize(join(dir, file));

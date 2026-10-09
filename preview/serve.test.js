@@ -46,12 +46,13 @@ describe("the review harness", () => {
 
   it("lends Ionic to the frame as the app does: its stylesheet and components before the game's module", async () => {
     const html = await (await fetch(`${base}/frame/tictactoe/a/frame.html`)).text();
-    const css = html.indexOf('href="./ft-ionic/ionic.bundle.css"');
-    const lender = html.indexOf('src="./ft-ionic/ionic.js"');
+    expect(html).toMatch(/<html lang="en" data-ionic="9\.0\.4">/);
+    const css = html.indexOf('href="./ionic/ionic.css"');
+    const lender = html.indexOf('src="./ionic/ionic.js"');
     expect(css).toBeGreaterThan(0);
     expect(lender).toBeGreaterThan(css);
     expect(html.indexOf('src="./frame.js"')).toBeGreaterThan(lender);
-    const script = await fetch(`${base}/frame/tictactoe/a/ft-ionic/ionic.js`);
+    const script = await fetch(`${base}/frame/tictactoe/a/ionic/ionic.js`);
     expect(script.status).toBe(200);
     expect(script.headers.get("content-type")).toContain("javascript");
     expect(script.headers.get("content-security-policy")).toBe(policy(base));
@@ -59,12 +60,14 @@ describe("the review harness", () => {
     for (const tag of ["ion-alert", "ion-button", "ion-buttons", "ion-content", "ion-header", "ion-title", "ion-toolbar"]) expect(code, tag).toContain(tag);
     // Nothing the frame's policy refuses.
     expect(code).not.toMatch(/\beval\(|new Function\(|\bimport\(/);
-    const sheet = await fetch(`${base}/frame/tictactoe/a/ft-ionic/ionic.bundle.css`);
+    // Ionic's stylesheet but for structure.css's body rules (its first rule stays): a frame sized
+    // by its content, as the game room's is, keeps growing and shrinking with it.
+    const sheet = await fetch(`${base}/frame/tictactoe/a/ionic/ionic.css`);
     expect(sheet.headers.get("content-type")).toContain("text/css");
-    expect(await sheet.text()).toContain("ion-color-primary");
-    // The frame says how tall the game is, whatever Ionic's stylesheet does to the body.
-    const bridge = await (await fetch(`${base}/frame/tictactoe/a/frame.js`)).text();
-    expect(bridge).toContain('document.getElementById("view")');
+    const rules = await sheet.text();
+    expect(rules).toContain("ion-color-primary");
+    expect(rules).not.toMatch(/body\s*\{[^}]*position:\s*fixed/);
+    expect(rules).toMatch(/\*\s*\{[^}]*box-sizing:\s*border-box/);
   });
 
   it("serves the host page, and nothing outside a game's dist/", async () => {

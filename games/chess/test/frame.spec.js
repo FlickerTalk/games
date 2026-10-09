@@ -40,8 +40,7 @@ const check = async (name, run) => {
 /** The harness with both phones open, everything the frames do on the console and the network kept. */
 async function open(options) {
   // A Samsung S20+ (384 × 853), the same for the harness's phone and the screen, so the kit fits the
-  // room the phone shows, as in the app: with Ionic's stylesheet the frame's body is fixed, and
-  // nothing scrolls a square into view.
+  // room the phone shows, as in the app.
   const context = await browser.newContext({ viewport: { width: 840, height: 900 }, screen: { width: 384, height: 853 }, ...options });
   await context.addInitScript(WATCH);
   const page = await context.newPage();
@@ -108,7 +107,7 @@ async function mouseDrag(page, frame, uci) {
 
 function cleanNetwork(log) {
   // The package's own files, and Ionic, which the app lends the frame (app 1.6.0).
-  const allowed = new Set(["/", ...["a", "b"].flatMap((side) => ["frame.html", "frame.js", "ft-ionic/ionic.bundle.css", "ft-ionic/ionic.js", "dist/index.js"].map((file) => `/frame/chess/${side}/${file}`))]);
+  const allowed = new Set(["/", ...["a", "b"].flatMap((side) => ["frame.html", "frame.js", "ionic/ionic.css", "ionic/ionic.js", "dist/index.js"].map((file) => `/frame/chess/${side}/${file}`))]);
   return log.requests.filter((url) => !url.startsWith(base) || !allowed.has(new URL(url).pathname));
 }
 
