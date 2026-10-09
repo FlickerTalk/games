@@ -1,6 +1,6 @@
 // What the kit's tests and every game's tests share: a toy game, a fake core (one phone's `ft`),
 // two fake cores wired together as two phones in one conversation, and the checks every package
-// must pass (manifest, size, nothing loaded from outside, the 21 languages).
+// must pass (manifest, size, nothing loaded from outside, no Ionic inside, the 21 languages).
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { extname, join } from "node:path";
 import { expect, vi } from "vitest";
@@ -128,7 +128,8 @@ export function checkManifest(dir, { id, name, component }) {
     id,
     name,
     version: expect.stringMatching(/^\d+\.\d+\.\d+$/),
-    minCoreVersion: "1.3.0",
+    // The core that lends Ionic to the frame (app 1.6.0): the kit draws with its components.
+    minCoreVersion: "1.6.0",
     kind: "game",
     // The Ionicon the app's Apps grid shows (plugin-sdk's module.schema.json).
     icon: expect.stringMatching(/^[a-z0-9-]+$/),
@@ -204,6 +205,11 @@ export function checkDist(dir, { cap }) {
   expect(notices).toContain(`## Ionicons ${JSON.parse(readFileSync(join(ionicons, "package.json"), "utf8")).version}`);
   expect(squash(notices)).toContain(squash(readFileSync(join(ionicons, "LICENSE"), "utf8")));
   expect(total).toBeLessThan(cap);
+  // Ionic is the app's, lent to the frame: a package never carries a copy of it.
+  const code = readFileSync(join(dist, "index.js"), "utf8");
+  for (const mark of ["@ionic/core", "@stencil/core", "proxyCustomElement", "defineCustomElement", "ionicframework", "ion-ripple-effect"]) {
+    expect(code.includes(mark), `${mark} in ${dist}`).toBe(false);
+  }
   for (const path of files) {
     if (path.endsWith(`/${NOTICES}`)) continue;
     expect(LOADED, path).toContain(extname(path));

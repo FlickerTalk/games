@@ -13,9 +13,9 @@ import { TEXTS } from "../src/texts.js";
 const dir = join(import.meta.dirname, "..");
 
 describe("the Tic-Tac-Toe package", () => {
-  it("says it is a game that needs the core 1.3.0, the live channel and sending, and nothing else", () => {
+  it("says it is a game that needs the core 1.6.0, the live channel and sending, and nothing else", () => {
     const manifest = checkManifest(dir, { id: "com.flickertalk.game.tictactoe", name: "Tic-Tac-Toe", component: "ft-tictactoe" });
-    expect(manifest.version).toBe("1.0.3");
+    expect(manifest.version).toBe("1.0.4");
   });
 
   it("names and describes itself in the app's other 20 languages, the name its own title there", () => {
