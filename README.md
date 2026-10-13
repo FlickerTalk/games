@@ -110,8 +110,9 @@ and deterministic.
 On a phone the game lives in the conversation's room, between the app's game bar and its composer,
 and the whole page fits it without scrolling: everything else of a state (bar, chips, the result's
 actions) is laid out above the board, and the board, square, takes what is left of the room. What
-the user is told (whose turn it is, how a round ended, a notice) is never laid out: it is one toast
-at the top, floating, so nothing above the board ever moves (see "Notices"). The room is the screen's height less the app's chrome, `ROOM_CHROME` in
+the user is told (whose turn it is, how a round ended, a notice) is one line in a band of its own
+under the bar, always as tall, so nothing above the board ever moves and nothing covers the bar (see
+"Notices"). The room is the screen's height less the app's chrome, `ROOM_CHROME` in
 `kit/src/shell.js` (297 px, measured on a Samsung S20+): the one number to change when the app's
 room changes. When even the game's `minBoard` does not fit, the players' chips go first. A board
 must draw inside the square it is given, whatever its size. `npm run room` checks every game in
@@ -121,11 +122,11 @@ every state on a 384×853 and a 360×740 phone, in German and Spanish.
 `@ionic/core`'s components and its stylesheet but for `structure.css`'s body rules, loaded before the
 game's module; the root says `data-ionic`, `mode`, `dir` and `lang`), and the kit draws with it: an
 `ion-header` with its `ion-toolbar` (the list's title and a new match; in a match the way back, the
-score and the actions), then an `ion-content` that does not scroll and holds the players, the result
-and the board. The kit's actions are `ion-button`s and its one question (delete a match, resign a
+score and the actions) and a second toolbar under it, the band where the user is told things, then
+an `ion-content` that does not scroll and holds the players, the result and the board. The kit's actions are `ion-button`s and its one question (delete a match, resign a
 round) is an `ion-alert`, which Ionic shows over the page in the frame's body. In the game room the
 frame is as tall as its content, so an overlay is placed within it: the kit keeps the alert for what
-the user must answer, and says everything else through the app's toast (`ft.notify`). Header, toolbar and
+the user must answer, and says everything else in its band under the bar. Header, toolbars and
 content are made once and patched, so an Ionic component is never drawn again for nothing. Ionic's
 content has no height of its own: the kit gives it that of what it holds, so the frame, as tall as its
 content, still follows it. A package never carries Ionic (each game's package test checks its `dist/`);
@@ -159,15 +160,17 @@ screen readers (the button's translated label says what it does). A board marks 
 | `result` | When the round has ended by the rules: `{ k: "rules", winner, result }`; else `null`. |
 | `t(key, vars)`, `lang` | The texts, in the user's language; numbers and dates through `Intl`. |
 | `view` | Everything the shell knows (phase, rounds, score…), for boards that need more. |
-| `notify(text)` | Tell the user something that passes (a word refused, a seed lost): the kit's toast at the top, gone after a few seconds. Never draw such a line inside the board, where it would move the rest. |
+| `notify(text)` | Tell the user something that passes (a word refused, a seed lost): the kit's line under the bar, gone after a few seconds. Never draw such a line inside the board, where it would move the rest. |
 
-**Notices.** One toast at a time, at the top: a new one takes the last one's place. The standing line
-(whose turn it is, why nothing can be played, how a round ended) stays for as long as it holds; a
-notice or a board's `notify` passes after four seconds, then the standing line comes back; the end
-of a round cuts a passing one short. In an app with the Plugin API's `ft.notify(text, { sticky })`
-(app 1.4.1) the app draws it, an `ion-toast`, and the kit sends an empty text to take a standing one
-away; in an older app the kit draws it in the frame (`role="status"`, `aria-live="polite"`), in a
-band at the top kept from the first paint and always as tall (`--ftg-band`). "Try again" is a button
+**Notices.** One line at a time, in a band of its own right under the bar: a new one takes the last
+one's place. The standing line (whose turn it is, why nothing can be played, how a round ended) stays
+for as long as it holds; a notice or a board's `notify` passes after four seconds, then the standing
+line comes back; the end of a round cuts a passing one short. The kit draws it in the frame on every
+app (`role="status"`, `aria-live="polite"`): the band is a second `ion-toolbar` in the header, there
+from the first screen on and always as tall (`--ftg-band`), and it takes no taps. It never hands the
+text to the app's toast (the Plugin API's `ft.notify`, app 1.4.1): that one floats over the top of
+the frame, which is where the bar is, and on Android it covered the way back and the resignation and
+took their taps. "Try again" is a button
 in the toolbar; a choice that has to be made (two phones that parted ways, a match the other person
 started) is a card over the board; a question before something that cannot be undone is Ionic's alert.
 
@@ -394,6 +397,8 @@ package's contents. So:
   patch for every game: `1.0.1` for the ten games first published at `1.0.0`, `1.0.2` for the first three.
 - The kit in Ionic's page (core 1.6.0) is one more patch for every game: `1.0.3` for the ten, `1.0.4` for
   the first three.
+- The notices in their band under the bar, instead of the app's toast over it, are one more patch for
+  every game: `1.0.4` for the ten, `1.0.5` for the first three.
 
 ## Preview
 

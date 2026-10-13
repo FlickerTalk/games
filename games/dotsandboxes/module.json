@@ -1,7 +1,7 @@
 {
   "id": "com.flickertalk.game.dotsandboxes",
   "name": "Dots and Boxes",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "minCoreVersion": "1.6.0",
   "kind": "game",
   "icon": "square-outline",

@@ -3,7 +3,7 @@
 // messages, the language and the colours. The toy game and its toy board stand in for a real one.
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { KIT_TEXTS, defineGame } from "../src/index.js";
-import { FRAME_START, PENDING_GRACE_MS, whenDrawn } from "../src/shell.js";
+import { FRAME_START, PENDING_GRACE_MS, ROOM_CHROME, whenDrawn } from "../src/shell.js";
 import { FLASH_MS } from "../src/toast.js";
 import { fakeCore, phones, settle, toy, within, words } from "./helpers.js";
 
@@ -66,7 +66,7 @@ const text = (element) => words(element).replace(/\s+/g, " ");
 const shown = (element) => `${text(element)} ${text(element.alert)}`;
 /** A button's name for screen readers: Ionic hands it to the native button inside its own. */
 const nameOf = (node) => node.getAttribute("aria-label") ?? node.shadowRoot?.querySelector("button")?.getAttribute("aria-label") ?? null;
-/** What the toast at the top says (its words, without the icon), when the frame draws it (an app without `ft.notify`). */
+/** What the line under the bar says (its words, without the icon). */
 const toastText = (element) => {
   const node = element.querySelector(".ftg-toast");
   return node && !node.hidden ? text(node.querySelector(".say")).trim() : "";
@@ -415,13 +415,19 @@ describe("a match between two phones", () => {
   });
 });
 
-describe("what the user is told: a toast at the top, the board never moves", () => {
-  /** Everything laid out above the board, as it is drawn: what would push the board down. */
+describe("what the user is told: one line in a band under the bar, the board never moves", () => {
+  /**
+   * Everything laid out above the board, as it is drawn: what would push the board down. The words
+   * of the line under the bar are left out: they change inside a band that is always as tall (its
+   * own test checks that).
+   */
   const above = (element) => {
     const stage = element.querySelector(".ftg-stage");
     const flow = [];
     for (let node = stage; node && node !== element.querySelector(".ftg"); node = node.parentElement) {
-      for (let before = node.previousElementSibling; before; before = before.previousElementSibling) flow.push(before.outerHTML);
+      for (let before = node.previousElementSibling; before; before = before.previousElementSibling) {
+        flow.push(before.outerHTML.replace(/<div class="ftg-toast[\s\S]*?<\/div>/g, ""));
+      }
     }
     return flow;
   };
@@ -434,25 +440,44 @@ describe("what the user is told: a toast at the top, the board never moves", () 
   const css = () => document.head.querySelector("style[data-ftg]").textContent.replace(/\/\*[\s\S]*?\*\//g, "").replace(/\s+/g, " ");
   const rule = (selector) => ` }${css()}`.match(new RegExp(`\\}\\s*${selector.replace(/[.[\]]/g, "\\$&")} \\{([^}]*)\\}`))?.[1] ?? "";
 
-  it("floats the toast over the page from a band kept at the top since the first paint, always as tall", async () => {
-    const core = fakeCore();
-    const element = document.createElement("ft-toy");
-    element.ft = core.ft;
-    document.body.append(element);
-    const root = element.querySelector(".ftg");
-    // Before the app opens the game, the band is already there.
-    expect(root.hasAttribute("data-band")).toBe(true);
-    expect(rule(".ftg")).toMatch(/position: relative/);
-    expect(rule(".ftg")).toMatch(/--ftg-band: \d+px/);
-    expect(rule(".ftg[data-band]")).toMatch(/padding-top: calc\(var\(--ftg-band\)/);
-    expect(rule(".ftg-toast")).toMatch(/position: absolute/);
-    await core.open();
+  // Seen on the Samsung with app 1.6.0 (2026-10-13): the app's own toast (`ft.notify`) floats over
+  // the top of the frame, which is where the game's bar is; it stayed for the whole match and took the
+  // taps, so the way back and the resignation could not be reached. The kit draws the line itself, in
+  // the flow, under the bar: the same on every phone, whatever the app offers.
+  it("says it in a band of its own right under the game's bar, always as tall, and never over the bar", async () => {
+    const { a, b } = phones();
+    a.ft.notify = vi.fn();
+    b.ft.notify = vi.fn();
+    const one = await phone(a);
+    const two = await phone(b);
+    const band = (element) => element.querySelector(".ftg > ion-header > ion-toolbar.ftg-bar + ion-toolbar.ftg-notice");
+    // From the first screen on, before there is anything to say: the band never comes or goes.
+    expect(band(one)).not.toBeNull();
+    expect(one.querySelector(".ftg").hasAttribute("data-band")).toBe(false);
+    await press(one, '[data-kit="new"]');
     await tick();
-    expect(root.hasAttribute("data-band")).toBe(true);
-    // The toast is the root's own child, out of what is laid out above the board.
-    await press(element, '[data-kit="new"]');
-    expect(element.querySelector(".ftg-toast").parentElement).toBe(root);
-    expect(element.querySelector(".ftg-main .ftg-toast, .ftg-status, .ftg-hint-under, .ftg-banners")).toBeNull();
+    const [first, second] = one.table.view.myTurn ? [one, two] : [two, one];
+    expect(first.querySelectorAll(".ftg-toast")).toHaveLength(1);
+    expect(first.querySelector(".ftg-toast").parentElement).toBe(band(first));
+    expect(toastText(first)).toBe("The coin says you start");
+    expect(toastText(second)).toBe("The coin says they start");
+    first.table.notice = { key: "badMove" };
+    first.paint();
+    expect(toastText(first)).toContain("breaks the rules");
+    await press(first, '[data-kit="back"]');
+    expect(a.ft.notify).not.toHaveBeenCalled();
+    expect(b.ft.notify).not.toHaveBeenCalled();
+    // Laid out, not floating: as tall whatever it says, and it takes no taps.
+    expect(rule(".ftg-notice")).toMatch(/height: var\(--ftg-band\)/);
+    expect(rule(".ftg-notice")).toMatch(/pointer-events: none/);
+    expect(rule(".ftg-toast")).toMatch(/pointer-events: none/);
+    expect(rule(".ftg-toast")).not.toMatch(/position: (absolute|fixed)/);
+    // Inside the band whatever its words: its own box sizing, not the one Ionic's slot hands down.
+    expect(rule(".ftg-toast")).toMatch(/box-sizing: border-box/);
+    expect(rule(".ftg-toast")).toMatch(/max-height: calc\(var\(--ftg-band\) - \d+px\)/);
+    expect(rule(".ftg")).toMatch(/--ftg-band: \d+px/);
+    // And nothing else is laid out above the board to tell the user something.
+    expect(first.querySelector(".ftg-main .ftg-toast, .ftg-status, .ftg-hint-under, .ftg-banners")).toBeNull();
   });
 
   it("shows a notice without changing anything above the board", async () => {
@@ -556,32 +581,6 @@ describe("what the user is told: a toast at the top, the board never moves", () 
     expect(toastText(first)).not.toContain("has not reached");
     await vi.advanceTimersByTimeAsync(200);
     expect(toastText(first)).toContain("Your move has not reached the other phone yet.");
-  });
-
-  it("hands every text to the app's own toast when it has one, and keeps no band for it", async () => {
-    const { a, b } = phones();
-    a.ft.notify = vi.fn();
-    b.ft.notify = vi.fn();
-    const one = await phone(a);
-    const two = await phone(b);
-    expect(one.querySelector(".ftg").hasAttribute("data-band")).toBe(false);
-    await press(one, '[data-kit="new"]');
-    await tick();
-    const [first, second] = one.table.view.myTurn ? [one, two] : [two, one];
-    expect(first.ft.notify).toHaveBeenLastCalledWith("The coin says you start", { sticky: true });
-    expect(second.ft.notify).toHaveBeenLastCalledWith("The coin says they start", { sticky: true });
-    expect(one.querySelector(".ftg-toast")).toBeNull();
-    // A notice goes to the app too, and nothing above the board moves.
-    const before = above(first);
-    first.table.notice = { key: "badMove" };
-    first.paint();
-    expect(first.ft.notify).toHaveBeenLastCalledWith("The other phone sent a move that breaks the rules. It was not applied.", { sticky: false });
-    expect(above(first)).toEqual(before);
-    vi.advanceTimersByTime(FLASH_MS);
-    expect(first.ft.notify).toHaveBeenLastCalledWith("The coin says you start", { sticky: true });
-    // Leaving the match takes the standing text away.
-    await press(first, '[data-kit="back"]');
-    expect(first.ft.notify).toHaveBeenLastCalledWith("", { sticky: false });
   });
 
   it("never hides the end of a round behind a passing notice", async () => {
@@ -816,6 +815,24 @@ describe("Ionic's structure, lent by the app", () => {
   it("keeps the kit's box sizing inside Ionic's content, whose slot would hand down the browser's", () => {
     const css = document.head.querySelector("style[data-ftg]").textContent.replace(/\/\*[\s\S]*?\*\//g, "");
     expect(css).toMatch(/\.ftg\s*>\s*ion-content\s*>\s*\*\s*\{[^}]*box-sizing:\s*border-box/);
+  });
+
+  it("on a tablet, keeps the board as tall as the room under the bar and the band under it", async () => {
+    const wide = vi.spyOn(globalThis, "matchMedia").mockImplementation((query) => ({ matches: query === "(min-width: 720px)", media: query }));
+    const measured = HTMLElement.prototype.getBoundingClientRect;
+    const spy = vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockImplementation(function () {
+      const rect = measured.call(this);
+      return this.classList.contains("ftg-notice") ? { ...rect, height: 48, bottom: rect.top + 48 } : rect;
+    });
+    try {
+      const element = await phone(fakeCore());
+      await press(element, '[data-kit="new"]');
+      const room = (globalThis.screen?.height || 853) - ROOM_CHROME;
+      expect(element.querySelector(".ftg").style.getPropertyValue("--ftg-board")).toBe(`${Math.max(240, room - 72 - 48)}px`);
+    } finally {
+      spy.mockRestore();
+      wide.mockRestore();
+    }
   });
 
   it("gives the content the height of what it holds, so the frame still follows its content", async () => {

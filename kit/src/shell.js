@@ -6,8 +6,8 @@
 // `ion-content`, both made once and kept while the game is open; each screen fills them, and what
 // changes is patched, so an Ionic component is never drawn again for nothing (a component drawn
 // again is a frame without it). The board is built once per match and told of every change. What
-// the user is told goes to one toast at the top (toast.js), never into the page, so nothing above
-// the board ever moves; a question is Ionic's alert.
+// the user is told is one line in a band of its own under the bar (toast.js), always as tall, so it
+// never covers the bar and nothing above the board ever moves; a question is Ionic's alert.
 
 import STYLE from "./style.css";
 import { KIT_TEXTS, direction, joinTexts, translator } from "./i18n.js";
@@ -36,7 +36,7 @@ function label(node, name) {
   if (node.getAttribute("title") !== name) node.setAttribute("title", name);
 }
 
-/** A note for the toast (toast.js): the plain text, and what the frame's own toast draws. */
+/** A note for the line under the bar (toast.js): the plain text, and what the line draws. */
 const note = (drawn, text, warn = false) => ({ text: text.replace(/\s*\{invite\}/g, ""), html: withIcons(text), icon: drawn, warn });
 
 /** How each message looks: its icon, and whether it warns or only tells. */
@@ -167,10 +167,8 @@ export function elementFor(game) {
       this.root = document.createElement("div");
       this.root.className = "ftg";
       this.append(this.root);
-      // The app's own toast when it has one (`ft.notify`, app 1.4.1), otherwise one in the frame,
-      // floating in a band kept at the top from this first paint.
-      this.toast = new Toast({ ft });
-      this.toast.attach(this.root);
+      // What the user is told: one line, in the band under the bar (`page`).
+      this.toast = new Toast();
       this.told = "";
       // The app switches its theme on the frame's root while the game is open.
       this.watch = new MutationObserver(() => this.retheme());
@@ -262,7 +260,6 @@ export function elementFor(game) {
       if (!table.ready) {
         root.innerHTML = "";
         root.style.minHeight = `${FRAME_START}px`;
-        this.toast.attach(root);
         return;
       }
       root.setAttribute("dir", direction(this.lang));
@@ -315,14 +312,18 @@ export function elementFor(game) {
     }
 
     /**
-     * The page, once the game is open: Ionic's header with its toolbar, then the content, which
-     * does not scroll (the page fits the room, see `fitBoard`). Both stay while the game is open.
+     * The page, once the game is open: Ionic's header with its toolbar and, under it, the band where
+     * the user is told things (always there and always as tall, so nothing moves when a line comes or
+     * goes, and nothing is ever drawn over the bar), then the content, which does not scroll (the page
+     * fits the room, see `fitBoard`). All of it stays while the game is open.
      */
     page() {
       const root = this.root;
       if (this.content?.parentNode === root) return;
-      root.innerHTML = '<ion-header><ion-toolbar class="ftg-bar" data-part="bar"></ion-toolbar></ion-header><ion-content scroll-y="false" data-part="content"></ion-content>';
-      this.toast.attach(root);
+      root.innerHTML =
+        '<ion-header><ion-toolbar class="ftg-bar" data-part="bar"></ion-toolbar><ion-toolbar class="ftg-notice" data-part="notice"></ion-toolbar></ion-header><ion-content scroll-y="false" data-part="content"></ion-content>';
+      this.band = root.querySelector('[data-part="notice"]');
+      this.toast.attach(this.band);
       this.bar = root.querySelector('[data-part="bar"]');
       this.content = root.querySelector('[data-part="content"]');
       this.shown = null;
@@ -384,7 +385,7 @@ export function elementFor(game) {
         lang: this.lang,
         t: this.t,
         play: (move) => table.play(move),
-        // What the board has to say (a word refused, a seed lost): a passing notice at the top.
+        // What the board has to say (a word refused, a seed lost): a passing line under the bar.
         notify: (text) => this.toast.flash(text ? note(icon("information-circle-outline"), String(text)) : null),
       };
     }
@@ -474,9 +475,11 @@ export function elementFor(game) {
         return;
       }
       if (globalThis.matchMedia?.("(min-width: 720px)").matches) {
-        // A tablet: the board beside everything else, as tall as the room under the kit's top bar.
+        // A tablet: the board beside everything else, as tall as the room under the kit's top bar
+        // and the band under it.
+        const band = this.band?.getBoundingClientRect().height ?? 0;
         root.removeAttribute("data-compact");
-        root.style.setProperty("--ftg-board", `${Math.max(240, roomHeight() - 72)}px`);
+        root.style.setProperty("--ftg-board", `${Math.max(240, roomHeight() - 72 - band)}px`);
         this.sizeContent();
         return;
       }
@@ -509,8 +512,8 @@ export function elementFor(game) {
     }
 
     /**
-     * What the toast says: the standing line for as long as it holds, and each new notice in its
-     * place for a few seconds (toast.js). `seen` is null on the list, where nothing stands.
+     * What the line under the bar says: the standing line for as long as it holds, and each new
+     * notice in its place for a few seconds (toast.js). `seen` is null on the list, where nothing stands.
      */
     tell(seen) {
       // The end of a round goes first: whatever was passing gives way to it.
@@ -531,9 +534,8 @@ export function elementFor(game) {
       // Counted on every paint, whatever the line says, so an answer always starts the count again.
       const long = this.pendingLong(seen);
       if (!table.live) return note(icon("chatbubble-outline"), t("needsChat", { game: t("name") }));
-      // Waiting for the other phone: how to invite them (the app's mail button drawn in the
-      // sentence); the app's own toast cannot draw it, so there it says what the match waits for.
-      if (seen.phase === "invite" && !table.peerHere && !this.toast.native) return note(icon("person-outline"), t("howToInvite"));
+      // Waiting for the other phone: how to invite them (the app's mail button drawn in the sentence).
+      if (seen.phase === "invite" && !table.peerHere) return note(icon("person-outline"), t("howToInvite"));
       if (table.connecting && seen.phase !== "invite") return note(icon("radio-outline"), t("connecting"));
       if (seen.pending > 0 && seen.phase !== "ended" && long) return note(icon("time-outline"), t("pending", { game: t("name") }));
       return this.status(seen);
