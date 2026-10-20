@@ -80,7 +80,12 @@
     --fb-shade: rgba(0, 0, 0, 0.6);
   }
 }
-.ftg *,
+/* The kit's box sizing, for what the kit draws: Ionic's components keep Ionic's own. In `ios` mode
+   Ionic's title spans the whole toolbar, centred, with room for the buttons on either side, which
+   only holds with its own `border-box`; handed the browser's `content-box` by the toolbar's slot it
+   grew 180 px wider than the bar on the iPhone, its words off centre and the score into the buttons
+   (2026-10-20). `:where` keeps the rule as weak as `.ftg *` was. */
+.ftg :where(:not(ion-header, ion-toolbar, ion-title, ion-buttons, ion-button, ion-content)),
 .ftg *::before,
 .ftg *::after {
   box-sizing: inherit;

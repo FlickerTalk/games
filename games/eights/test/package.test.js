@@ -15,7 +15,7 @@ const dir = join(import.meta.dirname, "..");
 describe("the Crazy Eights package", () => {
   it("says it is a game that needs the core 1.6.0, the live channel and sending, and nothing else", () => {
     const manifest = checkManifest(dir, { id: "com.flickertalk.game.eights", name: "Crazy Eights", component: "ft-eights" });
-    expect(manifest.version).toBe("1.0.4");
+    expect(manifest.version).toBe("1.0.5");
     for (const brand of BRANDS) expect(`${manifest.name} ${manifest.summary}`).not.toMatch(brand);
   });
 

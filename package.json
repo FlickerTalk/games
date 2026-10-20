@@ -12,7 +12,8 @@
     "shots": "node preview/shots.js",
     "frame": "node games/chess/test/frame.spec.js",
     "theme": "node preview/theme.spec.js",
-    "room": "node preview/room.spec.js"
+    "room": "node preview/room.spec.js",
+    "bar": "node preview/bar.spec.js"
   },
   "devDependencies": {
     "@ionic/core": "9.0.4",

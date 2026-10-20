@@ -41,6 +41,7 @@ npm run licenses      # production dependencies must be MIT, BSD, Apache-2.0, IS
 npm run preview       # http://127.0.0.1:5178/?game=tictactoe  (&lang=ar, &dark, &layout=tablet)
 npm run shots         # screenshots of every game to /private/tmp/ftgames-shots/<game>/
 npm run frame         # chess in Chromium inside the preview's frame: pieces drawn, tap, drag, promotion, no network
+npm run bar           # the game's bar in Chromium and WebKit, in Ionic's md and ios modes: title and score inside it, clear of its buttons
 ```
 
 `dist/` is committed: after changing `src/` or the kit, run `npm run build` and commit what changed.
@@ -129,7 +130,10 @@ frame is as tall as its content, so an overlay is placed within it: the kit keep
 the user must answer, and says everything else in its band under the bar. Header, toolbars and
 content are made once and patched, so an Ionic component is never drawn again for nothing. Ionic's
 content has no height of its own: the kit gives it that of what it holds, so the frame, as tall as its
-content, still follows it. A package never carries Ionic (each game's package test checks its `dist/`);
+content, still follows it. Ionic's components keep Ionic's own box sizing: the kit's `box-sizing` rule
+reaches only what the kit draws. In `ios` mode (the iPhone) Ionic's title spans the whole toolbar,
+centred, with room for the buttons on either side, and that only holds with its own `border-box`;
+`npm run bar` checks the bar in both modes. A package never carries Ionic (each game's package test checks its `dist/`);
 the games ask for core 1.6.0, the first one that lends it. A board is not touched by any of this: it
 draws what it likes in its square, and its buttons are its own.
 
@@ -399,6 +403,8 @@ package's contents. So:
   the first three.
 - The notices in their band under the bar, instead of the app's toast over it, are one more patch for
   every game: `1.0.4` for the ten, `1.0.5` for the first three.
+- The bar's title centred on the iPhone (Ionic's title keeps its own box sizing) is one more patch for
+  every game: `1.0.5` for the ten, `1.0.6` for the first three.
 
 ## Preview
 
