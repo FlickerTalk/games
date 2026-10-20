@@ -817,6 +817,40 @@ describe("Ionic's structure, lent by the app", () => {
     expect(css).toMatch(/\.ftg\s*>\s*ion-content\s*>\s*\*\s*\{[^}]*box-sizing:\s*border-box/);
   });
 
+  // Seen on the iPhone 13 mini (app 1.6.0, Ionic in `ios` mode, 2026-10-20): the kit's box-sizing
+  // reset reached Ionic's title. In `ios` mode the title spans the whole toolbar and keeps 90 px for
+  // the buttons on each side, which only holds with its own `border-box`; handed the browser's
+  // `content-box` by the toolbar's slot, it was 180 px wider than the bar, so the list's title sat
+  // 90 px to the right and the score ran into the buttons. The kit sizes what it draws and leaves
+  // Ionic's components their own sizing. The layout itself is measured in real browsers by
+  // `npm run bar`: happy-dom does not cascade a shadow root's `:host` rules as browsers do.
+  it("leaves Ionic's components their own box sizing, on the list and in a match, in either of Ionic's modes", async () => {
+    // Every rule of the page's stylesheet that sizes boxes, those inside `@media` (and nested) too.
+    const sizing = (rules) => [...rules].flatMap((rule) => [...(rule.style?.boxSizing ? [rule] : []), ...sizing(rule.cssRules ?? [])]);
+    for (const mode of ["md", "ios"]) {
+      document.body.innerHTML = "";
+      const core = fakeCore();
+      const element = document.createElement("ft-toy");
+      element.ft = core.ft;
+      // Ionic takes the mode from the nearest `mode` attribute, as it finds it on the frame's root.
+      element.setAttribute("mode", mode);
+      document.body.append(element);
+      await core.open({});
+      await tick();
+      const kit = sizing(document.head.querySelector("style[data-ftg]").sheet.cssRules);
+      const reached = () =>
+        [...element.querySelectorAll(".ftg *")]
+          .filter((node) => node.localName.startsWith("ion-"))
+          .flatMap((node) => kit.filter((rule) => node.matches(rule.selectorText)).map((rule) => `${node.localName} <- ${rule.selectorText.replace(/\s+/g, " ")}`));
+      expect(kit.length).toBeGreaterThan(0);
+      expect(element.querySelector("ion-title").classList.contains(mode), mode).toBe(true);
+      expect(reached(), `${mode}, the list`).toEqual([]);
+      await press(element, '[data-kit="new"]');
+      expect(element.querySelector("ion-toolbar.ftg-bar > ion-title .ftg-score")).not.toBeNull();
+      expect(reached(), `${mode}, a match`).toEqual([]);
+    }
+  });
+
   it("on a tablet, keeps the board as tall as the room under the bar and the band under it", async () => {
     const wide = vi.spyOn(globalThis, "matchMedia").mockImplementation((query) => ({ matches: query === "(min-width: 720px)", media: query }));
     const measured = HTMLElement.prototype.getBoundingClientRect;

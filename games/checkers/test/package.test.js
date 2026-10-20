@@ -15,7 +15,7 @@ const dir = join(import.meta.dirname, "..");
 describe("the checkers package", () => {
   it("says it is a game that needs the core 1.6.0, the live channel and sending, and nothing else", () => {
     const manifest = checkManifest(dir, { id: "com.flickertalk.game.checkers", name: "Checkers", component: "ft-checkers" });
-    expect(manifest.version).toBe("1.0.4");
+    expect(manifest.version).toBe("1.0.5");
   });
 
   it("names and describes itself in the app's other 20 languages, the name its own title there", () => {

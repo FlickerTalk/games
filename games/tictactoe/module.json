@@ -1,7 +1,7 @@
 {
   "id": "com.flickertalk.game.tictactoe",
   "name": "Tic-Tac-Toe",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "minCoreVersion": "1.6.0",
   "kind": "game",
   "icon": "grid-outline",
