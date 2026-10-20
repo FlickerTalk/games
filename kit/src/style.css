@@ -41,8 +41,8 @@
   --side-0: color-mix(in srgb, var(--hue-side-0) 80%, var(--ink));
   --side-1: color-mix(in srgb, var(--hue-side-1) 80%, var(--ink));
   --shadow: 0 12px 32px var(--fb-shade);
-  /* The band at the top where the frame's own toast floats (toast.js), always as tall. */
-  --ftg-band: 44px;
+  /* The band under the bar where the user is told things (toast.js), always as tall. */
+  --ftg-band: 48px;
   position: relative;
   box-sizing: border-box;
   display: flex;
@@ -109,29 +109,35 @@
   white-space: nowrap;
 }
 
-/* What the user is told: one toast at the top, floating over the page so that nothing moves. The
-   app draws it when it can (ft.notify); otherwise the frame does, in a band kept from the first paint. */
-.ftg[data-band] {
-  padding-top: calc(var(--ftg-band) + 4px);
+/* What the user is told: one line in a band of its own, a second toolbar right under the bar, laid
+   out and always as tall, so nothing moves when it changes and nothing is ever drawn over the bar
+   (the app's own toast floated there and took the bar's taps on Android, 2026-10-13). The same in
+   both of Ionic's modes, and it takes no taps. */
+.ftg-notice {
+  --min-height: var(--ftg-band);
+  --padding-top: 0;
+  --padding-bottom: 0;
+  --padding-start: 8px;
+  --padding-end: 8px;
+  height: var(--ftg-band);
+  pointer-events: none;
 }
+/* Its own box sizing: in the toolbar's slot it would inherit the browser's, and outgrow the band. */
 .ftg-toast {
-  position: absolute;
-  z-index: 5;
-  inset-block-start: 2px;
-  inset-inline: 8px;
+  box-sizing: border-box;
   display: flex;
   align-items: center;
   gap: 8px;
   width: fit-content;
-  max-width: calc(100% - 16px);
-  min-height: calc(var(--ftg-band) - 4px);
+  max-width: 100%;
+  min-height: calc(var(--ftg-band) - 8px);
+  max-height: calc(var(--ftg-band) - 4px);
   margin-inline: auto;
-  padding: 4px 14px;
+  padding: 3px 14px;
   border: 1px solid var(--line);
   border-radius: 18px;
   background: var(--paper);
   color: var(--ink);
-  box-shadow: var(--shadow);
   font-size: 13px;
   font-weight: 600;
   line-height: 1.3;
