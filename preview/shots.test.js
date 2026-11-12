@@ -1,0 +1,62 @@
+// @vitest-environment node
+import { describe, expect, it } from "vitest";
+import { CONFIGS, PLAYS, STATES, shotPath, touches, turns } from "./shots.js";
+import * as boxes from "../games/dotsandboxes/src/rules.js";
+import * as tictactoe from "../games/tictactoe/src/rules.js";
+
+describe("the screenshots for review", () => {
+  it("cover a phone light and dark, Arabic right to left, and a tablet in landscape", () => {
+    const byName = Object.fromEntries(CONFIGS.map((config) => [config.name, config]));
+    expect(byName["phone-light"]).toMatchObject({ device: { width: 360, height: 740 }, dark: false, lang: "en" });
+    expect(byName["phone-dark"]).toMatchObject({ device: { width: 360, height: 740 }, dark: true });
+    expect(byName["phone-ar"]).toMatchObject({ lang: "ar" });
+    const tablet = byName["tablet-landscape"];
+    expect(tablet.device.width * tablet.scale).toBe(2560);
+    expect(tablet.device.height * tablet.scale).toBe(1600);
+    expect(byName["phone-samsung"]).toMatchObject({ device: { width: 384, height: 853 }, dark: true, lang: "es" });
+    expect(byName["phone-samsung-light"]).toMatchObject({ device: { width: 384, height: 853 }, dark: false, lang: "es" });
+  });
+
+  it("cover the list, waiting, a match on both sides, a win, a draw and the result", () => {
+    for (const state of ["list-empty", "waiting", "not-open", "mid-match", "confirm-resign", "win", "draw", "result-sent", "list"]) expect(STATES).toContain(state);
+  });
+
+  it("give each move of a line to the side the rules say moves, the starter first", () => {
+    expect(turns(tictactoe, [4, 0, 2, 1], ["x", "o"])).toEqual([["x", 4], ["o", 0], ["x", 2], ["o", 1]]);
+    expect(turns(tictactoe, [4, 0], ["o", "x"])).toEqual([["o", 4], ["x", 0]]);
+  });
+
+  it("give the next move to the same side when the rules let it move again (a box closed)", () => {
+    expect(turns(boxes, [0, 20, 4, 21, 1], ["x", "o"])).toEqual([["x", 0], ["o", 20], ["x", 4], ["o", 21], ["o", 1]]);
+  });
+
+  it("refuse a line the rules refuse", () => {
+    expect(() => turns(tictactoe, [4, 4], ["x", "o"])).toThrow("4: taken");
+  });
+
+  it("touch what each game's move needs: one cell, or a piece and then its square; a game of chance says what to touch live", () => {
+    expect(touches(PLAYS.tictactoe, 4)).toEqual(['[data-cell="4"]']);
+    expect(touches(PLAYS.chess, "e2e4")).toEqual(['rect.square[data-square="e2"]', 'rect.square[data-square="e4"]']);
+    for (const [game, plays] of Object.entries(PLAYS)) expect(typeof plays.move === "function" || typeof plays.live === "string", game).toBe(true);
+  });
+
+  it("play lines that do what they claim: the starter wins the first round, the second is a draw (or, with no draw in the game, the same win)", async () => {
+    for (const [game, plays] of Object.entries(PLAYS)) {
+      const rules = await import(`../games/${game}/src/rules.js`);
+      const after = (moves) => moves.reduce((state, move) => {
+        const played = rules.play(state, move, rules.turn(state));
+        if (played.error) throw new Error(`${game} ${move}: ${played.error}`);
+        return played.state;
+      }, rules.initial());
+      expect(rules.result(after([...plays.opening, ...plays.winning])), game).toMatchObject({ winner: 0 });
+      expect(rules.result(after(plays.opening)), game).toBeNull();
+      if (plays.draw) expect(rules.result(after(plays.draw)), game).toMatchObject({ winner: null });
+      else expect(rules.result(after([...plays.opening, ...plays.winning])), game).toMatchObject({ winner: 0 });
+    }
+    expect(typeof PLAYS.chess.scenes).toBe("function");
+  });
+
+  it("are saved where the review looks for them", () => {
+    expect(shotPath("tictactoe", "phone-dark", 4, "win", "b")).toBe("/private/tmp/ftgames-shots/tictactoe/phone-dark/04-win-b.png");
+  });
+});

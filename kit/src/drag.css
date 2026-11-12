@@ -1,0 +1,19 @@
+/* a finger on a piece must not be taken for a scroll */
+.ftg [data-drag] {
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+.ftg [data-dragging] {
+  opacity: 0.4;
+}
+.ftg .ftg-ghost {
+  z-index: 20;
+  opacity: 0.9;
+  filter: drop-shadow(0 6px 10px var(--shade-scrim));
+  will-change: transform;
+}
+.ftg [data-drop-ok] {
+  box-shadow: inset 0 0 0 3px var(--good);
+}
