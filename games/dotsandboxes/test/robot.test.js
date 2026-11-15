@@ -31,7 +31,7 @@ const OPEN = [...ROW, down(0, 4), across(4, 3), down(3, 4)];
 const endgame = drawn(Array.from({ length: LINES }, (_, line) => line).filter((line) => !OPEN.includes(line)), 0);
 
 describe("the dots and boxes robot", () => {
-  it("lists only the lines that close a box when there are some", () => {
+  it("lists only the lines that close a box when there are some and no chain ends in two boxes", () => {
     const three = drawn([across(0, 0), across(1, 0), down(0, 0)], 0);
     expect(robot.moves(three, 0)).toEqual([down(0, 1)]);
   });
@@ -44,11 +44,17 @@ describe("the dots and boxes robot", () => {
     expect(listed).toHaveLength(LINES - 4);
   });
 
-  it("when every line hands boxes over, lists first those that hand over the fewest", () => {
-    const listed = robot.moves(endgame, 0);
-    expect([...listed].sort((a, b) => a - b)).toEqual([...OPEN].sort((a, b) => a - b));
-    expect([across(4, 3), down(3, 4)]).toContain(listed[0]);
-    expect([across(4, 3), down(3, 4)]).toContain(listed[1]);
+  it("when every line hands boxes over, lists only those that hand over the fewest", () => {
+    expect([...robot.moves(endgame, 0)].sort((a, b) => a - b)).toEqual([across(4, 3), down(3, 4)].sort((a, b) => a - b));
+  });
+
+  it("opens the shortest chain at its own depth and budget, never a long one beside it", () => {
+    const sixAndOne = drawn([2, 3, 5, 7, 10, 12, 13, 15, 16, 18, 20, 21, 25, 26, 28, 30, 32, 34, 37, 39], 0);
+    const fourAndTwo = drawn([0, 1, 2, 5, 6, 7, 14, 15, 16, 17, 18, 20, 24, 25, 27, 29, 30, 31, 32, 34, 36, 39], 0);
+    for (const draw of [0, 0.5, 0.99]) {
+      expect([across(0, 1), down(0, 2), down(0, 3), down(0, 4)]).toContain(robotMove(game, sixAndOne, 0, {}, () => draw));
+      expect([across(2, 0), across(3, 0), down(3, 0)]).toContain(robotMove(game, fourAndTwo, 0, {}, () => draw));
+    }
   });
 
   it("values the boxes taken, and those the side to play can take at once", () => {
@@ -74,6 +80,20 @@ describe("the dots and boxes robot", () => {
     let state = play(endgame, down(0, 0), 0).state;
     while (turn(state) === 1 && !result(state)) state = play(state, robotMove(game, state, 1, {}, () => 0), 1).state;
     expect([0, 1, 2, 3].map((col) => state.boxes[across(0, col)])).toEqual([1, 1, 1, 1]);
+  });
+
+  it("leaves the last two boxes of an opened chain to the other side when a long chain is still to come, and keeps that one", () => {
+    const top = [0, 1, 2, 3].map((col) => down(0, col + 1));
+    const bottom = [0, 1, 2, 3, 4].map((col) => down(3, col));
+    const twoChains = drawn(Array.from({ length: LINES }, (_, line) => line).filter((line) => ![...top, ...bottom].includes(line)), 1);
+    let state = twoChains;
+    while (turn(state) === 1 && !result(state)) state = play(state, robotMove(game, state, 1, {}, () => 0), 1).state;
+    expect([0, 1, 2, 3].map((col) => state.boxes[across(0, col)])).toEqual([1, 1, null, null]);
+    expect(state.lines[down(0, 3)]).toBe(false);
+    state = play(state, down(0, 3), 0).state;
+    state = play(state, down(3, 0), 0).state;
+    while (turn(state) === 1 && !result(state)) state = play(state, robotMove(game, state, 1, {}, () => 0), 1).state;
+    expect([0, 1, 2, 3].map((col) => state.boxes[across(3, col)])).toEqual([1, 1, 1, 1]);
   });
 
   it("plays a whole match against itself, every move legal, and it ends", () => {
