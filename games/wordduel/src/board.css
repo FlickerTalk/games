@@ -6,7 +6,7 @@
   grid-template-columns: minmax(0, 1fr);
   grid-template-rows: minmax(0, 1fr) auto;
   gap: 2%;
-  --tile: clamp(12px, 9cqh, 40px);
+  --tile: clamp(12px, 9cqh, 64px);
   --tap: clamp(30px, 14cqh, 44px);
   --art-tile: #d7d7d7;
   --art-tile-ink: #1a1a1a;
@@ -139,7 +139,7 @@
   align-content: center;
 }
 .fwd-secret .fwd-row {
-  width: min(100%, 260px);
+  width: min(100%, max(260px, 65cqw));
 }
 .fwd-mark {
   display: inline-block;
