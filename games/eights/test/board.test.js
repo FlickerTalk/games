@@ -226,3 +226,18 @@ describe("dragging a card", () => {
     expect(STYLE).toContain(DRAG_STYLE);
   });
 });
+
+describe("the cards' size", () => {
+  const css = STYLE.replace(/\/\*[\s\S]*?\*\//g, "");
+
+  it("grows the hand's cards with the board in full screen, never capped below what the board gives them", () => {
+    const host = document.createElement("div");
+    board.mount(host, context(OPENING));
+    expect(host.querySelectorAll(".fce-hand .fce-card").length).toBeGreaterThan(0);
+    expect(host.querySelector(".fce").style.getPropertyValue("--card")).toMatch(/^max\(14px, min\([\d.]+cqw, [\d.]+cqh\)\)$/);
+  });
+
+  it("keeps the pile's card a little larger than the hand's as both grow, and as it was on the room's boards", () => {
+    expect(/\.fce\s*\{([^}]*)\}/.exec(css)[1]).toMatch(/--big:\s*clamp\(28px, min\(19cqw, 24cqh\), max\(64px, 17cqw\)\);/);
+  });
+});
