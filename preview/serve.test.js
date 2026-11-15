@@ -52,6 +52,7 @@ describe("the review harness", () => {
     expect(script.headers.get("content-security-policy")).toBe(policy(base));
     const code = await script.text();
     for (const tag of ["ion-alert", "ion-button", "ion-buttons", "ion-content", "ion-header", "ion-title", "ion-toolbar"]) expect(code, tag).toContain(tag);
+    expect(code).toContain("ion-range");
     expect(code).not.toMatch(/\beval\(|new Function\(|\bimport\(/);
     const sheet = await fetch(`${base}/frame/tictactoe/a/ionic/ionic.css`);
     expect(sheet.headers.get("content-type")).toContain("text/css");

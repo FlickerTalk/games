@@ -109,7 +109,7 @@ sizes.observe(document.body);
 post({ type: "ft.ready" });
 `;
 
-const LENT = ["ion-alert", "ion-button", "ion-buttons", "ion-content", "ion-header", "ion-title", "ion-toolbar"];
+const LENT = ["ion-alert", "ion-button", "ion-buttons", "ion-content", "ion-header", "ion-range", "ion-title", "ion-toolbar"];
 
 const IONIC_CSS = join(root, "node_modules", "@ionic", "core", "css");
 const IONIC = JSON.parse(readFileSync(join(root, "node_modules", "@ionic", "core", "package.json"), "utf8")).version;
