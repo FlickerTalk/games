@@ -31,6 +31,7 @@ const measure = (frame) =>
       const { left, right } = node.getBoundingClientRect();
       return { left, right };
     };
+    const span = (nodes) => [...nodes].map(box).reduce((one, two) => (one ? { left: Math.min(one.left, two.left), right: Math.max(one.right, two.right) } : two), null);
     const ink = (node) => {
       const walker = document.createTreeWalker(node, NodeFilter.SHOW_TEXT);
       let left = Infinity;
@@ -55,8 +56,8 @@ const measure = (frame) =>
       sizing: getComputedStyle(title).boxSizing,
       words: ink(title),
       score: box(title.querySelector(".ftg-score")),
-      start: box(toolbar.querySelector(':scope > ion-buttons[slot="start"]')),
-      end: box(toolbar.querySelector(':scope > ion-buttons[slot="end"]')),
+      start: span(toolbar.querySelectorAll(':scope > ion-buttons[slot="start"]')),
+      end: span(toolbar.querySelectorAll(':scope > ion-buttons[slot="end"]')),
       ends: toolbar.querySelectorAll(':scope > ion-buttons[slot="end"] > ion-button').length,
     };
   });
