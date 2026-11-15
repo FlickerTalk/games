@@ -96,6 +96,7 @@ describe("declaring a game's progress", () => {
     expect(kit.starsFor(40, { two: 20, three: 35 })).toBe(3);
     expect([kit.LONGEST_ROUND_SECONDS, kit.HALFWAY_FROM_SECONDS, kit.EASE_AFTER_LOSSES, kit.PASS_AFTER_LOSSES]).toEqual([90, 60, 2, 3]);
     expect([kit.PROGRESS_KEY, kit.RECORD_VERSION, kit.GIFT_EVERY]).toEqual(["progress", 1, [2, 3, 4]]);
+    expect(kit.rivalPace(24, { even: 4, full: 24 })).toBe(0.8);
     expect(typeof kit.hasHalfway).toBe("function");
   });
 });

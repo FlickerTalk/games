@@ -7,6 +7,7 @@ import { checkStars } from "./stars.js";
 export { EASE_AFTER_LOSSES, HALFWAY_FROM_SECONDS, LONGEST_ROUND_SECONDS, hasHalfway, roundSeconds } from "./duration.js";
 export { GIFT_EVERY } from "./gifts.js";
 export { PASS_AFTER_LOSSES, PROGRESS_KEY, RECORD_VERSION } from "./record.js";
+export { rivalPace } from "./rival.js";
 export { starsFor } from "./stars.js";
 
 const FIELDS = ["curve", "timed", "stars", "gifts"];
