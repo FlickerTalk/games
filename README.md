@@ -303,6 +303,10 @@ record and the same screen as a match between two people.
 - A game with secrets or chance of its own (a hidden fleet, dice) gives `robot.move(state, side,
   memory, random)` instead, which returns the move: `memory` is a plain JSON object kept with the match
   (the phone's secrets go there), `random()` a number in [0, 1).
+- A game whose `play` is too costly to call thousands of times gives `robot.move` too, and runs the
+  kit's `search` (from `kit/src/robot.js`) over positions of its own. Chess does: its rules keep every
+  position they have seen, so the search uses light positions made from their parent's FEN only when
+  it reaches them.
 - `solo` outside a conversation, or for a game without `robot`, changes nothing: the game says to open
   it from a conversation, as before. An app that does not send `solo`, and a game that does not read
   it, stay as they were.
@@ -504,7 +508,7 @@ Fixed vectors (in `kit/test/commit.test.js`), computed independently by `kit/tes
   licence comments dropped and the game's `THIRD_PARTY_NOTICES.md` copied beside it. A game that needs
   more from its build (a module made at build time, a fix to a dependency's source) exports esbuild
   `plugins` from its own `build.js`; they run before the kit's.
-- Each game's tests check its manifest, that `dist/` stays under its size cap (128 to 131 KB for a small
+- Each game's tests check its manifest, that `dist/` stays under its size cap (128 to 132 KB for a small
   game: the kit with its 21 languages is about 93 KB),
   and that nothing the frame loads contains an `http://` or `https://` address. XML namespace names
   (`http://www.w3.org/2000/svg`…) are allowed: browsers never fetch them. `THIRD_PARTY_NOTICES.md` is
@@ -543,6 +547,7 @@ package's contents. So:
 - Matches against the phone are `1.1.0` for the games that have a `robot` (Tic-Tac-Toe, Four in a Row,
   Reversi), and one more patch for the others, whose bundle changes with the kit: `1.0.6` for nine,
   `1.0.7` for Chess.
+- A `robot` for Checkers, Five in a Row, Dots and Boxes, Mancala and Chess is their `1.1.0`.
 
 ## Preview
 

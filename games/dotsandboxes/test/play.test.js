@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { fromBase64 } from "../../../kit/src/envelope.js";
-import { phones, settle, within } from "../../../kit/test/helpers.js";
+import { TIMING } from "../../../kit/src/table.js";
+import { fakeCore, phones, settle, within } from "../../../kit/test/helpers.js";
 import "../src/index.js";
 
 const tick = () => settle([...document.querySelectorAll("ft-dotsandboxes")].map((element) => element.table));
@@ -40,6 +41,34 @@ beforeEach(() => {
   document.body.innerHTML = "";
 });
 afterEach(() => vi.useRealTimers());
+
+describe("dots and boxes against the phone", () => {
+  it("lets the phone draw its lines by the rules, and draw again after closing a box, without a word on the live channel", async () => {
+    vi.useRealTimers();
+    vi.useFakeTimers({ toNotFake: ["Date"] });
+    const core = fakeCore();
+    const one = await phone(core, { live: false, solo: true });
+    one.table.random = () => new Uint8Array(32).fill(1);
+    await touch(one, '[data-kit="new"]');
+    await vi.advanceTimersByTimeAsync(TIMING.think);
+    await tick();
+    expect(one.table.record.game.moves).toHaveLength(1);
+    let touched = 0;
+    while (one.table.view.state.boxes[0] === null && touched < 4) {
+      await touch(one, [0, 4, 20, 21].find((index) => !one.table.view.state.lines[index]));
+      touched += 1;
+      await vi.advanceTimersByTimeAsync(TIMING.think);
+      await tick();
+    }
+    await vi.advanceTimersByTimeAsync(TIMING.think);
+    await tick();
+    expect(one.table.view.state.boxes[0]).toBe(1 - one.table.view.mySide);
+    expect(box(one, 0).classList.contains(`b${1 - one.table.view.mySide}`)).toBe(true);
+    expect(one.table.record.game.moves).toHaveLength(2 * touched + 2);
+    expect(one.table.view.myTurn).toBe(true);
+    expect(core.ft.live.send).not.toHaveBeenCalled();
+  });
+});
 
 describe("dots and boxes between two phones", () => {
   it("tosses the coin, draws lines seen on both phones, closes a box for another turn, and sends the result of a resignation", async () => {

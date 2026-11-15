@@ -1,6 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { fromBase64 } from "../../../kit/src/envelope.js";
-import { phones, settle, within } from "../../../kit/test/helpers.js";
+import { TIMING } from "../../../kit/src/table.js";
+import { fakeCore, phones, settle, within } from "../../../kit/test/helpers.js";
+import { legalMoves } from "../src/rules.js";
 import "../src/index.js";
 
 const tick = () => settle([...document.querySelectorAll("ft-checkers")].map((element) => element.table));
@@ -44,6 +46,26 @@ beforeEach(() => {
   document.body.innerHTML = "";
 });
 afterEach(() => vi.useRealTimers());
+
+describe("checkers against the phone", () => {
+  it("lets the phone move its pieces by the rules, in the conversation, without a word on the live channel", async () => {
+    const core = fakeCore();
+    const one = await phone(core, { live: false, solo: true });
+    one.table.random = () => new Uint8Array(32).fill(1);
+    await touch(one, '[data-kit="new"]');
+    await vi.advanceTimersByTimeAsync(TIMING.think);
+    await tick();
+    expect(one.table.record.game.moves).toHaveLength(1);
+    expect(pieces(one, 0)).toBe(12);
+    const mine = legalMoves(one.table.view.state, one.table.view.mySide)[0];
+    await move(one, ...mine.split("-").map(Number));
+    await vi.advanceTimersByTimeAsync(TIMING.think);
+    await tick();
+    expect(one.table.record.game.moves).toHaveLength(3);
+    expect(one.table.view.myTurn).toBe(true);
+    expect(core.ft.live.send).not.toHaveBeenCalled();
+  });
+});
 
 describe("checkers between two phones", () => {
   it("tosses the coin, shows a capture the same on both phones, and sends the result of a resignation", async () => {
