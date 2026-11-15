@@ -226,3 +226,56 @@ export function checkTexts(catalogue) {
     }
   }
 }
+
+export function fakeFrame({ width, height, screen = 853, wide = false, fill = false, header = 104, band = 48, gap = 12, pad = 4, chip = 52, result = 44 }) {
+  const page = document.documentElement;
+  const size = { width, height };
+  const lay = (node) => {
+    const root = node.closest(".ftg");
+    if (!root) return 0;
+    const beside = root.hasAttribute("data-beside");
+    const compact = root.hasAttribute("data-compact");
+    const room = beside ? size.width - 340 : size.width;
+    const board = Math.min(parseFloat(root.style.getPropertyValue("--ftg-board")) || room, room);
+    const told = root.querySelector('[data-part="result"]')?.innerHTML.trim() ? result : 0;
+    const main = beside ? Math.max(board, 2 * chip + 8 + told) : (compact ? 0 : chip + gap) + (told ? told + gap : 0) + board;
+    if (node === root) return header + gap + main + pad;
+    if (node === root.firstElementChild) return header;
+    const part = node.dataset.part;
+    if (part === "notice") return band;
+    if (part === "content" || part === "main") return main;
+    if (part === "stage") return board;
+    if (part === "players") return compact || beside ? 0 : chip;
+    return 0;
+  };
+  const saved = [];
+  const replace = (target, name, descriptor) => {
+    saved.push([target, name, Object.getOwnPropertyDescriptor(target, name)]);
+    Object.defineProperty(target, name, { configurable: true, ...descriptor });
+  };
+  replace(globalThis.screen, "height", { get: () => screen });
+  replace(HTMLElement.prototype, "getBoundingClientRect", {
+    value() {
+      const tall = lay(this);
+      return { x: 0, y: 0, top: 0, left: 0, right: size.width, bottom: tall, width: size.width, height: tall };
+    },
+  });
+  const across = (node) => (node === page || node.dataset?.part === "main" ? size.width : 0);
+  replace(HTMLElement.prototype, "clientWidth", { get() { return across(this); } });
+  replace(HTMLElement.prototype, "clientHeight", { get() { return this === page ? size.height : 0; } });
+  const media = vi.spyOn(globalThis, "matchMedia").mockImplementation((query) => ({ matches: wide && query === "(min-width: 720px)", media: query }));
+  page.toggleAttribute("data-fill", fill);
+  return {
+    resize(next) {
+      Object.assign(size, next);
+    },
+    restore() {
+      for (const [target, name, descriptor] of saved.reverse()) {
+        if (descriptor) Object.defineProperty(target, name, descriptor);
+        else delete target[name];
+      }
+      media.mockRestore();
+      page.removeAttribute("data-fill");
+    },
+  };
+}

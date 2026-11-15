@@ -107,7 +107,7 @@ defineGame({ id: "tictactoe", gv: 1, tag: manifest.components[0], app: manifest.
 | `texts` | `{ lang: { key: text } }` with at least `name` (the game's name in each language). |
 | `sides` | Optional: two HTML snippets (trusted, the game's own), the marks of side 0 and side 1, shown on the players' chips and the turn line. |
 | `style` | Optional: CSS text added to the page once (import a `.css` file: the build passes it as text). |
-| `minBoard` | Optional: the smallest board, in CSS pixels, on which the game is playable (Chess 320: squares of 40 px; Four in a Row 308: columns of 44 px). In a game the kit makes room for it before anything else; while waiting or on the result the board may be smaller. Default 200. |
+| `minBoard` | Optional: the smallest board, in CSS pixels, on which the game is playable (Chess 320: squares of 40 px; Four in a Row 308: columns of 44 px). In a game in the room the kit makes room for it before anything else; while waiting or on the result the board may be smaller, and in full screen it may be smaller when the frame is too short (see "Full screen"). Default 200. |
 | `how(result, t)` | Optional: why a round ended by the rules, in the game's words (“checkmate”, “stalemate”), shown with the result; `result` is what `result(state)` returned. |
 | `summary(view, { t, lang, name, icon, record })` | Optional: the text sent to the chat. Without it: `⭕ Tic-Tac-Toe: I won, 3–2 · draws: 1`, in the sender's language. |
 | `robot` | Optional: lets the user play against their own phone (see "Playing against the phone"). `{ moves(state, side), score(state, side) }` for the kit's search, with optional `depth`, `budgetMs` and `slack`; or `{ move(state, side, memory, random, { lang }) }` for a game that finds its own moves, with an optional `unseen(state)` for the steps the board does not show. Without it the game is played between two people only. |
@@ -124,10 +124,28 @@ actions) is laid out above the board, and the board, square, takes what is left 
 the user is told (whose turn it is, how a round ended, a notice) is one line in a band of its own
 under the bar, always as tall, so nothing above the board ever moves and nothing covers the bar (see
 "Notices"). The room is the screen's height less the app's chrome, `ROOM_CHROME` in
-`kit/src/shell.js` (297 px, measured on a Samsung S20+): the one number to change when the app's
-room changes. When even the game's `minBoard` does not fit, the players' chips go first. A board
-must draw inside the square it is given, whatever its size. `npm run room` checks every game in
+`kit/src/stage.js` (297 px, measured on a Samsung S20+): the one number to change when the app's
+room changes. In the room the frame is as tall as the game, so its own height says nothing about
+the room: the kit never reads it there. When even the game's `minBoard` does not fit, the players'
+chips go first. On a frame 720 px wide or more the board stands beside the players. A board must
+draw inside the square it is given, whatever its size, and follow it when it changes (container
+units, or measuring on every `update`, never once at `mount`). `npm run room` checks every game in
 every state on a 384×853 and a 360×740 phone, in German and Spanish.
+
+**Full screen.** The app can give the game its whole window (the full-screen button of the game
+room, and its own page for a game): it says `fill: true` and the frame's root gets `data-fill`, the
+frame as tall and wide as it is given; `fill: false` takes it back, the frame following the game
+again. The page is not reloaded: the kit watches `data-fill` and the frame's size and lays the
+match out again where it is, in either direction. In full screen the board is sized from what the
+frame measures: its height less the kit's own rows (bar, band, players, the result's actions),
+never `ROOM_CHROME`, no wider than the frame and no larger than 720 px (`MAX_BOARD`). A frame wider
+than tall puts the board beside the players, as tall as the frame under the band. Nothing ever
+scrolls: when the frame is too short for the game's `minBoard`, the players' chips go first and then
+the board shrinks under `minBoard`, down to 120 px. A phone held sideways (an 844×338 frame) gives
+214 px, under every game's `minBoard`: in full screen a game must stay playable on a board that small,
+its controls kept and only what it can spare hidden. `npm run fill` checks five games at 360×588,
+390×792, 844×338 and 1280×748 entering and leaving full screen in the middle of a match (`npm run fill
+-- <game>…` for others); the preview has a full-screen button on each phone.
 
 **The page is Ionic's.** Since app 1.6.0 the app lends Ionic to every plugin frame (all of
 `@ionic/core`'s components and its stylesheet but for `structure.css`'s body rules, loaded before the
