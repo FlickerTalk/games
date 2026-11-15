@@ -34,7 +34,7 @@ async function think(table, id) {
   if (table.record?.id !== id || !phoneToMove(table)) return;
   const seen = table.view;
   const next = structuredClone(table.record);
-  const move = robotMove(table.game, seen.state, 1 - seen.mySide, next.solo.memory, chance(table.random));
+  const move = robotMove(table.game, seen.state, 1 - seen.mySide, next.solo.memory, chance(table.random), { lang: table.lang });
   next.game.moves.push(move);
   next.updated = Date.now();
   if (!(await table.commit(next, "state"))) table.notice ??= { key: "error" };

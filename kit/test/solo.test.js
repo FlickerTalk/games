@@ -109,6 +109,15 @@ describe("a match against the phone", () => {
     expect(kept(core, one.record.id).solo.memory).toEqual({ turns: 1 });
   });
 
+  it("tells the game's robot the language the game is shown in", async () => {
+    const heard = [];
+    const listening = { ...toy, robot: { move: (state, side, memory, random, context) => (heard.push(context), "p") } };
+    const one = await table(fakeCore(), { game: listening, random: bytes(1), opening: { lang: "es" } });
+    await one.newMatch();
+    await think(one);
+    expect(heard).toEqual([{ lang: "es" }]);
+  });
+
   it("lets the user resign and play another round, which the phone starts when it is its turn", async () => {
     const one = await table(fakeCore(), { random: bytes(0) });
     await one.newMatch();

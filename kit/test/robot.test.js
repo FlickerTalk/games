@@ -81,13 +81,13 @@ describe("the kit's search", () => {
 });
 
 describe("the phone's move", () => {
-  it("is the game's own when it has one, with its memory and the random source", () => {
+  it("is the game's own when it has one, with its memory, the random source and the language the game is shown in", () => {
     const memory = { fleet: "A1" };
     const random = () => 0.5;
     const move = vi.fn(() => 2);
     const own = { ...nim, robot: { move } };
-    expect(robotMove(own, { left: 5, next: 1 }, 1, memory, random)).toBe(2);
-    expect(move).toHaveBeenCalledWith({ left: 5, next: 1 }, 1, memory, random);
+    expect(robotMove(own, { left: 5, next: 1 }, 1, memory, random, { lang: "es" })).toBe(2);
+    expect(move).toHaveBeenCalledWith({ left: 5, next: 1 }, 1, memory, random, { lang: "es" });
   });
 
   it("is found by the search otherwise, picking at random among moves as good as the best", () => {
