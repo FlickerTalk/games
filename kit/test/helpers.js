@@ -77,6 +77,38 @@ export async function settle(tables, rounds = 12) {
   }
 }
 
+export function seeded(seed) {
+  let state = seed >>> 0;
+  return () => {
+    state = (state + 0x6d2b79f5) >>> 0;
+    let mixed = Math.imul(state ^ (state >>> 15), 1 | state);
+    mixed = (mixed + Math.imul(mixed ^ (mixed >>> 7), 61 | mixed)) ^ mixed;
+    return ((mixed ^ (mixed >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+export function anyLegal(game, random) {
+  return (state, side) => {
+    const legal = game.robot.moves(state, side).filter((move) => !game.play(state, move, side).error);
+    return legal[Math.floor(random() * legal.length)];
+  };
+}
+
+export function playOut(game, players, { limit = 1000 } = {}) {
+  let state = game.initial();
+  const moves = [];
+  for (let result = game.result(state); !result; result = game.result(state)) {
+    if (moves.length >= limit) throw new Error(`no end after ${limit} moves`);
+    const side = game.turn(state);
+    const move = players[side](state, side);
+    const played = game.play(state, move, side);
+    if (!played || played.error) throw new Error(`side ${side} played ${JSON.stringify(move)}: ${played?.error}`);
+    moves.push(move);
+    state = played.state;
+  }
+  return { state, moves, result: game.result(state) };
+}
+
 export function within(element, selector) {
   return element.querySelector(selector) ?? element.alert?.querySelector(selector) ?? null;
 }

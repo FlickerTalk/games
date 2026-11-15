@@ -19,11 +19,17 @@ const REQUIRED = {
   texts: "object",
 };
 
+function playsAlone(robot) {
+  if (!robot || typeof robot !== "object") return false;
+  return typeof robot.move === "function" || (typeof robot.moves === "function" && typeof robot.score === "function");
+}
+
 export function defineGame(game) {
   for (const [field, kind] of Object.entries(REQUIRED)) {
     if (typeof game[field] !== kind || game[field] === null) throw new TypeError(`a game needs ${field} (${kind})`);
   }
   if (typeof game.board.mount !== "function") throw new TypeError("a game's board needs mount(host, context)");
+  if ("robot" in game && !playsAlone(game.robot)) throw new TypeError("a game's robot needs move(), or moves() and score()");
   if (!customElements.get(game.tag)) customElements.define(game.tag, elementFor(game));
   return game;
 }

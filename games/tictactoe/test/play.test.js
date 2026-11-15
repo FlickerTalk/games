@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { KV, PROTOCOL, fromBase64, seal } from "../../../kit/src/envelope.js";
+import { TIMING } from "../../../kit/src/table.js";
 import { fakeCore, phones, settle, within } from "../../../kit/test/helpers.js";
 import "../src/index.js";
 
@@ -114,6 +115,24 @@ describe("Tic-Tac-Toe between two phones", () => {
     expect(cell(x, 4).querySelector(".ftt-clock")).toBeNull();
     await touch(again, 0);
     expect(cell(x, 0).getAttribute("aria-label")).toBe("Row 1, column 1: O");
+  });
+
+  it("plays a whole round against the phone, in the conversation, without a word on the live channel", async () => {
+    const core = fakeCore();
+    const one = await phone(core, { live: false, solo: true });
+    one.table.random = () => new Uint8Array(32);
+    await touch(one, '[data-kit="new"]');
+    expect(one.table.record.solo).toBeTruthy();
+    for (let turn = 0; one.table.view.phase === "play" && turn < 9; turn += 1) {
+      const free = [...one.querySelectorAll("[data-cell]")].find((node) => !node.disabled && !node.querySelector("svg"));
+      await touch(one, Number(free.dataset.cell));
+      await vi.advanceTimersByTimeAsync(TIMING.think);
+      await tick();
+    }
+    expect(one.table.view.phase).toBe("over");
+    expect(one.table.view.result.winner).not.toBe(one.table.record.me);
+    expect(one.querySelector('[data-kit="send"]')).toBeNull();
+    expect(core.ft.live.send).not.toHaveBeenCalled();
   });
 
   it("refuses a state that breaks the rules, whatever the other phone says", async () => {

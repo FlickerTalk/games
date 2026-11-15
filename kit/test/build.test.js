@@ -21,6 +21,17 @@ describe("building a game", () => {
     expect(readFileSync(join(out, "THIRD_PARTY_NOTICES.md"), "utf8")).toContain("## Ionicons");
   });
 
+  it("packs a real-time game the same way, its kit inside without the turn-based texts, and far under a small game's cap", async () => {
+    const out = mkdtempSync(join(tmpdir(), "ftgames-live-"));
+    await buildGame(join(import.meta.dirname, "fixture-live"), { outdir: join(out, "dist") });
+    const code = readFileSync(join(out, "dist", "index.js"), "utf8");
+    expect(code).not.toMatch(/^\s*import\s/m);
+    expect(code).toContain("ft-fixture-live");
+    expect(code.split("The other person is ready. Tap Start.").length - 1).toBe(1);
+    expect(code).not.toContain("Tossing a coin");
+    expect(checkDist(out, { cap: 100 * 1024 })).toBeGreaterThan(20_000);
+  });
+
   it("builds the same bytes from the same sources", async () => {
     const one = mkdtempSync(join(tmpdir(), "ftgames-"));
     const two = mkdtempSync(join(tmpdir(), "ftgames-"));

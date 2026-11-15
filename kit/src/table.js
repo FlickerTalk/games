@@ -3,11 +3,12 @@
 
 import { KV, PROTOCOL, seal, unseal } from "./envelope.js";
 import { MATCH_LIMIT, chooseFork, merge, newId, newMatch, peerOf, replay, tossStep, view } from "./match.js";
+import { soloMatch, wake } from "./solo.js";
 import { exists, forget, isChat, list, load, save } from "./store.js";
 
 export { MATCH_LIMIT };
 
-export const TIMING = { ack: 8_000, reveal: 30_000, retry: 15_000, retries: 8 };
+export const TIMING = { ack: 8_000, reveal: 30_000, retry: 15_000, retries: 8, think: 600 };
 const ASKING = ["hello", "state", "commit", "seed", "reveal"];
 const ABSENCE = ["notOpen", "unreachable", "busy", "left", "denied"];
 
@@ -34,6 +35,7 @@ export class Table {
     this.matches = [];
     this.record = null;
     this.live = false;
+    this.solo = false;
     this.chat = null;
     this.lang = "en";
     this.dark = false;
@@ -42,7 +44,7 @@ export class Table {
     this.prompt = null;
     this.peerHere = false;
     this.connecting = false;
-    this.timers = { ack: null, reveal: null, retry: null };
+    this.timers = { ack: null, reveal: null, retry: null, robot: null };
     this.retries = 0;
     this.lastSendOk = false;
     this.sending = 0;
@@ -54,6 +56,10 @@ export class Table {
 
   get view() {
     return this.record ? view(this.record, this.game) : null;
+  }
+
+  get playable() {
+    return this.live || this.solo;
   }
 
   /** User actions and incoming messages run one at a time, never interleaved. */
@@ -78,11 +84,11 @@ export class Table {
 
   newMatch() {
     return this.run(async () => {
-      if (!this.live) {
+      if (!this.playable) {
         this.notice = { key: "needsChat" };
         return;
       }
-      const record = newMatch({ g: this.game.id, gv: this.game.gv });
+      const record = this.solo ? soloMatch(this.game, this.random) : newMatch({ g: this.game.id, gv: this.game.gv });
       if (!(await save(this.ft.records, this.chat, record))) {
         this.notice = { key: "full" };
         return;
@@ -95,9 +101,9 @@ export class Table {
   enter(id) {
     return this.run(async () => {
       const record = this.chat ? await load(this.ft.records, this.chat, id) : null;
-      if (!record) return this.reload();
+      if (!record || Boolean(record.solo) !== this.solo) return this.reload();
       this.show(record);
-      if (this.live) this.say("hello");
+      if (this.playable) this.say("hello");
     });
   }
 
@@ -117,7 +123,7 @@ export class Table {
   play(move) {
     return this.run(async () => {
       const seen = this.view;
-      if (!seen || seen.phase !== "play" || !seen.myTurn || seen.fork || !this.live) return;
+      if (!seen || seen.phase !== "play" || !seen.myTurn || seen.fork || !this.playable) return;
       await this.commit(this.with(move), "state");
     });
   }
@@ -125,7 +131,7 @@ export class Table {
   resign() {
     return this.run(async () => {
       const seen = this.view;
-      if (!seen || seen.phase !== "play" || seen.fork || !this.live) return;
+      if (!seen || seen.phase !== "play" || seen.fork || !this.playable) return;
       await this.commit(this.with({ x: "resign", by: this.record.me }), "state");
     });
   }
@@ -133,7 +139,7 @@ export class Table {
   again() {
     return this.run(async () => {
       const seen = this.view;
-      if (!seen || seen.phase !== "over" || !this.live) return;
+      if (!seen || seen.phase !== "over" || !this.playable) return;
       await this.commit(this.with({ x: "next" }), "state");
     });
   }
@@ -210,7 +216,8 @@ export class Table {
     this.lang = opening.lang || "en";
     // no chat, no matches, and no shared place to fall back on
     this.chat = isChat(opening.chat) ? opening.chat : null;
-    this.live = Boolean(opening.live) && this.chat !== null;
+    this.solo = opening.solo === true && this.chat !== null && Boolean(this.game.robot);
+    this.live = Boolean(opening.live) && this.chat !== null && !this.solo;
     this.dark = Boolean(opening.dark);
     try {
       if (!this.record) await this.reload();
@@ -225,7 +232,7 @@ export class Table {
       return;
     }
     const kept = await list(this.ft.records, this.chat, this.game.id);
-    this.matches = kept.map((record) => ({ record, view: view(record, this.game) }));
+    this.matches = kept.filter((record) => Boolean(record.solo) === this.solo).map((record) => ({ record, view: view(record, this.game) }));
   }
 
   show(record) {
@@ -247,6 +254,7 @@ export class Table {
 
   async commit(next, kind) {
     if (!replay(next.game, this.game).ok) return false;
+    if (next.solo) next.heard = next.game.moves.length;
     const weight = new TextEncoder().encode(JSON.stringify(this.envelope(kind, next, true))).length;
     if (weight > MATCH_LIMIT) {
       this.notice = { key: "tooLong" };
@@ -270,6 +278,8 @@ export class Table {
 
   say(kind, extra = {}) {
     const record = this.record;
+    // the other seat is this phone, and a send would wake a real device by push
+    if (this.solo || record.solo) return wake(this);
     let data;
     try {
       data = seal({ ...this.envelope(kind, record, kind !== "bye"), ...extra });
@@ -357,14 +367,14 @@ export class Table {
   }
 
   async heard(data) {
-    const opened = this.chat ? unseal(data, { g: this.game.id, gv: this.game.gv }) : null;
+    const opened = this.chat && !this.solo ? unseal(data, { g: this.game.id, gv: this.game.gv }) : null;
     if (!opened) return;
     if (opened.newer) {
       this.notice = { key: "update", vars: { version: opened.newer.app } };
       return;
     }
     const message = opened.message;
-    const current = this.record?.id === message.doc ? this.record : null;
+    const current = this.record?.id === message.doc && !this.record.solo ? this.record : null;
     if (message.k === "busy" || message.k === "deny") {
       if (!current) return;
       this.absent(message.k === "busy" ? "busy" : "denied");
@@ -393,9 +403,10 @@ export class Table {
   async elsewhere(message) {
     const game = message.game;
     const invitation = message.k === "hello" && game && typeof game === "object" && !Array.isArray(game) && game.a === message.who && (game.b === null || game.b === undefined);
-    const known = await load(this.ft.records, this.chat, message.doc);
+    const kept = await load(this.ft.records, this.chat, message.doc);
+    const known = kept?.solo ? null : kept;
     if (!known) {
-      // a record this kit can't read (a newer kit's match) is never joined over
+      // a record this kit can't read (a newer kit's match), or a match against the phone, is never joined over
       if (await exists(this.ft.records, this.chat, message.doc)) return this.answer("deny", message.doc);
       if (message.k !== "hello") return;
       if (!invitation) return this.answer("deny", message.doc);

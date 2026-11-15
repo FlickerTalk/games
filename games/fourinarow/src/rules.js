@@ -3,7 +3,7 @@
 export const COLUMNS = 7;
 export const ROWS = 6;
 
-const FOURS = [];
+export const FOURS = [];
 for (let row = 0; row < ROWS; row += 1) {
   for (let col = 0; col < COLUMNS; col += 1) {
     for (const [down, across] of [[0, 1], [1, 0], [1, 1], [1, -1]]) {

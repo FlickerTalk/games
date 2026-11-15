@@ -79,6 +79,7 @@
   const lang = params.get("lang") || "en";
   let dark = params.has("dark") || Boolean(theme?.dark);
   const tablet = params.get("layout") === "tablet";
+  const solo = params.has("solo");
   function paintPage() {
     document.documentElement.classList.toggle("dark", dark);
     for (const [name, value] of [["--bg", theme?.vars["--ion-background-color"]], ["--text", theme?.vars["--ion-text-color"]]]) {
@@ -103,12 +104,13 @@
     const node = document.createElement("section");
     node.className = "device closed";
     node.id = `device-${side}`;
-    node.innerHTML = `<div class="head"><span class="avatar">👤</span><span class="who">${side === "a" ? "Bea" : "Ana"}</span></div><div class="bar"><button aria-label="Close the game" data-close="${side}">✕</button><span class="name">${names[game] ?? game}</span><button aria-label="Invite"><svg viewBox="0 0 512 512" width="24" height="24" aria-hidden="true"><rect width="416" height="320" x="48" y="96" rx="40" ry="40" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32px"/><path d="m112 160 144 112 144-112" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32px"/></svg></button></div><div class="room"><div class="sheet"></div></div><div class="chat"><p class="hint">💬</p></div><div class="composer"><div class="box"></div><div class="send">➤</div></div>`;
+    node.innerHTML = `<div class="head"><span class="avatar">👤</span><span class="who">${solo ? "FlickerTalk" : side === "a" ? "Bea" : "Ana"}</span></div><div class="bar"><button aria-label="Close the game" data-close="${side}">✕</button><span class="name">${names[game] ?? game}</span><button aria-label="Invite"><svg viewBox="0 0 512 512" width="24" height="24" aria-hidden="true"><rect width="416" height="320" x="48" y="96" rx="40" ry="40" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32px"/><path d="m112 160 144 112 144-112" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32px"/></svg></button></div><div class="room"><div class="sheet"></div></div><div class="chat"><p class="hint">💬</p></div><div class="composer"><div class="box"></div><div class="send">➤</div></div>`;
     node.querySelector("[data-close]").onclick = () => close(side);
     document.getElementById("devices").append(node);
     return node;
   }
   const devices = { a: device("a"), b: device("b") };
+  devices.b.hidden = solo;
 
   function open(side) {
     close(side);
@@ -139,7 +141,7 @@
     const done = (answer) => tell(side, { type: "ft.done", id: said.id, answer });
     switch (said.type) {
       case "ft.ready":
-        return tell(side, { type: "ft.open", text: "", dark, lang, file: null, ref: null, reminder: null, live: true, chat: `${side}-with-${side === "a" ? "b" : "a"}`, theme: theme?.vars ?? null });
+        return tell(side, { type: "ft.open", text: "", dark, lang, file: null, ref: null, reminder: null, live: !solo, solo, chat: solo ? `${side}-with-flickertalk` : `${side}-with-${side === "a" ? "b" : "a"}`, theme: theme?.vars ?? null });
       case "ft.height":
         phone.frame.style.height = `${Math.min(Math.max(said.height, 160), 4000)}px`;
         return;
@@ -162,6 +164,7 @@
       case "ft.forget":
         return done(phone.store.delete(said.key));
       case "ft.liveSend": {
+        if (solo) console.error("a match against the phone sent over the live channel");
         const other = side === "a" ? "b" : "a";
         if (connected) setTimeout(() => tell(other, { type: "ft.live", data: said.data }), 30);
         return done(connected);
@@ -196,7 +199,7 @@
   window.harness = { open, close, connect: (yes) => (connected = yes), phones, setTheme };
   if (!params.has("closed")) {
     open("a");
-    open("b");
+    if (!solo) open("b");
   }
 </script>
 </body>

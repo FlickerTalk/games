@@ -287,7 +287,7 @@ export function elementFor(game) {
       this.set(this.bar.querySelector('[data-part="title"]'), escape(t("matches")));
       const add = this.bar.querySelector('[data-kit="new"]');
       label(add, t("newMatch"));
-      add.toggleAttribute("disabled", !this.table.live);
+      add.toggleAttribute("disabled", !this.table.playable);
       this.set(this.content.querySelector('[data-part="body"]'), this.listHtml());
     }
 
@@ -313,7 +313,7 @@ export function elementFor(game) {
         state: seen.state,
         view: seen,
         mySide: seen.mySide,
-        canPlay: table.live && seen.phase === "play" && seen.myTurn && !seen.fork,
+        canPlay: table.playable && seen.phase === "play" && seen.myTurn && !seen.fork,
         last: seen.last,
         pending: seen.pending > 0,
         result: seen.phase === "over" ? seen.result : null,
@@ -329,10 +329,10 @@ export function elementFor(game) {
       const table = this.table;
       const newLabel = escape(t("newMatch"));
       let html = this.promptHtml("banner");
-      if (!table.live) html += `<p class="ftg-hint">${icon("chatbubble-outline")} ${escape(t("needsChat", { game: t("name") }))}</p>`;
+      if (!table.playable) html += `<p class="ftg-hint">${icon("chatbubble-outline")} ${escape(t("needsChat", { game: t("name") }))}</p>`;
       if (!table.matches.length) {
         html += `<div class="ftg-empty"><div class="ftg-hero" aria-hidden="true">${icon("game-controller-outline")}</div><p>${escape(t("noMatches"))}</p>${
-          table.live ? `<ion-button data-kit="new" shape="round">${slotted(icon("add-outline"), "start")}${newLabel}</ion-button>` : ""
+          table.playable ? `<ion-button data-kit="new" shape="round">${slotted(icon("add-outline"), "start")}${newLabel}</ion-button>` : ""
         }</div>`;
         return html;
       }
@@ -358,7 +358,7 @@ export function elementFor(game) {
     paintBar(seen) {
       const t = this.t;
       const bar = this.bar;
-      const can = this.table.live && seen.phase === "play" && !seen.fork;
+      const can = this.table.playable && seen.phase === "play" && !seen.fork;
       label(bar.querySelector('[data-kit="back"]'), t("back"));
       const score = bar.querySelector('[data-part="score"]');
       this.set(score, `<span class="me">${this.number(seen.score.me)}</span><span class="dash">–</span><span class="them">${this.number(seen.score.them)}</span>`);
@@ -387,7 +387,7 @@ export function elementFor(game) {
       const chip = (who, side, name, extra) =>
         `<div class="ftg-player ${who}${extra}"${side === null ? "" : ` data-side="${side}"`}><span class="mark" aria-hidden="true">${mark(side)}</span><span class="who">${escape(name)}</span>${who === "them" ? '<span class="ftg-dot" aria-hidden="true"></span>' : ""}</div>`;
       const turn = (who) => (seen.turn && seen.turn === who ? " turn" : "");
-      return chip("me", mine, t("you"), turn(seen.me)) + chip("them", theirs, t("them"), `${turn(seen.peer)}${this.table.peerHere ? " here" : ""}`);
+      return chip("me", mine, t("you"), turn(seen.me)) + chip("them", theirs, t("them"), `${turn(seen.peer)}${this.table.peerHere || this.table.solo ? " here" : ""}`);
     }
 
     fitBoard() {
@@ -443,7 +443,7 @@ export function elementFor(game) {
       const t = this.t;
       const table = this.table;
       const long = this.pendingLong(seen);
-      if (!table.live) return note(icon("chatbubble-outline"), t("needsChat", { game: t("name") }));
+      if (!table.playable) return note(icon("chatbubble-outline"), t("needsChat", { game: t("name") }));
       if (seen.phase === "invite" && !table.peerHere) return note(icon("person-outline"), t("howToInvite"));
       if (table.connecting && seen.phase !== "invite") return note(icon("radio-outline"), t("connecting"));
       if (seen.pending > 0 && seen.phase !== "ended" && long) return note(icon("time-outline"), t("pending", { game: t("name") }));
@@ -492,7 +492,7 @@ export function elementFor(game) {
       const mine = mark(seen.mySide) || icon("play-outline");
       const theirs = mark(1 - seen.mySide) || icon("hourglass-outline");
       if (seen.myTurn) return fresh ? line(icon("dice-outline"), t("youStart")) : line(mine, t("yourTurn"));
-      return fresh ? line(icon("dice-outline"), t("theyStart")) : line(theirs, t("theirTurn"));
+      return fresh ? line(icon("dice-outline"), t("theyStart")) : line(theirs, t(this.table.solo ? "thinking" : "theirTurn"));
     }
 
     overlayHtml(seen) {
@@ -538,10 +538,10 @@ export function elementFor(game) {
       const t = this.t;
       if (seen.phase !== "over") return "";
       const { title, how } = this.outcome(seen);
-      const again = this.table.live
+      const again = this.table.playable
         ? ionButton("again", t("again"), slotted(icon("repeat-outline"), "icon-only"), 'class="ftg-again" fill="outline" shape="round"')
         : "";
-      return `<div class="ftg-result-card" role="group" aria-label="${escape(how ? `${title} · ${how}` : title)}"><div class="ftg-actions"><ion-button class="ftg-send" data-kit="send" shape="round">${slotted(icon("send-outline"), "start")}${escape(t("sendResult"))}</ion-button>${again}</div></div>`;
+      return `<div class="ftg-result-card" role="group" aria-label="${escape(how ? `${title} · ${how}` : title)}"><div class="ftg-actions">${this.table.solo ? "" : `<ion-button class="ftg-send" data-kit="send" shape="round">${slotted(icon("send-outline"), "start")}${escape(t("sendResult"))}</ion-button>`}${again}</div></div>`;
     }
 
     promptHtml(kind) {

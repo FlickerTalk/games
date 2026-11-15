@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { KV, PROTOCOL, fromBase64, seal } from "../../../kit/src/envelope.js";
+import { TIMING } from "../../../kit/src/table.js";
 import { fakeCore, phones, settle, within } from "../../../kit/test/helpers.js";
 import "../src/index.js";
 
@@ -43,6 +44,25 @@ beforeEach(() => {
   document.body.innerHTML = "";
 });
 afterEach(() => vi.useRealTimers());
+
+describe("Four in a Row against the phone", () => {
+  it("lets the phone drop its discs by the rules, in the conversation, without a word on the live channel", async () => {
+    const core = fakeCore();
+    const one = await phone(core, { live: false, solo: true });
+    one.table.random = () => new Uint8Array(32).fill(1);
+    await touch(one, '[data-kit="new"]');
+    await vi.advanceTimersByTimeAsync(TIMING.think);
+    await tick();
+    expect(one.table.record.game.moves).toHaveLength(1);
+    expect(discs(one, 0)).toBe(1);
+    await touch(one, 3);
+    await vi.advanceTimersByTimeAsync(TIMING.think);
+    await tick();
+    expect(one.table.record.game.moves).toHaveLength(3);
+    expect(one.table.view.myTurn).toBe(true);
+    expect(core.ft.live.send).not.toHaveBeenCalled();
+  });
+});
 
 describe("Four in a Row between two phones", () => {
   it("tosses the coin in three messages, plays a round to a win and the next to a draw, and sends the result", async () => {
