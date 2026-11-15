@@ -6,7 +6,7 @@ licence, reproduced here in full.
 
 ## Ionicons 8.1.0
 
-The interface's icons (the kit's `icons.js`): the outline drawings of the ones the kit uses, copied
+The interface's icons (the kit's `icons.js` and `sound/icons.js`): the outline drawings of the ones the kit uses, copied
 unchanged from `dist/svg/` of the package.
 Source: the `ionicons` package on npm, version 8.1.0 (repository `ionic-team/ionicons` on GitHub).
 Licence: MIT.
