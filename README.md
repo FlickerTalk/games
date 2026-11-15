@@ -304,6 +304,10 @@ record and the same screen as a match between two people.
   memory, random, { lang })` instead, which returns the move: `memory` is a plain JSON object kept with
   the match (the phone's secrets go there), `random()` a number in [0, 1), and `lang` the language the
   game is shown in, for a round played in a language of its own (Word Duel, Letter Grid).
+- The phone decides only from what its seat could know: `state` and its own `memory`. Where `state`
+  holds more than a seat may see, it leaves it alone: in Crazy Eights both phones work out the whole
+  deal, so the user's hand and the order of the stock are there, and the phone never reads them. Its
+  commitments are made and revealed exactly as a person's are, and the rules check them the same way.
 - `solo` outside a conversation, or for a game without `robot`, changes nothing: the game says to open
   it from a conversation, as before. An app that does not send `solo`, and a game that does not read
   it, stay as they were.
