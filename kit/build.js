@@ -34,7 +34,7 @@ export async function compactTexts(path) {
       }
     }
     const languages = Object.entries(catalogue).map(([lang, texts]) => `${JSON.stringify(lang)}:z(k,${JSON.stringify(keys.map((key) => texts[key] ?? null))})`);
-    code += `export const ${name}=(()=>{const k=${JSON.stringify(keys)};return{${languages.join(",")}}})();\n`;
+    code += `export const ${name}=/* @__PURE__ */(()=>{const k=${JSON.stringify(keys)};return{${languages.join(",")}}})();\n`;
   }
   return code;
 }
