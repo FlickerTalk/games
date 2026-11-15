@@ -1,0 +1,30 @@
+.ftg-sound {
+  min-width: 44px;
+  min-height: 44px;
+}
+.ftg-volume {
+  position: fixed;
+  z-index: 20;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  width: min(240px, calc(100vw - 16px));
+  min-height: 56px;
+  padding: 0 18px;
+  border: 1px solid var(--line);
+  border-radius: 28px;
+  background: var(--paper);
+  color: var(--ink);
+  box-shadow: 0 6px 18px var(--line);
+}
+.ftg-volume[hidden] {
+  display: none;
+}
+.ftg-volume ion-range {
+  --knob-size: 30px;
+  --bar-height: 6px;
+  --bar-border-radius: 3px;
+  flex: 1;
+  min-height: 44px;
+  padding: 0;
+}
