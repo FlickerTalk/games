@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { fromBase64 } from "../../../kit/src/envelope.js";
-import { phones, settle, within } from "../../../kit/test/helpers.js";
+import { TIMING } from "../../../kit/src/table.js";
+import { fakeCore, phones, settle, within } from "../../../kit/test/helpers.js";
 import "../src/index.js";
 
 const tick = () => settle([...document.querySelectorAll("ft-mancala")].map((element) => element.table));
@@ -41,6 +42,32 @@ beforeEach(() => {
   document.body.innerHTML = "";
 });
 afterEach(() => vi.useRealTimers());
+
+async function phoneTurn(element) {
+  for (let wait = 0; !element.table.view.myTurn && element.table.view.phase === "play" && wait < 12; wait += 1) {
+    await vi.advanceTimersByTimeAsync(TIMING.think);
+    await tick();
+  }
+}
+
+describe("mancala against the phone", () => {
+  it("lets the phone sow by the rules, again when it ends in its store, without a word on the live channel", async () => {
+    const core = fakeCore();
+    const one = await phone(core, { live: false, solo: true });
+    one.table.random = () => new Uint8Array(32);
+    await touch(one, '[data-kit="new"]');
+    expect(one.table.view.myTurn).toBe(true);
+    await touch(one, 2);
+    expect(one.table.view.myTurn).toBe(true);
+    await touch(one, 5);
+    await phoneTurn(one);
+    const played = one.table.record.game.moves;
+    expect(played.slice(0, 2)).toEqual([2, 5]);
+    expect(played.length).toBeGreaterThanOrEqual(4);
+    expect(one.table.view.myTurn).toBe(true);
+    expect(core.ft.live.send).not.toHaveBeenCalled();
+  });
+});
 
 describe("mancala between two phones", () => {
   it("tosses the coin, sows seeds seen on both phones with the turn again on a store, and sends the result of a resignation", async () => {

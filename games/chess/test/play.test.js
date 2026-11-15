@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { Chess } from "chess.js";
 import { Chessboard } from "cm-chessboard/src/Chessboard.js";
 import { KV, PROTOCOL, fromBase64, seal } from "../../../kit/src/envelope.js";
-import { MATCH_LIMIT } from "../../../kit/src/table.js";
+import { MATCH_LIMIT, TIMING } from "../../../kit/src/table.js";
 import { fakeCore, phones, settle, within } from "../../../kit/test/helpers.js";
 import { initial, play, result, turn } from "../src/rules.js";
 import "../src/index.js";
@@ -65,6 +65,28 @@ beforeEach(() => {
   document.body.innerHTML = "";
 });
 afterEach(() => vi.useRealTimers());
+
+describe("chess against the phone", () => {
+  it("lets the phone answer by the rules, in the conversation, without a word on the live channel", async () => {
+    vi.useRealTimers();
+    vi.useFakeTimers({ toNotFake: ["Date"] });
+    const core = fakeCore();
+    const one = await phone(core, { live: false, solo: true });
+    one.table.random = () => new Uint8Array(32);
+    await touch(one, '[data-kit="new"]');
+    expect(one.table.view.mySide).toBe(0);
+    await move(one, "e2e4");
+    await vi.advanceTimersByTimeAsync(TIMING.think);
+    await tick();
+    const [mine, theirs] = one.table.record.game.moves;
+    expect(mine).toBe("e2e4");
+    const answered = play(play(initial(), mine, 0).state, theirs, 1);
+    expect(answered.error).toBeUndefined();
+    expect(fen(one)).toBe(answered.state.fen);
+    expect(one.table.view.myTurn).toBe(true);
+    expect(core.ft.live.send).not.toHaveBeenCalled();
+  });
+});
 
 describe("chess between two phones", () => {
   it("gives white to the side the coin says starts, each board turned its way, and plays a game to checkmate", async () => {

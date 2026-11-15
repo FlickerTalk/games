@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { fromBase64 } from "../../../kit/src/envelope.js";
-import { phones, settle, within } from "../../../kit/test/helpers.js";
+import { TIMING } from "../../../kit/src/table.js";
+import { fakeCore, phones, settle, within } from "../../../kit/test/helpers.js";
 import "../src/index.js";
 
 const tick = () => settle([...document.querySelectorAll("ft-gomoku")].map((element) => element.table));
@@ -45,6 +46,26 @@ beforeEach(() => {
   document.body.innerHTML = "";
 });
 afterEach(() => vi.useRealTimers());
+
+describe("Five in a Row against the phone", () => {
+  it("lets the phone place its stones by the rules, in the conversation, without a word on the live channel", async () => {
+    const core = fakeCore();
+    const one = await phone(core, { live: false, solo: true });
+    one.table.random = () => new Uint8Array(32).fill(1);
+    await touch(one, '[data-kit="new"]');
+    await vi.advanceTimersByTimeAsync(TIMING.think);
+    await tick();
+    expect(one.table.record.game.moves).toEqual([112]);
+    expect(stones(one, 0)).toBe(1);
+    await place(one, 113);
+    await vi.advanceTimersByTimeAsync(TIMING.think);
+    await tick();
+    expect(one.table.record.game.moves).toHaveLength(3);
+    expect(stones(one, 0)).toBe(2);
+    expect(one.table.view.myTurn).toBe(true);
+    expect(core.ft.live.send).not.toHaveBeenCalled();
+  });
+});
 
 describe("Five in a Row between two phones", () => {
   it("tosses the coin, shows the same stones on both phones after each move, and sends the result of a resignation", async () => {
