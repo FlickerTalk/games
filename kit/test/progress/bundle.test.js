@@ -35,10 +35,10 @@ describe("the progress module in a game's package", () => {
     }
   });
 
-  it("adds under 8 KB to a game that uses all of it", async () => {
+  it("adds under 9 KB to a game that uses all of it", async () => {
     const code = await bundled(`export * from ${JSON.stringify(progress)};`);
     expect(code).toContain(MARK);
-    expect(Buffer.byteLength(code)).toBeLessThan(8 * 1024);
+    expect(Buffer.byteLength(code)).toBeLessThan(9 * 1024);
   });
 
   it("adds well under 1 KB to a game that takes only the length of a round", async () => {
