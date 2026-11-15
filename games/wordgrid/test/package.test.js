@@ -32,6 +32,7 @@ describe("the Letter Grid package", () => {
     expect(checkDist(dir, { cap: 326 * 1024 })).toBeGreaterThan(20_000);
     const notices = readFileSync(join(dir, "dist", "THIRD_PARTY_NOTICES.md"), "utf8");
     for (const work of ["Ionicons", "an-array-of-english-words", "FrequencyWords"]) expect(notices).toContain(work);
+    expect(notices).toMatch(/## FrequencyWords[\s\S]*Licence: CC BY-SA 4\.0/);
     const code = readFileSync(join(dir, "dist", "index.js"), "utf8");
     for (const brand of BRANDS) expect(`${code}\n${notices}`).not.toMatch(brand);
   });
