@@ -17,6 +17,7 @@ phone itself never leaves it.
 kit/                      shared code, compiled INTO each game's dist/index.js (not a package)
   src/                    envelope, commit–reveal, match, storage, table (live session), shell, texts
   src/live/               the real-time part: session, wire, pace, follow, the page (arena) and its texts
+  src/sound/              effects, music and the volume line, made by the game, for the games that ask for it
   build.js                buildGame(): one game folder → its dist/
   test/                   the kit's tests, and helpers.js for every game's tests
 games/<name>/             one catalogue package per game
@@ -523,6 +524,82 @@ await progress.save(ft.store, record);
   `false`. A store that never answers is waited for; a game that cannot wait races `load` against its
   own timer.
 
+## Sound
+
+`kit/src/sound/` gives a game sound effects and background music that the game makes itself with Web
+Audio: no audio files, nothing fetched. It is compiled into a game only if the game imports it; the
+other games' packages do not change by a byte. A board game opts in by wrapping what it hands to
+`defineGame`:
+
+```js
+import { defineGame } from "../../../kit/src/index.js";
+import { withSound } from "../../../kit/src/sound/index.js";
+
+export const game = defineGame(withSound({ id: "tictactoe", /* the rest of the game */ }, { tune: "calm" }));
+```
+
+That is all Tic-Tac-Toe does, and it gets:
+
+- In a match, a speaker in the bar beside the way back. A tap unfolds the volume line under it: one
+  line with a handle (Ionic's `ion-range`) for the whole volume, from silence to full, with the music
+  switch at its start (a note, struck through while the music is off). At zero the speaker is crossed
+  out. The line floats over the band under the bar, so nothing moves, and folds on a tap elsewhere, on
+  Escape, or after three seconds untouched. The speaker sits with the way back because on the
+  iPhone Ionic centres the title and leaves room for two buttons on each side (`npm run bar` checks it).
+- The tune during a match, stopped when the match leaves the screen.
+- The user's move sounds `place`, the other side's `pop`, and the end of a round `win`, `lose-soft` or
+  `star` (a draw) just after it. `cues: { mine, theirs, won, lost, draw }` picks other effects, `null`
+  for none. The board's context carries `sound` for a board's own effects (`ctx.sound.play("error-soft")`).
+
+Every game gets the same rules:
+
+- Nothing is made before the user's first touch or key (browsers let audio start only from one), then
+  one `AudioContext` for the page. Without Web Audio, or when the page refuses it, every call does
+  nothing and nothing throws.
+- At volume 0 the audio sleeps and nothing plays; it sleeps too while the page is hidden. The game
+  closing (`ft.onClose`) closes it.
+- The settings are `{ volume: 0–1, music: true | false }`, full and on by default, kept in `ft.store`
+  under `sound`: the same key and shape in every game. What the user changes before they load wins.
+- One master level and a limiter. The music sits under the effects and steps back while a little tune
+  (`win`, `lose-soft`, `success`, `star`) plays; a continuous voice (an engine, wind, water) at its
+  loudest sits under the music.
+
+A game that draws its own controls (a canvas) uses the same pieces:
+
+```js
+import { createSound, lineValue, note, pluck, soundControls } from "../../../kit/src/sound/index.js";
+
+const sound = createSound({
+  effects: { boing: { voices: [pluck("sine", note("A4"), 0, 0.2, 0.2, { toFrequency: note("A5") })] } },
+  drones: { wind: [{ wave: "noise", gain: 0.6, filter: { type: "bandpass", frequency: 500 }, wobble: { rate: 0.3, depth: 0.4 } }] },
+});
+sound.music("playful");                         // "calm", a tune of the game's own, or null
+sound.play("collect", { pitch: 1.2 });          // gain 0–1, pitch (times the frequency), delay in seconds
+sound.drone("wind", { level: 0.5, pitch: 1 });  // starts it or follows it; null stops it
+sound.pause();                                  // the music steps back, continuous voices go quiet; pause(false)
+const controls = soundControls(sound);          // the speaker, the line and the music switch, without drawing
+controls.slide(lineValue(x, left, right));      // while dragged; controls.release() keeps it
+```
+
+| | |
+| --- | --- |
+| `createSound(spec, options)` | `spec`: `effects` and `tunes` beside the library's, and `drones`. `options`: `ft`, `page` and `AudioContextClass` (the tests pass a fake). Gives `play(name, options)` (true if it played), `music(name)`, `drone(name, { level, pitch } \| null)`, `pause(on)`, `settings`, `set(change)`, `save()`, `onChange(listener)`, `ready` and `close()`. |
+| `withSound(game, { tune, cues, ...spec })` | The board games' opt-in above. The game it gives back carries `sound`. |
+| `soundControls(sound)` | The controls' logic for any drawing: `open`, `icon` (`mute`, `low`, `high`), `music`, `toggle()`, `fold()`, `toggleMusic()`, `slide(value)`, `release()` (keeps the volume and plays a short sample), `key(key, { rtl })` (arrows, Home, End, Escape) and `labels(lang)`. `lineValue(position, start, end)` turns a point on a line of any direction into a volume. |
+| `mountSoundControls(sound, { bar, before, slot, layer, lang })` | The controls drawn with Ionic, as in a board game. |
+| `EFFECTS`, `TUNES` | The library, as data. Effects: `tap`, `place`, `pick`, `pop`, `success`, `star`, `win`, `lose-soft`, `error-soft`, `tick`, `whoosh`, `splash`, `bounce`, `collect`. Tunes, written for this kit: `playful` (C major, 116 bpm, bell, bass and light drums) and `calm` (D major, 66 bpm, flute, harp and bass, sparse, for the serious games), 16 bars each. |
+| `pluck`, `hold`, `noise`, `note` | To write an effect: each voice is a wave (`sine`, `triangle`, `noise`…), a pitch (`note("C5")` or Hz) that may glide to `toFrequency`, when it starts and how long it lasts in seconds, its level and an optional filter. |
+
+A tune is a score: `key`, `tempo`, `stepsPerBeat`, `beatsPerBar`, `bars`, and tracks, each an
+instrument (`flute`, `harp`, `bell`, `bass`, `drums`) playing `"C5:2 E5:2 r:4"`: a note, a rest (`r`) or
+a drum (`k`, `h`, `s`), and its length in steps. A track shorter than the tune repeats until it fills
+it. A tune is checked when the game loads, not when it plays.
+
+The whole module is about 40 KB of source and 24 KB once minified; a game that draws its own
+controls carries 20 KB of it. The tests cannot hear: how it sounds, whether the iPhone's silent switch
+or the app's audio session lets it through, and the first touch unlocking audio on a real phone are
+checked on a phone.
+
 ## Protocol
 
 Over `ft.live`, which the core carries only over the direct connection, only to the same plugin open in
@@ -618,7 +695,7 @@ Fixed vectors (in `kit/test/commit.test.js`), computed independently by `kit/tes
   more from its build (a module made at build time, a fix to a dependency's source) exports esbuild
   `plugins` from its own `build.js`; they run before the kit's.
 - Each game's tests check its manifest, that `dist/` stays under its size cap (130 to 136 KB for a small
-  game: the kit with its 21 languages is about 96 KB),
+  game: the kit with its 21 languages is about 96 KB; sound adds about 24 KB, Tic-Tac-Toe's cap is 154 KB),
   and that nothing the frame loads contains an `http://` or `https://` address. XML namespace names
   (`http://www.w3.org/2000/svg`…) are allowed: browsers never fetch them. `THIRD_PARTY_NOTICES.md` is
   not scanned: it may quote a licence's address, and the frame never loads it.
@@ -661,6 +738,7 @@ package's contents. So:
   Backgammon, Word Duel and Letter Grid.
 - Full screen (the board sized from the frame the app gives the game, live) is one more patch for every
   game: `1.1.1`.
+- Sound is `1.2.0` for Tic-Tac-Toe, the first game that has it. The other games' packages do not change.
 
 ## Preview
 
