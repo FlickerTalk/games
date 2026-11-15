@@ -1,7 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { fromBase64 } from "../../../kit/src/envelope.js";
-import { phones, settle, within } from "../../../kit/test/helpers.js";
-import { DEFAULT_FLEET, shipCells } from "../src/rules.js";
+import { TIMING } from "../../../kit/src/table.js";
+import { fakeCore, phones, seeded, settle, within } from "../../../kit/test/helpers.js";
+import { CELLS, DEFAULT_FLEET, shipCells } from "../src/rules.js";
 import "../src/index.js";
 
 const tick = () => settle([...document.querySelectorAll("ft-seabattle")].map((element) => element.table));
@@ -48,7 +49,66 @@ beforeEach(() => {
   vi.useFakeTimers();
   document.body.innerHTML = "";
 });
-afterEach(() => vi.useRealTimers());
+afterEach(() => {
+  vi.useRealTimers();
+  delete globalThis.ft;
+});
+
+const randomBytes = (random) => () => Uint8Array.from({ length: 32 }, () => Math.floor(random() * 256));
+const keeper = (kept) => ({
+  get: async (key) => kept.get(key) ?? null,
+  set: async (key, value) => (kept.set(key, value), true),
+  forget: async (key) => kept.delete(key),
+});
+
+async function alone(records, kept, seed) {
+  const core = fakeCore({ records });
+  globalThis.ft = { store: keeper(kept) };
+  const element = await phone(core, { live: false, solo: true });
+  element.table.random = randomBytes(seeded(seed));
+  return { core, element };
+}
+
+async function turn(element) {
+  const { state, myTurn, mySide } = element.table.view;
+  if (!myTurn) {
+    await vi.advanceTimersByTimeAsync(TIMING.think);
+    await tick();
+  } else if (state.phase === "place") {
+    await touch(element, '[data-act="ready"]');
+  } else if (state.phase === "fire") {
+    await fire(element, [...Array(CELLS).keys()].find((cell) => !state.shots[mySide].includes(cell)));
+  } else {
+    await tick();
+  }
+}
+
+describe("Sea Battle against the phone", () => {
+  it("plays a whole round with the phone, closed and opened again halfway, and both fleets check out", async () => {
+    const records = new Map();
+    const kept = new Map();
+    const first = await alone(records, kept, 11);
+    await touch(first.element, '[data-kit="new"]');
+    const key = `game/${first.core.chat}/${first.element.table.record.id}`;
+    while (first.element.table.view.round.moves.length < 30) await turn(first.element);
+    const memory = JSON.parse(records.get(key)).solo.memory;
+    expect(memory).toEqual({ fleet: expect.any(String), salt: expect.any(String) });
+    first.element.table.stopTimers();
+    first.element.remove();
+
+    const second = await alone(records, kept, 12);
+    await touch(second.element, '[data-kit="enter"]');
+    expect(second.element.table.record.solo.memory).toEqual(memory);
+    for (let step = 0; step < 400 && second.element.table.view.phase === "play"; step += 1) await turn(second.element);
+
+    const { phase, state, result } = second.element.table.view;
+    expect(phase).toBe("over");
+    expect(result.result.reason).toBe("sunk");
+    expect(state.reveals.map((reveal) => reveal.ok)).toEqual([true, true]);
+    expect(text(second.element)).toMatch(/You (won|lost)/);
+    for (const core of [first.core, second.core]) expect(core.ft.live.send).not.toHaveBeenCalled();
+  });
+});
 
 describe("Sea Battle between two phones", () => {
   it("tosses the coin, places both fleets, and shows each shot and its answer the same on both phones", async () => {
