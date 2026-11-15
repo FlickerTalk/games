@@ -332,7 +332,7 @@ describe("the screen of a match against the phone", () => {
     const element = await phone(fakeCore());
     element.table.random = bytes(1);
     await press(element, '[data-kit="new"]');
-    expect(band(element)).toBe("The coin says they start");
+    expect(band(element)).toBe("The coin says FlickerTalk starts");
     expect(element.querySelector('[data-move="p"]').disabled).toBe(true);
     await wait(element);
     expect(band(element)).toBe("Your turn");
@@ -386,5 +386,41 @@ describe("the screen of a match against the phone", () => {
     await press(element, '[data-kit="new"]');
     await press(element, '[data-move="p"]');
     expect(band(element)).toBe("Pensando…");
+  });
+
+  it("calls the other side FlickerTalk, on its chip, when it starts and when the user would resign", async () => {
+    const element = await phone(fakeCore());
+    element.table.random = bytes(1);
+    await press(element, '[data-kit="new"]');
+    expect(text(element.querySelector(".ftg-player.them .who"))).toBe("FlickerTalk");
+    expect(band(element)).toBe("The coin says FlickerTalk starts");
+    await wait(element);
+    await press(element, '[data-kit="resign"]');
+    expect(element.alert.message).toBe("Resign this round? FlickerTalk wins it.");
+  });
+
+  it("calls the other side FlickerTalk in the user's language too", async () => {
+    const element = await phone(fakeCore(), { lang: "es" });
+    element.table.random = bytes(1);
+    await press(element, '[data-kit="new"]');
+    expect(text(element.querySelector(".ftg-player.them .who"))).toBe("FlickerTalk");
+    expect(band(element)).toBe("La moneda dice que empieza FlickerTalk");
+    await wait(element);
+    await press(element, '[data-kit="resign"]');
+    expect(element.alert.message).toBe("¿Rendirte en esta ronda? La gana FlickerTalk.");
+  });
+
+  it("keeps the words of a match between two people", async () => {
+    const { a, b } = phones();
+    const one = await phone(a, { live: true, solo: false });
+    const two = await phone(b, { live: true, solo: false });
+    one.table.random = bytes(1);
+    await press(one, '[data-kit="new"]');
+    await tick();
+    const second = one.table.view.myTurn ? two : one;
+    expect(text(second.querySelector(".ftg-player.them .who"))).toBe("Opponent");
+    expect(band(second)).toBe("The coin says they start");
+    await press(second, '[data-kit="resign"]');
+    expect(second.alert.message).toBe("Resign this round? The other person wins it.");
   });
 });

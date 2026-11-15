@@ -117,7 +117,7 @@ export function elementFor(game) {
       if (this.table) return;
       addStyle(game.style);
       const ft = this.ft ?? globalThis.ft;
-      this.t = (key, vars) => translate(this.table?.lang ?? "en", key, vars);
+      this.t = (key, vars) => translate(this.table?.lang ?? "en", key, vars, this.table?.solo);
       this.asking = null;
       this.shown = null;
       this.board = null;

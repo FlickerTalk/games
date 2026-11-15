@@ -16,6 +16,13 @@ describe("the texts of Word Duel", () => {
     expect(translate("de", "right")).toBe("an der richtigen Stelle");
   });
 
+  it("name FlickerTalk in a match against the phone, and the other side in a match with a person", () => {
+    expect(translate("en", "secretHint", {}, true)).toBe("Five letters, for FlickerTalk to guess.");
+    expect(translate("es", "secretWait", {}, true)).toBe("Esperando la palabra de FlickerTalk");
+    expect(translate("es", "secretHint")).toBe("Cinco letras, para que la adivine la otra persona. Se queda en este teléfono hasta el final.");
+    expect(translate("en", "secretWait")).toBe("Waiting for the other side's word");
+  });
+
   it("never call the game by the daily word game's trademark, in any language", () => {
     for (const [lang, texts] of Object.entries(catalogue)) {
       for (const [key, text] of Object.entries(texts)) {

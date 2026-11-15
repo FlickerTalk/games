@@ -28,8 +28,8 @@ describe("the Letter Grid package", () => {
     expect(readFileSync(join(out, "THIRD_PARTY_NOTICES.md")).equals(readFileSync(join(dir, "dist", "THIRD_PARTY_NOTICES.md")))).toBe(true);
   });
 
-  it("stays under 323 KB (the word lists are most of it), names its three third-party works, loads nothing from outside and names no brand", () => {
-    expect(checkDist(dir, { cap: 323 * 1024 })).toBeGreaterThan(20_000);
+  it("stays under 326 KB (the word lists are most of it), names its three third-party works, loads nothing from outside and names no brand", () => {
+    expect(checkDist(dir, { cap: 326 * 1024 })).toBeGreaterThan(20_000);
     const notices = readFileSync(join(dir, "dist", "THIRD_PARTY_NOTICES.md"), "utf8");
     for (const work of ["Ionicons", "an-array-of-english-words", "FrequencyWords"]) expect(notices).toContain(work);
     const code = readFileSync(join(dir, "dist", "index.js"), "utf8");

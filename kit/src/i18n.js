@@ -16,9 +16,10 @@ export function joinTexts(kit, game) {
 }
 
 export function translator(catalogue) {
-  return (lang, key, vars = {}) => {
+  const find = (tag, key) => catalogue[tag]?.[key] ?? catalogue[tag.split("-")[0]]?.[key] ?? catalogue.en?.[key];
+  return (lang, key, vars = {}, solo = false) => {
     const tag = String(lang || "en");
-    const text = catalogue[tag]?.[key] ?? catalogue[tag.split("-")[0]]?.[key] ?? catalogue.en?.[key] ?? key;
+    const text = (solo ? find(tag, `${key}Solo`) : undefined) ?? find(tag, key) ?? key;
     return text.replace(/\{(\w+)\}/g, (gap, name) => (name in vars ? String(vars[name]) : gap));
   };
 }
