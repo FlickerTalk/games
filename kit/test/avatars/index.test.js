@@ -1,11 +1,17 @@
-import { copyFileSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { copyFileSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { buildGame } from "../../build.js";
+import { buildGame, gameFolders } from "../../build.js";
 import * as avatars from "../../src/avatars/index.js";
 
 const kit = join(import.meta.dirname, "..", "..");
+const MARK = "mini-twists";
+
+function importsAvatars(dir) {
+  const src = join(dir, "src");
+  return existsSync(src) && readdirSync(src, { recursive: true }).some((file) => /\.js$/.test(file) && /kit\/src\/avatars\//.test(readFileSync(join(src, file), "utf8")));
+}
 
 async function bundle(source) {
   const dir = mkdtempSync(join(tmpdir(), "ftgames-avatars-"));
@@ -60,14 +66,20 @@ describe("the avatars module", () => {
     );
   });
 
+  it("is compiled only into a game that imports it", () => {
+    const games = gameFolders(join(kit, ".."));
+    expect(games.some(importsAvatars)).toBe(true);
+    for (const dir of games) expect(readFileSync(join(dir, "dist", "index.js"), "utf8").includes(MARK), dir).toBe(importsAvatars(dir));
+  });
+
   it("is not in a game that does not import it", async () => {
     const code = await bundle(`import { defineGame } from ${JSON.stringify(join(kit, "src", "index.js"))};\nexport { defineGame };\n`);
-    for (const mark of ["#8D7DE8", "mini-twists", "Mini twists"]) expect(code, mark).not.toContain(mark);
+    for (const mark of ["#8D7DE8", MARK, "Mini twists"]) expect(code, mark).not.toContain(mark);
   });
 
   it("brings only the drawing to a game that only draws, without the pick screen's words", async () => {
     const code = await bundle(`import { drawAvatar } from ${JSON.stringify(join(kit, "src", "avatars", "index.js"))};\nglobalThis.draw = drawAvatar;\n`);
-    expect(code).toContain("mini-twists");
+    expect(code).toContain(MARK);
     for (const words of ["Mini twists", "Who are you?", "Hair colour"]) expect(code, words).not.toContain(words);
     expect(Buffer.byteLength(code)).toBeLessThan(16 * 1024);
   });
