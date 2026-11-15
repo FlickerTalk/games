@@ -69,6 +69,7 @@ describe("Letter Grid against the phone", () => {
   it("draws the letters with the phone in the user's language, the phone revealing its seed after the game is opened again, and plays the round out", async () => {
     const records = new Map();
     const first = await alone(records);
+    first.element.table.timing.unseen = TIMING.think;
     first.element.table.random = () => new Uint8Array(32).fill(1);
     await touch(first.element, '[data-kit="new"]');
     first.element.table.random = randomBytes(seeded(51));

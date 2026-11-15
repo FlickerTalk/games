@@ -109,6 +109,15 @@ export function playOut(game, players, { limit = 1000 } = {}) {
   return { state, moves, result: game.result(state) };
 }
 
+export function unseenSteps(game, moves) {
+  let state = game.initial();
+  return moves.map((move) => {
+    const unseen = game.robot.unseen(state);
+    state = game.play(state, move, game.turn(state)).state;
+    return { move, unseen };
+  });
+}
+
 export function within(element, selector) {
   return element.querySelector(selector) ?? element.alert?.querySelector(selector) ?? null;
 }
@@ -207,6 +216,7 @@ export function checkTexts(catalogue) {
   const languages = Object.keys(catalogue);
   expect(languages.sort()).toEqual(["ar", "bn", "de", "en", "es", "fr", "hi", "id", "it", "ja", "ko", "pl", "pt", "ro", "ru", "th", "tr", "uk", "vi", "zh-CN", "zh-TW"]);
   const keys = Object.keys(catalogue.en).sort();
+  for (const key of keys.filter((one) => one.endsWith("Solo"))) expect(keys, `${key} has no shared text`).toContain(key.slice(0, -"Solo".length));
   for (const lang of languages) {
     expect(Object.keys(catalogue[lang]).sort(), lang).toEqual(keys);
     for (const key of keys) expect(catalogue[lang][key].trim(), `${lang}.${key}`).not.toBe("");

@@ -52,6 +52,7 @@ function targets(state, side) {
 }
 
 export const robot = {
+  unseen: (state) => ["place", "reveal"].includes(state.phase),
   move(state, side, memory, random) {
     if (result(state)) return null;
     if (state.phase === "place") return place(memory, random);

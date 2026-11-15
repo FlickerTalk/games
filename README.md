@@ -110,7 +110,7 @@ defineGame({ id: "tictactoe", gv: 1, tag: manifest.components[0], app: manifest.
 | `minBoard` | Optional: the smallest board, in CSS pixels, on which the game is playable (Chess 320: squares of 40 px; Four in a Row 308: columns of 44 px). In a game the kit makes room for it before anything else; while waiting or on the result the board may be smaller. Default 200. |
 | `how(result, t)` | Optional: why a round ended by the rules, in the game's words (“checkmate”, “stalemate”), shown with the result; `result` is what `result(state)` returned. |
 | `summary(view, { t, lang, name, icon, record })` | Optional: the text sent to the chat. Without it: `⭕ Tic-Tac-Toe: I won, 3–2 · draws: 1`, in the sender's language. |
-| `robot` | Optional: lets the user play against their own phone (see "Playing against the phone"). `{ moves(state, side), score(state, side) }` for the kit's search, with optional `depth`, `budgetMs` and `slack`; or `{ move(state, side, memory, random, { lang }) }` for a game that finds its own moves. Without it the game is played between two people only. |
+| `robot` | Optional: lets the user play against their own phone (see "Playing against the phone"). `{ moves(state, side), score(state, side) }` for the kit's search, with optional `depth`, `budgetMs` and `slack`; or `{ move(state, side, memory, random, { lang }) }` for a game that finds its own moves, with an optional `unseen(state)` for the steps the board does not show. Without it the game is played between two people only. |
 
 A **move** is a JSON number or a short string (≤ 64 characters): a cell index, a column, `e7e8q`.
 Rules are run on both phones from the first move every time something arrives, so they must be pure
@@ -226,6 +226,13 @@ English as the source, real translations. A game's keys may not reuse the kit's.
 that holds anything but texts. `checkTexts(joinTexts(KIT_TEXTS, TEXTS))` checks every language has the
 same keys and `{gaps}`.
 
+A text may have its own wording for a match against the phone: the same key with `Solo` after it
+(`theyStartSolo`), in every language, naming the other side FlickerTalk (a name, never translated). In
+such a match the kit's `t` gives that wording instead, to the kit's own screens and to the board alike;
+in a match with a person it gives the shared one. Add one only where the shared text speaks of another
+person: the kit has three (`themSolo`, `theyStartSolo`, `confirmResignSolo`), Word Duel two
+(`secretHintSolo`, `secretWaitSolo`). `checkTexts` refuses a `Solo` key without its shared one.
+
 ## The match
 
 A match is a **series** of rounds between two participants, kept on each phone as one record,
@@ -288,11 +295,16 @@ record and the same screen as a match between two people.
   kept, as always, at `game/<chat>/<id>`, marked `solo` so that it opens again as one. Matches against
   the phone are listed only when the game is open with `solo`, matches with a person only without it,
   and a message naming a match against the phone is answered as if it did not exist.
-- The user's moves are saved at once and never shown as pending, and there is no "send the result to
-  the chat". While it is the phone's turn the band under the bar says it is thinking. After a short
-  wait (600 ms) the kit asks for the phone's move, checks it with the rules like any other, saves it,
-  and lets the phone play again if the rules give it another turn. "Play again" starts the next round.
-  Closing the game and opening it again goes on where it was, the phone playing if it is its turn.
+- The other side is called FlickerTalk, the contact the user sees: on its chip, when it starts, and in
+  the question before resigning (see "Texts"). The user's moves are saved at once and never shown as
+  pending, and there is no "send the result to the chat". While it is the phone's turn the band under
+  the bar says it is thinking. After a short wait (600 ms, so the user can follow each move on the
+  board) the kit asks for the phone's move, checks it with the rules like any other, saves it, and lets
+  the phone play again if the rules give it another turn. A step the user does not see (a commitment,
+  a seed, a reveal) is taken at once, without the wait, when the game's `robot.unseen(state)` says so
+  for the state the phone is to play in: in Backgammon the phone's turn is one wait per checker it
+  moves, the dice rolled at once. "Play again" starts the next round. Closing the game and opening it
+  again goes on where it was, the phone playing if it is its turn.
 - `robot.moves(state, side)` lists the moves of the side to play, the likely best first (the search
   goes faster); `robot.score(state, side)` says how good a position that has not ended is for `side`
   (positive is good, `0` is even). The kit searches with alpha–beta, `depth` moves ahead (default 4),
@@ -303,7 +315,9 @@ record and the same screen as a match between two people.
 - A game with secrets or chance of its own (a hidden fleet, dice) gives `robot.move(state, side,
   memory, random, { lang })` instead, which returns the move: `memory` is a plain JSON object kept with
   the match (the phone's secrets go there), `random()` a number in [0, 1), and `lang` the language the
-  game is shown in, for a round played in a language of its own (Word Duel, Letter Grid).
+  game is shown in, for a round played in a language of its own (Word Duel, Letter Grid). Such a game
+  may also give `robot.unseen(state)`, true when the phone's next step is one the board does not show
+  (Backgammon: `state.dice === null`, the roll).
 - The phone decides only from what its seat could know: `state` and its own `memory`. Where `state`
   holds more than a seat may see, it leaves it alone: in Crazy Eights both phones work out the whole
   deal, so the user's hand and the order of the stock are there, and the phone never reads them. Its
@@ -513,8 +527,8 @@ Fixed vectors (in `kit/test/commit.test.js`), computed independently by `kit/tes
   licence comments dropped and the game's `THIRD_PARTY_NOTICES.md` copied beside it. A game that needs
   more from its build (a module made at build time, a fix to a dependency's source) exports esbuild
   `plugins` from its own `build.js`; they run before the kit's.
-- Each game's tests check its manifest, that `dist/` stays under its size cap (128 to 132 KB for a small
-  game: the kit with its 21 languages is about 93 KB),
+- Each game's tests check its manifest, that `dist/` stays under its size cap (130 to 135 KB for a small
+  game: the kit with its 21 languages is about 96 KB),
   and that nothing the frame loads contains an `http://` or `https://` address. XML namespace names
   (`http://www.w3.org/2000/svg`…) are allowed: browsers never fetch them. `THIRD_PARTY_NOTICES.md` is
   not scanned: it may quote a licence's address, and the frame never loads it.

@@ -41,6 +41,7 @@ async function match() {
   await touch(one, '[data-kit="new"]');
   await tick();
   const [s, o] = one.table.view.myTurn ? [one, two] : [two, one];
+  expect(text(s)).toContain("Five letters, for the other side to guess.");
   await type(s, "secret", "crane");
   await touch(s, '[data-act="commit"]');
   expect(text(s)).toContain("Waiting for the other side's word");
@@ -87,6 +88,16 @@ async function turn(element) {
 }
 
 describe("Word Duel against the phone", () => {
+  it("asks the user for a word for FlickerTalk to guess", async () => {
+    globalThis.ft = { store: { get: async () => null, set: async () => true } };
+    const element = await phone(fakeCore(), { live: false, solo: true });
+    element.table.random = () => new Uint8Array(32).fill(0);
+    await touch(element, '[data-kit="new"]');
+    expect(element.table.view.myTurn).toBe(true);
+    expect(text(element)).toContain("Five letters, for FlickerTalk to guess.");
+    expect(text(element)).not.toContain("other side");
+  });
+
   it("plays a round in the user's language with the phone, closed and opened again halfway, and both words check out", async () => {
     const records = new Map();
     const kept = new Map();

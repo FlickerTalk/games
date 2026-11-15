@@ -8,7 +8,7 @@ import { exists, forget, isChat, list, load, save } from "./store.js";
 
 export { MATCH_LIMIT };
 
-export const TIMING = { ack: 8_000, reveal: 30_000, retry: 15_000, retries: 8, think: 600 };
+export const TIMING = { ack: 8_000, reveal: 30_000, retry: 15_000, retries: 8, think: 600, unseen: 0 };
 const ASKING = ["hello", "state", "commit", "seed", "reveal"];
 const ABSENCE = ["notOpen", "unreachable", "busy", "left", "denied"];
 

@@ -29,15 +29,31 @@ function takeable(lines) {
   return taken;
 }
 
+// drawing the far side of a chain's last two boxes hands both over, so the other side opens the next chain
+function declines(lines) {
+  const found = [];
+  for (let box = 0; box < SIDES.length; box += 1) {
+    if (open(lines, box) !== 1) continue;
+    const shared = SIDES[box].find((line) => !lines[line]);
+    const next = NEXT_TO[shared].find((one) => one !== box);
+    if (next === undefined || open(lines, next) !== 2) continue;
+    const far = SIDES[next].find((line) => !lines[line] && line !== shared);
+    const beyond = NEXT_TO[far].find((one) => one !== next);
+    if (beyond === undefined || open(lines, beyond) >= 3) found.push(far);
+  }
+  return found;
+}
+
 function moves(state) {
   const free = [];
   for (let line = 0; line < LINES; line += 1) if (!state.lines[line]) free.push(line);
   const closing = free.filter((line) => closes(state.lines, line));
-  if (closing.length) return closing;
+  if (closing.length) return [...closing, ...declines(state.lines)];
   const safe = free.filter((line) => !handsOver(state.lines, line));
   if (safe.length) return safe;
-  const given = (line) => takeable(state.lines.map((drawn, one) => drawn || one === line));
-  return free.map((line) => ({ line, given: given(line) })).sort((one, two) => one.given - two.given).map(({ line }) => line);
+  const given = free.map((line) => takeable(state.lines.map((drawn, one) => drawn || one === line)));
+  const fewest = Math.min(...given);
+  return free.filter((line, at) => given[at] === fewest);
 }
 
 function score(state, side) {

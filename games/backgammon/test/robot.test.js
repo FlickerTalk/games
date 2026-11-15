@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { replay } from "../../../kit/src/match.js";
 import { robotMove } from "../../../kit/src/robot.js";
-import { playOut, seeded } from "../../../kit/test/helpers.js";
+import { playOut, seeded, unseenSteps } from "../../../kit/test/helpers.js";
 import { robot } from "../src/robot.js";
 import { fromBase64url } from "../src/sha256.js";
 import { POINTS, SEED_BYTES, commitText, initial, legalMoves, moveText, play, result, revealText, seedText, turn } from "../src/rules.js";
@@ -51,6 +51,13 @@ function wholeTurn(state, side, random = seeded(1)) {
 }
 
 describe("the Backgammon robot", () => {
+  it("says which of its steps the user does not see: the rolls, not the checkers it moves", () => {
+    const { moves } = playOut(game, [timed(seeded(4)), timed(seeded(5))]);
+    const steps = unseenSteps(game, moves);
+    expect(steps.some(({ unseen }) => unseen)).toBe(true);
+    for (const { move, unseen } of steps) expect(unseen, move).toBe(/^[csr]/.test(move));
+  });
+
   it("commits to a seed for its own roll, keeps it, and reveals it once the other seed is in", () => {
     const memory = {};
     const commit = robot.move(initial(), 0, memory, seeded(1));
