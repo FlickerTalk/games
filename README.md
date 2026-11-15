@@ -454,7 +454,7 @@ package's contents. So:
 - Matches against the phone are `1.1.0` for the games that have a `robot` (Tic-Tac-Toe, Four in a Row,
   Reversi), and one more patch for the others, whose bundle changes with the kit: `1.0.6` for nine,
   `1.0.7` for Chess.
-- A `robot` for Checkers and Five in a Row is their `1.1.0`.
+- A `robot` for Checkers, Five in a Row and Dots and Boxes is their `1.1.0`.
 
 ## Preview
 
