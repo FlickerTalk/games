@@ -545,7 +545,7 @@ package's contents. So:
   Reversi), and one more patch for the others, whose bundle changes with the kit: `1.0.6` for nine,
   `1.0.7` for Chess.
 - A `robot` that keeps its secrets in the match's memory is `1.1.0` for Sea Battle, Crazy Eights,
-  Backgammon and Word Duel.
+  Backgammon, Word Duel and Letter Grid.
 
 ## Preview
 
