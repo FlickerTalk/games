@@ -46,9 +46,10 @@ npm run frame         # chess in Chromium inside the preview's frame: pieces dra
 npm run bar           # the game's bar in Chromium and WebKit, in Ionic's md and ios modes: title and score inside it, clear of its buttons
 npm run room          # every game, in every state, in the app's game room on two phone sizes (npm run room -- gomoku: just one)
 npm run theme         # the games in the app's colours in Chromium, and in their own palette without them
+npm run fill          # five games entering and leaving full screen mid-match at four frame sizes (npm run fill -- chess: just one)
 ```
 
-`frame`, `room`, `bar` and `theme` run the built packages (`frame` reads `games/chess/dist/`), so run
+`frame`, `room`, `bar`, `theme` and `fill` run the built packages (`frame` reads `games/chess/dist/`), so run
 `npm run build` before them.
 
 `dist/` is committed: after changing `src/` or the kit, run `npm run build` and commit what changed.
