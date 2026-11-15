@@ -69,6 +69,7 @@ describe("Backgammon against the phone", () => {
     const records = new Map();
     const kept = new Map();
     const first = await alone(records, kept);
+    first.element.table.timing.unseen = TIMING.think;
     first.element.table.random = () => new Uint8Array(32).fill(1);
     await touch(first.element, '[data-kit="new"]');
     first.element.table.random = randomBytes(seeded(31));
@@ -98,6 +99,33 @@ describe("Backgammon against the phone", () => {
     expect(text(second.element)).toMatch(/You (won|lost)/);
     for (const core of [first.core, second.core]) expect(core.ft.live.send).not.toHaveBeenCalled();
   }, 60_000);
+});
+
+describe("the pace of the phone in Backgammon", () => {
+  it("rolls at once and pauses only before each checker it moves, so its turn takes a pause per checker", async () => {
+    const { element } = await alone(new Map(), new Map());
+    element.table.random = () => new Uint8Array(32).fill(0);
+    await touch(element, '[data-kit="new"]');
+    element.table.random = randomBytes(seeded(7));
+    const ready = () => element.table.view.phase !== "play" || (element.table.view.myTurn && element.table.view.state.dice !== null);
+    for (let at = 0; at < 50 && !ready(); at += 1) await tick();
+    expect(element.table.view.myTurn).toBe(true);
+    let last = null;
+    while (element.table.view.phase === "play" && element.table.view.myTurn) {
+      const before = { index: element.table.record.game.moves.length, at: Date.now() };
+      element.querySelector(LIVE).click();
+      await tick();
+      if (element.table.record.game.moves.length > before.index) last = before;
+    }
+    while (!ready() && Date.now() - last.at < 10_000) await vi.advanceTimersByTimeAsync(10);
+    const waited = Date.now() - last.at;
+    const phone = element.table.record.game.moves.slice(last.index + 1);
+    const shown = phone.filter((move) => /^[mx]/.test(move)).length;
+    expect(phone.filter((move) => /^[cr]/.test(move)).length).toBeGreaterThanOrEqual(2);
+    expect(shown).toBeGreaterThan(0);
+    expect(waited).toBeGreaterThanOrEqual(shown * TIMING.think);
+    expect(waited).toBeLessThan(shown * TIMING.think + 100);
+  });
 });
 
 describe("Backgammon between two phones", () => {

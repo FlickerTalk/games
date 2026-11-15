@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { replay } from "../../../kit/src/match.js";
 import { robotMove } from "../../../kit/src/robot.js";
-import { playOut, seeded } from "../../../kit/test/helpers.js";
+import { playOut, seeded, unseenSteps } from "../../../kit/test/helpers.js";
 import { robot } from "../src/robot.js";
 import { fromBase64url } from "../src/sha256.js";
 import { SALT_BYTES, commitHash, commitText, commitTextSecond, feedback, honestAnswer, initial, play, result, revealText, solvedAt, turn, words } from "../src/rules.js";
@@ -47,6 +47,13 @@ function guessing(memory, theirs = "crane", salt = new Uint8Array(SALT_BYTES).fi
 }
 
 describe("the Word Duel robot", () => {
+  it("says which of its steps the user does not see: the word's commitment and reveal, not its guesses", () => {
+    const { moves } = playOut(game, [timed(seeded(4)), timed(seeded(5))]);
+    const steps = unseenSteps(game, moves);
+    expect(steps.some(({ unseen }) => unseen)).toBe(true);
+    for (const { move, unseen } of steps) expect(unseen, move).toBe(/^[cr]/.test(move));
+  });
+
   it("picks a secret word in the user's language when it commits first, and keeps it with its salt", () => {
     for (const lang of ["en", "es"]) {
       const memory = {};

@@ -26,6 +26,7 @@ function mostOf(cards, weigh) {
 }
 
 export const robot = {
+  unseen: (state) => state.phase === "shuffle",
   move(state, side, memory, random) {
     if (result(state)) return null;
     if (state.phase === "shuffle") return shuffle(state, memory, random);

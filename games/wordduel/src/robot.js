@@ -24,6 +24,7 @@ function guess(state, side, random) {
 }
 
 export const robot = {
+  unseen: (state) => ["place", "reveal"].includes(state.phase),
   move(state, side, memory, random, { lang } = {}) {
     if (result(state)) return null;
     if (state.phase === "place") return place(state, side, memory, random, lang);

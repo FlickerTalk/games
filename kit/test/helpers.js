@@ -109,6 +109,15 @@ export function playOut(game, players, { limit = 1000 } = {}) {
   return { state, moves, result: game.result(state) };
 }
 
+export function unseenSteps(game, moves) {
+  let state = game.initial();
+  return moves.map((move) => {
+    const unseen = game.robot.unseen(state);
+    state = game.play(state, move, game.turn(state)).state;
+    return { move, unseen };
+  });
+}
+
 export function within(element, selector) {
   return element.querySelector(selector) ?? element.alert?.querySelector(selector) ?? null;
 }

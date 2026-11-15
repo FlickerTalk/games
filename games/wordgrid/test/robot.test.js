@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { replay } from "../../../kit/src/match.js";
 import { robotMove } from "../../../kit/src/robot.js";
-import { playOut, seeded } from "../../../kit/test/helpers.js";
+import { playOut, seeded, unseenSteps } from "../../../kit/test/helpers.js";
 import { SHARE, robot } from "../src/robot.js";
 import { fromBase64url } from "../src/sha256.js";
 import { SEED_BYTES, commitText, initial, play, result, revealText, seedText, turn, wordsOn } from "../src/rules.js";
@@ -64,6 +64,13 @@ function alone(state, memory, random, side) {
 }
 
 describe("the Letter Grid robot", () => {
+  it("says which of its steps the user does not see: the draw of the letters, not the words it says", () => {
+    const { moves } = playOut(game, [timed(seeded(4)), timed(seeded(5))]);
+    const steps = unseenSteps(game, moves);
+    expect(steps.some(({ unseen }) => unseen)).toBe(true);
+    for (const { move, unseen } of steps) expect(unseen, move).toBe(/^[csr]/.test(move));
+  });
+
   it("commits to a seed of its own in the user's language, keeps it, and reveals it once the other seed is in", () => {
     for (const lang of ["en", "es"]) {
       const memory = {};

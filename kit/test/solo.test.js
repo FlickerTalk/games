@@ -68,6 +68,24 @@ describe("a match against the phone", () => {
     expect(kept(core, one.record.id).game.moves).toEqual(["p"]);
   });
 
+  it("takes at once a step the user does not see, and pauses only before a move the user sees", async () => {
+    const asked = [];
+    const hidden = { ...toy, robot: { move: () => "p", unseen: (state) => (asked.push(state.moves.length), state.moves.length === 0) } };
+    const one = await table(fakeCore(), { game: hidden, random: bytes(1) });
+    await one.newMatch();
+    await vi.advanceTimersByTimeAsync(0);
+    await one.idle();
+    expect(one.record.game.moves).toEqual(["p"]);
+    await one.play("p");
+    await vi.advanceTimersByTimeAsync(TIMING.think - 1);
+    await one.idle();
+    expect(one.record.game.moves).toEqual(["p", "p"]);
+    await vi.advanceTimersByTimeAsync(1);
+    await one.idle();
+    expect(one.record.game.moves).toEqual(["p", "p", "p"]);
+    expect(asked).toEqual([0, 2]);
+  });
+
   it("takes the user's move at once, never as pending, and the phone answers it", async () => {
     const one = await table(fakeCore(), { random: bytes(0) });
     await one.newMatch();

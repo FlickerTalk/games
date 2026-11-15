@@ -27,6 +27,7 @@ function sees(word, taste) {
 }
 
 export const robot = {
+  unseen: (state) => state.phase === "shuffle",
   move(state, side, memory, random, { lang } = {}) {
     if (result(state)) return null;
     memory.taste ??= Math.floor(random() * 2 ** 24);

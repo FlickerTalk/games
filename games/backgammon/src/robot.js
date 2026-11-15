@@ -85,6 +85,7 @@ function checkers(state, side, random) {
 }
 
 export const robot = {
+  unseen: (state) => state.dice === null,
   move(state, side, memory, random) {
     if (result(state)) return null;
     if (state.dice === null) return roll(state, memory, random);

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { replay } from "../../../kit/src/match.js";
 import { robotMove } from "../../../kit/src/robot.js";
-import { playOut, seeded } from "../../../kit/test/helpers.js";
+import { playOut, seeded, unseenSteps } from "../../../kit/test/helpers.js";
 import { robot } from "../src/robot.js";
 import { fromBase64url } from "../src/sha256.js";
 import {
@@ -81,6 +81,13 @@ const near = (cell) => {
 };
 
 describe("the Sea Battle robot", () => {
+  it("says which of its steps the user does not see: the fleet's commitment and reveal, not its shots", () => {
+    const { moves } = playOut(game, [timed(seeded(4)), timed(seeded(5))]);
+    const steps = unseenSteps(game, moves);
+    expect(steps.some(({ unseen }) => unseen)).toBe(true);
+    for (const { move, unseen } of steps) expect(unseen, move).toBe(/^[cr]/.test(move));
+  });
+
   it("places a legal fleet at random and commits to it, keeping the fleet and its salt in its memory", () => {
     const memory = {};
     const move = robot.move(initial(), 0, memory, seeded(4));

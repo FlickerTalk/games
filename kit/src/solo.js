@@ -26,7 +26,8 @@ export function wake(table) {
   table.stop("robot");
   if (!phoneToMove(table)) return;
   const id = table.record.id;
-  table.timers.robot = setTimeout(() => table.run(() => think(table, id)), table.timing.think);
+  const pause = table.game.robot.unseen?.(table.view.state) ? table.timing.unseen : table.timing.think;
+  table.timers.robot = setTimeout(() => table.run(() => think(table, id)), pause);
 }
 
 async function think(table, id) {
