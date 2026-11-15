@@ -35,14 +35,14 @@ afterEach(() => {
 });
 
 describe("Tic-Tac-Toe's sound", () => {
-  it("plays the calm tune during a match, with the speaker and the music switch in the bar beside resigning", async () => {
+  it("plays the calm tune during a match, with the speaker in the bar beside the way back and the music switch on its line", async () => {
     const music = vi.spyOn(game.sound, "music");
     const element = await solo();
     await touch(element, '[data-kit="new"]');
     expect(music).toHaveBeenLastCalledWith("calm");
     const group = element.querySelector('[data-part="bar"] > .ftg-sound-buttons');
-    expect(group.querySelectorAll("[data-sound]")).toHaveLength(2);
-    expect(group.nextElementSibling.querySelector('[data-kit="resign"]')).not.toBeNull();
+    expect(group.previousElementSibling.querySelector('[data-kit="back"]')).not.toBeNull();
+    expect(element.querySelector('.ftg-volume [data-sound="music"]')).not.toBeNull();
   });
 
   it("sounds each mark as it lands, the user's and the phone's apart, and the end of the round", async () => {

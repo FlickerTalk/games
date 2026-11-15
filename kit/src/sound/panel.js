@@ -34,15 +34,15 @@ function parse(page, html) {
 }
 
 // Ionic's ion-buttons emulates slots by patching DOM insertion, so the group is filled before it is placed.
-function build(bar, before, layer) {
+function build({ bar, before, slot, layer }) {
   const page = bar.ownerDocument;
   addStyle(page);
-  const group = parse(page, '<ion-buttons slot="end" class="ftg-sound-buttons"><ion-button class="ftg-sound" data-sound="speaker"></ion-button><ion-button class="ftg-sound" data-sound="music"></ion-button></ion-buttons>');
-  const line = parse(page, '<div class="ftg-volume" role="group" hidden><ion-range min="0" max="100" step="1" color="primary"></ion-range></div>');
-  bar.insertBefore(group, before ?? null);
+  const group = parse(page, `<ion-buttons slot="${slot}" class="ftg-sound-buttons"><ion-button class="ftg-sound" data-sound="speaker"></ion-button></ion-buttons>`);
+  const line = parse(page, '<div class="ftg-volume" role="group" hidden><ion-button class="ftg-sound" data-sound="music" fill="clear"></ion-button><ion-range min="0" max="100" step="1" color="primary"></ion-range></div>');
+  bar.insertBefore(group, before);
   layer.append(line);
   const speaker = group.querySelector('[data-sound="speaker"]');
-  return { page, group, speaker, music: group.querySelector('[data-sound="music"]'), line, range: line.querySelector("ion-range") };
+  return { page, group, speaker, music: line.querySelector('[data-sound="music"]'), line, range: line.querySelector("ion-range") };
 }
 
 function paint(parts, controls, sound, lang) {
@@ -63,11 +63,11 @@ function paint(parts, controls, sound, lang) {
 
 function place(line, speaker) {
   const box = speaker.getBoundingClientRect();
-  const rtl = speaker.closest("[dir]")?.getAttribute("dir") === "rtl";
   const width = speaker.ownerDocument.documentElement.clientWidth;
+  const leftHalf = box.left + box.right < width;
   line.style.top = `${Math.round(box.bottom + 4)}px`;
-  line.style.left = rtl ? `${Math.max(8, Math.round(box.left))}px` : "";
-  line.style.right = rtl ? "" : `${Math.max(8, Math.round(width - box.right))}px`;
+  line.style.left = leftHalf ? `${Math.max(8, Math.round(box.left))}px` : "";
+  line.style.right = leftHalf ? "" : `${Math.max(8, Math.round(width - box.right))}px`;
 }
 
 function listen(bindings) {
@@ -77,8 +77,8 @@ function listen(bindings) {
   };
 }
 
-export function mountSoundControls(sound, { bar, before = null, layer = bar, lang = "en" }) {
-  const parts = build(bar, before, layer);
+export function mountSoundControls(sound, { bar, before = null, slot = "end", layer = bar, lang = "en" }) {
+  const parts = build({ bar, before, slot, layer });
   const { page, group, speaker, music, line, range } = parts;
   const controls = soundControls(sound);
   let words = lang;

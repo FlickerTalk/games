@@ -20,10 +20,11 @@ export function turnCues(before, after, chosen = {}) {
   return heard.filter(Boolean);
 }
 
+// Ionic's iOS title is centred with room for two buttons on each side, so the speaker joins the way back.
 function controlsFor(host, sound, lang) {
   const root = host.closest(".ftg");
   const bar = root?.querySelector('[data-part="bar"]');
-  return bar ? mountSoundControls(sound, { bar, before: bar.querySelector('[data-part="actions"]'), layer: root, lang }) : null;
+  return bar ? mountSoundControls(sound, { bar, before: bar.querySelector("ion-title"), slot: "start", layer: root, lang }) : null;
 }
 
 export function withSound(game, { tune = "calm", cues, ...spec } = {}, options) {

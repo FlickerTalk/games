@@ -20,18 +20,17 @@ function fakeFt(kept) {
 }
 
 async function mounted({ kept, lang = "en", dir = "ltr" } = {}) {
-  document.body.innerHTML = `<div class="ftg" dir="${dir}"><ion-toolbar class="ftg-bar"><ion-buttons slot="end" data-part="actions"><ion-button data-kit="resign"></ion-button></ion-buttons></ion-toolbar></div>`;
+  document.body.innerHTML = `<div class="ftg" dir="${dir}"><ion-toolbar class="ftg-bar"><ion-buttons slot="start" data-part="back"><ion-button data-kit="back"></ion-button></ion-buttons><ion-title></ion-title><ion-buttons slot="end" data-part="actions"><ion-button data-kit="resign"></ion-button></ion-buttons></ion-toolbar></div>`;
   const root = document.querySelector(".ftg");
   const bar = root.querySelector("ion-toolbar");
-  const actions = root.querySelector('[data-part="actions"]');
   const ft = fakeFt(kept);
   const sound = createSound({}, { ft, page: document, AudioContextClass: null });
   await sound.ready;
-  const panel = mountSoundControls(sound, { bar, before: actions, layer: root, lang });
+  const panel = mountSoundControls(sound, { bar, before: bar.querySelector("ion-title"), slot: "start", layer: root, lang });
   const group = bar.querySelector(".ftg-sound-buttons");
   const speaker = group.querySelector('[data-sound="speaker"]');
-  const music = group.querySelector('[data-sound="music"]');
   const line = root.querySelector(".ftg-volume");
+  const music = line.querySelector('[data-sound="music"]');
   return { root, bar, group, ft, sound, panel, speaker, music, line, range: line.querySelector("ion-range") };
 }
 
@@ -54,13 +53,13 @@ afterEach(() => {
 });
 
 describe("the sound controls in a page", () => {
-  it("put a speaker and a music button in the bar before its other buttons, named in the user's language, the line folded", async () => {
-    const { bar, group, speaker, music, line, range } = await mounted({ lang: "es" });
-    expect(bar.firstElementChild).toBe(group);
-    expect(group.nextElementSibling.dataset.part).toBe("actions");
-    expect(group.getAttribute("slot")).toBe("end");
-    expect(group.querySelectorAll("[data-sound]")).toHaveLength(2);
-    expect(speaker.compareDocumentPosition(music) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  it("put the speaker in the bar where it is asked, and the music switch at the start of the folded line, named in the user's language", async () => {
+    const { group, speaker, music, line, range } = await mounted({ lang: "es" });
+    expect(group.previousElementSibling.dataset.part).toBe("back");
+    expect(group.getAttribute("slot")).toBe("start");
+    expect([...group.querySelectorAll("[data-sound]")]).toEqual([speaker]);
+    expect(line.firstElementChild).toBe(music);
+    expect(music.nextElementSibling).toBe(range);
     expect(aria(speaker, "aria-label")).toBe("Sonido");
     expect(aria(music, "aria-label")).toBe("Música");
     expect(range.getAttribute("aria-label")).toBe("Volumen");
@@ -72,15 +71,20 @@ describe("the sound controls in a page", () => {
     expect(document.head.querySelectorAll("style[data-ftg-sound]")).toHaveLength(1);
   });
 
-  it("unfold the line under the speaker with one tap, and fold it with another", async () => {
+  it("unfold the line under the speaker with one tap, toward the middle of the screen, and fold it with another", async () => {
     const { speaker, line } = await mounted();
-    speaker.getBoundingClientRect = () => ({ left: 300, right: 344, top: 6, bottom: 50, width: 44, height: 44 });
+    Object.defineProperty(document.documentElement, "clientWidth", { configurable: true, get: () => 400 });
+    speaker.getBoundingClientRect = () => ({ left: 52, right: 96, top: 6, bottom: 50, width: 44, height: 44 });
     speaker.click();
     expect(line.hidden).toBe(false);
     expect(aria(speaker, "aria-pressed")).toBe("true");
-    expect(line.style.top).toBe("54px");
+    expect([line.style.top, line.style.left, line.style.right]).toEqual(["54px", "52px", ""]);
     speaker.click();
     expect(line.hidden).toBe(true);
+    speaker.getBoundingClientRect = () => ({ left: 300, right: 344, top: 6, bottom: 50, width: 44, height: 44 });
+    speaker.click();
+    expect([line.style.left, line.style.right]).toEqual(["", "56px"]);
+    delete document.documentElement.clientWidth;
   });
 
   it("set the whole volume while the line is dragged, crossing the speaker out at zero, and keep it with a sample when let go", async () => {
@@ -102,9 +106,12 @@ describe("the sound controls in a page", () => {
     expect(played).toHaveBeenCalledWith("tap");
   });
 
-  it("turn the music off and on with the note button, striking it through while off", async () => {
-    const { sound, music, ft } = await mounted();
+  it("turn the music off and on with the note button, striking it through while off, the line staying open", async () => {
+    const { sound, speaker, music, line, ft } = await mounted();
+    speaker.click();
+    music.dispatchEvent(new Event("pointerdown", { bubbles: true }));
     music.click();
+    expect(line.hidden).toBe(false);
     await vi.advanceTimersByTimeAsync(0);
     expect(sound.settings.music).toBe(false);
     expect(aria(music, "aria-pressed")).toBe("false");

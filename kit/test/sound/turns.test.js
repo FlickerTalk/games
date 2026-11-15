@@ -75,14 +75,14 @@ beforeEach(() => {
 afterEach(() => vi.useRealTimers());
 
 describe("a board game with sound", () => {
-  it("shows the speaker and the music switch in the bar of a match, before its own buttons, and nowhere on the list", async () => {
+  it("shows the speaker in the bar of a match beside the way back, its line under it, and nothing on the list", async () => {
     const element = await solo();
     expect(element.querySelector(".ftg-sound-buttons")).toBeNull();
     await press(element, '[data-kit="new"]');
     const group = element.querySelector('[data-part="bar"] > .ftg-sound-buttons');
-    expect(group).not.toBeNull();
-    expect(group.nextElementSibling.dataset.part).toBe("actions");
-    expect(element.querySelector(".ftg-volume")).not.toBeNull();
+    expect(group.getAttribute("slot")).toBe("start");
+    expect(group.previousElementSibling.querySelector('[data-kit="back"]')).not.toBeNull();
+    expect(element.querySelector('.ftg-volume [data-sound="music"]')).not.toBeNull();
     await press(element, '[data-kit="back"]');
     expect(element.querySelector(".ftg-sound-buttons")).toBeNull();
     expect(element.querySelector(".ftg-volume")).toBeNull();
