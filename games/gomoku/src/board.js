@@ -46,11 +46,6 @@ function draw(host, ctx, ghost) {
     })}">${STONES[ctx.mySide]}</button>`;
   }
   host.innerHTML = `${html}</div>`;
-  const board = host.querySelector(".fgm");
-  if (board) {
-    const width = board.clientWidth || 320;
-    host.querySelector(".fgm-ghost")?.style.setProperty("--fgm-stone", `${(width / SIZE) * 0.88}px`);
-  }
 }
 
 export const board = {
