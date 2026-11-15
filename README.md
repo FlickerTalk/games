@@ -302,6 +302,10 @@ record and the same screen as a match between two people.
 - A game with secrets or chance of its own (a hidden fleet, dice) gives `robot.move(state, side,
   memory, random)` instead, which returns the move: `memory` is a plain JSON object kept with the match
   (the phone's secrets go there), `random()` a number in [0, 1).
+- A game whose `play` is too costly to call thousands of times gives `robot.move` too, and runs the
+  kit's `search` (from `kit/src/robot.js`) over positions of its own. Chess does: its rules keep every
+  position they have seen, so the search uses light positions made from their parent's FEN only when
+  it reaches them.
 - `solo` outside a conversation, or for a game without `robot`, changes nothing: the game says to open
   it from a conversation, as before. An app that does not send `solo`, and a game that does not read
   it, stay as they were.
@@ -454,7 +458,7 @@ package's contents. So:
 - Matches against the phone are `1.1.0` for the games that have a `robot` (Tic-Tac-Toe, Four in a Row,
   Reversi), and one more patch for the others, whose bundle changes with the kit: `1.0.6` for nine,
   `1.0.7` for Chess.
-- A `robot` for Checkers, Five in a Row, Dots and Boxes and Mancala is their `1.1.0`.
+- A `robot` for Checkers, Five in a Row, Dots and Boxes, Mancala and Chess is their `1.1.0`.
 
 ## Preview
 
