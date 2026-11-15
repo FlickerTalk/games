@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 
 const root = join(import.meta.dirname, "..", "..");
 const KIT = join(root, "kit", "src", "style.css");
+const ARENA = join(root, "kit", "src", "live", "arena.css");
 const gameStyles = readdirSync(join(root, "games")).map((game) => join(root, "games", game, "src", "board.css"));
 
 function declarations(css) {
@@ -57,7 +58,7 @@ describe("the games' colours", () => {
   });
 
   it("write no colour of their own except through a token", () => {
-    for (const file of [KIT, ...gameStyles]) {
+    for (const file of [KIT, ARENA, ...gameStyles]) {
       for (const one of declarations(readFileSync(file, "utf8"))) {
         if (!COLOUR.test(one.value)) continue;
         expect(one.name, `${file}: ${one.where} { ${one.name}: ${one.value} }`).toMatch(ALLOWED);

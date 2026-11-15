@@ -1,0 +1,10 @@
+{
+  "id": "com.flickertalk.game.fixturelive",
+  "name": "Live fixture",
+  "version": "0.0.1",
+  "minCoreVersion": "1.6.0",
+  "kind": "game",
+  "components": ["ft-fixture-live"],
+  "permissions": { "live": true, "send": "propose" },
+  "summary": "A real-time game that only exists for the build's tests."
+}

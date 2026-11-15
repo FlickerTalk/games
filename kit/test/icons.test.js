@@ -120,6 +120,10 @@ describe("no emoji in the interface", () => {
     expect(emojiIn(readFileSync(join(root, "kit", "src", "style.css"), "utf8"))).toBe("");
     const shell = readFileSync(join(root, "kit", "src", "shell.js"), "utf8").replace(/\/\*[\s\S]*?\*\/|\/\/.*$/gm, "");
     expect(emojiIn(shell)).toBe("");
+    for (const file of ["arena.js", "arena.css"]) {
+      const source = readFileSync(join(root, "kit", "src", "live", file), "utf8").replace(/\/\*[\s\S]*?\*\/|\/\/.*$/gm, "");
+      expect(emojiIn(source), file).toBe("");
+    }
   });
 
   it("but the hint shows the game bar's mail icon, in every language", async () => {
