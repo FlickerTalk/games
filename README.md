@@ -110,7 +110,7 @@ defineGame({ id: "tictactoe", gv: 1, tag: manifest.components[0], app: manifest.
 | `minBoard` | Optional: the smallest board, in CSS pixels, on which the game is playable (Chess 320: squares of 40 px; Four in a Row 308: columns of 44 px). In a game the kit makes room for it before anything else; while waiting or on the result the board may be smaller. Default 200. |
 | `how(result, t)` | Optional: why a round ended by the rules, in the game's words (“checkmate”, “stalemate”), shown with the result; `result` is what `result(state)` returned. |
 | `summary(view, { t, lang, name, icon, record })` | Optional: the text sent to the chat. Without it: `⭕ Tic-Tac-Toe: I won, 3–2 · draws: 1`, in the sender's language. |
-| `robot` | Optional: lets the user play against their own phone (see "Playing against the phone"). `{ moves(state, side), score(state, side) }` for the kit's search, with optional `depth`, `budgetMs` and `slack`; or `{ move(state, side, memory, random) }` for a game that finds its own moves. Without it the game is played between two people only. |
+| `robot` | Optional: lets the user play against their own phone (see "Playing against the phone"). `{ moves(state, side), score(state, side) }` for the kit's search, with optional `depth`, `budgetMs` and `slack`; or `{ move(state, side, memory, random, { lang }) }` for a game that finds its own moves. Without it the game is played between two people only. |
 
 A **move** is a JSON number or a short string (≤ 64 characters): a cell index, a column, `e7e8q`.
 Rules are run on both phones from the first move every time something arrives, so they must be pure
@@ -301,8 +301,13 @@ record and the same screen as a match between two people.
   that. Moves within `slack` of the best (default 0) are picked at random, so the phone does not
   always play the same game. There is one level: the phone plays well and can be beaten.
 - A game with secrets or chance of its own (a hidden fleet, dice) gives `robot.move(state, side,
-  memory, random)` instead, which returns the move: `memory` is a plain JSON object kept with the match
-  (the phone's secrets go there), `random()` a number in [0, 1).
+  memory, random, { lang })` instead, which returns the move: `memory` is a plain JSON object kept with
+  the match (the phone's secrets go there), `random()` a number in [0, 1), and `lang` the language the
+  game is shown in, for a round played in a language of its own (Word Duel, Letter Grid).
+- The phone decides only from what its seat could know: `state` and its own `memory`. Where `state`
+  holds more than a seat may see, it leaves it alone: in Crazy Eights both phones work out the whole
+  deal, so the user's hand and the order of the stock are there, and the phone never reads them. Its
+  commitments are made and revealed exactly as a person's are, and the rules check them the same way.
 - A game whose `play` is too costly to call thousands of times gives `robot.move` too, and runs the
   kit's `search` (from `kit/src/robot.js`) over positions of its own. Chess does: its rules keep every
   position they have seen, so the search uses light positions made from their parent's FEN only when
@@ -548,6 +553,8 @@ package's contents. So:
   Reversi), and one more patch for the others, whose bundle changes with the kit: `1.0.6` for nine,
   `1.0.7` for Chess.
 - A `robot` for Checkers, Five in a Row, Dots and Boxes, Mancala and Chess is their `1.1.0`.
+- A `robot` that keeps its secrets in the match's memory is `1.1.0` for Sea Battle, Crazy Eights,
+  Backgammon, Word Duel and Letter Grid.
 
 ## Preview
 

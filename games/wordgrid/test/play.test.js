@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { fromBase64 } from "../../../kit/src/envelope.js";
-import { phones, settle, within } from "../../../kit/test/helpers.js";
+import { TIMING } from "../../../kit/src/table.js";
+import { fakeCore, phones, seeded, settle, within } from "../../../kit/test/helpers.js";
 import { pathOf, wordsOn } from "../src/rules.js";
 import "../src/index.js";
 
@@ -45,7 +46,60 @@ beforeEach(() => {
   vi.useFakeTimers();
   document.body.innerHTML = "";
 });
-afterEach(() => vi.useRealTimers());
+afterEach(() => {
+  vi.useRealTimers();
+  delete globalThis.ft;
+});
+
+const randomBytes = (random) => () => Uint8Array.from({ length: 32 }, () => Math.floor(random() * 256));
+
+async function alone(records) {
+  const core = fakeCore({ records });
+  globalThis.ft = { store: { get: async () => null, set: async () => true } };
+  const element = await phone(core, { live: false, solo: true, lang: "es" });
+  return { core, element };
+}
+
+async function think(element) {
+  await vi.advanceTimersByTimeAsync(TIMING.think);
+  await tick();
+}
+
+describe("Letter Grid against the phone", () => {
+  it("draws the letters with the phone in the user's language, the phone revealing its seed after the game is opened again, and plays the round out", async () => {
+    const records = new Map();
+    const first = await alone(records);
+    first.element.table.random = () => new Uint8Array(32).fill(1);
+    await touch(first.element, '[data-kit="new"]');
+    first.element.table.random = randomBytes(seeded(51));
+    await think(first.element);
+    await tick();
+    expect(first.element.table.record.game.moves.map((one) => one.slice(0, 3))).toEqual(["ces", expect.stringMatching(/^s/)]);
+    expect(first.element.table.view.myTurn).toBe(false);
+    first.element.table.stopTimers();
+    first.element.remove();
+
+    const second = await alone(records);
+    second.element.table.random = randomBytes(seeded(52));
+    await touch(second.element, '[data-kit="enter"]');
+    await think(second.element);
+    const { grid, lang } = second.element.table.view.state;
+    expect(lang).toBe("es");
+    expect(grid).toHaveLength(16);
+    const words = wordsOn(grid, "es");
+    await say(second.element, words[0]);
+    for (let step = 0; step < 200 && second.element.table.view.phase === "play"; step += 1) {
+      if (second.element.table.view.myTurn) await touch(second.element, '[data-act="pass"]');
+      else await think(second.element);
+    }
+    const { phase, state, result, mySide } = second.element.table.view;
+    expect(phase).toBe("over");
+    expect(result.result.reason).toBe("passed");
+    expect(state.said[mySide]).toEqual([words[0]]);
+    for (const word of state.said[1 - mySide]) expect(words).toContain(word);
+    for (const core of [first.core, second.core]) expect(core.ft.live.send).not.toHaveBeenCalled();
+  });
+});
 
 describe("Letter Grid between two phones", () => {
   it("tosses the coin, draws the letters between the two phones on its own, and shows a word the same on both", async () => {

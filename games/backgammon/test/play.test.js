@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { fromBase64 } from "../../../kit/src/envelope.js";
-import { phones, settle, within } from "../../../kit/test/helpers.js";
+import { TIMING } from "../../../kit/src/table.js";
+import { fakeCore, phones, seeded, settle, within } from "../../../kit/test/helpers.js";
 import "../src/index.js";
 
 const tick = () => settle([...document.querySelectorAll("ft-backgammon")].map((element) => element.table));
@@ -44,7 +45,60 @@ beforeEach(() => {
   vi.useFakeTimers();
   document.body.innerHTML = "";
 });
-afterEach(() => vi.useRealTimers());
+afterEach(() => {
+  vi.useRealTimers();
+  delete globalThis.ft;
+});
+
+const randomBytes = (random) => () => Uint8Array.from({ length: 32 }, () => Math.floor(random() * 256));
+
+async function alone(records, kept) {
+  const core = fakeCore({ records });
+  globalThis.ft = { store: { get: async (key) => kept.get(key) ?? null, set: async (key, value) => (kept.set(key, value), true) } };
+  const element = await phone(core, { live: false, solo: true });
+  return { core, element };
+}
+
+async function think(element) {
+  await vi.advanceTimersByTimeAsync(TIMING.think);
+  await tick();
+}
+
+describe("Backgammon against the phone", () => {
+  it("rolls with the phone, which still reveals its seed after the game is closed and opened again, and plays the match out", async () => {
+    const records = new Map();
+    const kept = new Map();
+    const first = await alone(records, kept);
+    first.element.table.random = () => new Uint8Array(32).fill(1);
+    await touch(first.element, '[data-kit="new"]');
+    first.element.table.random = randomBytes(seeded(31));
+    await think(first.element);
+    await tick();
+    expect(first.element.table.record.game.moves.map((one) => one[0])).toEqual(["c", "s"]);
+    expect(first.element.table.view.myTurn).toBe(false);
+    first.element.table.stopTimers();
+    first.element.remove();
+
+    const second = await alone(records, kept);
+    second.element.table.random = randomBytes(seeded(32));
+    await touch(second.element, '[data-kit="enter"]');
+    await think(second.element);
+    expect(second.element.table.view.state.dice).toHaveLength(2);
+    expect(second.element.table.record.game.moves[2]).toBe(`r${second.element.table.record.solo.memory.seed}`);
+    for (let step = 0; step < 3000 && second.element.table.view.phase === "play"; step += 1) {
+      const node = second.element.table.view.myTurn ? second.element.querySelector(LIVE) : null;
+      if (node) {
+        node.click();
+        await tick();
+      } else await think(second.element);
+    }
+    const { phase, result } = second.element.table.view;
+    expect(phase).toBe("over");
+    expect(["single", "gammon", "backgammon"]).toContain(result.result.reason);
+    expect(text(second.element)).toMatch(/You (won|lost)/);
+    for (const core of [first.core, second.core]) expect(core.ft.live.send).not.toHaveBeenCalled();
+  }, 60_000);
+});
 
 describe("Backgammon between two phones", () => {
   it("tosses the coin, rolls the dice between the two phones on its own, and shows a move the same on both", async () => {

@@ -85,9 +85,9 @@ export function search(game, state, side, { depth = DEPTH, budgetMs = BUDGET_MS,
   return { move: roots[0].move, value: top, choices: roots.filter((root) => root.value >= top - slack).map((root) => root.move) };
 }
 
-export function robotMove(game, state, side, memory, random = Math.random) {
+export function robotMove(game, state, side, memory, random = Math.random, context = {}) {
   const robot = game.robot;
-  if (typeof robot.move === "function") return robot.move(state, side, memory, random);
+  if (typeof robot.move === "function") return robot.move(state, side, memory, random, context);
   const { choices } = search(game, state, side, { depth: robot.depth, budgetMs: robot.budgetMs, slack: robot.slack });
   if (!choices.length) return null;
   return choices[Math.min(choices.length - 1, Math.floor(random() * choices.length))];

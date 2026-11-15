@@ -3,6 +3,7 @@ import { defineGame } from "../../../kit/src/index.js";
 import { board, MARKS, STYLE } from "./board.js";
 import { TEXTS } from "./texts.js";
 import { initial, play, result, turn } from "./rules.js";
+import { robot } from "./robot.js";
 
 export const game = defineGame({
   id: "wordgrid",
@@ -14,6 +15,7 @@ export const game = defineGame({
   turn,
   play,
   result,
+  robot,
   board,
   sides: MARKS,
   style: STYLE,

@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { fromBase64 } from "../../../kit/src/envelope.js";
-import { phones, settle, within } from "../../../kit/test/helpers.js";
+import { TIMING } from "../../../kit/src/table.js";
+import { fakeCore, phones, seeded, settle, within } from "../../../kit/test/helpers.js";
 import "../src/index.js";
 
 const tick = () => settle([...document.querySelectorAll("ft-eights")].map((element) => element.table));
@@ -46,6 +47,52 @@ beforeEach(() => {
   document.body.innerHTML = "";
 });
 afterEach(() => vi.useRealTimers());
+
+const randomBytes = (random) => () => Uint8Array.from({ length: 32 }, () => Math.floor(random() * 256));
+
+async function alone(records) {
+  const core = fakeCore({ records });
+  const element = await phone(core, { live: false, solo: true });
+  return { core, element };
+}
+
+async function think(element) {
+  await vi.advanceTimersByTimeAsync(TIMING.think);
+  await tick();
+}
+
+describe("Crazy Eights against the phone", () => {
+  it("deals with the phone, which still reveals its seed after the game is closed and opened again, and plays the round out", async () => {
+    const records = new Map();
+    const first = await alone(records);
+    first.element.table.random = () => new Uint8Array(32).fill(1);
+    await touch(first.element, '[data-kit="new"]');
+    first.element.table.random = randomBytes(seeded(21));
+    await think(first.element);
+    await tick();
+    const moves = first.element.table.record.game.moves;
+    expect(moves.map((one) => one[0])).toEqual(["c", "s"]);
+    expect(first.element.table.view.myTurn).toBe(false);
+    first.element.table.stopTimers();
+    first.element.remove();
+
+    const second = await alone(records);
+    second.element.table.random = randomBytes(seeded(22));
+    await touch(second.element, '[data-kit="enter"]');
+    await think(second.element);
+    expect(second.element.table.view.state.phase).toBe("play");
+    expect(second.element.table.record.game.moves[2]).toBe(`r${second.element.table.record.solo.memory.seed}`);
+    for (let step = 0; step < 300 && second.element.table.view.phase === "play"; step += 1) {
+      if (second.element.table.view.myTurn) await move(second.element);
+      else await think(second.element);
+    }
+    const { phase, result } = second.element.table.view;
+    expect(phase).toBe("over");
+    expect(["out", "stuck"]).toContain(result.result.reason);
+    expect(text(second.element)).toMatch(/You won|You lost|draw/i);
+    for (const core of [first.core, second.core]) expect(core.ft.live.send).not.toHaveBeenCalled();
+  });
+});
 
 describe("Crazy Eights between two phones", () => {
   it("tosses the coin, shuffles the deck between the two phones on its own, and deals the same cards to both", async () => {
