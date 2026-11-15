@@ -1,6 +1,7 @@
 import manifest from "../module.json";
 import { defineGame } from "../../../kit/src/index.js";
 import { withSound } from "../../../kit/src/sound/index.js";
+import { withPortraits } from "../../../kit/src/avatars/portraits.js";
 import { board, MARKS, STYLE } from "./board.js";
 import { TEXTS } from "./texts.js";
 import { initial, play, result, turn } from "./rules.js";
@@ -19,7 +20,7 @@ export const game = defineGame(
       play,
       result,
       robot,
-      board,
+      board: withPortraits(board),
       sides: MARKS,
       style: STYLE,
       texts: TEXTS,

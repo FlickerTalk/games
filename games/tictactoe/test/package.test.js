@@ -27,8 +27,8 @@ describe("the Tic-Tac-Toe package", () => {
     expect(readFileSync(join(out, "THIRD_PARTY_NOTICES.md")).equals(readFileSync(join(dir, "dist", "THIRD_PARTY_NOTICES.md")))).toBe(true);
   });
 
-  it("stays under 154 KB, says its one third-party work is Ionicons, and loads nothing from outside", () => {
-    expect(checkDist(dir, { cap: 154 * 1024 })).toBeGreaterThan(20_000);
+  it("stays under 170 KB, says its one third-party work is Ionicons, and loads nothing from outside", () => {
+    expect(checkDist(dir, { cap: 170 * 1024 })).toBeGreaterThan(20_000);
     expect(readFileSync(join(dir, "dist", "THIRD_PARTY_NOTICES.md"), "utf8")).toContain("its one third-party work is Ionicons");
   });
 });
