@@ -70,28 +70,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 The order of the common English words (`ANSWERS` of `src/words-en.js`) and the Spanish words (`src/words-es.js`): the five-letter words of the `en_50k` and `es_50k` lists, the Spanish ones with their accents dropped and names and English words left out.
 Source: the `FrequencyWords` repository (`hermitdave/FrequencyWords` on GitHub), word frequency lists from the OpenSubtitles 2018 corpus.
-Licence: MIT.
-
-```
-MIT License
-
-Copyright (c) 2016 Hermit Dave
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-```
+Author: Hermit Dave.
+Licence: CC BY-SA 4.0 (Creative Commons Attribution-ShareAlike 4.0 International), https://creativecommons.org/licenses/by-sa/4.0/legalcode. The repository gives the MIT licence for its code and this one for its content; only content is used here.
+Changes: only the five-letter words were kept; the English list is used only for the order of the answers, and the Spanish words had their accents dropped and names and English words left out.
+What this means: the order of `ANSWERS` in `src/words-en.js` and the list in `src/words-es.js` are adapted from that content, so they are under CC BY-SA 4.0 too, not under the MIT licence of the rest of the game. Anyone may copy, change and share them, also commercially, by naming the source as above, saying what was changed and keeping the same licence.

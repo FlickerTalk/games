@@ -65,7 +65,8 @@ if the build does not give back the committed `dist/`.
    `summary` in the app's other 20 languages, the name being the game's own `TEXTS.<lang>.name`, so
    the app shows them in the phone's language (`checkLocales` checks them).
 2. `games/<name>/THIRD_PARTY_NOTICES.md`: the full licence text (and Apache `NOTICE`) of everything
-   bundled from elsewhere. Every game carries at least the kit's icons (Ionicons, MIT: copy the
+   bundled from elsewhere. Data under a Creative Commons licence (a word list) names its author,
+   source, licence with its address and what was changed instead, and is listed under License below. Every game carries at least the kit's icons (Ionicons, MIT: copy the
    section from Tic-Tac-Toe's). Runtime dependencies go in the root `package.json` `dependencies`,
    where `npm run licenses` checks them.
 3. `src/rules.js`, `src/board.js`, `src/texts.js` and `src/index.js` (below).
@@ -583,3 +584,8 @@ for the connection), “close” and “open” for each phone, and `say` into a
 ## License
 
 MIT. Third-party code and artwork keep their own licenses; see `THIRD_PARTY_NOTICES.md` in each game.
+
+One part is not MIT: the Spanish word lists of Word Duel and Letter Grid, and the order of Word Duel's
+English answers, are adapted from the FrequencyWords lists, whose content is CC BY-SA 4.0. They stay
+under CC BY-SA 4.0: reuse them with the attribution in those games' notices and under the same
+licence. The code that reads them is MIT like the rest.
