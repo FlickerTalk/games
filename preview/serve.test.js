@@ -71,6 +71,18 @@ describe("the review harness", () => {
     expect(host).toContain("devices.b.hidden = solo;");
   });
 
+  it("gives a game the whole window as the app does: data-fill on the frame's root from the theme message, its page as tall as the frame", async () => {
+    const html = await (await fetch(`${base}/frame/tictactoe/a/frame.html`)).text();
+    expect(html).toContain("html[data-fill],html[data-fill] body{height:100%}");
+    const bridge = await (await fetch(`${base}/frame/tictactoe/a/frame.js`)).text();
+    expect(bridge).toContain('if (said.fill === true) document.documentElement.dataset.fill = "1";');
+    expect(bridge).toContain("else delete document.documentElement.dataset.fill;");
+    const host = await (await fetch(`${base}/?game=tictactoe`)).text();
+    expect(host).toMatch(/type: "ft\.theme", theme: theme\?\.vars \?\? null, dark, fill: phones\[side\]\.full, fullscreen: phones\[side\]\.full/);
+    expect(host).toMatch(/\.device\.full \.sheet iframe \{[^}]*height: 100% !important/);
+    expect(host).toContain("window.harness = { open, close, connect: (yes) => (connected = yes), phones, setTheme, fill };");
+  });
+
   it("serves the host page, and nothing outside a game's dist/", async () => {
     expect((await fetch(`${base}/?game=tictactoe`)).status).toBe(200);
     expect((await fetch(`${base}/frame/tictactoe/a/src/rules.js`)).status).toBe(404);

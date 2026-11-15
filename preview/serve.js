@@ -20,7 +20,7 @@ function frameHtml(component) {
 <html lang="en" data-ionic="${IONIC}">
 <head>
 <meta charset="utf-8">
-<style>html{color-scheme:light dark}html,body{margin:0;padding:0;background:transparent}</style>
+<style>html{color-scheme:light dark}html,body{margin:0;padding:0;background:transparent}html[data-fill],html[data-fill] body{height:100%}</style>
 <link rel="stylesheet" href="./ionic/ionic.css">
 <script type="module" src="./ionic/ionic.js"></script>
 <script type="module" src="./frame.js"></script>
@@ -75,24 +75,26 @@ await import("./dist/index.js");
 const tell = () => post({ type: "ft.height", height: Math.ceil(document.body.getBoundingClientRect().bottom + scrollY) });
 /** The app's colours on the root, as the app's frame sets them: Ionic's variables and data-dark. */
 const THEMED = ["--ion-background-color", "--ion-text-color", "--ion-color-medium", "--ion-item-background", "--ion-border-color", "--ion-color-primary", "--ion-color-primary-contrast", "--ion-color-success", "--ion-color-danger"];
-const theme = (vars, dark) => {
+const theme = (vars, dark, said) => {
   for (const name of THEMED) {
     if (vars && vars[name]) document.documentElement.style.setProperty(name, vars[name]);
     else document.documentElement.style.removeProperty(name);
   }
   if (dark) document.documentElement.dataset.dark = "1";
   else delete document.documentElement.dataset.dark;
+  if (said.fill === true) document.documentElement.dataset.fill = "1";
+  else delete document.documentElement.dataset.fill;
 };
 addEventListener("message", (event) => {
   const said = event.data;
   if (!said || typeof said.type !== "string") return;
   if (said.type === "ft.open") {
-    theme(said.theme, said.dark);
+    theme(said.theme, said.dark, said);
     document.documentElement.lang = said.lang;
     for (const handler of opened) handler({ text: "", dark: Boolean(said.dark), lang: String(said.lang), file: null, ref: null, reminder: null, live: Boolean(said.live), solo: said.solo === true, chat: typeof said.chat === "string" ? said.chat : undefined });
     requestAnimationFrame(tell);
   } else if (said.type === "ft.theme") {
-    theme(said.theme, said.dark);
+    theme(said.theme, said.dark, said);
   } else if (said.type === "ft.live") {
     for (const handler of heard) handler(String(said.data));
   } else if (said.type === "ft.done") {
