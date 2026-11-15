@@ -199,3 +199,12 @@ describe("the result", () => {
     for (const selector of hidden) expect(reveal.matches(selector), selector).toBe(false);
   });
 });
+
+describe("the tiles' size", () => {
+  const css = STYLE.replace(/\/\*[\s\S]*?\*\//g, "");
+
+  it("grows the tiles and the secret word with the board in full screen, and keeps them as they were on the room's boards", () => {
+    expect(/\.fwd\s*\{([^}]*)\}/.exec(css)[1]).toMatch(/--tile:\s*clamp\(12px, 9cqh, 64px\);/);
+    expect(/\.fwd-secret \.fwd-row\s*\{([^}]*)\}/.exec(css)[1]).toMatch(/width:\s*min\(100%, max\(260px, 65cqw\)\);/);
+  });
+});

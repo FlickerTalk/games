@@ -7,6 +7,7 @@ import { Table } from "./table.js";
 import { mediumReads } from "./colour.js";
 import { icon } from "./icons.js";
 import { Toast } from "./toast.js";
+import { SMALLEST, fitStage, watchStage } from "./stage.js";
 
 const escape = (text) =>
   String(text).replace(/[&<>"']/g, (one) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[one]);
@@ -46,9 +47,6 @@ const RETRY = ["notOpen", "unreachable", "left", "denied", "error"];
 
 const abandonedBy = (seen) => (seen?.end?.by === seen?.me ? "abandonedYou" : "abandonedThem");
 
-// CSS px the app's room takes on a phone (bars, chat header, composer), measured on a Samsung S20+
-export const ROOM_CHROME = 297;
-
 // the app's frame height before the frame says its own (PluginSheet), so the frame resizes at most once
 export const FRAME_START = 320;
 
@@ -66,10 +64,6 @@ export function whenDrawn(nodes) {
     });
     for (const node of waiting) watch.observe(node, { attributes: true, attributeFilter: ["class"] });
   });
-}
-
-function roomHeight() {
-  return (globalThis.screen?.height || 853) - ROOM_CHROME;
 }
 
 function appColour(name) {
@@ -96,6 +90,7 @@ export function elementFor(game) {
     disconnectedCallback() {
       clearTimeout(this.pendingTimer);
       this.sizes?.disconnect();
+      this.unwatch?.();
       this.ask(null);
       this.pendingSince = null;
       this.watch?.disconnect();
@@ -124,7 +119,7 @@ export function elementFor(game) {
       this.drawn = new WeakMap();
       this.style.display = "block";
       this.sizes = globalThis.ResizeObserver ? new ResizeObserver(() => this.fitBoard()) : null;
-      addEventListener("resize", () => this.fitBoard());
+      this.unwatch = watchStage(() => this.fitBoard());
       this.root = document.createElement("div");
       this.root.className = "ftg";
       this.append(this.root);
@@ -391,32 +386,7 @@ export function elementFor(game) {
     }
 
     fitBoard() {
-      const root = this.root;
-      const stage = root.querySelector('[data-part="stage"]');
-      if (!stage) {
-        this.sizeContent();
-        return;
-      }
-      if (globalThis.matchMedia?.("(min-width: 720px)").matches) {
-        const band = this.band?.getBoundingClientRect().height ?? 0;
-        root.removeAttribute("data-compact");
-        root.style.setProperty("--ftg-board", `${Math.max(240, roomHeight() - 72 - band)}px`);
-        this.sizeContent();
-        return;
-      }
-      const main = stage.parentElement;
-      const content = this.content;
-      const width = main.clientWidth;
-      const room = roomHeight();
-      const height = (node) => node.getBoundingClientRect().height;
-      const left = () => room - (height(root) - height(content) + height(main) - height(stage));
-      const playing = this.table.view?.phase === "play";
-      const least = playing ? (game.minBoard ?? 200) : 120;
-      root.removeAttribute("data-compact");
-      root.style.setProperty("--ftg-board", `${width}px`);
-      if (left() < Math.min(least, width)) root.setAttribute("data-compact", "");
-      const board = Math.floor(Math.max(Math.min(width, left()), Math.min(least, width)));
-      root.style.setProperty("--ftg-board", `${board}px`);
+      if (this.root.querySelector('[data-part="stage"]')) fitStage(this.root, this.table.view?.phase === "play" ? (game.minBoard ?? 200) : SMALLEST);
       this.sizeContent();
     }
 

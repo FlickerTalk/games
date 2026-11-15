@@ -8,6 +8,7 @@
 .fgm {
   position: absolute;
   inset: 0;
+  container-type: size;
   border-radius: 12px;
   background: var(--art-wood);
 }
@@ -112,7 +113,7 @@
   line-height: 1;
 }
 .ftg .fgm-ghost {
-  --fgm-stone: 20px;
+  --fgm-stone: calc(100cqw * 0.88 / 15);
   position: absolute;
   z-index: 3;
   width: 44px;

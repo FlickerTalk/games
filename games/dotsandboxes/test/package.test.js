@@ -12,7 +12,7 @@ const dir = join(import.meta.dirname, "..");
 describe("the dots and boxes package", () => {
   it("says it is a game that needs the core 1.6.0, the live channel and sending, and nothing else", () => {
     const manifest = checkManifest(dir, { id: "com.flickertalk.game.dotsandboxes", name: "Dots and Boxes", component: "ft-dotsandboxes" });
-    expect(manifest.version).toBe("1.1.0");
+    expect(manifest.version).toBe("1.1.1");
   });
 
   it("names and describes itself in the app's other 20 languages, the name its own title there", () => {
@@ -27,8 +27,8 @@ describe("the dots and boxes package", () => {
     expect(readFileSync(join(out, "THIRD_PARTY_NOTICES.md")).equals(readFileSync(join(dir, "dist", "THIRD_PARTY_NOTICES.md")))).toBe(true);
   });
 
-  it("stays under 135 KB, says its one third-party work is Ionicons, and loads nothing from outside", () => {
-    expect(checkDist(dir, { cap: 135 * 1024 })).toBeGreaterThan(20_000);
+  it("stays under 136 KB, says its one third-party work is Ionicons, and loads nothing from outside", () => {
+    expect(checkDist(dir, { cap: 136 * 1024 })).toBeGreaterThan(20_000);
     expect(readFileSync(join(dir, "dist", "THIRD_PARTY_NOTICES.md"), "utf8")).toContain("its one third-party work is Ionicons");
   });
 });

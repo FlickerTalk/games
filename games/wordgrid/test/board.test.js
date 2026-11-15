@@ -181,6 +181,29 @@ function rulesOf() {
   return rules;
 }
 
+describe("a short board", () => {
+  const hiddenOnSmall = () =>
+    rulesOf()
+      .filter(([, body, small]) => small && /display:\s*none/.test(body))
+      .map(([selector]) => selector);
+
+  it("keeps the word, say and pass while the round is played, a phone turned sideways giving the game a board under 260 px", async () => {
+    const host = document.createElement("div");
+    board.mount(host, onGrid("catsoxeetnrfdlmp"));
+    await tick();
+    const word = host.querySelector(".fwg-word");
+    for (const selector of hiddenOnSmall()) expect(word.matches(selector), selector).toBe(false);
+  });
+
+  it("leaves the word row out while the letters are being shuffled, when there is nothing to say yet", async () => {
+    const host = document.createElement("div");
+    board.mount(host, context([]));
+    await tick();
+    const word = host.querySelector(".fwg-word");
+    expect(hiddenOnSmall().some((selector) => word.matches(selector))).toBe(true);
+  });
+});
+
 describe("the result", () => {
   it("keeps the lists of words said on a small board once the round is over, scrolling if long", async () => {
     const host = document.createElement("div");

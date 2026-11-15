@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import { KIT_TEXTS, joinTexts, translator } from "../../../kit/src/i18n.js";
-import { board, STONES } from "../src/board.js";
+import { board, STONES, STYLE } from "../src/board.js";
 import { TEXTS } from "../src/texts.js";
 import { initial, play, result, turn } from "../src/rules.js";
 
@@ -80,6 +80,16 @@ describe("the board", () => {
     expect(ghost(host)).toBeNull();
     expect(ctx.play).not.toHaveBeenCalled();
     expect(cell(host, 112).getAttribute("aria-label")).toBe("Fila 8, columna 8: vacía");
+  });
+
+  it("draws the ghost stone as large as the board's stones from the board itself, so it follows the board when the frame changes size", () => {
+    const host = document.createElement("div");
+    board.mount(host, context([]));
+    cell(host, 112).click();
+    expect(ghost(host).getAttribute("style")).not.toMatch(/--fgm-stone/);
+    const css = STYLE.replace(/\/\*[\s\S]*?\*\//g, "");
+    expect(/\.fgm\s*\{([^}]*)\}/.exec(css)[1]).toMatch(/container-type:\s*size/);
+    expect(/\.ftg \.fgm-ghost\s*\{([^}]*)\}/.exec(css)[1]).toMatch(/--fgm-stone:\s*calc\(100cqw \* 0\.88 \/ 15\);/);
   });
 
   it("drops the ghost when a move arrives, rings the last stone, marks a pending one and lights the line", () => {

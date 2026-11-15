@@ -7,7 +7,7 @@
   grid-template-rows: auto minmax(0, 1fr) auto;
   gap: 2%;
   --card: clamp(14px, 15cqw, 56px);
-  --big: clamp(28px, min(19cqw, 24cqh), 64px);
+  --big: clamp(28px, min(19cqw, 24cqh), max(64px, 17cqw));
   --tap: clamp(28px, 13cqh, 44px);
   --art-face: #fffdf7;
   --art-back: #2b4c7e;

@@ -1,7 +1,7 @@
 {
   "id": "com.flickertalk.game.reversi",
   "name": "Reversi",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "minCoreVersion": "1.6.0",
   "kind": "game",
   "icon": "contrast-outline",

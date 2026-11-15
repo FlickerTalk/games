@@ -31,6 +31,14 @@
   .composer { box-sizing: border-box; height: 155px; flex: none; display: flex; gap: 8px; align-items: flex-start; padding: 12px 12px 0; border-top: 1px solid color-mix(in srgb, var(--text) 10%, transparent); }
   .composer .box { flex: 1; min-height: 44px; padding: 11px 14px; border-radius: 22px; background: var(--surface-2); box-sizing: border-box; white-space: pre-wrap; }
   .composer .send { width: 44px; height: 44px; border-radius: 50%; background: var(--text); color: var(--bg); display: grid; place-items: center; }
+  /* the app's full screen: the frame takes the window less a 52 px toolbar, as tall as it is given */
+  .fullbar { display: none; box-sizing: border-box; height: 52px; flex: none; align-items: center; justify-content: flex-end; padding: 4px 8px; background: var(--bg); }
+  .fullbar button { display: grid; place-items: center; width: 44px; height: 44px; border: 0; border-radius: 50%; background: var(--surface-2); color: var(--text); font-size: 18px; }
+  .device.full .fullbar { display: flex; }
+  .device.full .head, .device.full .bar, .device.full .composer { display: none; }
+  .device.full .room { overflow: hidden; }
+  .device.full .sheet { height: 100%; padding: 0; }
+  .device.full .sheet iframe { height: 100% !important; }
 </style>
 </head>
 <body>
@@ -38,6 +46,7 @@
   <strong>Games preview</strong>
   <button data-do="open-a">Open A</button><button data-do="close-a">Close A</button>
   <button data-do="open-b">Open B</button><button data-do="close-b">Close B</button>
+  <button data-do="fill-a">Full screen A</button><button data-do="fill-b">Full screen B</button>
   <label><input type="checkbox" id="connected" checked> direct connection</label>
   <label>theme <select id="theme">
     <option value="">none (fallback)</option>
@@ -97,15 +106,17 @@
   }
   const names = { tictactoe: "Tic-Tac-Toe", fourinarow: "Four in a Row", chess: "Chess" };
 
-  const phones = { a: { records: new Map(), store: new Map(), frame: null }, b: { records: new Map(), store: new Map(), frame: null } };
+  const phones = { a: { records: new Map(), store: new Map(), frame: null, full: false }, b: { records: new Map(), store: new Map(), frame: null, full: false } };
   let connected = true;
 
   function device(side) {
     const node = document.createElement("section");
     node.className = "device closed";
     node.id = `device-${side}`;
-    node.innerHTML = `<div class="head"><span class="avatar">👤</span><span class="who">${solo ? "FlickerTalk" : side === "a" ? "Bea" : "Ana"}</span></div><div class="bar"><button aria-label="Close the game" data-close="${side}">✕</button><span class="name">${names[game] ?? game}</span><button aria-label="Invite"><svg viewBox="0 0 512 512" width="24" height="24" aria-hidden="true"><rect width="416" height="320" x="48" y="96" rx="40" ry="40" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32px"/><path d="m112 160 144 112 144-112" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32px"/></svg></button></div><div class="room"><div class="sheet"></div></div><div class="chat"><p class="hint">💬</p></div><div class="composer"><div class="box"></div><div class="send">➤</div></div>`;
+    node.innerHTML = `<div class="fullbar"><button aria-label="Leave full screen" data-shrink="${side}">⤡</button></div><div class="head"><span class="avatar">👤</span><span class="who">${solo ? "FlickerTalk" : side === "a" ? "Bea" : "Ana"}</span></div><div class="bar"><button aria-label="Close the game" data-close="${side}">✕</button><span class="name">${names[game] ?? game}</span><button aria-label="Full screen" data-grow="${side}">⤢</button><button aria-label="Invite"><svg viewBox="0 0 512 512" width="24" height="24" aria-hidden="true"><rect width="416" height="320" x="48" y="96" rx="40" ry="40" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32px"/><path d="m112 160 144 112 144-112" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32px"/></svg></button></div><div class="room"><div class="sheet"></div></div><div class="chat"><p class="hint">💬</p></div><div class="composer"><div class="box"></div><div class="send">➤</div></div>`;
     node.querySelector("[data-close]").onclick = () => close(side);
+    node.querySelector("[data-grow]").onclick = () => fill(side, true);
+    node.querySelector("[data-shrink]").onclick = () => fill(side, false);
     document.getElementById("devices").append(node);
     return node;
   }
@@ -128,10 +139,20 @@
   function close(side) {
     phones[side].frame?.remove();
     phones[side].frame = null;
+    phones[side].full = false;
+    devices[side].classList.remove("full");
     devices[side].classList.add("closed");
   }
 
   const tell = (side, message) => phones[side].frame?.contentWindow?.postMessage(message, "*");
+  const look = (side) => ({ type: "ft.theme", theme: theme?.vars ?? null, dark, fill: phones[side].full, fullscreen: phones[side].full });
+
+  function fill(side, on) {
+    if (!phones[side].frame) return;
+    phones[side].full = on;
+    devices[side].classList.toggle("full", on);
+    tell(side, look(side));
+  }
 
   addEventListener("message", (event) => {
     const side = Object.keys(phones).find((one) => phones[one].frame && phones[one].frame.contentWindow === event.source);
@@ -184,6 +205,7 @@
     if (!act) return;
     const [verb, side] = act.split("-");
     if (verb === "open") open(side);
+    else if (verb === "fill") fill(side, !phones[side].full);
     else close(side);
   });
   document.getElementById("connected").onchange = (event) => (connected = event.target.checked);
@@ -191,12 +213,12 @@
     theme = THEMES[name] ?? null;
     dark = theme ? theme.dark : params.has("dark");
     paintPage();
-    for (const side of Object.keys(phones)) tell(side, { type: "ft.theme", theme: theme?.vars ?? null, dark });
+    for (const side of Object.keys(phones)) tell(side, look(side));
   }
   const picker = document.getElementById("theme");
   picker.value = params.get("theme") ?? "";
   picker.onchange = () => setTheme(picker.value);
-  window.harness = { open, close, connect: (yes) => (connected = yes), phones, setTheme };
+  window.harness = { open, close, connect: (yes) => (connected = yes), phones, setTheme, fill };
   if (!params.has("closed")) {
     open("a");
     if (!solo) open("b");

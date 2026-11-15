@@ -1,8 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { KIT_TEXTS, defineGame } from "../src/index.js";
-import { FRAME_START, PENDING_GRACE_MS, ROOM_CHROME, whenDrawn } from "../src/shell.js";
+import { FRAME_START, PENDING_GRACE_MS, whenDrawn } from "../src/shell.js";
+import { ROOM_CHROME } from "../src/stage.js";
 import { FLASH_MS } from "../src/toast.js";
-import { fakeCore, phones, settle, toy, within, words } from "./helpers.js";
+import { fakeCore, fakeFrame, phones, settle, toy, within, words } from "./helpers.js";
 
 const built = { mounts: 0, updates: 0, destroyed: 0 };
 const toyBoard = {
@@ -804,6 +805,46 @@ describe("Ionic's structure, lent by the app", () => {
       spy.mockRestore();
       wide.mockRestore();
     }
+  });
+
+  it("grows the board when the app gives the game the whole window, follows the frame as it turns, and gives the room's board back, all in the same match", async () => {
+    const frame = fakeFrame({ width: 360, height: 588, screen: 740 });
+    try {
+      const element = await phone(fakeCore());
+      await press(element, '[data-kit="new"]');
+      const root = element.querySelector(".ftg");
+      const board = () => root.style.getPropertyValue("--ftg-board");
+      const match = element.table.record.id;
+      expect(board()).toBe("259px");
+      document.documentElement.setAttribute("data-fill", "1");
+      await Promise.resolve();
+      expect(board()).toBe("360px");
+      frame.resize({ width: 844, height: 338 });
+      dispatchEvent(new Event("resize"));
+      expect(board()).toBe("218px");
+      expect(root.hasAttribute("data-beside")).toBe(true);
+      document.documentElement.removeAttribute("data-fill");
+      await Promise.resolve();
+      expect(board()).toBe("259px");
+      expect(root.hasAttribute("data-beside")).toBe(false);
+      expect(element.table.record.id).toBe(match);
+      expect(built.mounts).toBe(1);
+      expect(built.destroyed).toBe(0);
+    } finally {
+      frame.restore();
+    }
+  });
+
+  it("stops watching the frame once the game is closed", async () => {
+    const element = await phone(fakeCore());
+    await press(element, '[data-kit="new"]');
+    const fit = vi.spyOn(element, "fitBoard");
+    element.remove();
+    dispatchEvent(new Event("resize"));
+    document.documentElement.setAttribute("data-fill", "1");
+    await Promise.resolve();
+    document.documentElement.removeAttribute("data-fill");
+    expect(fit).not.toHaveBeenCalled();
   });
 
   it("gives the content the height of what it holds, so the frame still follows its content", async () => {

@@ -507,25 +507,26 @@
   --color: var(--on-primary);
 }
 
+.ftg[data-beside] .ftg-main {
+  display: grid;
+  grid-template-columns: auto minmax(260px, 420px);
+  grid-template-rows: auto 1fr;
+  grid-template-areas: "stage players" "stage result";
+  justify-content: center;
+  align-items: start;
+  column-gap: 32px;
+}
+.ftg[data-beside] .ftg-stage {
+  align-self: start;
+  width: min(calc(100vw - 340px), var(--ftg-board, 560px));
+}
+.ftg[data-beside] .ftg-players {
+  flex-direction: column;
+}
+
 @media (min-width: 720px) {
   .ftg {
     gap: 16px;
-  }
-  .ftg-main {
-    display: grid;
-    grid-template-columns: auto minmax(260px, 420px);
-    grid-template-rows: auto 1fr;
-    grid-template-areas: "stage players" "stage result";
-    justify-content: center;
-    align-items: start;
-    column-gap: 32px;
-  }
-  .ftg-stage {
-    align-self: start;
-    width: min(calc(100vw - 340px), var(--ftg-board, 560px));
-  }
-  .ftg-players {
-    flex-direction: column;
   }
   .ftg-list {
     display: grid;
