@@ -21,19 +21,17 @@ export function shape(voice, at) {
   return [...rise, ["exponential", SILENT, end], ["set", 0, end]];
 }
 
-const factor = (value, fallback, valid) => (Number.isFinite(value) && valid(value) ? value : fallback);
+const higher = (value, pitch) => (value === undefined ? undefined : value * pitch);
 
-const times = (value, by) => (value === undefined ? {} : { [by[0]]: value * by[1] });
-
-function moved(voice, pitch) {
-  if (pitch === 1) return {};
-  const filter = voice.filter && { ...voice.filter, frequency: voice.filter.frequency * pitch, ...times(voice.filter.toFrequency, ["toFrequency", pitch]) };
-  return { ...times(voice.frequency, ["frequency", pitch]), ...times(voice.toFrequency, ["toFrequency", pitch]), ...(filter ? { filter } : {}) };
+function retuned(voice, pitch) {
+  const tuned = { ...voice, frequency: higher(voice.frequency, pitch), toFrequency: higher(voice.toFrequency, pitch) };
+  if (voice.filter) tuned.filter = { ...voice.filter, frequency: voice.filter.frequency * pitch, toFrequency: higher(voice.filter.toFrequency, pitch) };
+  return tuned;
 }
 
 export function scaled(voices, { gain, pitch, delay } = {}) {
-  const loud = Math.min(1, Math.max(0, factor(gain, 1, () => true)));
-  const high = factor(pitch, 1, (value) => value > 0);
-  const late = factor(delay, 0, (value) => value > 0);
-  return voices.map((voice) => ({ ...voice, gain: voice.gain * loud, start: voice.start + late, ...moved(voice, high) }));
+  const loud = Number.isFinite(gain) ? Math.min(1, Math.max(0, gain)) : 1;
+  const high = Number.isFinite(pitch) && pitch > 0 ? pitch : 1;
+  const late = Number.isFinite(delay) && delay > 0 ? delay : 0;
+  return voices.map((voice) => ({ ...(high === 1 ? voice : retuned(voice, high)), gain: voice.gain * loud, start: voice.start + late }));
 }
