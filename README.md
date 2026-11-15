@@ -453,6 +453,76 @@ game, another race, a stranger's id or a value out of range is ignored, and `s` 
 state it is about 150 bytes of base64. A phone with a higher `gv` or `kv` is not read: the user is
 told to update.
 
+## Levels, stars and gifts
+
+`kit/src/progress/` is for games played in rounds, against the phone or a person: races, chases, timed
+rounds. It says the level of the next round, how hard it is and how long it lasts, gives one to three
+stars, and hands out looks as surprise gifts. Each game is designed for its audience, so nothing is on
+until the game declares it, and a game that does not import the module bundles none of it (a test
+checks every package; all of it is about 6 KB minified). The classic games — Chess, Backgammon, the card
+games, the board games — use none of it: no levels, no stars, no gifts.
+
+```js
+import { defineProgress } from "../../../kit/src/progress/index.js";
+
+const progress = defineProgress({
+  timed: true,                                             // each round lasts round.seconds
+  curve: {
+    balloons: { first: 4, step: 2, limit: 14 },            // level 1: 4, then +2 a level, never past 14
+    rise: { first: 1, step: 0.25, limit: 2, eased: -0.5 }, // -0.5 after two losses in a row
+  },
+  stars: { two: 20, three: 35 },                           // the score for two stars and for three
+  gifts: { looks: ["red", "yellow", "green", "kite", "parrot", "moon"], free: 3 },
+});
+
+let record = await progress.load(ft.store);
+const round = progress.nextRound(record);   // { level, eased, values: { balloons, rise }, seconds, halfway }
+const outcome = progress.awardRound(record, { won: true, score: 27 });
+record = outcome.record;                    // outcome: { levelUp, passed, eased, gift, stars, newBest }
+await progress.save(ft.store, record);
+```
+
+- **Levels never end.** A won round moves to the next level. Each value of the `curve` is `first` on level
+  1 and moves by `step` each level until it reaches `limit`, where it stays; `progress.plateau` is the
+  level from which none of them changes any more (level 6 with the car race's numbers). The declaration
+  is checked when the game loads: a value that never reaches its limit, a `step` of 0, an unknown field,
+  stars the wrong way round or gifts that do not follow the rules below throw, naming the mistake.
+- **Losing.** After two lost rounds in a row the next one is eased (`round.eased`): each value moves by
+  its `eased`, and a timed round takes the length of the level before, never longer than its own. A third
+  loss in a row lets the player through to the next level (`outcome.passed`), and that counts as a win. A
+  won round clears the losses. There is no game over and nothing starts by itself: every round ends with
+  its stars and the best score so far (`outcome.newBest`), and the player starts the next one.
+- **Who it counts.** A round won against the phone and one won against a person count the same; in a
+  cooperative game each phone awards a cleared round as won. The phone's rival in a race or a chase can
+  be held near the player with `rivalPace(gap, { even, full, slowest = 0.8, fastest = 1.2 })`: the
+  factor for its speed, `1` while the gap is within `even`, down to `slowest` when it is `full` ahead and
+  up to `fastest` when it is `full` behind.
+- **The length of a timed round** (`roundSeconds(level, lossesInARow)`) grows in blocks of four levels:
+  35, 40, 45, 55 / 45, 50, 60, 70 / 55, 65, 75, 90 seconds, then 60, 70, 80, 90 over and over, never
+  more than 90. From 60 s a round has a halfway marker (`round.halfway`). A game with a track makes it
+  `seconds × top speed` long; a turn-based game does not declare `timed` and gets no length.
+- **Stars**: one for any round that ends, two from `stars.two`, three from `stars.three`. A score is a
+  number and more is better; a game with stars gives one with every result.
+- **Gifts are looks only**, never an advantage: a vehicle, a tool, a card back, an effect. The first
+  `free` looks are the player's from the start. The others come, one at a time and in the declared order
+  (the same for every child), after a fixed number of wins each, `every`, from 2 to 4 (by default
+  `[2, 3, 4]` over and over: on the 2nd, 5th, 9th, 11th… win). `outcome.gift` names the one just
+  received, which becomes the chosen look; `progress.choose(record, look)` changes it and
+  `progress.owned(record)` lists the looks the player has. Never a price, a coin, a padlock, a countdown,
+  a streak, a "come back tomorrow", a chance or anything bought. A game that declares no `gifts` never
+  gets one.
+- **Drawing is the game's**: the module has no DOM, no timers and no randomness. It gives the state and
+  what happened; the game draws the wrapped gift, its opening and the stars.
+- **Kept** in the game's own `ft.store` under the key `progress`, one record per game:
+  `{ "v": 1, "level": 10, "losses": 0, "wins": 9, "best": 31, "received": ["kite", "parrot", "moon"],
+  "chosen": "moon" }` (`losses` in a row, from 0 to 2; `wins` counts the rounds won, passes included).
+  The key is this module's alone: what the player picks for all games, such as an avatar, is kept apart.
+  A field of the wrong kind or a look the game no longer declares goes back to where a new player
+  starts, and the rest is kept; a record that is not JSON or of another version is replaced by a new
+  one. Reading and saving never throw: `load` gives a new record when the store fails, `save` answers
+  `false`. A store that never answers is waited for; a game that cannot wait races `load` against its
+  own timer.
+
 ## Protocol
 
 Over `ft.live`, which the core carries only over the direct connection, only to the same plugin open in
