@@ -1,6 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { fromBase64 } from "../../../kit/src/envelope.js";
-import { phones, settle, within } from "../../../kit/test/helpers.js";
+import { TIMING } from "../../../kit/src/table.js";
+import { fakeCore, phones, settle, within } from "../../../kit/test/helpers.js";
+import { moves } from "../src/rules.js";
 import "../src/index.js";
 
 const tick = () => settle([...document.querySelectorAll("ft-reversi")].map((element) => element.table));
@@ -40,6 +42,25 @@ beforeEach(() => {
   document.body.innerHTML = "";
 });
 afterEach(() => vi.useRealTimers());
+
+describe("Reversi against the phone", () => {
+  it("lets the phone play by the rules, in the conversation, without a word on the live channel", async () => {
+    const core = fakeCore();
+    const one = await phone(core, { live: false, solo: true });
+    one.table.random = () => new Uint8Array(32).fill(1);
+    await touch(one, '[data-kit="new"]');
+    await vi.advanceTimersByTimeAsync(TIMING.think);
+    await tick();
+    expect(one.table.record.game.moves).toHaveLength(1);
+    expect(discs(one, 0)).toBe(4);
+    await touch(one, moves(one.table.view.state.cells, 1)[0]);
+    await vi.advanceTimersByTimeAsync(TIMING.think);
+    await tick();
+    expect(one.table.record.game.moves).toHaveLength(3);
+    expect(one.table.view.myTurn).toBe(true);
+    expect(core.ft.live.send).not.toHaveBeenCalled();
+  });
+});
 
 describe("Reversi between two phones", () => {
   it("tosses the coin, shows the same discs on both phones after each move, and sends the result of a resignation", async () => {

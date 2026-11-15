@@ -89,7 +89,7 @@ addEventListener("message", (event) => {
   if (said.type === "ft.open") {
     theme(said.theme, said.dark);
     document.documentElement.lang = said.lang;
-    for (const handler of opened) handler({ text: "", dark: Boolean(said.dark), lang: String(said.lang), file: null, ref: null, reminder: null, live: Boolean(said.live), chat: typeof said.chat === "string" ? said.chat : undefined });
+    for (const handler of opened) handler({ text: "", dark: Boolean(said.dark), lang: String(said.lang), file: null, ref: null, reminder: null, live: Boolean(said.live), solo: said.solo === true, chat: typeof said.chat === "string" ? said.chat : undefined });
     requestAnimationFrame(tell);
   } else if (said.type === "ft.theme") {
     theme(said.theme, said.dark);
@@ -187,5 +187,5 @@ export function start(port = 5178) {
 if (process.argv[1] === import.meta.filename) {
   const server = await start(Number(process.env.PORT ?? 5178));
   const { port } = server.address();
-  console.log(`games preview: http://127.0.0.1:${port}/?game=tictactoe   (&lang=ar, &dark, &layout=tablet)`);
+  console.log(`games preview: http://127.0.0.1:${port}/?game=tictactoe   (&lang=ar, &dark, &layout=tablet, &solo)`);
 }

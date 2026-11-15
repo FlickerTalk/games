@@ -8,7 +8,8 @@ conversation's direct, end-to-end encrypted connection.
 **Privacy.** Matches are played over the direct connection between the two phones, encrypted, and are
 stored only on them. A game sees its own matches and nothing else: not the conversation, not who the
 contact is, not the network. Starting or entering a match may wake the other phone with a push that
-carries no content, and the result only reaches the chat if the user sends it.
+carries no content, and the result only reaches the chat if the user sends it. A match against the
+phone itself never leaves it.
 
 ## Layout
 
@@ -21,7 +22,7 @@ games/<name>/             one catalogue package per game
   module.json             what the catalogue reads (kind "game", live + send only)
   THIRD_PARTY_NOTICES.md  copied into dist/ by the build
   build.js                optional: `export const plugins = [...]`, esbuild plugins for this game's build
-  src/                    rules.js, board.js (+ board.css), texts.js, index.js
+  src/                    rules.js, board.js (+ board.css), texts.js, index.js, robot.js (optional)
   dist/                   built and committed: index.js + THIRD_PARTY_NOTICES.md
   test/
 preview/                  two phones side by side for review, and their screenshots
@@ -38,7 +39,7 @@ npm install
 npm test              # Vitest + happy-dom: the kit, every game, the preview server
 npm run build         # rebuilds every games/*/dist/ (node build.js chess: just one)
 npm run licenses      # production dependencies must be MIT, BSD, Apache-2.0, ISC or 0BSD
-npm run preview       # http://127.0.0.1:5178/?game=tictactoe  (&lang=ar, &dark, &layout=tablet)
+npm run preview       # http://127.0.0.1:5178/?game=tictactoe  (&lang=ar, &dark, &layout=tablet, &solo)
 npm run shots         # screenshots of every game to /private/tmp/ftgames-shots/<game>/
 npm run frame         # chess in Chromium inside the preview's frame: pieces drawn, tap, drag, promotion, no network
 npm run bar           # the game's bar in Chromium and WebKit, in Ionic's md and ios modes: title and score inside it, clear of its buttons
@@ -68,7 +69,9 @@ if the build does not give back the committed `dist/`.
    where `npm run licenses` checks them.
 3. `src/rules.js`, `src/board.js`, `src/texts.js` and `src/index.js` (below).
 4. Tests in `games/<name>/test/`: the rules, the board and texts, the package (copy Tic-Tac-Toe's
-   `package.test.js` and set your size cap), and two phones playing (copy `play.test.js`).
+   `package.test.js` and set your size cap), and two phones playing (copy `play.test.js`). A game with
+   a `robot` also plays whole rounds against itself and against any legal move (copy Four in a Row's
+   `robot.test.js`).
 5. `npm run build`, and a line in `preview/shots.js` (`PLAYS`) so `npm run shots` can play it.
 
 ## A game
@@ -106,6 +109,7 @@ defineGame({ id: "tictactoe", gv: 1, tag: manifest.components[0], app: manifest.
 | `minBoard` | Optional: the smallest board, in CSS pixels, on which the game is playable (Chess 320: squares of 40 px; Four in a Row 308: columns of 44 px). In a game the kit makes room for it before anything else; while waiting or on the result the board may be smaller. Default 200. |
 | `how(result, t)` | Optional: why a round ended by the rules, in the game's words (“checkmate”, “stalemate”), shown with the result; `result` is what `result(state)` returned. |
 | `summary(view, { t, lang, name, icon, record })` | Optional: the text sent to the chat. Without it: `⭕ Tic-Tac-Toe: I won, 3–2 · draws: 1`, in the sender's language. |
+| `robot` | Optional: lets the user play against their own phone (see "Playing against the phone"). `{ moves(state, side), score(state, side) }` for the kit's search, with optional `depth`, `budgetMs` and `slack`; or `{ move(state, side, memory, random) }` for a game that finds its own moves. Without it the game is played between two people only. |
 
 A **move** is a JSON number or a short string (≤ 64 characters): a cell index, a column, `e7e8q`.
 Rules are run on both phones from the first move every time something arrives, so they must be pure
@@ -269,6 +273,39 @@ it in a message (a test scans every message sent).
   in a chat comes from that chat's contact. Participant ids are not secrets: they only say which of the
   two seats is which.
 
+### Playing against the phone
+
+The app opens a game in the conversation of its built-in FlickerTalk contact with `solo: true` in
+`onOpen`, `live: false` and that conversation's `chat`; the game is not told who the contact is. When the
+game has a `robot`, the kit plays the other seat on the phone itself: the same rules, the same match
+record and the same screen as a match between two people.
+
+- Nothing goes over the live channel. In a match against the phone the kit never calls `ft.live.send`
+  (a test pins it: a send would wake a real device by push), and it ignores whatever arrives while the
+  game is open this way. Even if an app said `live: true` as well, `solo` wins and nothing is sent.
+- A new match puts the phone in seat `b` (a fresh id), draws `first` on the phone (no coin toss) and is
+  kept, as always, at `game/<chat>/<id>`, marked `solo` so that it opens again as one. Matches against
+  the phone are listed only when the game is open with `solo`, matches with a person only without it,
+  and a message naming a match against the phone is answered as if it did not exist.
+- The user's moves are saved at once and never shown as pending, and there is no "send the result to
+  the chat". While it is the phone's turn the band under the bar says it is thinking. After a short
+  wait (600 ms) the kit asks for the phone's move, checks it with the rules like any other, saves it,
+  and lets the phone play again if the rules give it another turn. "Play again" starts the next round.
+  Closing the game and opening it again goes on where it was, the phone playing if it is its turn.
+- `robot.moves(state, side)` lists the moves of the side to play, the likely best first (the search
+  goes faster); `robot.score(state, side)` says how good a position that has not ended is for `side`
+  (positive is good, `0` is even). The kit searches with alpha–beta, `depth` moves ahead (default 4),
+  on the main thread (the frame allows no workers), and stops after `budgetMs` (default 300) with the
+  best move it has found so far. A round won or lost counts as ±1,000,000, so `score` stays well below
+  that. Moves within `slack` of the best (default 0) are picked at random, so the phone does not
+  always play the same game. There is one level: the phone plays well and can be beaten.
+- A game with secrets or chance of its own (a hidden fleet, dice) gives `robot.move(state, side,
+  memory, random)` instead, which returns the move: `memory` is a plain JSON object kept with the match
+  (the phone's secrets go there), `random()` a number in [0, 1).
+- `solo` outside a conversation, or for a game without `robot`, changes nothing: the game says to open
+  it from a conversation, as before. An app that does not send `solo`, and a game that does not read
+  it, stay as they were.
+
 What another contact B of the user can do, and what it cannot:
 
 - B reaches only the matches the user plays with B. A message naming any other match id — one the user
@@ -378,13 +415,14 @@ Fixed vectors (in `kit/test/commit.test.js`), computed independently by `kit/tes
   licence comments dropped and the game's `THIRD_PARTY_NOTICES.md` copied beside it. A game that needs
   more from its build (a module made at build time, a fix to a dependency's source) exports esbuild
   `plugins` from its own `build.js`; they run before the kit's.
-- Each game's tests check its manifest, that `dist/` stays under its size cap (128 KB for a small game:
-  the kit with its 21 languages is about 90 KB),
+- Each game's tests check its manifest, that `dist/` stays under its size cap (128 to 131 KB for a small
+  game: the kit with its 21 languages is about 93 KB),
   and that nothing the frame loads contains an `http://` or `https://` address. XML namespace names
   (`http://www.w3.org/2000/svg`…) are allowed: browsers never fetch them. `THIRD_PARTY_NOTICES.md` is
   not scanned: it may quote a licence's address, and the frame never loads it.
 - `kit/test/helpers.js` gives every game's tests the same tools: `fakeCore()` (one phone's `ft`),
-  `phones()` (two of them wired as one conversation), `checkManifest`, `checkLocales`, `checkDist`, `checkTexts`,
+  `phones()` (two of them wired as one conversation), `playOut(game, players)`, `anyLegal(game, random)`
+  and `seeded(seed)` (whole rounds for a robot's tests), `checkManifest`, `checkLocales`, `checkDist`, `checkTexts`,
   `within(element, selector)` (the game's page, or the alert it is asking with) and `words(node)` (the
   text on the screen: Stencil gives some of Ionic's components a `textContent` of their own).
 - The tests register Ionic's components as the app lends them (`kit/test/ionic.js`, Vitest's setup),
@@ -413,10 +451,14 @@ package's contents. So:
   every game: `1.0.4` for the ten, `1.0.5` for the first three.
 - The bar's title centred on the iPhone (Ionic's title keeps its own box sizing) is one more patch for
   every game: `1.0.5` for the ten, `1.0.6` for the first three.
+- Matches against the phone are `1.1.0` for the games that have a `robot` (Tic-Tac-Toe, Four in a Row,
+  Reversi), and one more patch for the others, whose bundle changes with the kit: `1.0.6` for nine,
+  `1.0.7` for Chess.
 
 ## Preview
 
-`npm run preview` serves two phones side by side; each runs the game in an iframe built like the app's
+`npm run preview` serves two phones side by side (with `&solo`, one phone in a match against itself, as
+in the FlickerTalk conversation); each runs the game in an iframe built like the app's
 plugin sheet (`sandbox="allow-scripts"`, the Content-Security-Policy the core gives a plugin without
 network, and Ionic lent as the app lends it), and the page between them plays the core: records in memory, the live channel (with a switch
 for the connection), “close” and “open” for each phone, and `say` into a mock composer.

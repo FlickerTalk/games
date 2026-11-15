@@ -14,6 +14,15 @@ describe("defineGame", () => {
     expect(() => defineGame({ ...complete, board: {} })).toThrow("mount");
   });
 
+  it("takes an optional robot that plays by its own move or by the kit's search, and refuses half of one", () => {
+    expect(defineGame({ ...complete, tag: "ft-toy-own", robot: { move: () => "p" } }).robot.move()).toBe("p");
+    expect(defineGame({ ...complete, tag: "ft-toy-searched", robot: { moves: () => [], score: () => 0, depth: 3 } }).robot.depth).toBe(3);
+    for (const robot of [null, {}, { moves: () => [] }, { score: () => 0 }, { move: "p" }]) {
+      expect(() => defineGame({ ...complete, tag: "ft-toy-broken", robot }), JSON.stringify(robot)).toThrow("robot");
+    }
+    expect(customElements.get("ft-toy-broken")).toBeUndefined();
+  });
+
   it("registers the game's component once", () => {
     expect(defineGame(complete)).toBe(complete);
     expect(customElements.get("ft-toy-index")).toBeTruthy();

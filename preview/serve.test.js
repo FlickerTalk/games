@@ -61,6 +61,16 @@ describe("the review harness", () => {
     expect(rules).toMatch(/\*\s*\{[^}]*box-sizing:\s*border-box/);
   });
 
+  it("opens one phone alone in a match against itself with &solo, as the app opens the FlickerTalk conversation", async () => {
+    const bridge = await (await fetch(`${base}/frame/tictactoe/a/frame.js`)).text();
+    expect(bridge).toContain("solo: said.solo === true");
+    const host = await (await fetch(`${base}/?game=tictactoe&solo`)).text();
+    expect(host).toContain('const solo = params.has("solo");');
+    expect(host).toMatch(/live: !solo,[^\n]*solo,/);
+    expect(host).toContain('if (!solo) open("b");');
+    expect(host).toContain("devices.b.hidden = solo;");
+  });
+
   it("serves the host page, and nothing outside a game's dist/", async () => {
     expect((await fetch(`${base}/?game=tictactoe`)).status).toBe(200);
     expect((await fetch(`${base}/frame/tictactoe/a/src/rules.js`)).status).toBe(404);
