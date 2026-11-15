@@ -415,7 +415,7 @@ Fixed vectors (in `kit/test/commit.test.js`), computed independently by `kit/tes
   licence comments dropped and the game's `THIRD_PARTY_NOTICES.md` copied beside it. A game that needs
   more from its build (a module made at build time, a fix to a dependency's source) exports esbuild
   `plugins` from its own `build.js`; they run before the kit's.
-- Each game's tests check its manifest, that `dist/` stays under its size cap (128 to 131 KB for a small
+- Each game's tests check its manifest, that `dist/` stays under its size cap (128 to 132 KB for a small
   game: the kit with its 21 languages is about 93 KB),
   and that nothing the frame loads contains an `http://` or `https://` address. XML namespace names
   (`http://www.w3.org/2000/svg`…) are allowed: browsers never fetch them. `THIRD_PARTY_NOTICES.md` is
@@ -454,7 +454,7 @@ package's contents. So:
 - Matches against the phone are `1.1.0` for the games that have a `robot` (Tic-Tac-Toe, Four in a Row,
   Reversi), and one more patch for the others, whose bundle changes with the kit: `1.0.6` for nine,
   `1.0.7` for Chess.
-- A `robot` for Checkers is its `1.1.0`.
+- A `robot` for Checkers and Five in a Row is their `1.1.0`.
 
 ## Preview
 
