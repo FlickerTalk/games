@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import { KIT_TEXTS, joinTexts, translator } from "../../../kit/src/i18n.js";
-import { SEED_MARKS, board } from "../src/board.js";
+import { SEED_MARKS, STYLE, board } from "../src/board.js";
 import { TEXTS } from "../src/texts.js";
 import { initial, play, result, turn } from "../src/rules.js";
 
@@ -83,5 +83,15 @@ describe("the board", () => {
     mounted.update(context([2, 0, 3], { mySide: 0 }));
     expect(pit(host, 10).classList.contains("last")).toBe(true);
     expect(host.querySelectorAll(".fmc-clock")).toHaveLength(0);
+  });
+});
+
+describe("the board's size", () => {
+  const css = STYLE.replace(/\/\*[\s\S]*?\*\//g, "");
+
+  it("sizes the seed counts by the board, so they grow with it in full screen and stay as they were in the room", () => {
+    expect(css).toMatch(/\.fmc\s*\{[^}]*container-type:\s*size/);
+    const counts = /\.ftg \.fmc-pit,\s*\.fmc-store\s*\{([^}]*)\}/.exec(css)[1];
+    expect(counts).toMatch(/font-size:\s*max\(clamp\(14px, 4\.5vmin, 22px\), 4\.5cqmin\)/);
   });
 });
