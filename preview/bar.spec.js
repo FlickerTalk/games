@@ -56,6 +56,8 @@ const measure = (frame) =>
       sizing: getComputedStyle(title).boxSizing,
       words: ink(title),
       score: box(title.querySelector(".ftg-score")),
+      shown: box(title.shadowRoot?.querySelector(".toolbar-title") ?? title),
+      portraits: [...title.querySelectorAll("canvas")].map((node) => (node.hidden ? null : box(node))),
       start: span(toolbar.querySelectorAll(':scope > ion-buttons[slot="start"]')),
       end: span(toolbar.querySelectorAll(':scope > ion-buttons[slot="end"]')),
       ends: toolbar.querySelectorAll(':scope > ion-buttons[slot="end"] > ion-button').length,
@@ -119,6 +121,13 @@ for (const [engine, launcher] of Object.entries(ENGINES)) {
         inside(seen.score, seen.toolbar, "the score");
         clear(seen.score, seen.start, "the score");
         clear(seen.score, seen.end, "the score");
+        assert.equal(seen.portraits.length, 2, `${seen.portraits.length} portraits beside the score`);
+        if (buttons === 1) assert.ok(seen.portraits.every(Boolean), "a portrait is hidden while the bar has room for both");
+        for (const portrait of seen.portraits.filter(Boolean)) {
+          inside(portrait, seen.shown, "a portrait");
+          clear(portrait, seen.start, "a portrait");
+          clear(portrait, seen.end, "a portrait");
+        }
         if (mode === "ios") assert.ok(Math.abs(middle(seen.words) - middle(seen.toolbar)) <= 1, `the score centres at ${px(middle(seen.words))}, the bar at ${px(middle(seen.toolbar))}`);
       };
       await check(label("a match: the score"), () => score(1));

@@ -18,6 +18,7 @@ kit/                      shared code, compiled INTO each game's dist/index.js (
   src/                    envelope, commit–reveal, match, storage, table (live session), shell, texts
   src/live/               the real-time part: session, wire, pace, follow, the page (arena) and its texts
   src/sound/              effects, music and the volume line, made by the game, for the games that ask for it
+  src/avatars/            the players' faces: cast, drawing, the stored choice, the pick screen, portraits
   build.js                buildGame(): one game folder → its dist/
   test/                   the kit's tests, and helpers.js for every game's tests
 games/<name>/             one catalogue package per game
@@ -365,6 +366,75 @@ What another contact B of the user can do, and what it cannot:
 - B can still be a nuisance in its own conversation: send invitations (each one, when the user has the
   game open on its list, opens a new match with B, which the user can delete), stop playing, or walk away
   from the coin (below).
+
+## Avatars
+
+How a player is shown, in every game: **one round face for everyone, with the hair the player
+chooses**, so any profile suits anyone. Twelve profiles, each told apart by its colour **and** an
+emblem on the cheek (a sun, a wave, a diamond…), so nobody needs to see colour to tell them apart; a
+short name the player can change; and **Flick**, the purple robot, who is the other side whenever the
+user plays against the phone. Everything is drawn by code on a Canvas 2D context: no image, font or
+emoji. It lives in `kit/src/avatars/` and is compiled into a game only if the game imports it.
+
+```js
+import { drawAvatar, drawBadge, loadPlayer, defaultPlayer } from "../../../kit/src/avatars/index.js";
+
+const me = (await loadPlayer(ft.store)) ?? defaultPlayer();     // { who, hair, hairColour, name }
+function frame(ms) {
+  const time = ms / 1000;                                        // seconds: blink, bounce, swing
+  ctx.clearRect(0, 0, width, height);
+  drawAvatar(ctx, 60, 60, 64, { ...me, face: "happy", time });
+  drawBadge(ctx, 200, 60, 44, { who: "flick", thinking: true, time });
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+```
+
+- **Drawing.** `drawAvatar(ctx, x, y, size, { who, hair, hairColour, face, time, flip })` draws the
+  face centred on `x, y`; with its hair it stays within 0.7 × `size` of the centre. `face` is one of
+  `EXPRESSIONS` (neutral, confident, focused, happy, laughing, surprised, determined, dizzy, sleepy,
+  cheering, thinking, oops). `drawFigure(ctx, x, y, size, { …, pose })` puts the same face on one
+  body for everyone, in the profile's colour, in one of `POSES` (idle, run, jump, swing, kick, block,
+  celebrate, lose), for games where limbs are the game; `size` is the standing height, and hair and a
+  jump reach 0.7 × `size` above the centre and the feet 0.55 × `size` below. `drawBadge` is the
+  portrait beside a score, with three moving dots and the thinking face while that player is to move;
+  `drawRoundEnd(ctx, x, y, size, { winner, other, stars, time })` the winner cheering under one to
+  three stars and the other with an oops, in a box 2 × `size` wide. The functions keep no state, start
+  no timer and touch no page: the same options and `time` draw the same calls, and an unknown id draws
+  the default instead of throwing. They read from 32 px (the emblem grows a little below 64 px) to
+  240 px. Flick (`who: "flick"`) ignores hair.
+- **The cast.** `PROFILES`, `HAIRS` (nine long looks, nine short ones and `none`), `HAIR_COLOURS`,
+  `FLICK`: frozen, under ids that phones keep, so an id is never renamed or reused. Any hairstyle and
+  any colour go on any profile.
+- **The player's choice** is `{ who, hair, hairColour, name }`, kept as JSON under the key `player`
+  of the plugin's `ft.store`, the same key and shape in every game. `loadPlayer(store)` gives it back
+  checked (an id this version does not know becomes the default, Flick is never a player) or `null`
+  before the player has chosen; `savePlayer(store, choice)` writes it and keeps any other field already
+  in that record (the car game, for one, keeps its vehicles under the same key). A name is trimmed, loses control and direction
+  characters, is at most 12 letters (`NAME_LENGTH`), and is only ever drawn as text; `playerName`
+  falls back on the profile's own name. The core keeps `ft.store` per plugin, so each game holds its
+  own copy of the choice.
+- **The pick screen**, in two steps: the twelve profiles, then the hair, the hair colour and the name,
+  with the avatar large. It is pure logic a canvas game or a page can drive. `startPick(choice)` gives
+  a state; `pickLayout(state, width, height, lang)` lays it out for any frame, from the game room to a
+  phone held sideways, as named targets of 88 px or more (`{ kind, value, x, y, w, h, label, selected,
+  visible }`) and the scrolling strips; `pickPointer(state, layout, { type, x, y })` follows a finger
+  (`down`, `move`, `up`, `cancel`: a tap presses, a drag scrolls a strip); `pickPress(state, target)`
+  does what a target does; both answer `{ state, ask }`, where `ask` is `"rename"` (show a field
+  labelled `avatarText(lang, "name")` and hand its text to `pickRename`) or `"done"` (save
+  `state.choice`). `drawPick(ctx, layout, state, { time, lang })` draws it on a canvas. A page lays
+  buttons over the targets instead, with their `label` and `aria-pressed` from `selected`. The words,
+  accessible labels included, are in `AVATAR_TEXTS` in the app's 21 languages.
+- **Portraits in a turn-based game.** `board: withPortraits(board)` in `defineGame` shows, while a
+  match is on screen, the user's avatar and the other side's on either side of the score in the bar
+  (Tic-Tac-Toe does): Flick in a match against the phone, thinking on its move; cheering and oops when
+  a round ends. They take the room the bar's buttons leave them, 44 px at most, and step aside when
+  that is under 32 px (a crowded bar on Android, with the way back, the speaker, try again and
+  resign). This phone does not know the choice of a person on the other phone, so a person is shown
+  with another profile.
+- **Size.** The avatar alone adds about 12 KB to a game's bundle, the four drawings 16 KB, the
+  portraits 16 KB (Tic-Tac-Toe, with its sound, went from 151.6 to 168.2 KB), the pick screen with its
+  words in 21 languages 36 KB. A game that does not import the module carries none of it.
 
 ## Real-time games
 
