@@ -138,7 +138,7 @@
 }
 @container (max-height: 260px) {
   .fwg:not(.done) .fwg-lists,
-  .fwg-word {
+  .fwg:not(.play) .fwg-word {
     display: none;
   }
   .fwg.done .fwg-lists {
