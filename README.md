@@ -544,7 +544,8 @@ package's contents. So:
 - Matches against the phone are `1.1.0` for the games that have a `robot` (Tic-Tac-Toe, Four in a Row,
   Reversi), and one more patch for the others, whose bundle changes with the kit: `1.0.6` for nine,
   `1.0.7` for Chess.
-- A `robot` that keeps its secrets in the match's memory is `1.1.0` for Sea Battle, Crazy Eights and Backgammon.
+- A `robot` that keeps its secrets in the match's memory is `1.1.0` for Sea Battle, Crazy Eights,
+  Backgammon and Word Duel.
 
 ## Preview
 

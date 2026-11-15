@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { fromBase64 } from "../../../kit/src/envelope.js";
-import { phones, settle, within } from "../../../kit/test/helpers.js";
+import { TIMING } from "../../../kit/src/table.js";
+import { fakeCore, phones, seeded, settle, within } from "../../../kit/test/helpers.js";
 import { feedback } from "../src/rules.js";
 import "../src/index.js";
 
@@ -57,7 +58,63 @@ beforeEach(() => {
   vi.useFakeTimers();
   document.body.innerHTML = "";
 });
-afterEach(() => vi.useRealTimers());
+afterEach(() => {
+  vi.useRealTimers();
+  delete globalThis.ft;
+});
+
+const randomBytes = (random) => () => Uint8Array.from({ length: 32 }, () => Math.floor(random() * 256));
+const LIVE = '.fwd.empty [data-act="suggest"]:not([disabled]), .fwd [data-act="commit"]:not([disabled]), .fwd [data-act="guess"]:not([disabled])';
+
+async function alone(records, kept) {
+  const core = fakeCore({ records });
+  globalThis.ft = { store: { get: async (key) => kept.get(key) ?? null, set: async (key, value) => (kept.set(key, value), true) } };
+  const element = await phone(core, { live: false, solo: true, lang: "es" });
+  return { core, element };
+}
+
+async function think(element) {
+  await vi.advanceTimersByTimeAsync(TIMING.think);
+  await tick();
+}
+
+async function turn(element) {
+  const node = element.table.view.myTurn ? element.querySelector(LIVE) : null;
+  if (node) {
+    node.click();
+    await tick();
+  } else await think(element);
+}
+
+describe("Word Duel against the phone", () => {
+  it("plays a round in the user's language with the phone, closed and opened again halfway, and both words check out", async () => {
+    const records = new Map();
+    const kept = new Map();
+    const first = await alone(records, kept);
+    first.element.table.random = () => new Uint8Array(32).fill(1);
+    await touch(first.element, '[data-kit="new"]');
+    first.element.table.random = randomBytes(seeded(41));
+    await think(first.element);
+    expect(first.element.table.view.state.lang).toBe("es");
+    while (first.element.table.view.round.moves.length < 5) await turn(first.element);
+    const memory = first.element.table.record.solo.memory;
+    expect(memory).toEqual({ word: expect.any(String), salt: expect.any(String) });
+    first.element.table.stopTimers();
+    first.element.remove();
+
+    const second = await alone(records, kept);
+    second.element.table.random = randomBytes(seeded(42));
+    await touch(second.element, '[data-kit="enter"]');
+    expect(second.element.table.record.solo.memory).toEqual(memory);
+    for (let step = 0; step < 200 && second.element.table.view.phase === "play"; step += 1) await turn(second.element);
+    const { phase, state, result, mySide } = second.element.table.view;
+    expect(phase).toBe("over");
+    expect(state.reveals.map((reveal) => reveal.ok)).toEqual([true, true]);
+    expect(state.reveals[1 - mySide].word).toBe(memory.word);
+    expect(["solved", "tie", "nobody"]).toContain(result.result.reason);
+    for (const core of [first.core, second.core]) expect(core.ft.live.send).not.toHaveBeenCalled();
+  });
+});
 
 describe("Word Duel between two phones", () => {
   it("tosses the coin, sets both words, and shows each guess with its answer the same on both phones", async () => {
