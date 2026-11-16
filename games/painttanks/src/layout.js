@@ -65,7 +65,7 @@ export function playLayout(width, height, { fill = false, practice = false } = {
     const fire = box((width - FIRE) / 2, under.foot + PAD, FIRE, FIRE);
     const view = { x: 0, y: under.foot - WORLD.height * under.scale, scale: under.scale, mirror: false };
     const sub = { fire, dive: box((width - DIAL) / 2, start, DIAL, DIAL) };
-    return { width, height, ...top, start, view, ...row, fire, sub, flag: { x: width / 2, y: start + DIAL + FLAG + 14, size: FLAG } };
+    return { width, height, ...top, start, view, ...row, fire, sub, flag: { x: width * 0.34, y: start + DIAL + FLAG + 14, size: FLAG } };
   }
   const scale = Math.min(width / WORLD.width, (height - start) / WORLD.height);
   const view = { x: (width - WORLD.width * scale) / 2, y: height - WORLD.height * scale, scale, mirror: false };
