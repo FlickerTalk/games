@@ -51,7 +51,9 @@ const measure = (frame) =>
       : 0;
     const table = document.getElementById("view").table;
     const scroller = document.scrollingElement;
+    const sides = [".ftg-stage", ".ftg-player"].flatMap((selector) => [...document.querySelectorAll(selector)].map((node) => node.getBoundingClientRect())).filter((box) => box.width > 0);
     return {
+      margin: Math.round(Math.min(...sides.flatMap((box) => [box.left, innerWidth - box.right]))),
       fill: document.documentElement.hasAttribute("data-fill"),
       frame: { width: innerWidth, height: innerHeight },
       page: Math.ceil(root.getBoundingClientRect().bottom + scrollY),
@@ -138,6 +140,7 @@ const fits = (seen, label) => {
   assert.ok(seen.scroll <= 1, `${label}: the frame scrolls by ${seen.scroll} px`);
   assert.ok(seen.page <= seen.frame.height + 1, `${label}: the game ends at ${seen.page} in a frame of ${seen.frame.height}`);
   assert.ok(seen.spill <= 1, `${label}: the board spills ${seen.spill} px out of its ${seen.stage} px square`);
+  assert.ok(seen.margin >= 16, `${label}: the board or a player is ${seen.margin} px from the side of the frame`);
 };
 
 const shoot = (s, side, dir, name) => s.page.locator(`#device-${side}`).screenshot({ path: join(dir, `${name}-${side}.png`) });

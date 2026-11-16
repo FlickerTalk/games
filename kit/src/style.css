@@ -165,6 +165,11 @@
   --color: var(--ink);
   flex: none;
 }
+/* in the room the app pads the frame; in the whole window it only keeps the safe areas */
+:root[data-fill] .ftg > ion-content {
+  --padding-start: var(--ion-padding, 16px);
+  --padding-end: var(--ion-padding, 16px);
+}
 /* inherits from Ionic's slot, not the page, so the box sizing again */
 .ftg > ion-content > * {
   box-sizing: border-box;
