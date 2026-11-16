@@ -39,7 +39,7 @@ describe("the colouring screen", () => {
 
   it("makes the page as large as each frame allows, from a small phone's room to a tablet", () => {
     const scale = (width, height, fill) => screenLayout(width, height, { fill, ...SCREENS.page }).page.scale;
-    expect(scale(384, 801, true)).toBeGreaterThanOrEqual(1.15);
+    expect(scale(384, 801, true)).toBeGreaterThanOrEqual(1.1);
     expect(scale(384, 556, false)).toBeGreaterThanOrEqual(0.85);
     expect(scale(360, 343, false)).toBeGreaterThanOrEqual(0.6);
     expect(scale(844, 338, true)).toBeGreaterThanOrEqual(0.6);
@@ -78,9 +78,33 @@ describe("a strip of tools or paints", () => {
 
   it("settles on a whole item after a drag", () => {
     expect(snapScroll(strip, 10)).toBe(0);
-    expect(snapScroll(strip, 60)).toBe(TILE + 8);
+    expect(snapScroll(strip, strip.stride * 0.6)).toBe(strip.stride);
     expect(snapScroll(strip, -50)).toBe(0);
     expect(snapScroll(strip, 1e6)).toBe(stripMost(strip));
+  });
+
+  it("lays the paints in as many rows as the page leaves free, all of them in sight on a tablet", () => {
+    const seen = (width, height, fill) => {
+      const paints = screenLayout(width, height, { fill, ...SCREENS.page }).strips.find((one) => one.id === "paints");
+      return { paints, shown: stripTargets(paints, 0).filter((one) => one.visible).length };
+    };
+    const phone = seen(384, 801, true);
+    expect(phone.paints.lanes).toBeGreaterThanOrEqual(2);
+    expect(phone.shown).toBeGreaterThanOrEqual(6);
+    const tablet = seen(1280, 748, true);
+    expect(tablet.shown).toBe(29);
+    expect(stripMost(tablet.paints)).toBe(0);
+    expect(seen(360, 343, false).paints.lanes).toBe(1);
+  });
+
+  it("lets part of the next pot peek in wherever more paints wait out of sight", () => {
+    for (const [width, height, fill] of SIZES) {
+      for (const one of screenLayout(width, height, { fill, ...SCREENS.page }).strips.filter((each) => stripMost(each) > 0)) {
+        const end = one.vertical ? one.y + one.h : one.x + one.w;
+        const peeking = stripTargets(one, 0).filter((item) => !item.visible && (one.vertical ? item.y : item.x) <= end - 30);
+        expect(peeking.length, `${width}x${height} ${one.id}`).toBeGreaterThan(0);
+      }
+    }
   });
 
   it("centres a short strip that does not need to scroll", () => {
@@ -120,6 +144,7 @@ describe("a finished picture", () => {
       const name = `${width}x${height}`;
       checkTargets(layout.buttons, { width, height, fill, name, least });
       expect(inside(layout.picture, width, height), name).toBe(true);
+      expect(inside({ x: layout.picture.x - 10, y: layout.picture.y - 10, w: layout.picture.w + 20, h: layout.picture.h + 20 }, width, height), `${name} frame`).toBe(true);
       for (const one of layout.buttons) expect(overlap(one, layout.picture) && one.kind !== "gift", `${name} ${one.kind}`).toBe(false);
       expect(layout.buttons.map((one) => one.kind).sort()).toEqual(["edit", "gift", "home", "music", "play", "send", "speaker"]);
     }

@@ -7,6 +7,8 @@ const PAD = 8;
 const GAP = 8;
 const STRIDE = TILE + GAP;
 const TILE_MOST = 160;
+export const FRAME = 10;
+const PAGE_GIVES = 0.12;
 
 const rowOf = (height) => (height < 420 ? 48 : 56);
 const bottomOf = (height, fill) => height - (fill ? CORNER : PAD);
@@ -24,7 +26,7 @@ function fitPage(area) {
   return { x: area.x + (area.w - w) / 2, y: area.y + (area.h - h) / 2, w, h, scale };
 }
 
-const strip = (id, items, area, vertical) => ({ id, items, ...area, vertical });
+const strip = (id, items, area, vertical) => ({ id, items, ...area, vertical, lanes: 1, stride: STRIDE });
 
 function arrangements(width, top, bottom, tools, paints) {
   const wide = width - 2 * PAD;
@@ -43,6 +45,33 @@ function arrangements(width, top, bottom, tools, paints) {
   return found;
 }
 
+const lengthOf = (one) => (one.vertical ? one.h : one.w);
+const wholeIn = (length) => Math.max(1, Math.floor((length + GAP) / STRIDE));
+const columnsOf = (one) => Math.ceil(one.items.length / one.lanes);
+
+function paced(one) {
+  const length = lengthOf(one);
+  if (columnsOf(one) <= wholeIn(length)) return one;
+  const whole = Math.max(1, Math.floor((length - TILE / 2) / STRIDE));
+  return { ...one, stride: Math.max(STRIDE, (length - TILE / 2) / whole) };
+}
+
+function widen(found) {
+  const paints = found.strips.find((one) => one.id === "paints");
+  const upright = paints.vertical;
+  const spare = upright ? found.area.w - found.page.w : found.area.h - found.page.h;
+  const given = (upright ? found.page.w : found.page.h) * PAGE_GIVES;
+  const needed = Math.ceil(paints.items.length / wholeIn(lengthOf(paints)));
+  const grow = Math.max(0, Math.min(needed - 1, Math.floor((spare + given) / STRIDE))) * STRIDE;
+  const strips = found.strips.map((one) => {
+    if (one === paints) return upright ? { ...one, x: one.x - grow, w: one.w + grow, lanes: grow / STRIDE + 1 } : { ...one, y: one.y - grow, h: one.h + grow, lanes: grow / STRIDE + 1 };
+    if (one.vertical === upright) return upright ? { ...one, x: one.x - grow } : { ...one, y: one.y - grow };
+    return { ...one, h: one.h - grow };
+  });
+  const area = upright ? { ...found.area, w: found.area.w - grow } : { ...found.area, h: found.area.h - grow };
+  return { ...found, page: fitPage(area), strips: strips.map(paced) };
+}
+
 function portraits(width, row, left) {
   const size = Math.min(48, row - 8);
   const middle = (PAD + left.length * row + width - PAD - 2 * row) / 2;
@@ -55,8 +84,8 @@ export function screenLayout(width, height, { fill = false, left = ["back"], riv
   const row = rowOf(height);
   const top = PAD + row + GAP;
   const bottom = bottomOf(height, fill);
-  const scored = arrangements(width, top, bottom, tools, paints).map((one) => ({ ...one, page: fitPage(one.page) }));
-  const best = scored.reduce((one, two) => (two.page.scale * two.weight > one.page.scale * one.weight ? two : one));
+  const scored = arrangements(width, top, bottom, tools, paints).map((one) => ({ ...one, area: one.page, page: fitPage(one.page) }));
+  const best = widen(scored.reduce((one, two) => (two.page.scale * two.weight > one.page.scale * one.weight ? two : one)));
   const faces = rival ? portraits(width, row, left) : null;
   const buttons = [...barButtons(width, row, left), ...(faces ? [faces.target] : [])];
   const speaker = buttons.find((one) => one.kind === "speaker");
@@ -70,21 +99,22 @@ export function soundLine(width, height) {
   return box(Math.max(PAD, Math.min(width - PAD - 240, speaker + size / 2 - 120)), PAD + size + 6, 240, 64);
 }
 
-const lengthOf = (one) => (one.vertical ? one.h : one.w);
-const contentOf = (one) => Math.max(0, one.items.length * STRIDE - GAP);
+const contentOf = (one) => Math.max(0, (columnsOf(one) - 1) * one.stride + TILE);
 
 export const stripMost = (one) => Math.max(0, contentOf(one) - lengthOf(one));
 
 export function stripTargets(one, scroll) {
   const start = contentOf(one) < lengthOf(one) ? (lengthOf(one) - contentOf(one)) / 2 : -Math.max(0, Math.min(stripMost(one), scroll));
+  const edge = ((one.vertical ? one.w : one.h) - (one.lanes * STRIDE - GAP)) / 2;
   return one.items.map((item, at) => {
-    const along = start + at * STRIDE;
-    const area = one.vertical ? box(one.x, one.y + along, TILE, TILE) : box(one.x + along, one.y, TILE, TILE);
+    const along = start + Math.floor(at / one.lanes) * one.stride;
+    const across = edge + (at % one.lanes) * STRIDE;
+    const area = one.vertical ? box(one.x + across, one.y + along, TILE, TILE) : box(one.x + along, one.y + across, TILE, TILE);
     return { ...item, ...area, strip: one.id, visible: along >= -0.5 && along + TILE <= lengthOf(one) + 0.5 };
   });
 }
 
-export const snapScroll = (one, scroll) => Math.max(0, Math.min(stripMost(one), Math.round(scroll / STRIDE) * STRIDE));
+export const snapScroll = (one, scroll) => Math.max(0, Math.min(stripMost(one), Math.round(scroll / one.stride) * one.stride));
 
 function gridShape(area, count, aspect) {
   let best = null;
@@ -123,7 +153,8 @@ export function pictureLayout(width, height, { fill = false, actions = [], gift 
   const top = PAD + row + GAP;
   const bottom = bottomOf(height, fill);
   const beside = width > height * 1.1;
-  const picture = fitPage(beside ? box(PAD, top, width - 2 * PAD - BIG - (actions.length ? TILE + GAP : 0) - GAP, bottom - top) : box(PAD, top, width - 2 * PAD, bottom - BIG - GAP - top));
+  const room = beside ? box(PAD, top, width - 2 * PAD - BIG - (actions.length ? TILE + GAP : 0) - GAP, bottom - top) : box(PAD, top, width - 2 * PAD, bottom - BIG - GAP - top);
+  const picture = fitPage(box(room.x + FRAME, room.y + FRAME, room.w - 2 * FRAME, room.h - 2 * FRAME));
   const buttons = barButtons(width, row, ["home"]);
   const add = (kind, area) => buttons.push({ kind, value: kind, ...area });
   if (beside) {

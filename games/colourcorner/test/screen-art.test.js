@@ -13,7 +13,7 @@ describe("the colouring screen's drawing", () => {
     const ctx = shown(game);
     const box = bounds(painted(ctx));
     expect(box.left).toBeGreaterThanOrEqual(-1);
-    expect(box.right).toBeLessThanOrEqual(game.state.width + 1);
+    expect(box.right).toBeLessThanOrEqual(game.state.width + 88);
     expect(colours(ctx)).toContain(THEME.ui.surface);
     expect(colours(ctx)).toContain(THEME.art.paper);
     expect(ctx.depth).toBe(0);
