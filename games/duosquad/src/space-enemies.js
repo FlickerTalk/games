@@ -114,7 +114,6 @@ function panel(ctx, look, points, open, side) {
   ctx.restore();
 }
 
-// `reach` is the distance in pixels from the middle of the command ship to each of its two cores.
 export function drawBoss(ctx, x, y, reach, look, { time = 0, open = [false, false] } = {}) {
   const done = open[0] && open[1];
   ctx.save();

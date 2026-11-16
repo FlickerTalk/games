@@ -104,7 +104,6 @@ function flyShown(round, craft, seen, metrics) {
   stepBolts(craft, seen, metrics);
 }
 
-// Returns whether this phone's own state changed in a way the other must hear soon.
 export function stepRound(game, round) {
   const { layout } = game.state;
   const metrics = metricsOf(layout);

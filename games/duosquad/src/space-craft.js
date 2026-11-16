@@ -116,7 +116,6 @@ export const HULL_NAMES = Object.freeze(Object.keys(HULLS));
 
 const hullOf = (index) => HULLS[HULL_NAMES[index]] ?? HULLS.fighter;
 
-// where the pilot's face sits, as a share of the craft's size from its centre
 export const cockpitOf = (index) => [0, hullOf(index).cockpit / 64];
 
 export function drawCraft(ctx, x, y, size, hull, look, { seat = 0, time = 0, bank = 0, caught = false } = {}) {

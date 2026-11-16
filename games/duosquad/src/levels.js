@@ -16,7 +16,6 @@ export const ZONES = Object.freeze({
   land: Object.freeze(["canyon", "salt", "storm"]),
 });
 
-// crafts to a page of the looks screen
 export const PAGE = 4;
 export const PAGES = Object.freeze([0, 1]);
 
