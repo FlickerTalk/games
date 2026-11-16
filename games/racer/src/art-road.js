@@ -1,4 +1,4 @@
-import { PALETTE } from './art-palette.js';
+import { DAY_THEME, PALETTE } from './art-palette.js';
 import { clamp, ellipse, paint, polygon, roundedRect } from './art-shapes.js';
 import { drawRoadside } from './art-scenery.js';
 
@@ -32,9 +32,9 @@ function drawCrossings(ctx, height, roadLeft, roadWidth, scroll) {
   ctx.restore();
 }
 
-export function drawRoad(ctx, { width, height, roadLeft, roadWidth, lanes = 3, scroll = 0, scenery = 'meadow' }) {
+export function drawRoad(ctx, { width, height, roadLeft, roadWidth, lanes = 3, scroll = 0, scenery = 'meadow' }, ground = DAY_THEME.ground) {
   ctx.save();
-  drawRoadside(ctx, { width, height, roadLeft, roadWidth, scroll, scenery });
+  drawRoadside(ctx, { width, height, roadLeft, roadWidth, scroll, scenery }, ground);
   ctx.fillStyle = scenery === 'night' ? PALETTE.asphaltNight : PALETTE.asphalt;
   ctx.fillRect(roadLeft, 0, roadWidth, height);
   if (scenery === 'night') drawCrossings(ctx, height, roadLeft, roadWidth, scroll);

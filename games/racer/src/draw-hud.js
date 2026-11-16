@@ -18,7 +18,7 @@ export function drawHud(ctx, view, game, time, hud) {
   if (rival) progress.robot = Math.min(1, Math.max(0, rival.distance / game.track.length));
   const friend = rival ? { kind: rival.kind, color: rival.color } : null;
   const marks = { halfway: game.track.halfway === null ? null : 0.5 };
-  drawProgressStrip(ctx, (view.width - stripWidth) / 2, STRIP.top, stripWidth, STRIP.height, progress, hud.vehicle, friend, marks);
+  drawProgressStrip(ctx, (view.width - stripWidth) / 2, STRIP.top, stripWidth, STRIP.height, progress, hud.vehicle, friend, marks, view.theme);
   const light = lightFor(game);
   if (light !== null) {
     drawCountdown(ctx, view.width / 2, HUD_BOTTOM + view.height * 0.12, Math.min(220, view.width * 0.55), { time: light });

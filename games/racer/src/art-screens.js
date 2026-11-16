@@ -2,7 +2,7 @@ import { drawRobotCar } from './art-cars.js';
 import { drawGarageButton } from './art-garage.js';
 import { drawPlayerVehicle } from './art-vehicles.js';
 import { drawConfetti } from './art-effects.js';
-import { PALETTE } from './art-palette.js';
+import { DAY_THEME, PALETTE } from './art-palette.js';
 import { clamp, ellipse, paint, polygon, roundedRect, starPoints } from './art-shapes.js';
 import { SWITCH_BAND } from './layout.js';
 
@@ -21,13 +21,13 @@ export function levelCardGoButton(width, height) {
   };
 }
 
-function drawStartIcon(ctx, x, y, size) {
+function drawStartIcon(ctx, x, y, size, ink) {
   ctx.save();
   ctx.translate(x, y);
   ctx.beginPath();
   ctx.moveTo(-size * 0.32, -size * 0.43);
   ctx.lineTo(-size * 0.32, size * 0.44);
-  ctx.strokeStyle = PALETTE.ink;
+  ctx.strokeStyle = ink;
   ctx.lineWidth = size * 0.065;
   ctx.lineCap = 'round';
   ctx.stroke();
@@ -38,7 +38,7 @@ function drawStartIcon(ctx, x, y, size) {
       ctx.fillRect(-size * 0.27 + column * cell, -size * 0.4 + row * cell, cell, cell);
     }
   }
-  ctx.strokeStyle = PALETTE.ink;
+  ctx.strokeStyle = ink;
   ctx.lineWidth = 2.5;
   ctx.strokeRect(-size * 0.27, -size * 0.4, cell * 4, cell * 3);
   ellipse(ctx, -size * 0.32, size * 0.45, size * 0.18, size * 0.07, PALETTE.playerDark, PALETTE.ink, 2);
@@ -211,13 +211,13 @@ export function levelCardGarageButton(width, height) {
   return { x: centerX - radius, y: centerY - radius, width: radius * 2, height: radius * 2, centerX, centerY, radius };
 }
 
-function drawLevelNumber(ctx, level, { width, height, y, size, robot }) {
+function drawLevelNumber(ctx, level, { width, height, y, size, robot, ink }) {
   const { cardX } = cardBox(width, height);
   const right = levelCardGarageButton(width, height).x - NUMBER_GAP;
   const robotButton = levelCardRobotButton(width, height);
   const left = robot ? robotButton.x + robotButton.width + NUMBER_GAP : cardX + NUMBER_GAP;
   const text = String(Math.max(1, Math.floor(level)));
-  ctx.fillStyle = PALETTE.ink;
+  ctx.fillStyle = ink;
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.font = `900 ${size}px system-ui, sans-serif`;
@@ -234,18 +234,18 @@ function iconPlace(width, height, numberBottom, cardWidth, wanted) {
   return { size, y: Math.min(wanted, goTop - size * 1.08) };
 }
 
-export function drawLevelCard(ctx, options) {
+export function drawLevelCard(ctx, options, { ground, hud } = DAY_THEME) {
   const { width, height, level = 1, result = 'start', time = 0, vehicle = {}, garageHint = false, rival = null, meReady = false, offerRobot = false } = options;
   ctx.save();
-  ctx.fillStyle = PALETTE.sky;
+  ctx.fillStyle = ground.sky;
   ctx.fillRect(0, 0, width, height);
-  ellipse(ctx, width * 0.08, height * 0.12, width * 0.16, width * 0.16, PALETTE.playerLight, null);
-  ellipse(ctx, width * 0.94, height * 0.72, width * 0.24, width * 0.24, PALETTE.grassLight, null);
+  ellipse(ctx, width * 0.08, height * 0.12, width * 0.16, width * 0.16, ground.sun, null);
+  ellipse(ctx, width * 0.94, height * 0.72, width * 0.24, width * 0.24, ground.hill, null);
   const { cardWidth, cardHeight, cardX, cardY } = cardBox(width, height);
   roundedRect(ctx, cardX, cardY + 6, cardWidth, cardHeight, 34);
   paint(ctx, PALETTE.ink, null);
   roundedRect(ctx, cardX, cardY, cardWidth, cardHeight, 34);
-  paint(ctx, PALETTE.card, PALETTE.ink, 5);
+  paint(ctx, hud.card, hud.edge, 5);
   if (result === 'won' || result === 'second') {
     ctx.save();
     roundedRect(ctx, cardX + 3, cardY + 3, cardWidth - 6, cardHeight - 6, 31);
@@ -255,12 +255,12 @@ export function drawLevelCard(ctx, options) {
   }
   const numberY = cardY + cardHeight * 0.18;
   const numberSize = clamp(cardWidth * 0.29, 72, 100);
-  drawLevelNumber(ctx, level, { width, height, y: numberY, size: numberSize, robot: offerRobot });
+  drawLevelNumber(ctx, level, { width, height, y: numberY, size: numberSize, robot: offerRobot, ink: hud.text });
   const { y: iconY, size: iconSize } = iconPlace(width, height, numberY + numberSize * 0.4, cardWidth, cardY + cardHeight * 0.44);
   if (result === 'won') drawTrophy(ctx, width / 2, iconY, iconSize);
   else if (result === 'second') drawMedal(ctx, width / 2, iconY, iconSize);
   else if (result === 'lost') drawRetryIcon(ctx, width / 2, iconY, iconSize);
-  else drawStartIcon(ctx, width / 2, iconY, iconSize);
+  else drawStartIcon(ctx, width / 2, iconY, iconSize, hud.text);
   drawRacePair(ctx, width / 2, iconY + iconSize * 0.7, iconSize, { time, result, vehicle, rival, meReady });
   if (offerRobot) drawRobotButton(ctx, width, height);
   const garageButton = levelCardGarageButton(width, height);

@@ -4,7 +4,9 @@ import { createRenderer } from '../src/render.js';
 import { createGame, pressGo, stepGame, pauseRace } from '../src/game.js';
 import { sceneryFor, groundColor } from '../src/scenery.js';
 import { CAMERA, PLAYER_SCREEN_POSITION, VIEW_WIDTH } from '../src/tuning.js';
-import { PALETTE, levelCardGoButton } from '../src/art.js';
+import { PALETTE, VEHICLE_KINDS, levelCardGoButton } from '../src/art.js';
+import { themeFor } from '../src/theme.js';
+import { tokensFor } from '../../../kit/test/canvas/themes.js';
 
 const PHONE = { width: 384, height: 853, stage: { x: 0, width: 384, height: 853 } };
 const TABLET = { width: 1248, height: 700, stage: { x: 400, width: 448, height: 700 } };
@@ -149,4 +151,30 @@ test('the finger\'s touch ring is drawn over the race', () => {
   race(game, 2);
   renderer.draw(game, 3, { hint: false, touch: { pressed: true, x: 100, y: 500, time: 3 } });
   assert.ok(stroked(canvas, PALETTE.playerGlass));
+});
+
+test('every screen is painted in the theme it is given: the card, the race and its strip, the garage and the gift', () => {
+  const theme = themeFor(tokensFor('aurora-dark'), { dark: true });
+  const { canvas, renderer, game } = setUp(2);
+  renderer.retheme(theme);
+  const drawn = (draw) => {
+    canvas.ctx.calls.length = 0;
+    draw();
+    return { filled: (colour) => filled(canvas, colour), stroked: (colour) => stroked(canvas, colour) };
+  };
+  const card = drawn(() => renderer.draw(game, 0, hud));
+  assert.ok(card.filled(theme.ground.sky) && card.filled(theme.hud.card) && card.filled(theme.hud.text));
+  assert.ok(card.stroked(theme.hud.edge));
+  const racing = drawn(() => {
+    race(game, 3);
+    renderer.draw(game, 3, hud);
+  });
+  assert.ok(racing.filled(theme.ground.desert) && racing.filled(theme.ground.dune) && racing.filled(theme.hud.strip));
+  assert.ok(racing.stroked(theme.hud.track) && racing.stroked(theme.hud.edge));
+  const view = { kinds: VEHICLE_KINDS, unlocked: ['car'], selected: 'car', color: 'ocean', page: 0, time: 1, nudge: null };
+  const garage = drawn(() => renderer.draw(game, 1, { screen: { name: 'garage', view } }));
+  assert.ok(garage.filled(theme.ground.sky) && garage.filled(theme.hud.card));
+  const gift = drawn(() => renderer.draw(game, 1, { screen: { name: 'gift', view: { kind: 'rocket', color: 'mint', time: 0.5 } } }));
+  assert.ok(gift.filled(theme.ground.sky) && gift.filled(theme.hud.card));
+  for (const screen of [card, racing, garage, gift]) assert.ok(!screen.filled(PALETTE.sky) && !screen.filled(PALETTE.card) && !screen.filled(PALETTE.hud));
 });

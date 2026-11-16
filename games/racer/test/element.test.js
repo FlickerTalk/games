@@ -3,6 +3,10 @@ import assert from 'node:assert/strict';
 import '../src/index.js';
 import { stageFor } from '../src/layout.js';
 import { roomHeight as kitRoomHeight } from '../../../kit/src/canvas/index.js';
+import { softStage } from '../../../kit/src/canvas/tone.js';
+import { themeFromTokens } from '../../../kit/src/canvas/theme.js';
+import { setHostTheme, tokensFor } from '../../../kit/test/canvas/themes.js';
+import { PALETTE } from '../src/art-palette.js';
 
 class FakeObserver {
   static made = [];
@@ -76,6 +80,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
+  setHostTheme(document.documentElement, null);
   vi.unstubAllGlobals();
   vi.restoreAllMocks();
 });
@@ -180,7 +185,7 @@ test('in a conversation the element takes the room height, and full screen the w
   assert.equal(racer.style.height, '343px');
   const { target, options } = FakeMutation.made[0].watched[0];
   assert.equal(target, document.documentElement);
-  assert.deepEqual(options.attributeFilter, ['data-fill']);
+  assert.deepEqual(options.attributeFilter, ['data-fill', 'data-dark', 'style', 'class']);
   fullScreen(true);
   assert.equal(racer.style.height, '');
   fullScreen(false);
@@ -269,4 +274,60 @@ test('the element carries a sound switch and a music switch, labelled, in the to
   const line = racer.querySelector('.volume-pop input.volume');
   assert.equal(line.getAttribute('aria-label'), 'Volume');
   assert.equal(line.closest('.volume-pop').hidden, true);
+});
+
+function recordingContext() {
+  const calls = [];
+  const ctx = new Proxy({ measureText: () => ({ width: 0 }) }, {
+    get: (target, name) => (name in target ? target[name] : (...args) => calls.push({ name, args, fillStyle: target.fillStyle, strokeStyle: target.strokeStyle })),
+    set: (target, name, value) => {
+      target[name] = value;
+      return true;
+    },
+  });
+  const filled = (colour) => calls.some((call) => call.name.startsWith('fill') && call.fillStyle === colour);
+  return { ctx, calls, filled };
+}
+
+async function drawnIn(themeName) {
+  setHostTheme(document.documentElement, themeName);
+  room();
+  const drawing = recordingContext();
+  HTMLCanvasElement.prototype.getContext.mockReturnValue(drawing.ctx);
+  const racer = await connected();
+  FakeObserver.made[0].report(352, 556);
+  runFrame(1000);
+  return { racer, drawing };
+}
+
+test('in the app\'s dark theme the level card stands on a dusk sky and is drawn in the app\'s colours', async () => {
+  const { drawing } = await drawnIn('mono-dark');
+  const ui = themeFromTokens(tokensFor('mono-dark'), { dark: true });
+  assert.ok(drawing.filled(softStage(PALETTE.sky, { dark: true })));
+  assert.ok(!drawing.filled(PALETTE.sky));
+  assert.ok(drawing.filled(ui.surface));
+  assert.ok(!drawing.filled(PALETTE.card));
+});
+
+test('in the app\'s dark theme the sound switches take its surface and text, like the kit games\' buttons', async () => {
+  const { racer } = await drawnIn('mono-dark');
+  const ui = themeFromTokens(tokensFor('mono-dark'), { dark: true });
+  for (const button of racer.querySelectorAll('button.sound-switch')) {
+    const look = getComputedStyle(button);
+    assert.equal(look.backgroundColor, ui.surface);
+    assert.equal(look.color, ui.text);
+  }
+  assert.equal(getComputedStyle(racer.querySelector('.volume-pop')).backgroundColor, ui.surface);
+});
+
+test('when the app turns dark while the game is open, the game turns dark on the next frame', async () => {
+  const { racer, drawing } = await drawnIn('mono-light');
+  assert.ok(drawing.filled(softStage(PALETTE.sky, { dark: false })));
+  setHostTheme(document.documentElement, 'mono-dark');
+  FakeMutation.made[0].fire();
+  drawing.calls.length = 0;
+  runFrame(1100);
+  assert.ok(drawing.filled(softStage(PALETTE.sky, { dark: true })));
+  const ui = themeFromTokens(tokensFor('mono-dark'), { dark: true });
+  assert.equal(getComputedStyle(racer.querySelector('button.sound-switch')).backgroundColor, ui.surface);
 });

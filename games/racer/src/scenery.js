@@ -1,11 +1,9 @@
-import { PALETTE, SCENERIES } from './art.js';
-
-const GROUND = { meadow: PALETTE.meadow, desert: PALETTE.desert, snow: PALETTE.snow, night: PALETTE.city };
+import { DAY_THEME, SCENERIES } from './art.js';
 
 export function sceneryFor(level) {
   return SCENERIES[(Math.max(1, level) - 1) % SCENERIES.length];
 }
 
-export function groundColor(scenery) {
-  return GROUND[scenery];
+export function groundColor(scenery, ground = DAY_THEME.ground) {
+  return ground[scenery];
 }

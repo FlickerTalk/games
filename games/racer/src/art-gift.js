@@ -1,4 +1,4 @@
-import { PALETTE } from './art-palette.js';
+import { DAY_THEME, PALETTE } from './art-palette.js';
 import { drawPresent } from './art-present.js';
 import { clamp, ellipse, hash, paint, polygon, roundedRect, starPoints } from './art-shapes.js';
 import { drawPlayerVehicle } from './art-vehicles.js';
@@ -35,7 +35,7 @@ function drawBurst(ctx, x, y, size, time) {
   ctx.restore();
 }
 
-export function drawGiftReveal(ctx, { width, height, kind, color = 'sunshine', time = 0 }) {
+export function drawGiftReveal(ctx, { width, height, kind, color = 'sunshine', time = 0 }, { ground, hud } = DAY_THEME) {
   const t = clamp(time, 0, GIFT_REVEAL_SECONDS);
   const size = clamp(Math.min(width, height) * 0.31, 82, 150);
   const boxX = width / 2;
@@ -44,12 +44,12 @@ export function drawGiftReveal(ctx, { width, height, kind, color = 'sunshine', t
   const pop = smoothstep((t - 0.62) / 0.72);
   const wobble = t < 0.58 ? 0.9 : 0;
   ctx.save();
-  ctx.fillStyle = PALETTE.sky;
+  ctx.fillStyle = ground.sky;
   ctx.fillRect(0, 0, width, height);
-  ellipse(ctx, width * 0.12, height * 0.16, size * 0.35, size * 0.35, PALETTE.playerLight, null);
-  ellipse(ctx, width * 0.9, height * 0.3, size * 0.42, size * 0.42, PALETTE.grassLight, null);
+  ellipse(ctx, width * 0.12, height * 0.16, size * 0.35, size * 0.35, ground.sun, null);
+  ellipse(ctx, width * 0.9, height * 0.3, size * 0.42, size * 0.42, ground.hill, null);
   roundedRect(ctx, width * 0.08, height * 0.08, width * 0.84, height * 0.84, 34);
-  paint(ctx, PALETTE.card, PALETTE.ink, 4);
+  paint(ctx, hud.card, hud.edge, 4);
   ctx.globalAlpha = 0.16;
   ellipse(ctx, boxX, boxY + size * 0.39, size * 0.62, size * 0.15, PALETTE.ink, null);
   ctx.globalAlpha = 1;

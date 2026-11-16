@@ -79,6 +79,7 @@ export function createSession(parts) {
       return run.screen;
     },
     resize: (size) => resize(run, size),
+    retheme: (theme) => run.renderer.retheme(theme),
     destroy: () => destroy(run, () => {
       unwire();
       unhear();
