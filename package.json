@@ -17,6 +17,7 @@
     "fill": "node preview/fill.spec.js",
     "tilecourt": "node preview/tilecourt.spec.js",
     "checkers": "node preview/checkers.spec.js",
+    "gomoku": "node preview/gomoku.spec.js",
     "chess": "node preview/chess.spec.js",
     "tictactoe": "node preview/tictactoe.spec.js",
     "fourinarow": "node preview/fourinarow.spec.js",
