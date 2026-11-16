@@ -1,0 +1,98 @@
+{
+  "id": "com.flickertalk.game.balloonfair",
+  "name": "Balloon Fair",
+  "version": "1.0.0",
+  "minCoreVersion": "1.6.0",
+  "kind": "game",
+  "icon": "balloon-outline",
+  "components": [
+    "ft-balloonfair"
+  ],
+  "permissions": {
+    "live": true,
+    "send": "propose"
+  },
+  "summary": "Pop balloons at a fairground stall with a cork popgun, a water blaster or a suction-cup bow, for the whole family: against FlickerTalk or with the other person in the chat.",
+  "locales": {
+    "es": {
+      "name": "Balloon Fair",
+      "summary": "Explota globos en una caseta de feria con un lanzacorchos, un lanzador de agua o un arco de ventosas, para toda la familia: contra FlickerTalk o con la otra persona del chat."
+    },
+    "pt": {
+      "name": "Balloon Fair",
+      "summary": "Estoure balões numa barraca de feira com um lança-rolhas, um lançador de água ou um arco de ventosas, para toda a família: contra o FlickerTalk ou com a outra pessoa da conversa."
+    },
+    "fr": {
+      "name": "Balloon Fair",
+      "summary": "Éclate des ballons à un stand de fête foraine avec un lance-bouchons, un lance-eau ou un arc à ventouses, pour toute la famille : contre FlickerTalk ou avec l’autre personne du chat."
+    },
+    "de": {
+      "name": "Balloon Fair",
+      "summary": "Lass an einer Jahrmarktbude Ballons platzen, mit Korken-Knaller, Wasserspritze oder Saugnapf-Bogen, für die ganze Familie: gegen FlickerTalk oder mit der anderen Person im Chat."
+    },
+    "it": {
+      "name": "Balloon Fair",
+      "summary": "Fai scoppiare i palloncini a un banco della fiera con un lanciatappi, uno spruzzatore d’acqua o un arco a ventose, per tutta la famiglia: contro FlickerTalk o con l’altra persona della chat."
+    },
+    "ro": {
+      "name": "Balloon Fair",
+      "summary": "Sparge baloane la o tarabă de bâlci cu un lansator de dopuri, o stropitoare cu apă sau un arc cu ventuze, pentru toată familia: împotriva lui FlickerTalk sau cu cealaltă persoană din chat."
+    },
+    "ru": {
+      "name": "Balloon Fair",
+      "summary": "Лопай шарики в ярмарочной палатке пробковой хлопушкой, водяной брызгалкой или луком с присосками — для всей семьи: против FlickerTalk или с собеседником из чата."
+    },
+    "uk": {
+      "name": "Balloon Fair",
+      "summary": "Лускай кульки в ярмарковому наметі корковою хлопавкою, водяною бризкалкою чи луком із присосками — для всієї родини: проти FlickerTalk або зі співрозмовником із чату."
+    },
+    "pl": {
+      "name": "Balloon Fair",
+      "summary": "Przebijaj balony na straganie w wesołym miasteczku korkową pukawką, sikawką na wodę albo łukiem z przyssawkami, dla całej rodziny: przeciw FlickerTalk albo z drugą osobą z czatu."
+    },
+    "tr": {
+      "name": "Balloon Fair",
+      "summary": "Bir panayır tezgâhında mantar fırlatıcı, su fışkırtıcı ya da vantuzlu yayla balon patlat; tüm aile için: FlickerTalk’a karşı ya da sohbetteki diğer kişiyle."
+    },
+    "ar": {
+      "name": "Balloon Fair",
+      "summary": "فرقع البالونات في كشك الملاهي بقاذف الفلين أو رشّاش الماء أو قوس بسهام لاصقة، لكل العائلة: ضد FlickerTalk أو مع الشخص الآخر في المحادثة."
+    },
+    "hi": {
+      "name": "Balloon Fair",
+      "summary": "मेले के स्टॉल पर कॉर्क वाले खिलौने, पानी की पिचकारी या सक्शन कप वाले धनुष से गुब्बारे फोड़ें, पूरे परिवार के लिए: FlickerTalk के ख़िलाफ़ या चैट के दूसरे व्यक्ति के साथ।"
+    },
+    "bn": {
+      "name": "Balloon Fair",
+      "summary": "মেলার স্টলে কর্ক ছোড়ার খেলনা, জলের পিচকারি বা সাকশন কাপ ধনুক দিয়ে বেলুন ফাটান, পুরো পরিবারের জন্য: FlickerTalk-এর বিরুদ্ধে বা চ্যাটের অন্য ব্যক্তির সঙ্গে।"
+    },
+    "id": {
+      "name": "Balloon Fair",
+      "summary": "Letuskan balon di kios pekan raya dengan pelontar gabus, penyemprot air, atau busur dengan panah penghisap, untuk seluruh keluarga: melawan FlickerTalk atau bersama lawan bicaramu di chat."
+    },
+    "vi": {
+      "name": "Balloon Fair",
+      "summary": "Làm nổ bóng bay ở gian hàng hội chợ bằng ống bắn nút bần, bình xịt nước hoặc cung tên giác hút, dành cho cả gia đình: đấu với FlickerTalk hoặc chơi cùng người kia trong cuộc trò chuyện."
+    },
+    "th": {
+      "name": "Balloon Fair",
+      "summary": "ทำลูกโป่งให้แตกที่ซุ้มงานวัดด้วยของเล่นยิงจุกไม้ก๊อก ที่ฉีดน้ำ หรือธนูลูกดอกจุกยาง สำหรับทั้งครอบครัว แข่งกับ FlickerTalk หรือเล่นกับอีกคนในแชต"
+    },
+    "ja": {
+      "name": "Balloon Fair",
+      "summary": "おまつりの屋台で、コルクでっぽう・水でっぽう・吸盤の弓矢を使って風船を割ろう。家族みんなで楽しめます。FlickerTalk と対戦、またはチャットの相手といっしょに。"
+    },
+    "ko": {
+      "name": "Balloon Fair",
+      "summary": "축제 부스에서 코르크 딱총, 물총, 흡착 화살 활로 풍선을 터뜨리세요. 온 가족이 함께 즐길 수 있어요. FlickerTalk와 대결하거나 채팅 상대와 함께 플레이하세요."
+    },
+    "zh-CN": {
+      "name": "Balloon Fair",
+      "summary": "在游乐场的小摊上，用软木塞发射器、喷水器或吸盘弓打破气球，适合全家一起玩：可以和 FlickerTalk 对战，也可以和聊天里的对方一起玩。"
+    },
+    "zh-TW": {
+      "name": "Balloon Fair",
+      "summary": "在遊樂場的小攤上，用軟木塞發射器、噴水器或吸盤弓打破氣球，適合全家一起玩：可以和 FlickerTalk 對戰，也可以和聊天裡的對方一起玩。"
+    }
+  }
+}
