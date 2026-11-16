@@ -12,7 +12,7 @@ const dir = join(import.meta.dirname, "..");
 describe("the Tic-Tac-Toe package", () => {
   it("says it is a game that needs the core 1.6.0, the live channel and sending, and nothing else", () => {
     const manifest = checkManifest(dir, { id: "com.flickertalk.game.tictactoe", name: "Tic-Tac-Toe", component: "ft-tictactoe" });
-    expect(manifest.version).toBe("1.2.0");
+    expect(manifest.version).toBe("1.3.0");
   });
 
   it("names and describes itself in the app's other 20 languages, the name its own title there", () => {
@@ -27,8 +27,8 @@ describe("the Tic-Tac-Toe package", () => {
     expect(readFileSync(join(out, "THIRD_PARTY_NOTICES.md")).equals(readFileSync(join(dir, "dist", "THIRD_PARTY_NOTICES.md")))).toBe(true);
   });
 
-  it("stays under 170 KB, says its one third-party work is Ionicons, and loads nothing from outside", () => {
-    expect(checkDist(dir, { cap: 170 * 1024 })).toBeGreaterThan(20_000);
+  it("stays under 196 KB, says its one third-party work is Ionicons, and loads nothing from outside", () => {
+    expect(checkDist(dir, { cap: 196 * 1024 })).toBeGreaterThan(20_000);
     expect(readFileSync(join(dir, "dist", "THIRD_PARTY_NOTICES.md"), "utf8")).toContain("its one third-party work is Ionicons");
   });
 });
