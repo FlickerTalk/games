@@ -13,7 +13,7 @@ const ASK_MS = 260;
 const ordered = (hand) => [...hand].sort(byRank);
 
 function layout(size, state) {
-  const base = seatsLayout(size, state.table.hands.reduce((most, hand) => Math.max(most, hand.length), 0));
+  const base = seatsLayout(size, state.table.hands.reduce((most, hand) => Math.max(most, hand.length), 0), { lift: 0 });
   const { pile, centre, mid, inner } = base;
   const pond = { x: mid - pile.w - inner.w * 0.1, y: centre - pile.h / 2, ...pile };
   const bubble = Math.max(34, pile.h * 0.62);

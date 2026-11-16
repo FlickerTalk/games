@@ -25,6 +25,15 @@ describe("a table with a hand at each end", () => {
     expect(seatsLayout(343, 20).hand.rows).toBe(3);
   });
 
+  it("keeps 36 px of every card to touch in a hand of three rows where no card is lifted, even on the smallest board", () => {
+    const cards = Array.from({ length: 16 }, (_, at) => at);
+    for (const size of [300, 343]) {
+      const layout = seatsLayout(size, 16, { lift: 0 });
+      expect(layout.hand.rows).toBe(3);
+      for (const { reach } of handPlaces(layout, cards)) expect(reach.h, `${size}`).toBeGreaterThanOrEqual(36);
+    }
+  });
+
   it("leaves every card of the hand at least 44 px to touch on a phone, lifting the chosen ones", () => {
     for (const count of [7, 8, 14]) {
       const cards = Array.from({ length: count }, (_, at) => at * 3);

@@ -2,23 +2,23 @@ import { CARD_RATIO } from "../../../kit/src/cards/faces.js";
 import { handRows, handSlots } from "../../../kit/src/cards/hand.js";
 import { frameOf } from "./table.js";
 
-const BY_ROWS = [null, { pile: 0.15, small: 0.085 }, { pile: 0.13, small: 0.075 }, { pile: 0.11, small: 0.07 }];
+const BY_ROWS = [null, { pile: 0.15, small: 0.085 }, { pile: 0.13, small: 0.075 }, { pile: 0.1, small: 0.06 }];
 const HAND_WIDTH = 0.16;
 const PAD = 0.015;
 const GAP = 0.012;
 const LIFT = 0.02;
 const layouts = new Map();
 
-export function seatsLayout(size, count, { least = 1 } = {}) {
+export function seatsLayout(size, count, { least = 1, lift: raise = LIFT } = {}) {
   const frame = frameOf(size);
   const { inner } = frame;
   const W = inner.w;
   const hw = W * HAND_WIDTH;
   const rows = count <= 4 ? 1 : Math.max(least, handRows(count, { span: W, width: hw }));
-  const key = `${size}:${rows}`;
+  const key = `${size}:${rows}:${raise}`;
   if (layouts.has(key)) return layouts.get(key);
   const part = BY_ROWS[rows];
-  const [pad, gap, lift, hh] = [W * PAD, W * GAP, W * LIFT, hw * CARD_RATIO];
+  const [pad, gap, lift, hh] = [W * PAD, W * GAP, W * raise, hw * CARD_RATIO];
   const small = { w: W * part.small, h: W * part.small * CARD_RATIO };
   const pile = { w: W * part.pile, h: W * part.pile * CARD_RATIO };
   const free = W - 2 * pad - 3 * small.h - pile.h - hh - lift - 4 * gap;
