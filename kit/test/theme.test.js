@@ -1,11 +1,12 @@
-import { readFileSync, readdirSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
+import { canvasStyle } from "../src/canvas/element.js";
 
 const root = join(import.meta.dirname, "..", "..");
 const KIT = join(root, "kit", "src", "style.css");
 const ARENA = join(root, "kit", "src", "live", "arena.css");
-const gameStyles = readdirSync(join(root, "games")).map((game) => join(root, "games", game, "src", "board.css"));
+const gameStyles = readdirSync(join(root, "games")).map((game) => join(root, "games", game, "src", "board.css")).filter((file) => existsSync(file));
 
 function declarations(css) {
   const text = css.replace(/\/\*[\s\S]*?\*\//g, "");
@@ -58,8 +59,10 @@ describe("the games' colours", () => {
   });
 
   it("write no colour of their own except through a token", () => {
-    for (const file of [KIT, ARENA, ...gameStyles]) {
-      for (const one of declarations(readFileSync(file, "utf8"))) {
+    const sheets = [...[KIT, ARENA, ...gameStyles].map((file) => [file, readFileSync(file, "utf8")]), ["canvas element", canvasStyle("ft-canvas")]];
+    expect(sheets.length).toBeGreaterThan(10);
+    for (const [file, css] of sheets) {
+      for (const one of declarations(css)) {
         if (!COLOUR.test(one.value)) continue;
         expect(one.name, `${file}: ${one.where} { ${one.name}: ${one.value} }`).toMatch(ALLOWED);
       }

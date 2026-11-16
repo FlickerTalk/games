@@ -10,7 +10,7 @@ const POINTERS = [["pointerdown", "down"], ["pointermove", "move"], ["pointerup"
 
 export const roomHeight = (screenHeight) => Math.round(Math.min(ROOM_MOST, Math.max(ROOM_LEAST, (screenHeight || 853) - ROOM_CHROME)));
 
-const styleFor = (tag) => `
+export const canvasStyle = (tag) => `
 ${tag} { display: block; position: relative; width: 100%; overflow: hidden; touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent; }
 html[data-fill] ${tag} { height: 100%; }
 ${tag} > canvas { display: block; width: 100%; height: 100%; touch-action: none; }
@@ -25,7 +25,7 @@ function addStyle(page, tag) {
   if (page.head.querySelector(`style[data-ft-canvas="${tag}"]`)) return;
   const style = page.createElement("style");
   style.dataset.ftCanvas = tag;
-  style.textContent = styleFor(tag);
+  style.textContent = canvasStyle(tag);
   page.head.append(style);
 }
 
