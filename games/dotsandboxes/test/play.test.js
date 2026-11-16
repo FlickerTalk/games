@@ -7,8 +7,10 @@ import "../src/index.js";
 const tick = () => settle([...document.querySelectorAll("ft-dotsandboxes")].map((element) => element.table));
 const kinds = (core) => core.sent.map((data) => JSON.parse(new TextDecoder().decode(fromBase64(data))).k);
 const text = (element) => element.textContent.replace(/\s+/g, " ");
-const line = (element, index) => element.querySelector(`[data-line="${index}"]`);
-const box = (element, index) => element.querySelector(`[data-box="${index}"]`);
+const line = (element, index) => element.querySelector(`button[data-line="${index}"]`);
+const marked = (element, index, name) => (line(element, index).dataset.mark ?? "").split(" ").includes(name);
+const counted = (element) => element.querySelector('.ftg-board [role="group"]').getAttribute("aria-label");
+const free = (element) => [...element.querySelectorAll("button[data-line]")].find((one) => !one.disabled);
 
 async function phone(core, opening = {}) {
   const element = document.createElement("ft-dotsandboxes");
@@ -63,11 +65,31 @@ describe("dots and boxes against the phone", () => {
     await vi.advanceTimersByTimeAsync(TIMING.think);
     await tick();
     expect(one.table.view.state.boxes[0]).toBe(1 - one.table.view.mySide);
-    expect(box(one, 0).classList.contains(`b${1 - one.table.view.mySide}`)).toBe(true);
+    expect(counted(one)).toBe(one.table.view.mySide === 0 ? "Board: 0 boxes to 1" : "Board: 1 boxes to 0");
     expect(one.table.record.game.moves).toHaveLength(2 * touched + 2);
     expect(one.table.view.myTurn).toBe(true);
     expect(core.ft.live.send).not.toHaveBeenCalled();
   });
+
+  it("plays a whole round against the phone to its end, the phone always Flick and never a word on the live channel", async () => {
+    vi.useRealTimers();
+    vi.useFakeTimers({ toNotFake: ["Date"] });
+    const core = fakeCore();
+    const one = await phone(core, { live: false, solo: true });
+    one.table.random = () => new Uint8Array(32).fill(1);
+    await touch(one, '[data-kit="new"]');
+    for (let turn = 0; one.table.view.phase === "play" && turn < 200; turn += 1) {
+      if (one.table.view.myTurn) await touch(one, Number(free(one).dataset.line));
+      await vi.advanceTimersByTimeAsync(TIMING.think);
+      await tick();
+    }
+    expect(one.table.view.phase).toBe("over");
+    expect(one.table.view.state.lines.every(Boolean)).toBe(true);
+    expect(text(one)).toMatch(/You (won|lost)|Draw/);
+    expect(one.querySelector('.ftg-bar canvas[data-side="them"]').dataset.who).toBe("flick");
+    expect(one.querySelector('[data-kit="send"]')).toBeNull();
+    expect(core.ft.live.send).not.toHaveBeenCalled();
+  }, 60_000);
 });
 
 describe("dots and boxes between two phones", () => {
@@ -84,8 +106,9 @@ describe("dots and boxes between two phones", () => {
     expect(text(o)).toContain("Your turn");
     await touch(o, 21);
     for (const side of [x, o]) {
-      expect(box(side, 0).classList.contains("b1")).toBe(true);
-      expect(line(side, 21).classList.contains("d1")).toBe(true);
+      expect(side.table.view.state.boxes[0]).toBe(1);
+      expect(counted(side)).toBe("Board: 0 boxes to 1");
+      expect(marked(side, 21, "d1")).toBe(true);
     }
     expect(text(o)).toContain("Your turn");
     expect(line(x, 1).disabled).toBe(true);
@@ -105,7 +128,7 @@ describe("dots and boxes between two phones", () => {
     x.ft.live.send = vi.fn(async () => false);
     await touch(x, 5);
     expect(text(x)).toContain("The other phone cannot be reached right now.");
-    expect(line(x, 5).querySelector(".fdb-clock")).not.toBeNull();
+    expect(marked(x, 5, "pending")).toBe(true);
     expect(o.table.record.game.moves).toEqual([]);
     x.ft.live.send = send;
     await touch(x, '[data-kit="back"]');
@@ -113,7 +136,7 @@ describe("dots and boxes between two phones", () => {
     await tick();
     expect(o.table.record.game.moves).toEqual([5]);
     expect(line(o, 5).getAttribute("aria-label")).toBe("Line across, row 2, box 2: X");
-    expect(line(x, 5).querySelector(".fdb-clock")).toBeNull();
+    expect(marked(x, 5, "pending")).toBe(false);
     expect(text(o)).toContain("Your turn");
   });
 });
