@@ -1,0 +1,98 @@
+{
+  "id": "com.flickertalk.game.paddlepop",
+  "name": "Paddle Pop",
+  "version": "1.0.0",
+  "minCoreVersion": "1.6.0",
+  "kind": "game",
+  "icon": "tennisball-outline",
+  "components": [
+    "ft-paddlepop"
+  ],
+  "permissions": {
+    "live": true,
+    "send": "propose"
+  },
+  "summary": "A paddle-and-ball game for the whole family: send the ball back while the table surprises you, against FlickerTalk or with the other person in the chat.",
+  "locales": {
+    "es": {
+      "name": "Paddle Pop",
+      "summary": "Un juego de pala y pelota para toda la familia: devuelve la pelota mientras la mesa te sorprende, contra FlickerTalk o con la otra persona del chat."
+    },
+    "pt": {
+      "name": "Paddle Pop",
+      "summary": "Um jogo de raquete e bola para toda a família: rebata a bola enquanto a mesa te surpreende, contra o FlickerTalk ou com a outra pessoa da conversa."
+    },
+    "fr": {
+      "name": "Paddle Pop",
+      "summary": "Un jeu de raquette et de balle pour toute la famille : renvoie la balle pendant que la table te réserve des surprises, contre FlickerTalk ou avec l’autre personne du chat."
+    },
+    "de": {
+      "name": "Paddle Pop",
+      "summary": "Ein Schläger-und-Ball-Spiel für die ganze Familie: Spiel den Ball zurück, während dich der Tisch überrascht, gegen FlickerTalk oder mit der anderen Person im Chat."
+    },
+    "it": {
+      "name": "Paddle Pop",
+      "summary": "Un gioco di racchetta e palla per tutta la famiglia: rimanda la palla mentre il tavolo ti sorprende, contro FlickerTalk o con l’altra persona della chat."
+    },
+    "ro": {
+      "name": "Paddle Pop",
+      "summary": "Un joc cu paletă și minge pentru toată familia: trimite mingea înapoi în timp ce masa te surprinde, împotriva lui FlickerTalk sau cu cealaltă persoană din conversație."
+    },
+    "ru": {
+      "name": "Paddle Pop",
+      "summary": "Игра с ракеткой и мячом для всей семьи: отбивай мяч, пока стол готовит сюрпризы, — против FlickerTalk или с собеседником из чата."
+    },
+    "uk": {
+      "name": "Paddle Pop",
+      "summary": "Гра з ракеткою та м’ячем для всієї родини: відбивай м’яч, поки стіл готує сюрпризи, — проти FlickerTalk або з людиною з чату."
+    },
+    "pl": {
+      "name": "Paddle Pop",
+      "summary": "Gra z paletką i piłką dla całej rodziny: odbijaj piłkę, gdy stół szykuje niespodzianki — przeciw FlickerTalk albo z drugą osobą z czatu."
+    },
+    "tr": {
+      "name": "Paddle Pop",
+      "summary": "Tüm aile için raket ve top oyunu: masa seni şaşırtırken topu geri gönder; FlickerTalk’a karşı ya da sohbetteki kişiyle."
+    },
+    "ar": {
+      "name": "Paddle Pop",
+      "summary": "لعبة مضرب وكرة لكل العائلة: أعِد الكرة بينما تفاجئك الطاولة، ضد FlickerTalk أو مع الشخص الآخر في المحادثة."
+    },
+    "hi": {
+      "name": "Paddle Pop",
+      "summary": "पूरे परिवार के लिए पैडल और गेंद का खेल: टेबल के सरप्राइज़ के बीच गेंद वापस भेजें, FlickerTalk के ख़िलाफ़ या चैट के दूसरे व्यक्ति के साथ।"
+    },
+    "bn": {
+      "name": "Paddle Pop",
+      "summary": "পুরো পরিবারের জন্য প্যাডেল আর বলের খেলা: টেবিলের চমকের মাঝে বল ফেরত পাঠান, FlickerTalk-এর বিরুদ্ধে বা চ্যাটের অন্যজনের সঙ্গে।"
+    },
+    "id": {
+      "name": "Paddle Pop",
+      "summary": "Permainan raket dan bola untuk seluruh keluarga: kembalikan bola sementara meja memberi kejutan, melawan FlickerTalk atau bersama orang lain di obrolan."
+    },
+    "vi": {
+      "name": "Paddle Pop",
+      "summary": "Trò chơi vợt và bóng cho cả gia đình: đánh trả bóng trong khi mặt bàn mang đến bất ngờ, đấu với FlickerTalk hoặc với người kia trong cuộc trò chuyện."
+    },
+    "th": {
+      "name": "Paddle Pop",
+      "summary": "เกมไม้ตีกับลูกบอลสำหรับทั้งครอบครัว ตีลูกกลับไปขณะที่โต๊ะคอยสร้างเซอร์ไพรส์ เล่นกับ FlickerTalk หรือกับอีกคนในแชท"
+    },
+    "ja": {
+      "name": "Paddle Pop",
+      "summary": "家族みんなで楽しめるラケットとボールのゲーム。テーブルのサプライズに負けずにボールを打ち返そう。FlickerTalk と、またはチャットの相手と。"
+    },
+    "ko": {
+      "name": "Paddle Pop",
+      "summary": "온 가족을 위한 라켓과 공 게임: 테이블이 깜짝 놀라게 해도 공을 받아넘기세요. FlickerTalk와, 또는 채팅 상대와 함께."
+    },
+    "zh-CN": {
+      "name": "Paddle Pop",
+      "summary": "适合全家的球拍击球游戏：球台不断带来惊喜，把球打回去，可以和 FlickerTalk 比，或和聊天里的对方一起玩。"
+    },
+    "zh-TW": {
+      "name": "Paddle Pop",
+      "summary": "適合全家的球拍擊球遊戲：球桌不斷帶來驚喜，把球打回去，可以和 FlickerTalk 比，或和聊天裡的對方一起玩。"
+    }
+  }
+}
