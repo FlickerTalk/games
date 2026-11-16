@@ -7,8 +7,10 @@ import "../src/index.js";
 const tick = () => settle([...document.querySelectorAll("ft-gomoku")].map((element) => element.table));
 const kinds = (core) => core.sent.map((data) => JSON.parse(new TextDecoder().decode(fromBase64(data))).k);
 const text = (element) => element.textContent.replace(/\s+/g, " ");
-const cell = (element, index) => element.querySelector(`[data-cell="${index}"]`);
-const stones = (element, side) => element.querySelectorAll(`.fgm-cell svg.fgm-s${side}`).length;
+const cell = (element, index) => element.querySelector(`button[data-cell="${index}"]`);
+const stones = (element, side) => [...element.querySelectorAll("button[data-cell]")].filter((one) => one.getAttribute("aria-label").endsWith(side ? ": white" : ": black")).length;
+const marked = (element, name) => [...element.querySelectorAll("button[data-mark]")].filter((one) => one.dataset.mark.split(" ").includes(name)).map((one) => Number(one.dataset.cell));
+const free = (element) => element.table.view.state.cells.findIndex((one) => one === null);
 
 async function phone(core, opening = {}) {
   const element = document.createElement("ft-gomoku");
@@ -28,7 +30,7 @@ async function touch(element, target) {
 
 async function place(element, index) {
   await touch(element, index);
-  await touch(element, ".fgm-ghost");
+  await touch(element, "[data-ghost]");
 }
 
 async function match() {
@@ -65,6 +67,24 @@ describe("Five in a Row against the phone", () => {
     expect(one.table.view.myTurn).toBe(true);
     expect(core.ft.live.send).not.toHaveBeenCalled();
   });
+
+  it("plays a whole round against the phone to its end, the phone always Flick and never a word on the live channel", async () => {
+    const core = fakeCore();
+    const one = await phone(core, { live: false, solo: true });
+    one.table.random = () => new Uint8Array(32).fill(1);
+    await touch(one, '[data-kit="new"]');
+    for (let turn = 0; one.table.view.phase === "play" && turn < 200; turn += 1) {
+      if (one.table.view.myTurn) await place(one, free(one));
+      await vi.advanceTimersByTimeAsync(TIMING.think);
+      await tick();
+    }
+    expect(one.table.view.phase).toBe("over");
+    expect(text(one)).toMatch(/You (won|lost)|Draw/);
+    expect(marked(one, "won").length).toBeGreaterThanOrEqual(5);
+    expect(one.querySelector('.ftg-bar canvas[data-side="them"]').dataset.who).toBe("flick");
+    expect(one.querySelector('[data-kit="send"]')).toBeNull();
+    expect(core.ft.live.send).not.toHaveBeenCalled();
+  });
 });
 
 describe("Five in a Row between two phones", () => {
@@ -84,7 +104,8 @@ describe("Five in a Row between two phones", () => {
     expect(text(w)).toContain("Your turn");
     await place(w, 113);
     for (const side of [k, w]) expect([stones(side, 0), stones(side, 1)]).toEqual([1, 1]);
-    expect(cell(w, 113).classList.contains("last")).toBe(true);
+    expect(marked(w, "last")).toEqual([113]);
+    expect(marked(k, "last")).toEqual([113]);
     expect(cell(k, 113).getAttribute("aria-label")).toBe("Row 8, column 9: white");
 
     await touch(w, '[data-kit="resign"]');
@@ -101,7 +122,7 @@ describe("Five in a Row between two phones", () => {
     k.ft.live.send = vi.fn(async () => false);
     await place(k, 112);
     expect(text(k)).toContain("The other phone cannot be reached right now.");
-    expect(cell(k, 112).querySelector(".fgm-clock")).not.toBeNull();
+    expect(marked(k, "pending")).toEqual([112]);
     expect(w.table.record.game.moves).toEqual([]);
     k.ft.live.send = send;
     await touch(k, '[data-kit="back"]');
@@ -109,7 +130,7 @@ describe("Five in a Row between two phones", () => {
     await tick();
     expect(w.table.record.game.moves).toEqual([112]);
     expect(cell(w, 112).getAttribute("aria-label")).toBe("Row 8, column 8: black");
-    expect(cell(k, 112).querySelector(".fgm-clock")).toBeNull();
+    expect(marked(k, "pending")).toEqual([]);
     expect(text(w)).toContain("Your turn");
   });
 
@@ -119,6 +140,7 @@ describe("Five in a Row between two phones", () => {
     for (const [at, index] of line.entries()) await place(at % 2 ? w : k, index);
     expect(text(k)).toContain("You won");
     expect(text(k)).toContain("Five in a row");
-    expect(w.querySelectorAll(".fgm-cell.won")).toHaveLength(5);
+    expect(marked(w, "won")).toEqual([95, 96, 97, 98, 99]);
+    expect(marked(k, "won")).toEqual([95, 96, 97, 98, 99]);
   });
 });
