@@ -34,7 +34,7 @@ function store(kept) {
 }
 
 beforeEach(() => {
-  vi.useFakeTimers();
+  vi.useFakeTimers({ toNotFake: ["Date"] });
   document.body.innerHTML = "";
 });
 afterEach(() => {
