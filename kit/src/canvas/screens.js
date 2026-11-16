@@ -148,3 +148,8 @@ export function drawHintHand(ctx, x, y, size, progress, ui) {
   polygon(ctx, [[-size * 0.12, size * 0.42], [size * 0.25, size * 0.42], [size * 0.3, size * 0.68], [-size * 0.18, size * 0.68]], ui.accent, ui.ink, width);
   ctx.restore();
 }
+
+export function chooseLook(progress, record, look) {
+  if (!look || !progress.owned(record).includes(look)) return { record, owned: false };
+  return { record: progress.choose(record, look), owned: true };
+}
