@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { bounds, draw, painted } from "../../../kit/test/canvas/recorder.js";
-import { circle, clamp, ease, line, paint, roundedRect, starPath, wave } from "../src/pen.js";
+import { bounds, draw, painted } from "./recorder.js";
+import { circle, clamp, ease, line, paint, roundedRect, starPath, wave } from "../../src/canvas/pen.js";
 
 describe("the pen", () => {
   it("draws a rounded rectangle inside its box, its corners no rounder than half its side", () => {

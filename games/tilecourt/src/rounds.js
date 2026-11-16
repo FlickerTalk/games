@@ -2,7 +2,7 @@ import { spots } from "./court.js";
 import { flickFinish, flickStart, flickUpTo } from "./flick.js";
 import { PROGRESS, roundSetup, trackOf, wonRound } from "./levels.js";
 import { pieceOf } from "./pieces.js";
-import { seedOf } from "./random.js";
+import { seedOf } from "../../../kit/src/canvas/random.js";
 import { encodeReport } from "./report.js";
 import { placeInRound, replayRound, roundResult } from "./round.js";
 

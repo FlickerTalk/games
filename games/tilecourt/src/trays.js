@@ -1,5 +1,5 @@
 import { PIECES, pieceOf } from "./pieces.js";
-import { randomOf } from "./random.js";
+import { randomOf } from "../../../kit/src/canvas/random.js";
 
 export const STANDARD_MIX = Object.freeze([0.26, 0.3, 0.3, 0.14]);
 

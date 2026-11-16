@@ -1,6 +1,6 @@
 import { drawStar } from "./bar.js";
 import { drawLineEffect } from "./line-effects.js";
-import { clamp, ease, ellipse, hash, line, mix, paint, polygon, roundedRect } from "./pen.js";
+import { clamp, ease, ellipse, hash, line, mix, paint, polygon, roundedRect } from "../../../kit/src/canvas/pen.js";
 import { drawPieceCentred } from "./tiles.js";
 
 const live = (t) => t > 0 && t < 1;

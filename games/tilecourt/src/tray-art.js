@@ -1,4 +1,4 @@
-import { paint, roundedRect } from "./pen.js";
+import { paint, roundedRect } from "../../../kit/src/canvas/pen.js";
 import { pieceOf } from "./pieces.js";
 import { drawPieceCentred } from "./tiles.js";
 

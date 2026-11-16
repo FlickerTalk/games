@@ -1,4 +1,4 @@
-import { randomOf } from "./random.js";
+import { randomOf } from "../../../kit/src/canvas/random.js";
 import { placeInRound, startRound } from "./round.js";
 import { robotMove } from "./robot.js";
 

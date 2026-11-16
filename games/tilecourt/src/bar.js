@@ -1,6 +1,6 @@
 import { drawBadge } from "../../../kit/src/avatars/index.js";
 import { drawButton } from "./buttons.js";
-import { circle, clamp, line, paint, roundedRect, starPath } from "./pen.js";
+import { circle, clamp, line, paint, roundedRect, starPath } from "../../../kit/src/canvas/pen.js";
 
 export const starMarks = ({ two, three }) => [two / three / 2, two / three, 1];
 

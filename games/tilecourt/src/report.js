@@ -1,4 +1,4 @@
-import { SEED_LENGTH, isSeed } from "./random.js";
+import { SEED_LENGTH, isSeed } from "../../../kit/src/canvas/random.js";
 
 const LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
 const ORDERS = [

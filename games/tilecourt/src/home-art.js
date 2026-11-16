@@ -7,7 +7,7 @@ import { drawCourt } from "./court-art.js";
 import { LOOKS, PROGRESS } from "./levels.js";
 import { drawLineEffect } from "./line-effects.js";
 import { homeLayout, looksLayout } from "./menu-layout.js";
-import { clamp, paint, roundedRect } from "./pen.js";
+import { clamp, paint, roundedRect } from "../../../kit/src/canvas/pen.js";
 import { drawScenery } from "./scenery.js";
 import { drawTile } from "./tiles.js";
 import { VARIANTS } from "./variants.js";

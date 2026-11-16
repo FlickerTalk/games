@@ -1,4 +1,4 @@
-import { circle, clamp, ellipse, line, paint, polygon, roundedRect, starPath } from "./pen.js";
+import { circle, clamp, ellipse, line, paint, polygon, roundedRect, starPath } from "../../../kit/src/canvas/pen.js";
 import { drawTile } from "./tiles.js";
 
 export const LINE_EFFECTS = Object.freeze(["lanterns", "birds", "leaves", "bubbles", "water", "sparks"]);

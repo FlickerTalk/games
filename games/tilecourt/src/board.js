@@ -6,7 +6,7 @@ import { thresholdsFor, trackOf } from "./levels.js";
 import { pauseLayout } from "./menu-layout.js";
 import { cellsOf } from "./court.js";
 import { drawLayeredClear } from "./line-effects.js";
-import { clamp, ease, mix } from "./pen.js";
+import { clamp, ease, mix } from "../../../kit/src/canvas/pen.js";
 import { pieceOf } from "./pieces.js";
 import { drawScenery } from "./scenery.js";
 import { drawLifted } from "./tiles.js";

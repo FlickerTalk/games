@@ -1,4 +1,4 @@
-import { circle, line, paint, polygon, roundedRect } from "./pen.js";
+import { circle, line, paint, polygon, roundedRect } from "../../../kit/src/canvas/pen.js";
 
 function pause(ctx, s, colour) {
   for (const left of [-0.25, 0.08]) {

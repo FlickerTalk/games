@@ -5,7 +5,7 @@ import { Table } from "../../../kit/src/table.js";
 import { initial, play, result, turn } from "./duel-rules.js";
 import { decodeReport } from "./report.js";
 import { replayRound } from "./round.js";
-import { seedOf } from "./random.js";
+import { seedOf } from "../../../kit/src/canvas/random.js";
 
 export const DUEL_RULES = Object.freeze({ id: "tilecourt", gv: 1, initial, turn, play, result });
 

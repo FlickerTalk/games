@@ -1,4 +1,4 @@
-import { circle, line, paint, roundedRect, starPath } from "./pen.js";
+import { circle, line, paint, roundedRect, starPath } from "../../../kit/src/canvas/pen.js";
 
 function leaf(ctx, x, y, size, colour, ink) {
   ctx.beginPath();
