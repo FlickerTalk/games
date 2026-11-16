@@ -2,14 +2,17 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { fromBase64 } from "../../../kit/src/envelope.js";
 import { TIMING } from "../../../kit/src/table.js";
 import { fakeCore, phones, settle, within } from "../../../kit/test/helpers.js";
+import { openPits } from "../src/picking.js";
 import "../src/index.js";
 
 const tick = () => settle([...document.querySelectorAll("ft-mancala")].map((element) => element.table));
 const kinds = (core) => core.sent.map((data) => JSON.parse(new TextDecoder().decode(fromBase64(data))).k);
 const text = (element) => element.textContent.replace(/\s+/g, " ");
-const pit = (element, index) => element.querySelector(`[data-pit="${index}"]`);
-const move = (element, n) => element.querySelector(`[data-move="${n}"]`);
-const store = (element, side) => element.querySelector(`[data-store="${side}"]`);
+const pit = (element, index) => element.querySelector(`button[data-pit="${index}"]`);
+const move = (element, n) => element.querySelector(`button[data-move="${n}"]`);
+const store = (element, side) => element.querySelector(`button[data-store="${side}"]`);
+const seeds = (node) => node.getAttribute("aria-label").split(": ")[1];
+const marked = (element, name) => [...element.querySelectorAll("button[data-mark]")].filter((one) => one.dataset.mark.split(" ").includes(name)).map((one) => one.dataset.pit);
 
 async function phone(core, opening = {}) {
   const element = document.createElement("ft-mancala");
@@ -67,6 +70,23 @@ describe("mancala against the phone", () => {
     expect(one.table.view.myTurn).toBe(true);
     expect(core.ft.live.send).not.toHaveBeenCalled();
   });
+
+  it("plays a whole round against the phone to its end, the phone always Flick and never a word on the live channel", async () => {
+    const core = fakeCore();
+    const one = await phone(core, { live: false, solo: true });
+    one.table.random = () => new Uint8Array(32).fill(1);
+    await touch(one, '[data-kit="new"]');
+    for (let turn = 0; one.table.view.phase === "play" && turn < 200; turn += 1) {
+      if (one.table.view.myTurn) await touch(one, openPits(one.table.view.state, one.table.view.mySide, true)[0]);
+      await vi.advanceTimersByTimeAsync(TIMING.think);
+      await tick();
+    }
+    expect(one.table.view.phase).toBe("over");
+    expect(text(one)).toMatch(/You (won|lost)|Draw/);
+    expect(one.querySelector('.ftg-bar canvas[data-side="them"]').dataset.who).toBe("flick");
+    expect(one.querySelector('[data-kit="send"]')).toBeNull();
+    expect(core.ft.live.send).not.toHaveBeenCalled();
+  });
 });
 
 describe("mancala between two phones", () => {
@@ -79,8 +99,8 @@ describe("mancala between two phones", () => {
 
     await touch(s, 2);
     for (const side of [s, n]) {
-      expect(pit(side, 2).textContent).toContain("0");
-      expect(store(side, 0).textContent).toBe("1");
+      expect(seeds(pit(side, 2))).toBe("0 seeds");
+      expect(seeds(store(side, 0))).toBe("1 seeds");
     }
     expect(text(s)).toContain("Your turn");
     await touch(s, 0);
@@ -101,7 +121,7 @@ describe("mancala between two phones", () => {
     s.ft.live.send = vi.fn(async () => false);
     await touch(s, 0);
     expect(text(s)).toContain("The other phone cannot be reached right now.");
-    expect(pit(s, 0).querySelector(".fmc-clock")).not.toBeNull();
+    expect(marked(s, "pending")).toEqual(["0"]);
     expect(n.table.record.game.moves).toEqual([]);
     s.ft.live.send = send;
     await touch(s, '[data-kit="back"]');
@@ -109,7 +129,7 @@ describe("mancala between two phones", () => {
     await tick();
     expect(n.table.record.game.moves).toEqual([0]);
     expect(pit(n, 0).getAttribute("aria-label")).toBe("Their pit 1: 0 seeds");
-    expect(pit(s, 0).querySelector(".fmc-clock")).toBeNull();
+    expect(marked(s, "pending")).toEqual([]);
     expect(text(n)).toContain("Your turn");
   });
 });
