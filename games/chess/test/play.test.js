@@ -1,10 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { Chess } from "chess.js";
-import { Chessboard } from "cm-chessboard/src/Chessboard.js";
 import { KV, PROTOCOL, fromBase64, seal } from "../../../kit/src/envelope.js";
 import { MATCH_LIMIT, TIMING } from "../../../kit/src/table.js";
 import { fakeCore, phones, settle, within } from "../../../kit/test/helpers.js";
 import { initial, play, result, turn } from "../src/rules.js";
+import { ART } from "../src/theme.js";
 import "../src/index.js";
 
 async function tick() {
@@ -14,8 +14,10 @@ async function tick() {
   await settle(tables());
 }
 const text = (element) => element.textContent.replace(/\s+/g, " ");
-const fen = (element) => element.querySelector(".ftg-board").dataset.fen;
-const files = (element) => [...element.querySelectorAll(".coordinates .file")].map((one) => one.textContent).join("");
+const fen = (element) => element.table.view.state.fen;
+const corner = (element) => element.querySelector(".ftg-board button[data-square]")?.dataset.square;
+const square = (element, name) => element.querySelector(`.ftg-board button[data-square="${name}"]`);
+const marked = (element, name) => [...element.querySelectorAll(".ftg-board button[data-mark]")].filter((one) => one.dataset.mark.split(" ").includes(name)).map((one) => one.dataset.square).sort();
 const decode = (data) => JSON.parse(new TextDecoder().decode(fromBase64(data)));
 
 async function phone(core, opening = {}) {
@@ -34,15 +36,14 @@ async function touch(element, selector) {
   await tick();
 }
 
-function tap(element, square) {
-  const target = element.querySelector(`rect.square[data-square="${square}"]`);
-  target.dispatchEvent(new MouseEvent("mousedown", { bubbles: true, button: 0 }));
-  target.dispatchEvent(new MouseEvent("mouseup", { bubbles: true, button: 0 }));
+function tap(element, name) {
+  square(element, name)?.click();
 }
 
 async function move(element, uci) {
   tap(element, uci.slice(0, 2));
   tap(element, uci.slice(2, 4));
+  if (uci[4]) element.querySelector(`.ftg-board button[data-promote="${uci[4]}"]`)?.click();
   await tick();
 }
 
@@ -86,6 +87,25 @@ describe("chess against the phone", () => {
     expect(one.table.view.myTurn).toBe(true);
     expect(core.ft.live.send).not.toHaveBeenCalled();
   });
+
+  it("plays a whole round against the phone to its end, the phone always Flick and never a word on the live channel", async () => {
+    vi.useRealTimers();
+    vi.useFakeTimers({ toNotFake: ["Date"] });
+    const core = fakeCore();
+    const one = await phone(core, { live: false, solo: true });
+    one.table.random = () => new Uint8Array(32);
+    await touch(one, '[data-kit="new"]');
+    for (let turn = 0; one.table.view.phase === "play" && turn < 200; turn += 1) {
+      if (one.table.view.myTurn) await move(one, new Chess(one.table.view.state.fen).moves({ verbose: true })[0].lan);
+      await vi.advanceTimersByTimeAsync(TIMING.think);
+      await tick();
+    }
+    expect(one.table.view.phase).toBe("over");
+    expect(text(one)).toMatch(/You (won|lost)|Draw/);
+    expect(one.querySelector('.ftg-bar canvas[data-side="them"]').dataset.who).toBe("flick");
+    expect(one.querySelector('[data-kit="send"]')).toBeNull();
+    expect(core.ft.live.send).not.toHaveBeenCalled();
+  }, 60_000);
 });
 
 describe("chess between two phones", () => {
@@ -95,10 +115,10 @@ describe("chess between two phones", () => {
     expect(black.table.view.mySide).toBe(1);
     expect(text(white)).toContain("The coin says you start");
     expect(text(black)).toContain("The coin says they start");
-    expect(files(white)).toBe("abcdefgh");
-    expect(files(black)).toBe("hgfedcba");
-    expect(white.querySelector('.ftg-player.me use').getAttribute("href")).toBe("#wk");
-    expect(black.querySelector('.ftg-player.me use').getAttribute("href")).toBe("#bk");
+    expect(corner(white)).toBe("a8");
+    expect(corner(black)).toBe("h1");
+    expect(white.querySelector(".ftg-player.me .ftc-side").innerHTML).toContain(ART.pieces[0].fill);
+    expect(black.querySelector(".ftg-player.me .ftc-side").innerHTML).toContain(ART.pieces[1].fill);
 
     await move(black, "e7e5");
     expect(black.table.record.game.moves).toEqual([]);
@@ -107,15 +127,13 @@ describe("chess between two phones", () => {
     for (const side of [white, black]) {
       expect(fen(side)).toBe("r1bqkb1r/pppp1Qpp/2n2n2/4p3/2B1P3/8/PPPP1PPP/RNB1K1NR b KQkq - 0 4");
       expect(side.querySelector(".ftg-toast").textContent).toContain("Checkmate");
-      expect(side.querySelector(".ftc-end")).toBeNull();
+      expect(marked(side, "check")).toEqual(["e8"]);
     }
     expect(text(white)).toContain("You won");
     expect(text(black)).toContain("You lost");
 
-    const destroy = vi.spyOn(Chessboard.prototype, "destroy");
     await touch(black, '[data-kit="back"]');
-    expect(destroy).toHaveBeenCalledTimes(1);
-    destroy.mockRestore();
+    expect(black.querySelector(".ftg-board canvas")).toBeNull();
     await touch(white, '[data-kit="send"]');
     expect(white.ft.say).toHaveBeenCalledWith("♟️ Chess: I won (white) · Checkmate · moves: 4\n\n1. e4 e5 2. Bc4 Nc6 3. Qh5 Nf6 4. Qxf7# 1-0");
   });
@@ -126,8 +144,8 @@ describe("chess between two phones", () => {
     expect(text(black)).toContain("You won");
     await touch(black, '[data-kit="again"]');
     expect(black.table.view.mySide).toBe(0);
-    expect(files(black)).toBe("abcdefgh");
-    expect(files(white)).toBe("hgfedcba");
+    expect(corner(black)).toBe("a8");
+    expect(corner(white)).toBe("h1");
     await move(black, "d2d4");
     expect(fen(white)).toBe("rnbqkbnr/pppppppp/8/8/3P4/8/PPP1PPPP/RNBQKBNR b KQkq - 0 1");
   });
@@ -138,13 +156,14 @@ describe("chess between two phones", () => {
     tap(white, "b7");
     tap(white, "a8");
     await tick();
-    const rook = white.querySelector('.promotion-dialog-button-group[data-piece="wr"] rect');
-    expect(rook).not.toBeNull();
-    rook.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true, button: 0 }));
+    expect(white.table.record.game.moves.at(-1)).toBe("b8c6");
+    const rook = white.querySelector('.ftg-board button[data-promote="r"]');
+    expect(rook.getAttribute("aria-label")).toBe("Rook");
+    rook.click();
     await tick();
     expect(black.table.record.game.moves.at(-1)).toBe("b7a8r");
     expect(fen(black).split("/")[0]).toBe("R2qkbnr");
-    expect(black.querySelector('.pieces > g[data-square="a8"]').dataset.piece).toBe("wr");
+    expect(square(black, "a8").dataset.piece).toBe("wr");
   });
 
   it("refuses a move from the other phone that breaks the rules", async () => {
@@ -167,14 +186,14 @@ describe("chess between two phones", () => {
     white.ft.live.send = vi.fn(async () => false);
     await move(white, "e2e4");
     expect(text(white)).toContain("The other phone cannot be reached right now.");
-    expect(white.querySelectorAll(".markers use.ftc-pending")).toHaveLength(2);
+    expect(marked(white, "pending")).toEqual(["e4"]);
     expect(black.table.record.game.moves).toEqual([]);
     white.ft.live.send = send;
     await touch(white, '[data-kit="back"]');
     await touch(white, '[data-kit="enter"]');
     expect(black.table.record.game.moves).toEqual(["e2e4"]);
-    expect(white.querySelectorAll(".markers use.ftc-pending")).toHaveLength(0);
-    expect(white.querySelectorAll(".markers use.ftc-last")).toHaveLength(2);
+    expect(marked(white, "pending")).toEqual([]);
+    expect(marked(white, "last")).toEqual(["e2", "e4"]);
     await move(black, "c7c5");
     expect(white.table.record.game.moves).toEqual(["e2e4", "c7c5"]);
   });
@@ -200,7 +219,7 @@ describe("chess between two phones", () => {
     await tick();
     expect(again.table.screen).toBe("match");
     expect(fen(again)).toBe("rnbqkbnr/pppp1ppp/8/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2");
-    expect(files(again)).toBe("hgfedcba");
+    expect(corner(again)).toBe("h1");
     await move(again, "b8c6");
     expect(white.table.record.game.moves).toEqual(["e2e4", "e7e5", "g1f3", "b8c6"]);
   });
