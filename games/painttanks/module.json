@@ -1,0 +1,98 @@
+{
+  "id": "com.flickertalk.game.painttanks",
+  "name": "Paint Tanks",
+  "version": "1.0.0",
+  "minCoreVersion": "1.6.0",
+  "kind": "game",
+  "icon": "color-fill-outline",
+  "components": [
+    "ft-painttanks"
+  ],
+  "permissions": {
+    "live": true,
+    "send": "propose"
+  },
+  "summary": "Toy tanks, ships and submarines take turns throwing paint: aim, mind the wind and cover the other side. Against FlickerTalk, with the other person in the chat, or target practice alone.",
+  "locales": {
+    "es": {
+      "name": "Paint Tanks",
+      "summary": "Tanques, barcos y submarinos de juguete se turnan para lanzar pintura: apunta, cuenta con el viento y cubre al otro. Contra FlickerTalk, con la otra persona del chat o practicando la puntería a solas."
+    },
+    "pt": {
+      "name": "Paint Tanks",
+      "summary": "Tanques, barcos e submarinos de brinquedo lançam tinta à vez: aponte, conte com o vento e cubra o outro lado. Contra o FlickerTalk, com a outra pessoa da conversa ou a treinar a pontaria a sós."
+    },
+    "fr": {
+      "name": "Paint Tanks",
+      "summary": "Chars, bateaux et sous-marins jouets lancent de la peinture tour à tour : vise, compte avec le vent et couvre l’autre camp. Contre FlickerTalk, avec l’autre personne du chat ou seul, à l’entraînement."
+    },
+    "de": {
+      "name": "Paint Tanks",
+      "summary": "Spielzeugpanzer, -schiffe und -U-Boote werfen abwechselnd Farbe: zielen, den Wind beachten und die andere Seite einfärben. Gegen FlickerTalk, mit der anderen Person im Chat oder allein beim Zielüben."
+    },
+    "it": {
+      "name": "Paint Tanks",
+      "summary": "Carri armati, navi e sottomarini giocattolo lanciano vernice a turno: mira, tieni conto del vento e ricopri l’altro. Contro FlickerTalk, con l’altra persona della chat o da solo al tiro al bersaglio."
+    },
+    "ro": {
+      "name": "Paint Tanks",
+      "summary": "Tancuri, vapoare și submarine de jucărie aruncă vopsea pe rând: țintește, ține cont de vânt și acoperă-l pe rival. Împotriva lui FlickerTalk, cu cealaltă persoană din chat sau singur, la țintă."
+    },
+    "ru": {
+      "name": "Paint Tanks",
+      "summary": "Игрушечные танки, корабли и подлодки по очереди бросают краску: целься, учитывай ветер и закрась соперника. Против FlickerTalk, с собеседником из чата или одному — в стрельбе по мишеням."
+    },
+    "uk": {
+      "name": "Paint Tanks",
+      "summary": "Іграшкові танки, кораблі та підводні човни по черзі кидають фарбу: цілься, зважай на вітер і зафарбуй суперника. Проти FlickerTalk, з людиною з чату або самому — у стрільбі по мішенях."
+    },
+    "pl": {
+      "name": "Paint Tanks",
+      "summary": "Zabawkowe czołgi, statki i łodzie podwodne na zmianę rzucają farbą: celuj, uważaj na wiatr i pomaluj drugą stronę. Przeciw FlickerTalk, z drugą osobą z czatu albo samemu, ćwicząc celność."
+    },
+    "tr": {
+      "name": "Paint Tanks",
+      "summary": "Oyuncak tanklar, gemiler ve denizaltılar sırayla boya fırlatır: nişan al, rüzgârı hesapla ve karşı tarafı boya. FlickerTalk'a karşı, sohbetteki kişiyle ya da tek başına atış talimi yaparak."
+    },
+    "ar": {
+      "name": "Paint Tanks",
+      "summary": "دبابات وسفن وغواصات لعبة تتناوب على رمي الطلاء: صوّب وانتبه للريح ولوّن الطرف الآخر. ضد FlickerTalk أو مع الشخص الآخر في المحادثة أو وحدك في تمرين التصويب."
+    },
+    "hi": {
+      "name": "Paint Tanks",
+      "summary": "खिलौना टैंक, जहाज़ और पनडुब्बियाँ बारी-बारी से रंग फेंकते हैं: निशाना साधें, हवा का ध्यान रखें और सामने वाले को रंग दें। FlickerTalk के ख़िलाफ़, चैट के दूसरे व्यक्ति के साथ या अकेले निशाने का अभ्यास।"
+    },
+    "bn": {
+      "name": "Paint Tanks",
+      "summary": "খেলনা ট্যাংক, জাহাজ আর সাবমেরিন পালা করে রং ছোড়ে: নিশানা করুন, বাতাস খেয়াল রাখুন আর অন্য পক্ষকে রাঙিয়ে দিন। FlickerTalk-এর বিরুদ্ধে, চ্যাটের অন্যজনের সঙ্গে বা একা নিশানা অনুশীলনে।"
+    },
+    "id": {
+      "name": "Paint Tanks",
+      "summary": "Tank, kapal, dan kapal selam mainan bergiliran melempar cat: bidik, perhitungkan angin, dan warnai pihak lawan. Melawan FlickerTalk, bersama orang lain di obrolan, atau latihan membidik sendirian."
+    },
+    "vi": {
+      "name": "Paint Tanks",
+      "summary": "Xe tăng, tàu và tàu ngầm đồ chơi lần lượt ném sơn: ngắm, tính sức gió và phủ sơn lên bên kia. Đấu với FlickerTalk, chơi với người kia trong cuộc trò chuyện hoặc tự tập ngắm bắn một mình."
+    },
+    "th": {
+      "name": "Paint Tanks",
+      "summary": "รถถัง เรือ และเรือดำน้ำของเล่นผลัดกันปาสี เล็งให้ดี ดูทิศทางลม แล้วระบายสีอีกฝ่ายให้ทั่ว เล่นกับ FlickerTalk กับอีกคนในแชท หรือฝึกเล็งเป้าคนเดียว"
+    },
+    "ja": {
+      "name": "Paint Tanks",
+      "summary": "おもちゃの戦車、船、潜水艦が交代でペンキを投げ合います。ねらいを定め、風を読んで相手をぬりつぶそう。FlickerTalk と、チャットの相手と、またはひとりで的当て練習。"
+    },
+    "ko": {
+      "name": "Paint Tanks",
+      "summary": "장난감 탱크, 배, 잠수함이 번갈아 물감을 던져요. 조준하고 바람을 읽어 상대를 물감으로 덮으세요. FlickerTalk와, 채팅 상대와, 또는 혼자 과녁 연습으로."
+    },
+    "zh-CN": {
+      "name": "Paint Tanks",
+      "summary": "玩具坦克、轮船和潜艇轮流投掷颜料：瞄准、留意风向，把对方涂满颜色。可以和 FlickerTalk 比，和聊天里的对方玩，或独自练习打靶。"
+    },
+    "zh-TW": {
+      "name": "Paint Tanks",
+      "summary": "玩具坦克、輪船和潛艇輪流投擲顏料：瞄準、留意風向，把對方塗滿顏色。可以和 FlickerTalk 比，和聊天裡的對方玩，或獨自練習打靶。"
+    }
+  }
+}
