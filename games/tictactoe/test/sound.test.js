@@ -7,6 +7,7 @@ import { game } from "../src/index.js";
 
 const tick = () => settle([...document.querySelectorAll("ft-tictactoe")].map((element) => element.table));
 const names = (spy) => spy.mock.calls.map(([name]) => name);
+const open = (element) => [...element.querySelectorAll("[data-cell]")].filter((node) => (node.dataset.mark ?? "").split(" ").includes("can")).map((node) => Number(node.dataset.cell));
 
 async function solo() {
   const core = fakeCore();
@@ -55,8 +56,7 @@ describe("Tic-Tac-Toe's sound", () => {
     await tick();
     expect(names(played)).toEqual(["place", "pop"]);
     for (let turn = 0; element.table.view.phase === "play" && turn < 9; turn += 1) {
-      const free = [...element.querySelectorAll("[data-cell]")].find((node) => !node.disabled && !node.querySelector("svg"));
-      await touch(element, Number(free.dataset.cell));
+      if (element.table.view.myTurn) await touch(element, open(element)[0]);
       await vi.advanceTimersByTimeAsync(TIMING.think);
       await tick();
     }
