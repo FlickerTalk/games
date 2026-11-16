@@ -5,7 +5,7 @@ import * as duel from "../../src/duel/index.js";
 
 describe("the kit's part for real-time canvas games", () => {
   it("offers a game everything it builds on, from one module", () => {
-    for (const name of ["CanvasDuel", "ScoredSession", "LiveClock", "FixedSteps", "Glide", "Follow"]) expect(duel[name], name).toBeTypeOf("function");
+    for (const name of ["CanvasDuel", "ScoredSession", "LiveClock", "FixedSteps", "Glide", "Follow", "lobbyOf", "drawLobby"]) expect(duel[name], name).toBeTypeOf("function");
   });
 
   it("leaves the live page and its texts out of a canvas game that only uses the bridge", async () => {

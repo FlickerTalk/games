@@ -1,3 +1,4 @@
+import { lobbyOf } from "../../../kit/src/duel/lobby.js";
 import { SOUND_TEXTS } from "../../../kit/src/sound/index.js";
 import { LOOKS, PROGRESS } from "./levels.js";
 import { TEXTS } from "./texts.js";
@@ -36,5 +37,6 @@ export function labelFor(target, state, status = null) {
   if (target.kind === "look") return say(lang, lookKey(state, target.value));
   if (target.kind === "tab") return say(lang, TABS[target.value] ?? "looks");
   if (target.kind === "rival") return say(lang, seatKey(state, status));
+  if (target.kind === "play" && lobbyOf(status).waiting) return say(lang, "waiting");
   return say(lang, target.kind);
 }

@@ -1,6 +1,7 @@
 import { drawAvatar, standIn } from "../../../kit/src/avatars/index.js";
 import { centreOf, drawHome as drawHomeScreen, drawLooks as drawLooksScreen, homeLayout, looksLayout } from "../../../kit/src/canvas/index.js";
 import { clamp } from "../../../kit/src/canvas/pen.js";
+import { drawLobby, lobbyOf } from "../../../kit/src/duel/lobby.js";
 import { VARIANTS } from "./game.js";
 import { FLICK_PADDLE, LOOKS, PROGRESS } from "./levels.js";
 import { drawPaddle, drawWrappedPaddle } from "./paddles.js";
@@ -86,6 +87,8 @@ export function drawHome(ctx, game, theme, time) {
     drawStage: (pen) => drawStage(pen, state, stageArea(state, layout.targets), theme, time),
     drawVariant: (pen, target) => drawVariant(pen, target, state, theme, time),
   });
+  const at = (kind) => layout.targets.find((one) => one.kind === kind);
+  drawLobby(ctx, { play: at("play"), rival: at("rival") }, lobbyOf(game.duel?.status), theme.ui, time);
 }
 
 export function drawLookArt(ctx, area, kind, look, theme, time) {

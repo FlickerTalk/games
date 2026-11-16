@@ -3,7 +3,11 @@ import { bounds, draw, painted } from "../../../kit/test/canvas/recorder.js";
 import { stageArea } from "../src/home-art.js";
 import { THEME } from "../src/theme.js";
 import { drawFrame } from "../src/frame.js";
-import { makeGame, targetOf } from "./harness.js";
+import { labelFor } from "../src/labels.js";
+import { TEXTS } from "../src/texts.js";
+import { makeGame, press, targetOf } from "./harness.js";
+
+const arcs = (game) => draw((pen) => drawFrame(pen, game, THEME, 1)).calls.filter((call) => call.op === "arc").length;
 
 describe("the home screen", () => {
   it("puts the little table in the largest free space, between the faces and the play button on a tall phone", async () => {
@@ -26,5 +30,20 @@ describe("the home screen", () => {
         expect(area.bottom, `${width}x${height}`).toBeLessThanOrEqual(height + 1);
       }
     }
+  });
+
+  it("shows the player waiting on the play button once they started a round with the other person, and names it so", async () => {
+    const { game } = await makeGame({ opening: { live: true } });
+    const before = arcs(game);
+    expect(labelFor(targetOf(game, "play"), game.state, game.duel.status)).toBe(TEXTS.en.play);
+    await press(game, "play");
+    expect(game.state.screen).toBe("home");
+    expect(arcs(game)).toBeGreaterThanOrEqual(before + 6);
+    expect(labelFor(targetOf(game, "play"), game.state, game.duel.status)).toBe(TEXTS.en.waiting);
+  });
+
+  it("shows nothing waiting against FlickerTalk", async () => {
+    const { game } = await makeGame({ opening: { solo: true } });
+    expect(labelFor(targetOf(game, "play"), game.state, null)).toBe(TEXTS.en.play);
   });
 });
