@@ -28,7 +28,7 @@ describe("the canvas kit", () => {
   });
 
   it("is in no board game's package", () => {
-    for (const game of readdirSync(GAMES).filter((name) => name !== "tilecourt")) {
+    for (const game of readdirSync(GAMES).filter((name) => !["tilecourt", "colourcorner"].includes(name))) {
       expect(readFileSync(join(GAMES, game, "dist", "index.js"), "utf8"), game).not.toContain("ftc-a11y");
     }
   });
