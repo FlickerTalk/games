@@ -36,7 +36,7 @@ describe("the screenshots for review", () => {
 
   it("touch what each game's move needs: one cell, or a piece and then its square; a game of chance says what to touch live", () => {
     expect(touches(PLAYS.tictactoe, 4)).toEqual(['[data-cell="4"]']);
-    expect(touches(PLAYS.chess, "e2e4")).toEqual(['rect.square[data-square="e2"]', 'rect.square[data-square="e4"]']);
+    expect(touches(PLAYS.chess, "e2e4")).toEqual(['.ftg-board button[data-square="e2"]', '.ftg-board button[data-square="e4"]']);
     for (const [game, plays] of Object.entries(PLAYS)) expect(typeof plays.move === "function" || typeof plays.live === "string", game).toBe(true);
   });
 

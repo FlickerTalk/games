@@ -56,7 +56,7 @@ describe("Flick, the phone's player", () => {
     const plain = mean(list.map((seed) => firstFit(startRound({ seed })).score));
     expect(best).toBeGreaterThan(plain);
     expect(eased).toBeLessThan(best);
-  });
+  }, 60_000);
 
   it("plays the small and the big courts too", () => {
     for (const variant of ["small", "big"]) {

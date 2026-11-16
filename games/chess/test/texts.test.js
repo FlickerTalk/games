@@ -17,8 +17,15 @@ describe("the chess texts", () => {
     for (const key of ["checkmate", "stalemate", "material", "repetition", "fifty", "resignation", "white", "black", "board", "check"]) {
       expect(TEXTS.en[key], key).toEqual(expect.any(String));
     }
-    for (const key of ["choosePromotion", "queen", "rook", "bishop", "knight"]) expect(TEXTS.en[key], key).toEqual(expect.any(String));
+    for (const key of ["choosePromotion", "king", "queen", "rook", "bishop", "knight", "pawn"]) expect(TEXTS.en[key], key).toEqual(expect.any(String));
     expect(t("en", "sayWin", { game: "Chess", result: "I won", side: "white", how: "Checkmate", n: 17 })).toBe("Chess: I won (white) · Checkmate · moves: 17");
     expect(t("en", "sayDrawn", { game: "Chess", result: "a draw", how: "Stalemate", n: 10 })).toBe("Chess: a draw · Stalemate · moves: 10");
+  });
+
+  it("name what stands on each square of the board for a screen reader", () => {
+    expect(t("en", "onSquare", { square: "e4", piece: t("en", "pawn"), side: t("en", "white") })).toBe("e4: Pawn (white)");
+    expect(t("es", "onSquare", { square: "g8", piece: t("es", "knight"), side: t("es", "black") })).toBe("g8: Caballo (negras)");
+    expect(t("en", "emptySquare", { square: "d5" })).toBe("d5: empty");
+    expect(t("de", "emptySquare", { square: "d5" })).toBe("d5: leer");
   });
 });

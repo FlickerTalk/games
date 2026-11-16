@@ -1,8 +1,10 @@
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { KIT_TEXTS, joinTexts, translator } from "../../../kit/src/i18n.js";
 import { checkTexts } from "../../../kit/test/helpers.js";
-import { board, MARKS } from "../src/board.js";
+import { TABLETOP_STYLE } from "../../../kit/src/tabletop/board.js";
+import { board, PIECES, STYLE } from "../src/board.js";
 import { TEXTS } from "../src/texts.js";
+import { ART } from "../src/theme.js";
 import { initial, play } from "../src/rules.js";
 
 const translate = translator(joinTexts(KIT_TEXTS, TEXTS));
@@ -10,55 +12,66 @@ const translate = translator(joinTexts(KIT_TEXTS, TEXTS));
 function context(cells, extra = {}) {
   let state = initial();
   for (const cell of cells) state = play(state, cell, state.cells.filter((one) => one !== null).length % 2).state;
-  return { state, canPlay: true, last: cells.at(-1) ?? null, pending: false, result: null, lang: "en", t: (key, vars) => translate("en", key, vars), play: vi.fn(), ...extra };
+  return { state, mySide: cells.length % 2, canPlay: true, last: cells.at(-1) ?? null, pending: false, result: null, lang: "en", t: (key, vars) => translate("en", key, vars), play: vi.fn(), ...extra };
 }
 
+function mount(ctx) {
+  const host = document.createElement("div");
+  host.getBoundingClientRect = () => ({ left: 0, top: 0, width: 352, height: 352, right: 352, bottom: 352 });
+  document.body.append(host);
+  const mounted = board.mount(host, ctx);
+  return { host, mounted };
+}
+
+afterEach(() => {
+  document.body.innerHTML = "";
+});
+
+const cells = (host) => [...host.querySelectorAll("button[data-cell]")];
+const marked = (host, name) => cells(host).filter((one) => (one.dataset.mark ?? "").split(" ").includes(name)).map((one) => Number(one.dataset.cell));
+
 describe("the board", () => {
-  it("has nine cells, named by row and column, empty or with their mark", () => {
-    const host = document.createElement("div");
-    board.mount(host, context([4, 0]));
-    const cells = host.querySelectorAll("button.ftt-cell");
-    expect(cells).toHaveLength(9);
+  it("is drawn on a canvas, with the nine cells as buttons over it, named by row and column, empty or with their mark", () => {
+    const { host } = mount(context([4, 0]));
+    expect(host.querySelector("canvas").getAttribute("aria-hidden")).toBe("true");
+    expect(cells(host)).toHaveLength(9);
     expect(host.querySelector('[role="group"]').getAttribute("aria-label")).toBe("Board");
-    expect(cells[0].getAttribute("aria-label")).toBe("Row 1, column 1: O");
-    expect(cells[4].getAttribute("aria-label")).toBe("Row 2, column 2: X");
-    expect(cells[8].getAttribute("aria-label")).toBe("Row 3, column 3: empty");
-    expect(cells[4].querySelector("svg.ftt-x")).not.toBeNull();
-    expect(cells[0].querySelector("svg.ftt-o")).not.toBeNull();
-    expect(cells[0].classList.contains("last")).toBe(true);
+    expect(cells(host)[0].getAttribute("aria-label")).toBe("Row 1, column 1: O");
+    expect(cells(host)[4].getAttribute("aria-label")).toBe("Row 2, column 2: X");
+    expect(cells(host)[8].getAttribute("aria-label")).toBe("Row 3, column 3: empty");
+    expect(marked(host, "last")).toEqual([0]);
   });
 
   it("plays an empty cell when it is the user's turn, and nothing else", () => {
-    const host = document.createElement("div");
     const ctx = context([4]);
-    board.mount(host, ctx);
-    host.querySelectorAll("button.ftt-cell")[4].click();
+    const { host, mounted } = mount(ctx);
+    cells(host)[4].click();
     expect(ctx.play).not.toHaveBeenCalled();
-    host.querySelectorAll("button.ftt-cell")[2].click();
+    cells(host)[2].click();
     expect(ctx.play).toHaveBeenCalledWith(2);
     const waiting = context([4], { canPlay: false });
-    const shown = board.mount(host, waiting);
-    host.querySelectorAll("button.ftt-cell")[2].click();
+    mounted.update(waiting);
+    cells(host)[2].click();
     expect(waiting.play).not.toHaveBeenCalled();
-    expect(host.querySelectorAll("button.ftt-cell:disabled")).toHaveLength(9);
-    shown.update(context([4, 2], { canPlay: true }));
-    expect(host.querySelectorAll("button.ftt-cell")[2].querySelector("svg.ftt-o")).not.toBeNull();
+    expect(cells(host).filter((one) => one.disabled)).toHaveLength(9);
+    mounted.update(context([4, 2]));
+    expect(cells(host)[2].getAttribute("aria-label")).toBe("Row 1, column 3: O");
   });
 
-  it("marks a move that has not reached the other phone, and draws the winning line", () => {
-    const host = document.createElement("div");
-    const shown = board.mount(host, context([0, 3, 1], { pending: true, canPlay: false }));
-    expect(host.querySelectorAll("button.ftt-cell")[1].querySelector(".ftt-clock")).not.toBeNull();
-    shown.update(context([0, 3, 1, 4, 2], { canPlay: false, result: { k: "rules", result: { winner: 0, line: [0, 1, 2] } } }));
-    const line = host.querySelector("svg.ftt-win line");
-    expect(line).not.toBeNull();
-    expect(line.getAttribute("class")).toContain("ftt-x");
-    expect(host.querySelectorAll(".ftt-cell.win")).toHaveLength(3);
+  it("marks a move that has not reached the other phone, and the winning line", () => {
+    const { host, mounted } = mount(context([0, 3, 1], { pending: true, canPlay: false }));
+    expect(marked(host, "pending")).toEqual([1]);
+    mounted.update(context([0, 3, 1, 4, 2], { canPlay: false, result: { k: "rules", winner: 0, result: { winner: 0, line: [0, 1, 2] } } }));
+    expect(marked(host, "pending")).toEqual([]);
+    expect(marked(host, "win")).toEqual([0, 1, 2]);
   });
 
-  it("lends its marks to the players' chips", () => {
-    expect(MARKS[0]).toContain("ftt-x");
-    expect(MARKS[1]).toContain("ftt-o");
+  it("lends small drawings of its pieces to the players' chips, and outlines the player whose turn it is in that side's colour", () => {
+    expect(PIECES).toHaveLength(2);
+    expect(PIECES[0]).toContain("<path");
+    expect(PIECES[1]).toContain("<circle");
+    expect(STYLE).toContain(TABLETOP_STYLE);
+    expect(STYLE).toContain(`.ftg{--hue-side-0:${ART.pieces[0].hue};--hue-side-1:${ART.pieces[1].hue}}`);
   });
 });
 

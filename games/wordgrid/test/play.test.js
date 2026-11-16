@@ -100,6 +100,32 @@ describe("Letter Grid against the phone", () => {
     for (const word of state.said[1 - mySide]) expect(words).toContain(word);
     for (const core of [first.core, second.core]) expect(core.ft.live.send).not.toHaveBeenCalled();
   });
+
+  it("plays a whole round against the phone to its end, the phone always Flick and never a word on the live channel", async () => {
+    vi.useRealTimers();
+    vi.useFakeTimers({ toNotFake: ["Date"] });
+    const { core, element } = await alone(new Map());
+    element.table.random = () => new Uint8Array(32).fill(1);
+    await touch(element, '[data-kit="new"]');
+    let said = 0;
+    for (let step = 0; step < 200 && element.table.view.phase !== "over"; step += 1) {
+      const { myTurn, phase, state } = element.table.view;
+      if (myTurn && phase === "play" && state.phase === "play") {
+        const open = wordsOn(state.grid, state.lang).filter((word) => !state.said[0].includes(word) && !state.said[1].includes(word));
+        if (said < 2 && open.length) {
+          await say(element, open[0]);
+          said += 1;
+        } else await touch(element, '[data-act="pass"]');
+      }
+      await think(element);
+    }
+    expect(element.table.view.phase).toBe("over");
+    expect(element.table.view.state.said[element.table.view.mySide]).toHaveLength(said);
+    expect(text(element)).toMatch(/Has ganado|Has perdido|Empate/);
+    expect(element.querySelector('.ftg-bar canvas[data-side="them"]').dataset.who).toBe("flick");
+    expect(element.querySelector('[data-kit="send"]')).toBeNull();
+    expect(core.ft.live.send).not.toHaveBeenCalled();
+  }, 60_000);
 });
 
 describe("Letter Grid between two phones", () => {
