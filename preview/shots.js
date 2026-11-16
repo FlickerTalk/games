@@ -53,7 +53,7 @@ export const PLAYS = {
   },
   fourinarow: { move: (column) => `[data-col="${column}"]`, opening: [3, 4, 3], winning: [4, 3, 4, 3], draw: [0, 1, 0, 1, 0, 0, 2, 0, 2, 0, 2, 1, 1, 1, 3, 1, 3, 2, 2, 4, 2, 4, 3, 3, 5, 3, 5, 3, 5, 4, 4, 5, 6, 5, 6, 5, 6, 6, 4, 6, 4, 6] },
   chess: {
-    move: (uci) => [uci.slice(0, 2), uci.slice(2, 4)].map((square) => `rect.square[data-square="${square}"]`),
+    move: (uci) => [uci.slice(0, 2), uci.slice(2, 4)].map((square) => `.ftg-board button[data-square="${square}"]`),
     opening: ["e2e4", "g7g5", "d2d4"],
     winning: ["f7f6", "d1h5"],
     // Sam Loyd's stalemate in ten moves.
@@ -67,9 +67,9 @@ export const PLAYS = {
       await shot("start-black", black);
       await play(white, "e2e4");
       await play(black, "f7f6");
-      await touch(white, 'rect.square[data-square="d1"]');
+      await touch(white, '.ftg-board button[data-square="d1"]');
       await shot("legal-moves", white);
-      await touch(white, 'rect.square[data-square="h5"]');
+      await touch(white, '.ftg-board button[data-square="h5"]');
       await shot("check", black);
       await shot("check", white);
       await touch(white, '[data-kit="resign"]');
@@ -79,7 +79,7 @@ export const PLAYS = {
       for (const [at, uci] of line.entries()) await play(at % 2 ? white : black, uci);
       await play(black, "b7a8");
       await shot("promotion", black);
-      await touch(black, '.promotion-dialog-button-group[data-piece="wq"] rect');
+      await touch(black, '.ftg-board button[data-promote="q"]');
       await shot("promoted", white);
     },
   },

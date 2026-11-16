@@ -16,7 +16,7 @@ const notices = () => read(dir, "dist", "THIRD_PARTY_NOTICES.md");
 describe("the Chess package", () => {
   it("says it is a game that needs the core 1.6.0, the live channel and sending, and nothing else", () => {
     const manifest = checkManifest(dir, { id: "com.flickertalk.game.chess", name: "Chess", component: "ft-chess" });
-    expect(manifest.version).toBe("1.1.1");
+    expect(manifest.version).toBe("1.2.0");
   });
 
   it("names and describes itself in the app's other 20 languages, the name its own title there", () => {
@@ -31,46 +31,30 @@ describe("the Chess package", () => {
     expect(readFileSync(join(out, "THIRD_PARTY_NOTICES.md")).equals(readFileSync(join(dir, "dist", "THIRD_PARTY_NOTICES.md")))).toBe(true);
   });
 
-  it("stays under 500 KB and loads nothing from outside", () => {
-    expect(checkDist(dir, { cap: 500 * 1024 })).toBeGreaterThan(100_000);
+  it("stays under 252 KB and loads nothing from outside", () => {
+    expect(checkDist(dir, { cap: 252 * 1024 })).toBeGreaterThan(100_000);
   });
 
-  it("holds none of cm-chessboard's own pieces, markers or arrows", () => {
+  it("draws its own board and pieces: nothing of cm-chessboard or of another piece set is left in it", () => {
     const bundle = code();
-    for (const asset of ["pieces/standard.svg", "pieces/staunty.svg", "extensions/markers/markers.svg", "extensions/arrows/arrows.svg"]) {
-      const svg = read(root, "node_modules", "cm-chessboard", "assets", asset);
-      const drawings = [...svg.matchAll(/\s(?:d|points)="([^"]{24,})"/g)].map((found) => found[1]);
-      expect(drawings.length, asset).toBeGreaterThan(0);
-      for (const drawing of drawings) expect(bundle.includes(drawing), `${asset}: ${drawing.slice(0, 40)}`).toBe(false);
-    }
-    expect(bundle).not.toMatch(/Cburnett|staunty|creativecommons|CC BY/i);
-    expect(bundle).toMatch(/<g id=\\?"wk\\?" transform=\\?"scale\(0\.05\)\\?">/);
-    expect(bundle).toMatch(/<g id=\\?"ftcDot\\?">/);
+    expect(bundle).not.toMatch(/cm-chessboard|Chessnut|Luengas|Cburnett|staunty|creativecommons|CC BY/i);
+    expect(bundle).toContain("ftt-layer");
   });
 
   it("runs no code it builds at run time, and fetches nothing", () => {
     const bundle = code();
     expect(bundle).not.toMatch(/\beval\s*\(|new Function|\bFunction\s*\(|\bimport\s*\(|\bfetch\s*\(|\bWorker\b|WebAssembly|importScripts/);
-    expect(bundle.split("XMLHttpRequest").length - 1).toBe(1);
+    expect(bundle).not.toMatch(/XMLHttpRequest/);
   });
 
-  it("ships the full licence of chess.js, cm-chessboard and the Chessnut pieces, and says how the pieces were changed", () => {
+  it("ships the full licence of chess.js and of the kit's icons, and names no work it no longer carries", () => {
     const text = notices();
     expect(text).toBe(read(dir, "THIRD_PARTY_NOTICES.md"));
     const normal = (licence) => licence.replace(/\s+/g, " ").trim();
-    for (const licence of [
-      read(root, "node_modules", "chess.js", "LICENSE"),
-      read(root, "node_modules", "cm-chessboard", "LICENSE"),
-      read(dir, "vendor", "chessnut", "LICENSE.txt"),
-    ]) {
-      expect(normal(text)).toContain(normal(licence));
-    }
+    expect(normal(text)).toContain(normal(read(root, "node_modules", "chess.js", "LICENSE")));
     expect(text).toContain("Copyright (c) 2025, Jeff Hlywa");
-    expect(text).toContain("Copyright (c) 2017 Stefan Haack");
-    expect(text).toContain("Copyright 2015 Alexis Luengas");
     expect(text).toMatch(/chess\.js 1\.4\.0/);
-    expect(text).toMatch(/cm-chessboard 8\.15\.3/);
-    expect(text).toMatch(/2b8eaf14/);
-    expect(normal(text)).toContain("The SVG files were modified");
+    expect(text).toMatch(/## Ionicons 8\.1\.0/);
+    expect(text).not.toMatch(/cm-chessboard|Chessnut/);
   });
 });
