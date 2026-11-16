@@ -1,7 +1,9 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { KIT_TEXTS, joinTexts, translator } from "../../../kit/src/i18n.js";
+import { TABLETOP_STYLE } from "../../../kit/src/tabletop/board.js";
 import { MARKS, STYLE, board, storeKey } from "../src/board.js";
 import { TEXTS } from "../src/texts.js";
+import { ART } from "../src/theme.js";
 import { commitText, initial, play, result, revealText, seedText, turn } from "../src/rules.js";
 import { fromBase64url } from "../src/sha256.js";
 
@@ -36,20 +38,37 @@ const onGrid = (letters, extra = {}) => {
   return { ...ctx, state: { ...ctx.state, grid: [...letters], next: 1 }, mySide: 1, ...extra };
 };
 
+function mount(ctx) {
+  const host = document.createElement("div");
+  host.getBoundingClientRect = () => ({ left: 0, top: 0, width: 343, height: 343, right: 343, bottom: 343 });
+  document.body.append(host);
+  return { host, mounted: board.mount(host, ctx) };
+}
+
+const tile = (host, cell) => host.querySelector(`button[data-cell="${cell}"]`);
+const tap = (host, ...cells) => cells.forEach((cell) => tile(host, cell).click());
+const act = (host, name) => host.querySelector(`[data-act="${name}"]`);
+const word = (host) => host.querySelector(".fwg-word b").textContent;
+const enabled = (host) => [...host.querySelectorAll("button[data-cell]")].filter((one) => !one.disabled).map((one) => Number(one.dataset.cell));
+const marked = (host, name) => [...host.querySelectorAll("button[data-mark]")].filter((one) => one.dataset.mark.split(" ").includes(name)).map((one) => Number(one.dataset.cell));
+
 let store;
 beforeEach(() => {
   store = new Map();
   globalThis.ft = { store: { get: vi.fn(async (key) => store.get(key) ?? null), set: vi.fn(async (key, value) => (store.set(key, value), true)) } };
 });
+afterEach(() => {
+  document.body.innerHTML = "";
+});
 
 describe("the draw", () => {
   it("commits on its own as side 0 with the phone's language, keeping the seed, then reveals it", async () => {
-    const host = document.createElement("div");
     const ctx = context([], { mySide: 0, lang: "es", t: (key, vars) => translate("es", key, vars) });
-    const mounted = board.mount(host, ctx);
+    const { host, mounted } = mount(ctx);
     await tick();
     await tick();
     expect(host.textContent).toContain("Sacando las letras");
+    expect(host.querySelectorAll("button[data-cell]")).toHaveLength(0);
     expect(ctx.play).toHaveBeenCalledTimes(1);
     const commit = ctx.play.mock.calls[0][0];
     expect(commit).toMatch(/^ces[A-Za-z0-9_-]{43}$/);
@@ -62,15 +81,13 @@ describe("the draw", () => {
   });
 
   it("answers with a seed as side 1, and says so when its own seed is lost", async () => {
-    const host = document.createElement("div");
     const ctx = context([OPENING[0]], { mySide: 1 });
-    board.mount(host, ctx);
+    mount(ctx);
     await tick();
     await tick();
     expect(ctx.play.mock.calls[0][0]).toMatch(/^s[A-Za-z0-9_-]{32}$/);
-    const lost = document.createElement("div");
     const stuck = context(OPENING.slice(0, 2), { mySide: 0 });
-    board.mount(lost, stuck);
+    const { host: lost } = mount(stuck);
     await tick();
     await tick();
     expect(stuck.play).not.toHaveBeenCalled();
@@ -80,44 +97,44 @@ describe("the draw", () => {
 });
 
 describe("the grid", () => {
-  it("shows the sixteen tiles, named, and builds a word along touching tiles, then says it", async () => {
-    const host = document.createElement("div");
+  it("is drawn on a canvas, with a named button over each of the sixteen tiles, and builds a word along touching tiles, then says it", async () => {
     const ctx = onGrid("catsoxeetnrfdlmp");
-    board.mount(host, ctx);
+    const { host } = mount(ctx);
     await tick();
-    expect(host.querySelectorAll(".fwg-tile")).toHaveLength(16);
-    expect(host.querySelector('[data-cell="0"]').getAttribute("aria-label")).toBe("C, row 1, column 1");
-    expect(host.querySelectorAll(".fwg-tile:not([disabled])")).toHaveLength(16, "any tile starts a word");
-    expect(host.querySelector('[data-act="say"]').disabled).toBe(true);
-    host.querySelector('[data-cell="0"]').click();
-    expect(host.querySelector('[data-cell="0"]').classList.contains("lit")).toBe(true);
-    expect(host.querySelector('[data-cell="2"]').disabled).toBe(true, "t does not touch c");
-    expect(host.querySelector('[data-cell="1"]').disabled).toBe(false);
-    host.querySelector('[data-cell="1"]').click();
-    host.querySelector('[data-cell="2"]').click();
-    expect(host.querySelector(".fwg-word b").textContent).toBe("cat");
-    expect(host.querySelector('[data-act="say"]').disabled).toBe(false);
-    host.querySelector('[data-act="say"]').click();
+    expect(host.querySelector("canvas").getAttribute("aria-hidden")).toBe("true");
+    expect(host.querySelectorAll("button[data-cell]")).toHaveLength(16);
+    expect(tile(host, 0).getAttribute("aria-label")).toBe("C, row 1, column 1");
+    expect(host.querySelector('[role="group"]').getAttribute("aria-label")).toBe("Grid");
+    expect(enabled(host), "any tile starts a word").toHaveLength(16);
+    expect(act(host, "say").disabled).toBe(true);
+    tap(host, 0);
+    expect(marked(host, "path")).toEqual([0]);
+    expect(tile(host, 2).disabled, "t does not touch c").toBe(true);
+    expect(tile(host, 1).disabled).toBe(false);
+    tap(host, 1, 2);
+    expect(word(host)).toBe("cat");
+    expect(act(host, "say").disabled).toBe(false);
+    act(host, "say").click();
     expect(ctx.play).toHaveBeenCalledWith("wcat");
   });
 
-  it("takes a letter back, cuts the path at a lit tile tapped again, and says why a word will not do", async () => {
-    const host = document.createElement("div");
+  it("takes a letter back, cuts the path at a traced tile tapped again, and says why a word will not do", async () => {
     const ctx = onGrid("catsoxeetnrfdlmp");
-    const mounted = board.mount(host, ctx);
+    const { host, mounted } = mount(ctx);
     await tick();
-    for (const cell of [0, 1, 2]) host.querySelector(`[data-cell="${cell}"]`).click();
-    host.querySelector('[data-act="undo"]').click();
-    expect(host.querySelector(".fwg-word b").textContent).toBe("ca");
-    host.querySelector('[data-cell="0"]').click();
-    expect(host.querySelector(".fwg-word b").textContent).toBe("");
-    for (const cell of [2, 1, 0]) host.querySelector(`[data-cell="${cell}"]`).click();
+    tap(host, 0, 1, 2);
+    act(host, "undo").click();
+    expect(word(host)).toBe("ca");
+    expect(marked(host, "path")).toEqual([0, 1]);
+    tap(host, 0);
+    expect(word(host)).toBe("");
+    tap(host, 2, 1, 0);
     expect(ctx.notify).not.toHaveBeenCalled();
-    expect(host.querySelector('[data-act="say"]').disabled).toBe(false);
-    host.querySelector('[data-act="say"]').click();
+    expect(act(host, "say").disabled).toBe(false);
+    act(host, "say").click();
     expect(ctx.notify).toHaveBeenCalledWith("Not in the word list");
     expect(ctx.play).not.toHaveBeenCalled();
-    expect(host.querySelector(".fwg-word b").textContent).toBe("tac");
+    expect(word(host)).toBe("tac");
     expect(host.textContent).not.toContain("Not in the word list");
     expect(host.querySelector(".fwg-note")).toBeNull();
     mounted.update(ctx);
@@ -125,34 +142,45 @@ describe("the grid", () => {
   });
 
   it("says a word already said is already said, at the top", async () => {
-    const host = document.createElement("div");
     const ctx = onGrid("catsoxeetnrfdlmp");
     ctx.state = { ...ctx.state, said: [["cat"], []] };
-    board.mount(host, ctx);
+    const { host } = mount(ctx);
     await tick();
-    for (const cell of [0, 1, 2]) host.querySelector(`[data-cell="${cell}"]`).click();
-    host.querySelector('[data-act="say"]').click();
+    tap(host, 0, 1, 2);
+    act(host, "say").click();
     expect(ctx.notify).toHaveBeenCalledWith("Already said");
     expect(ctx.play).not.toHaveBeenCalled();
   });
 
   it("passes, shows the words said with their points and the scores, and opens nothing off turn", async () => {
-    const host = document.createElement("div");
     const ctx = onGrid("catsoxeetnrfdlmp");
     const said = { ...ctx, state: { ...ctx.state, said: [["sex"], ["cat", "coats"]], score: [1, 3] } };
-    board.mount(host, said);
+    const { host } = mount(said);
     await tick();
     expect(host.querySelector(".fwg-scores").textContent).toContain("3");
     expect(host.textContent).toContain("your words (2)");
     expect(host.textContent).toContain("their words (1)");
     expect(host.querySelector(".fwg-lists").textContent).toContain("coats");
-    host.querySelector('[data-act="pass"]').click();
+    act(host, "pass").click();
     expect(said.play).toHaveBeenCalledWith("x");
-    const other = document.createElement("div");
-    board.mount(other, { ...ctx, canPlay: false });
-    expect(other.querySelectorAll(".fwg-tile:not([disabled])")).toHaveLength(0);
-    expect(other.querySelector('[data-act="pass"]').disabled).toBe(true);
+    const { host: other } = mount({ ...ctx, canPlay: false });
+    expect(enabled(other)).toEqual([]);
+    expect(act(other, "pass").disabled).toBe(true);
     expect(MARKS).toHaveLength(2);
+  });
+
+  it("marks the last word said, and the one that waits for the other phone", async () => {
+    const ctx = onGrid("catsoxeetnrfdlmp", { mySide: 0, canPlay: false });
+    const { host, mounted } = mount(ctx);
+    const state = play(ctx.state, "wcat", 1).state;
+    mounted.update({ ...ctx, state, last: "wcat", mySide: 1, pending: true });
+    expect(marked(host, "last")).toEqual([0, 1, 2]);
+    expect(marked(host, "pending")).toEqual([2]);
+  });
+
+  it("carries the kit's look for a canvas board, and outlines the player whose turn it is in the colour of that side's mark", () => {
+    expect(STYLE).toContain(TABLETOP_STYLE);
+    expect(STYLE).toContain(`.ftg{--hue-side-0:${ART.sides[0].body};--hue-side-1:${ART.sides[1].body}}`);
   });
 });
 
@@ -188,34 +216,31 @@ describe("a short board", () => {
       .map(([selector]) => selector);
 
   it("keeps the word, say and pass while the round is played, a phone turned sideways giving the game a board under 260 px", async () => {
-    const host = document.createElement("div");
-    board.mount(host, onGrid("catsoxeetnrfdlmp"));
+    const { host } = mount(onGrid("catsoxeetnrfdlmp"));
     await tick();
-    const word = host.querySelector(".fwg-word");
-    for (const selector of hiddenOnSmall()) expect(word.matches(selector), selector).toBe(false);
+    const row = host.querySelector(".fwg-word");
+    for (const selector of hiddenOnSmall()) expect(row.matches(selector), selector).toBe(false);
   });
 
   it("leaves the word row out while the letters are being shuffled, when there is nothing to say yet", async () => {
-    const host = document.createElement("div");
-    board.mount(host, context([]));
+    const { host } = mount(context([]));
     await tick();
-    const word = host.querySelector(".fwg-word");
-    expect(hiddenOnSmall().some((selector) => word.matches(selector))).toBe(true);
+    const row = host.querySelector(".fwg-word");
+    expect(hiddenOnSmall().some((selector) => row.matches(selector))).toBe(true);
   });
 });
 
 describe("the result", () => {
   it("keeps the lists of words said on a small board once the round is over, scrolling if long", async () => {
-    const host = document.createElement("div");
     const ctx = onGrid("catsoxeetnrfdlmp");
     const said = ["cat", "coats", "toes", "nets", "rents", "dent", "tent", "sent"];
     const over = { ...ctx.state, phase: "done", said: [said, ["sex"]], score: [12, 1], end: { winner: 0, reason: "passed", score: [12, 1] } };
-    board.mount(host, { ...ctx, state: over, canPlay: false, mySide: 0, result: { k: "rules", winner: 0, result: result(over) } });
+    const { host } = mount({ ...ctx, state: over, canPlay: false, mySide: 0, result: { k: "rules", winner: 0, result: result(over) } });
     await tick();
     const lists = host.querySelector(".fwg-lists");
     expect(lists.textContent).toContain("rents");
     const rules = rulesOf();
-    const hidden = rules.filter(([selector, body, small]) => small && /display:\s*none/.test(body)).map(([selector]) => selector);
+    const hidden = rules.filter(([, body, small]) => small && /display:\s*none/.test(body)).map(([selector]) => selector);
     expect(hidden.length).toBeGreaterThan(0);
     for (const selector of hidden) expect(lists.matches(selector), selector).toBe(false);
     const scrolls = rules.some(([selector, body]) => lists.matches(selector) && /overflow(-y)?:\s*auto/.test(body));
