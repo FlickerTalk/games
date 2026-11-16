@@ -1,0 +1,213 @@
+import { describe, expect, it } from "vitest";
+import { fromBase64 } from "../../../kit/src/envelope.js";
+import { TICK_LIMIT } from "../../../kit/src/live/wire.js";
+import { liveWorld } from "../../../kit/test/duel/world.js";
+import { START, TALL, WIDE, apart, wrapped } from "../src/arena.js";
+import { rewindOf } from "../src/friend.js";
+import { LOCK, TRAIL, closing } from "../src/match.js";
+import { COUNTDOWN } from "../src/rounds.js";
+import { finger, gameOn, playWell, press } from "./harness.js";
+
+const decode = (data) => JSON.parse(new TextDecoder().decode(fromBase64(data)));
+
+const idsFor = (name, tag) => {
+  let made = 0;
+  return () => `${name}${tag}`.padEnd(13, "0") + String((made += 1)).padStart(3, "0");
+};
+
+async function twoPhones({ latency = 40, tag = "sky" } = {}) {
+  const w = liveWorld({ latency, make: (phone, { clock }) => gameOn(phone.core.ft, { clock, seed: phone.name === "a" ? 3 : 11 }) });
+  for (const name of ["a", "b"]) {
+    const { game } = w.phones[name].made;
+    await game.open({ lang: "en", live: true, chat: w.phones[name].core.chat });
+    game.duel.session.newId = idsFor(name, tag);
+    game.resize(384, 801, true);
+  }
+  const game = (name) => w.phones[name].made.game;
+  const frames = (each = () => {}) => (phone, now) => {
+    each(phone.made.game);
+    phone.made.game.frame(now);
+  };
+  return { w, game, frames };
+}
+
+async function bothPlaying(t, each) {
+  await press(t.game("a"), "play");
+  await t.w.pass(300, t.frames(each));
+  await press(t.game("b"), "play");
+  await t.w.pass(COUNTDOWN + 400, t.frames(each));
+}
+
+const mine = (game) => game.state.round.match.crafts[game.state.round.seat];
+const theirs = (game) => game.state.round.match.crafts[1 - game.state.round.seat];
+
+function sameScore(a, b) {
+  expect([a.state.screen, b.state.screen]).toEqual(["end", "end"]);
+  expect(a.state.outcome.mine).toBe(b.state.outcome.theirs);
+  expect(a.state.outcome.theirs).toBe(b.state.outcome.mine);
+}
+
+describe("a round with the other person in the chat", () => {
+  it("sends nothing until the player taps play, then waits for the other, who sees this player ready", async () => {
+    const t = await twoPhones();
+    await t.w.pass(1000, t.frames());
+    expect(t.w.phones.a.core.ft.live.send).not.toHaveBeenCalled();
+    await press(t.game("a"), "play");
+    expect(decode(t.w.phones.a.core.sent[0]).k).toBe("hello");
+    await t.w.pass(300, t.frames());
+    expect(t.game("a").state.screen).toBe("home");
+    expect(t.game("b").duel.status).toMatchObject({ here: true, ready: { them: true, me: false } });
+  });
+
+  it("starts on both phones only once both are ready, in the same sky, each stepping only its own aircraft and nothing sent in the countdown", async () => {
+    const t = await twoPhones();
+    await press(t.game("a"), "play");
+    await t.w.pass(300, t.frames());
+    await press(t.game("b"), "play");
+    await t.w.pass(COUNTDOWN - 600, t.frames());
+    const kinds = (name) => t.w.phones[name].core.sent.map((data) => decode(data).k);
+    expect([...kinds("a"), ...kinds("b")]).not.toContain("tick");
+    await t.w.pass(1000, t.frames());
+    const [a, b] = [t.game("a"), t.game("b")];
+    expect([a.state.screen, b.state.screen]).toEqual(["play", "play"]);
+    expect(a.state.round.seat + b.state.round.seat).toBe(1);
+    expect(a.state.round.match.seed).toBe(b.state.round.match.seed);
+    expect(a.state.round.match.sky).toEqual(b.state.round.match.sky);
+    expect(a.state.round.place).toBe(b.state.round.place);
+    expect(a.state.round.own).toEqual(b.state.round.own.toReversed());
+    expect(a.state.round.match.step).toBeGreaterThan(0);
+  });
+
+  it("shows the other aircraft where its own phone has it, a moment late, across the edge of the sky too", async () => {
+    const t = await twoPhones();
+    await bothPlaying(t);
+    const [a, b] = [t.game("a"), t.game("b")];
+    for (const game of [a, b]) game.state.round.match.sky = { clouds: [], wind: null, ring: null, airship: null };
+    const { x, y } = mine(a);
+    finger(a, "down", { x: wrapped(x, WIDE) + 0.3, y: wrapped(y, TALL) });
+    await t.w.pass(700, t.frames());
+    finger(a, "up");
+    await t.w.pass(4200, t.frames());
+    expect(Math.abs(mine(a).y - y) + Math.abs(mine(a).x - x)).toBeGreaterThan(1.5);
+    expect(apart(theirs(b), mine(a)).far).toBeLessThan(0.1);
+    expect(theirs(b).hx).toBeCloseTo(mine(a).hx, 1);
+    expect(mine(b).hx).toBe(START[b.state.round.seat].hx);
+  });
+
+  it("lets each phone decide when its own balloon is popped, from where the other says it is, and tells the hunter", async () => {
+    const t = await twoPhones({ latency: 80 });
+    await bothPlaying(t);
+    const [a, b] = [t.game("a"), t.game("b")];
+    for (const game of [a, b]) Object.assign(game.state.round.match, { sky: { clouds: [], wind: null, ring: null, airship: null }, trails: [[], []] });
+    Object.assign(mine(b), { x: 0.5, y: 0.6, hx: 0, hy: -1 });
+    Object.assign(mine(a), { x: 0.5, y: 0.82, hx: 0, hy: -1 });
+    await t.w.pass(500, t.frames());
+    expect(mine(b).lock).toBeGreaterThan(0);
+    expect(theirs(a).lock).toBeGreaterThan(0);
+    expect(mine(a).lock).toBe(0);
+    await t.w.pass(((LOCK / closing(mine(b))) * 1000) / 120 + 300, t.frames());
+    expect(mine(b).lost).toBe(1);
+    expect(theirs(a).lost).toBe(1);
+    expect(mine(a).lost).toBe(0);
+    expect(theirs(b).lost).toBe(0);
+    expect(a.state.moments.some((one) => one.kind === "pop" && one.by === a.state.round.seat)).toBe(true);
+  });
+
+  it("judges the other's aim by where its own aircraft was when the other saw it, further back the longer the wire", async () => {
+    const rewinds = [];
+    for (const latency of [15, 150, 350]) {
+      const t = await twoPhones({ latency });
+      await bothPlaying(t, playWell);
+      await t.w.pass(2000, t.frames(playWell));
+      const { rewind } = t.game("b").state.round;
+      expect(rewind).toBe(rewindOf(t.game("b").duel));
+      expect(Math.abs((rewind * 1000) / 120 - 2 * (latency + 100)), `${latency}`).toBeLessThan(latency >= 350 ? 200 : 60);
+      rewinds.push(rewind);
+    }
+    expect(rewinds[1]).toBeGreaterThan(rewinds[0]);
+    expect(rewinds[2]).toBeLessThanOrEqual(TRAIL);
+  });
+
+  it("flies the aircraft and the colour the other person chose, in another colour when both chose the same", async () => {
+    const t = await twoPhones();
+    Object.assign(t.game("a").state, { flying: "helicopter", colour: "mint" });
+    await bothPlaying(t);
+    await t.w.pass(600, t.frames());
+    const [a, b] = [t.game("a"), t.game("b")];
+    expect(b.state.round.looks[a.state.round.seat]).toEqual({ craft: "bubble", colour: "mint" });
+    expect(theirs(b).family).toBe("helicopter");
+    expect(a.state.round.looks[b.state.round.seat]).toEqual({ craft: "propeller", colour: "sunny" });
+    const same = await twoPhones();
+    await bothPlaying(same);
+    await same.w.pass(600, same.frames());
+    const looks = same.game("a").state.round.looks;
+    expect(looks[0].colour).not.toBe(looks[1].colour);
+  });
+
+  it("plays a whole round to the same score on both phones, mirrored, and gives both their stars", { timeout: 60_000 }, async () => {
+    const t = await twoPhones();
+    await bothPlaying(t, playWell);
+    await t.w.pass(75_000, t.frames((game) => playWell(game, ...(game === t.game("b") ? [0.4, 0.8] : [0.95]))));
+    const [a, b] = [t.game("a"), t.game("b")];
+    sameScore(a, b);
+    expect(a.state.outcome.mine + a.state.outcome.theirs).toBeGreaterThan(0);
+    expect(a.state.outcome.stars).toBeGreaterThanOrEqual(1);
+    expect(a.state.outcome.won && b.state.outcome.won).toBe(false);
+  });
+
+  it("ends on the same score whatever the lag between the phones", { timeout: 120_000 }, async () => {
+    let popped = 0;
+    for (const latency of [15, 150, 350]) {
+      const t = await twoPhones({ latency });
+      await bothPlaying(t, playWell);
+      await t.w.pass(75_000, t.frames((game) => playWell(game, ...(game === t.game("b") ? [0.4, 0.8] : [0.95]))));
+      sameScore(t.game("a"), t.game("b"));
+      popped += t.game("a").state.outcome.mine + t.game("a").state.outcome.theirs;
+    }
+    expect(popped).toBeGreaterThanOrEqual(3);
+  });
+
+  it("never sends a tick larger than the channel carries", { timeout: 60_000 }, async () => {
+    const t = await twoPhones();
+    await bothPlaying(t, playWell);
+    await t.w.pass(20_000, t.frames(playWell));
+    const sizes = [...t.w.phones.a.core.sent, ...t.w.phones.b.core.sent].map((data) => fromBase64(data).length);
+    expect(sizes.length).toBeGreaterThan(200);
+    expect(Math.max(...sizes)).toBeLessThan(TICK_LIMIT * 0.6);
+  });
+
+  it("freezes both phones while either player has the pause open", async () => {
+    const t = await twoPhones();
+    await bothPlaying(t, playWell);
+    await t.w.pass(1000, t.frames(playWell));
+    await press(t.game("a"), "pause");
+    await t.w.pass(300, t.frames());
+    const steps = [t.game("a").state.round.match.step, t.game("b").state.round.match.step];
+    await t.w.pass(2000, t.frames());
+    expect([t.game("a").state.round.match.step, t.game("b").state.round.match.step]).toEqual(steps);
+    await press(t.game("a"), "resume");
+    await t.w.pass(600, t.frames(playWell));
+    expect(t.game("b").state.round.match.step).toBeGreaterThan(steps[1]);
+  });
+
+  it("goes back home, the other's seat empty, when the other leaves in the middle of a round", async () => {
+    const t = await twoPhones();
+    await bothPlaying(t, playWell);
+    await press(t.game("b"), "pause");
+    await press(t.game("b"), "home");
+    await t.w.pass(400, t.frames());
+    expect(t.game("a").state).toMatchObject({ screen: "home", round: null });
+    expect(t.game("a").duel.status.away).toBe(true);
+  });
+
+  it("gets through a stall on the wire and still agrees on the score", { timeout: 60_000 }, async () => {
+    const t = await twoPhones({ latency: 90 });
+    await bothPlaying(t, playWell);
+    await t.w.pass(5000, t.frames(playWell));
+    t.w.held.b = true;
+    await t.w.pass(1500, t.frames(playWell));
+    t.w.held.b = false;
+    await t.w.pass(75_000, t.frames(playWell));
+    sameScore(t.game("a"), t.game("b"));
+  });
+});
