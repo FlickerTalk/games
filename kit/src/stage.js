@@ -55,3 +55,24 @@ export function watchStage(changed) {
     removeEventListener("resize", changed);
   };
 }
+
+// A size changed while the browser is still reporting sizes makes it raise a "ResizeObserver loop" error in the frame, so the change waits for the next frame.
+export function watchSizes(changed) {
+  if (!globalThis.ResizeObserver) return null;
+  let pending = null;
+  const watch = new ResizeObserver(() => {
+    pending ??= requestAnimationFrame(() => {
+      if (pending === null) return;
+      pending = null;
+      changed();
+    });
+  });
+  return {
+    observe: (node) => watch.observe(node),
+    disconnect() {
+      watch.disconnect();
+      if (pending !== null) cancelAnimationFrame(pending);
+      pending = null;
+    },
+  };
+}

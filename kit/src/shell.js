@@ -7,7 +7,7 @@ import { Table } from "./table.js";
 import { mediumReads } from "./colour.js";
 import { icon } from "./icons.js";
 import { Toast } from "./toast.js";
-import { SMALLEST, fitStage, watchStage } from "./stage.js";
+import { SMALLEST, fitStage, watchSizes, watchStage } from "./stage.js";
 
 const escape = (text) =>
   String(text).replace(/[&<>"']/g, (one) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[one]);
@@ -118,7 +118,7 @@ export function elementFor(game) {
       this.board = null;
       this.drawn = new WeakMap();
       this.style.display = "block";
-      this.sizes = globalThis.ResizeObserver ? new ResizeObserver(() => this.fitBoard()) : null;
+      this.sizes = watchSizes(() => this.fitBoard());
       this.unwatch = watchStage(() => this.fitBoard());
       this.root = document.createElement("div");
       this.root.className = "ftg";

@@ -59,6 +59,7 @@ function collector() {
 
 async function phone(engine, base, game, device, { fill, query = "", side = "a", out, hasTouch = false }) {
   const context = await engine.newContext({ viewport: { width: Math.max(device.width * 2 + 72, 800), height: device.height + 40 }, screen: { width: device.width, height: device.height }, deviceScaleFactor: 2, hasTouch });
+  await context.addInitScript(reportErrors);
   const page = await context.newPage();
   const problems = [];
   page.on("pageerror", (error) => problems.push(error.message));
@@ -73,6 +74,10 @@ async function phone(engine, base, game, device, { fill, query = "", side = "a",
   }
   const inner = () => page.frames().find((one) => one.url().endsWith(`/${side}/frame.html`));
   return session({ context, page, problems, inner, side, device, fill, out });
+}
+
+export function reportErrors() {
+  addEventListener("error", (event) => console.error(event.message));
 }
 
 export function setHidden(hidden) {
