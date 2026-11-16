@@ -1,8 +1,8 @@
 import { createSession } from './session.js';
 import { injectStyle } from './style.js';
 import { appOpening } from './opening.js';
-import { roomHeight } from './room.js';
 import { createSwitches } from './sound-switches.js';
+import { roomHeight } from './room.js';
 
 export class RacerElement extends HTMLElement {
   connectedCallback() {
@@ -43,13 +43,12 @@ export class RacerElement extends HTMLElement {
 
   fitMode() {
     const filling = this.ownerDocument.documentElement.hasAttribute('data-fill');
-    const height = filling ? '' : `${roomHeight({ screenHeight: globalThis.screen?.height, width: this.knownWidth ?? 0 })}px`;
+    const height = filling ? '' : `${roomHeight(globalThis.screen?.height)}px`;
     if (this.style.height !== height) this.style.height = height;
   }
 
   resized(rect) {
     if (!rect || !this.session) return;
-    this.knownWidth = rect.width;
     this.fitMode();
     this.session.resize({ width: rect.width, height: rect.height, dpr: globalThis.devicePixelRatio || 1 });
   }

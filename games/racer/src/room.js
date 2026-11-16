@@ -1,11 +1,9 @@
-export const ROOM_CHROME = 297;
-const FALLBACK_SCREEN = 853;
-const LOWEST = 240;
-const HIGHEST = 1000;
-const TALLEST_PER_WIDTH = 4 / 3;
+import { ROOM_CHROME } from '../../../kit/src/stage.js';
 
-export function roomHeight({ screenHeight, width }) {
-  const guess = (screenHeight || FALLBACK_SCREEN) - ROOM_CHROME;
-  const tallest = width > 0 ? Math.floor(width * TALLEST_PER_WIDTH) : HIGHEST;
-  return Math.round(Math.max(LOWEST, Math.min(guess, tallest, HIGHEST)));
+const FALLBACK_SCREEN = 853;
+const LOWEST = 300;
+const HIGHEST = 1100;
+
+export function roomHeight(screenHeight) {
+  return Math.round(Math.min(HIGHEST, Math.max(LOWEST, (screenHeight || FALLBACK_SCREEN) - ROOM_CHROME)));
 }

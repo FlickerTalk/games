@@ -2,6 +2,7 @@ import { test, beforeEach, afterEach, vi } from 'vitest';
 import assert from 'node:assert/strict';
 import '../src/index.js';
 import { stageFor } from '../src/layout.js';
+import { roomHeight as kitRoomHeight } from '../../../kit/src/canvas/index.js';
 
 class FakeObserver {
   static made = [];
@@ -184,6 +185,14 @@ test('in a conversation the element takes the room height, and full screen the w
   assert.equal(racer.style.height, '');
   fullScreen(false);
   assert.equal(racer.style.height, '343px');
+});
+
+test('in a phone room as narrow as the app gives it, the element is as tall as every canvas kit game', async () => {
+  vi.stubGlobal('screen', { width: 384, height: 853 });
+  room();
+  const racer = await connected();
+  FakeObserver.made[0].report(352, 0);
+  assert.equal(racer.style.height, `${kitRoomHeight(853)}px`);
 });
 
 test('a race goes on across a switch to full screen and back, with the car where it was', async () => {
