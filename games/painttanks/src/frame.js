@@ -73,6 +73,7 @@ export function playScene(game) {
     ...aiming,
     width: state.width, height: state.height, fill: state.fill, layout: state.layout, lang: state.lang, sound: state.sound, press: state.press, paused: state.paused,
     view: { ...state.layout.view, mirror: mySide === 1 }, mySide, world, shown, flight, turnSide,
+    players: [state.player, round.mode === "practice" ? null : round.mode === "flick" ? FLICK : standIn(state.player)],
     scenery: sceneryOf(world.seed), sides: round.mode === "practice" ? [0] : [0, 1],
     looks: [0, 1].map((side) => lookOf(game, side)), balls: [0, 1].map((side) => (side === mySide ? state.progress.chosen.ball : "normal")),
     lastAngle: lastAngles(round), wind: flight ? flight.wind : latest?.setup ? windOf(latest) : 0,

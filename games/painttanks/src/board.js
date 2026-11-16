@@ -1,9 +1,9 @@
 import { drawHintHand, drawPause, drawStar, drawTopBar, pauseLayout } from "../../../kit/src/canvas/index.js";
 import { clamp, fadeEdges, withRim } from "../../../kit/src/canvas/pen.js";
 import { drawDottedPath, drawFlight, drawPaintStain, drawSlingshot, drawSplash, drawWaterSplash, drawWaterStain } from "./effects.js";
-import { drawDial, drawDiveButton, drawFireButton, drawTurnMarker, drawWindFlag } from "./hud.js";
+import { drawDial, drawDiveButton, drawFireButton, drawOwnerMark, drawWindFlag } from "./hud.js";
 import { WATER_STAIN_MS } from "./impact.js";
-import { toScreen, toWorld, visibleWorld } from "./layout.js";
+import { controlsOf, toScreen, toWorld, visibleWorld } from "./layout.js";
 import { drawScene, waveAt } from "./scene.js";
 import { drawShip } from "./ships.js";
 import { DIVE_DROP, drawSub } from "./subs.js";
@@ -99,21 +99,34 @@ function drawAim(ctx, scene, art) {
   } else drawDottedPath(ctx, scene.preview, colour, art, { dot: 3.5 });
 }
 
+export function markersOf(scene) {
+  const size = clamp(40 * scene.view.scale, 32, 44);
+  return scene.sides.map((side) => {
+    const vehicle = vehicleAt(scene.world, side);
+    const team = side === scene.mySide ? 0 : 1;
+    const [x, y] = toScreen(scene.view, vehicle.x, vehicle.y - vehicle.size * (vehicle.under ? 0.5 : vehicle.family === "tank" ? 1.1 : 1.25));
+    return { side, team, x, y: y - size * 0.6, size, turn: side === scene.turnSide, player: scene.players[team] };
+  });
+}
+
+function drawOwners(ctx, scene, ui, time) {
+  for (const mark of markersOf(scene)) {
+    if (mark.player) drawOwnerMark(ctx, mark.x, mark.y, mark.size, mark.player, ui, { turn: mark.turn, thinking: mark.team === 1 && Boolean(scene.bar.rival?.thinking), time });
+  }
+}
+
 function drawWorld(ctx, scene, theme, now) {
-  const { art, ui } = theme;
+  const { art } = theme;
   const { width, height } = scene;
   const time = now / 1000;
   drawScene(ctx, scene.world, { scenery: scene.scenery, ...visibleWorld(scene.view, width, height), time, wind: scene.wind }, art);
   withRim(ctx, { ink: art.ink, colour: art.rim }, () => {
     drawMarks(ctx, scene, art, now);
     drawTargets(ctx, scene, art, now);
-    const vehicles = scene.sides.map((side) => drawVehicle(ctx, scene, side, art, now));
+    for (const side of scene.sides) drawVehicle(ctx, scene, side, art, now);
     drawShots(ctx, scene, art, now);
     drawAim(ctx, scene, art);
-    const turn = vehicles.find((one) => one.side === scene.turnSide);
-    if (turn) drawTurnMarker(ctx, turn.x, turn.y - turn.size * (turn.under ? 0.2 : 1.15), 34, turn.side === scene.mySide ? 0 : 1, time, ui);
   });
-  drawWindFlag(ctx, WORLD.width / 2, WORLD.height * 0.2, 48, scene.wind, time, ui);
 }
 
 function drawStarFlights(ctx, scene, ui, now) {
@@ -130,12 +143,16 @@ function drawStarFlights(ctx, scene, ui, now) {
 function drawControls(ctx, scene, ui, time) {
   const { layout, press, aim } = scene;
   const pressed = (kind) => press?.kind === kind;
-  if (!scene.sound.open && aim) {
-    drawDial(ctx, layout.angle, aim.angle, scene.torpedo ? "torpedo" : "angle", ui, { pressed: pressed("angle"), lang: scene.lang });
-    drawDial(ctx, layout.power, aim.power, "power", ui, { pressed: pressed("power"), lang: scene.lang });
+  const { flag } = layout;
+  drawWindFlag(ctx, flag.x, flag.y, flag.size, scene.view.mirror ? -scene.wind : scene.wind, time, ui);
+  if (scene.sound.open) return;
+  const { angle, power, fire, dive } = controlsOf(layout, scene.sub);
+  if (aim) {
+    drawDial(ctx, angle, aim.angle, scene.torpedo ? "torpedo" : "angle", ui, { pressed: pressed("angle"), lang: scene.lang });
+    drawDial(ctx, power, aim.power, "power", ui, { pressed: pressed("power"), lang: scene.lang });
   }
-  if (scene.sub) drawDiveButton(ctx, layout.dive, ui, { under: scene.torpedo, pressed: pressed("dive"), time });
-  drawFireButton(ctx, layout.fire, ui, { pressed: pressed("fire"), waiting: !scene.myTurn });
+  if (dive) drawDiveButton(ctx, dive, ui, { under: scene.torpedo, pressed: pressed("dive"), time });
+  drawFireButton(ctx, fire, ui, { pressed: pressed("fire"), waiting: !scene.myTurn });
 }
 
 function drawHint(ctx, scene, ui, time) {
@@ -158,6 +175,7 @@ export function drawPlay(ctx, scene, theme, time) {
   drawWorld(ctx, scene, theme, now);
   ctx.restore();
   fadeEdges(ctx, width, height, ui.page);
+  drawOwners(ctx, scene, ui, time);
   drawTopBar(ctx, scene.layout, scene.bar, ui, time);
   drawControls(ctx, scene, ui, time);
   drawStarFlights(ctx, scene, ui, now);

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { bounds, draw, painted } from "../../../kit/test/canvas/recorder.js";
-import { drawFrame } from "../src/frame.js";
+import { markersOf } from "../src/board.js";
+import { drawFrame, playScene } from "../src/frame.js";
 import { THEME } from "../src/theme.js";
 import { makeGame, tap, targetOf } from "./harness.js";
 
@@ -37,6 +38,21 @@ describe("the play screen", () => {
     expect(mirrored.calls.length).toBeGreaterThan(100);
     expect(mirrored.calls.some((call) => call.op === "save")).toBe(true);
     expect(JSON.stringify(mirrored.calls.slice(0, 400))).not.toBe(JSON.stringify(plain.calls.slice(0, 400)));
+  });
+
+  it("shows whose vehicle is whose with a face above each, the player's and Flick's", async () => {
+    const { game } = await playing();
+    const scene = playScene(game);
+    expect(scene.players.map((one) => one?.who)).toEqual([game.state.player.who, "flick"]);
+    const marks = markersOf(scene);
+    expect(marks).toHaveLength(2);
+    const ctx = frame(game);
+    for (const mark of marks) {
+      expect(mark.size).toBeGreaterThanOrEqual(32);
+      expect(mark.y - mark.size / 2).toBeGreaterThan(scene.layout.fire.y + scene.layout.fire.h);
+      expect(painted(ctx).some(([x, y]) => Math.hypot(x - mark.x, y - mark.y) < mark.size / 2)).toBe(true);
+    }
+    expect(marks.filter((one) => one.turn)).toHaveLength(scene.turnSide === null ? 0 : 1);
   });
 
   it("draws the slingshot while the player pulls, and the ball while it flies", async () => {

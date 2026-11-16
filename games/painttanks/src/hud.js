@@ -1,4 +1,4 @@
-import { DIGITS, drawDigits, formatNumber } from "../../../kit/src/canvas/index.js";
+import { DIGITS, drawDigits, drawPortrait, formatNumber } from "../../../kit/src/canvas/index.js";
 import { centreOf } from "../../../kit/src/canvas/layout.js";
 import { circle, clamp, ellipse, line, polygon } from "../../../kit/src/canvas/pen.js";
 
@@ -91,15 +91,12 @@ export function drawWindFlag(ctx, x, y, size, wind, time, ui) {
   ctx.restore();
 }
 
-export function drawTeamSymbol(ctx, x, y, size, team, ui, fill = ui.accent) {
-  if (team === 0) circle(ctx, x, y, size / 2, fill, ui.text, ui.line);
-  else polygon(ctx, [[x, y - size / 2], [x + size / 2, y], [x, y + size / 2], [x - size / 2, y]], fill, ui.text, ui.line);
-}
-
-export function drawTurnMarker(ctx, x, y, size, team, time, ui) {
+export function drawOwnerMark(ctx, x, y, size, player, ui, { turn = false, thinking = false, time = 0 } = {}) {
+  const lift = turn ? Math.sin(time * 4) * size * 0.06 : 0;
   ctx.save();
-  ctx.translate(x, y + Math.sin(time * 4) * size * 0.06);
-  polygon(ctx, [[-size * 0.24, 0], [size * 0.24, 0], [0, size * 0.32]], ui.accent, ui.text, ui.line);
-  drawTeamSymbol(ctx, 0, -size * 0.34, size * 0.64, team, ui);
+  ctx.translate(x, y + lift);
+  if (turn) polygon(ctx, [[-size * 0.24, size * 0.46], [size * 0.24, size * 0.46], [0, size * 0.8]], ui.accent, ui.page, ui.line);
+  drawPortrait(ctx, 0, 0, size, { player, thinking }, ui, { time });
+  if (turn) circle(ctx, 0, 0, size * 0.5, null, ui.accent, ui.line * 1.5);
   ctx.restore();
 }

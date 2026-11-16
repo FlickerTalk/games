@@ -7,26 +7,35 @@ import { drawShip } from "./ships.js";
 import { drawSub } from "./subs.js";
 import { drawTank } from "./tanks.js";
 import { drawTarget } from "./targets.js";
-import { FIELDS, SCENERIES, WORLD, familyOf, heightsFor, vehicleAt } from "./world.js";
+import { FIELDS, SCENERIES, VEHICLE_SIZE, WORLD, familyOf, heightsFor, vehicleAt } from "./world.js";
 
 const DRAW = { tank: drawTank, ship: drawShip, sub: drawSub };
 const PICTURE_SEED = "AbCdEfGh";
 
+export function miniView(area, field) {
+  const world = { field, seed: PICTURE_SEED, heights: heightsFor(field, PICTURE_SEED), craters: [], under: [false, false] };
+  const top = WORLD.height * 0.3;
+  const hits = [0, 1].map((side) => vehicleAt(world, side).hit.y);
+  const spread = Math.max(...hits) - Math.min(...hits);
+  const scale = Math.min(Math.max(area.w / WORLD.width, area.h / (WORLD.height - top)), area.h / (spread + VEHICLE_SIZE * 1.3));
+  const shown = area.h / scale;
+  const middle = (Math.min(...hits) + Math.max(...hits)) / 2;
+  const from = Math.max(0, Math.min(WORLD.height - shown, middle - shown * 0.55));
+  return { world, scale, x: area.x + (area.w - WORLD.width * scale) / 2, y: area.y - from * scale, from, to: from + shown };
+}
+
 export function drawMiniField(ctx, area, field, theme, time, { looks = {}, radius = theme.ui.radius - 4 } = {}) {
   const { art } = theme;
   const scenery = SCENERIES[FIELDS.indexOf(field) % SCENERIES.length];
-  const world = { field, seed: PICTURE_SEED, heights: heightsFor(field, PICTURE_SEED), craters: [], under: [false, false] };
-  const top = WORLD.height * 0.3;
-  const scale = Math.max(area.w / WORLD.width, area.h / (WORLD.height - top));
-  const left = area.x + (area.w - WORLD.width * scale) / 2;
+  const { world, scale, x: left, y, from, to } = miniView(area, field);
   ctx.save();
   roundedRect(ctx, area.x, area.y, area.w, area.h, radius);
   ctx.clip();
   ctx.fillStyle = art.scenery[scenery].sky;
   ctx.fillRect(area.x, area.y, area.w, area.h);
-  ctx.translate(left, area.y + area.h - WORLD.height * scale);
+  ctx.translate(left, y);
   ctx.scale(scale, scale);
-  drawScene(ctx, world, { scenery, left: -left / scale, right: WORLD.width + left / scale, top, bottom: WORLD.height, time, wind: 0.4 }, art);
+  drawScene(ctx, world, { scenery, left: (area.x - left) / scale, right: (area.x + area.w - left) / scale, top: from, bottom: to, time, wind: 0.4 }, art);
   withRim(ctx, { ink: art.ink, colour: art.rim }, () => {
     for (const side of [0, 1]) {
       const vehicle = vehicleAt(world, side);

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { bounds, colours, draw, painted, shapes } from "../../../kit/test/canvas/recorder.js";
-import { drawDial, drawDiveButton, drawFireButton, drawTurnMarker, drawWindFlag } from "../src/hud.js";
+import { drawDial, drawDiveButton, drawFireButton, drawOwnerMark, drawWindFlag } from "../src/hud.js";
 import { THEME } from "../src/theme.js";
 
 const ui = THEME.ui;
@@ -39,7 +39,12 @@ describe("the aiming controls", () => {
     expect(left.left).toBeLessThan(100 - 20);
   });
 
-  it("mark whose turn it is with the player's circle or the rival's diamond", () => {
-    expect(shapes(draw((ctx) => drawTurnMarker(ctx, 50, 50, 40, 0, 0, ui)))).not.toEqual(shapes(draw((ctx) => drawTurnMarker(ctx, 50, 50, 40, 1, 0, ui))));
+  it("show a vehicle's player as a face above it, with a pointer under the face of whoever shoots next", () => {
+    const flick = { who: "flick" };
+    const waiting = draw((ctx) => drawOwnerMark(ctx, 50, 50, 36, flick, ui, { turn: false, time: 0 }));
+    const shooting = draw((ctx) => drawOwnerMark(ctx, 50, 50, 36, flick, ui, { turn: true, time: 0 }));
+    expect(waiting.depth).toBe(0);
+    expect(shooting.calls.length).toBeGreaterThan(waiting.calls.length);
+    expect(bounds(painted(shooting)).bottom).toBeGreaterThan(bounds(painted(waiting)).bottom);
   });
 });

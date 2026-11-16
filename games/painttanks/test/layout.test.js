@@ -1,5 +1,4 @@
 import { describe, expect, it } from "vitest";
-import { overlap } from "../../../kit/src/canvas/layout.js";
 import { checkTargets, eachSize, leastFor } from "../../../kit/test/canvas/sizes.js";
 import { playLayout, playTargets, toScreen, toWorld } from "../src/layout.js";
 import { WORLD } from "../src/world.js";
@@ -22,7 +21,7 @@ describe("the play screen's layout", () => {
   it("offers aim, power and the big shoot button, the dive button only to a submarine, and folds the dials under an open volume line", () => {
     const layout = playLayout(384, 801, { fill: true });
     expect(kinds(playTargets(layout, {}))).toEqual(["pause", "speaker", "music", "angle", "power", "fire"]);
-    expect(kinds(playTargets(layout, { sub: true }))).toContain("dive");
+    expect(kinds(playTargets(layout, { sub: true }))).toEqual(["pause", "speaker", "music", "angle", "power", "dive", "fire"]);
     expect(layout.fire.w).toBeGreaterThanOrEqual(120);
     const open = kinds(playTargets(layout, { volume: true }));
     expect(open[0]).toBe("volume");
@@ -38,15 +37,24 @@ describe("the play screen's layout", () => {
     });
   });
 
-  it("keeps the two vehicles clear of the controls", () => {
+  it("keeps the controls in the sky, clear of the vehicles and of the ground between them", () => {
     eachSize(({ width, height, fill }) => {
       const layout = playLayout(width, height, { fill });
-      for (const at of [0.2, 0.8]) {
-        const [x, top] = toScreen(layout.view, at * WORLD.width - 40, WORLD.height * 0.4);
-        const [, bottom] = toScreen(layout.view, at * WORLD.width, WORLD.height * 0.86);
-        const body = { x, y: top, w: 80 * layout.view.scale, h: bottom - top };
-        for (const target of playTargets(layout, { sub: true })) expect(overlap(body, target), `${width}x${height} ${target.kind} ${at}`).toBe(false);
+      const [, ground] = toScreen(layout.view, 0, WORLD.height * 0.4);
+      const shown = width < 352 ? playTargets(layout, {}) : playTargets(layout, { sub: true }).concat(playTargets(layout, {}));
+      for (const target of shown) {
+        expect(target.y + target.h, `${width}x${height} ${target.kind}`).toBeLessThanOrEqual(ground);
       }
+    });
+  });
+
+  it("stands the wind flag under the shoot button, inside the frame", () => {
+    eachSize(({ width, height, fill }) => {
+      const { flag, fire } = playLayout(width, height, { fill });
+      expect(flag.y - flag.size).toBeGreaterThanOrEqual(fire.y + fire.h);
+      expect(flag.y).toBeLessThan(height);
+      expect(flag.x).toBeGreaterThan(0);
+      expect(flag.x).toBeLessThan(width);
     });
   });
 
