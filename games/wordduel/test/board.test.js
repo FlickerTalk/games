@@ -1,8 +1,12 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { KIT_TEXTS, joinTexts, translator } from "../../../kit/src/i18n.js";
-import { MARKS, STYLE, board, cleaned, storeKey } from "../src/board.js";
+import { TABLETOP_STYLE } from "../../../kit/src/tabletop/board.js";
+import { MARKS, STYLE, board } from "../src/board.js";
+import { FORM_TOP } from "../src/paint.js";
+import { storeKey } from "../src/secret.js";
 import { TEXTS } from "../src/texts.js";
-import { commitHash, commitText, commitTextSecond, feedback, honestAnswer, initial, play, result, revealText, turn } from "../src/rules.js";
+import { ART } from "../src/theme.js";
+import { accepted, commitHash, commitText, commitTextSecond, feedback, honestAnswer, initial, play, result, revealText, turn } from "../src/rules.js";
 import { fromBase64url } from "../src/sha256.js";
 
 const translate = translator(joinTexts(KIT_TEXTS, TEXTS));
@@ -30,23 +34,58 @@ function context(moves, extra = {}) {
   };
 }
 
+function mount(ctx) {
+  const host = document.createElement("div");
+  host.getBoundingClientRect = () => ({ left: 0, top: 0, width: 352, height: 352, right: 352, bottom: 352 });
+  document.body.append(host);
+  return { host, mounted: board.mount(host, ctx) };
+}
+
 const type = (host, name, value) => {
   const field = host.querySelector(`[name="${name}"]`);
   field.value = value;
   field.dispatchEvent(new Event("input", { bubbles: true }));
 };
+const tiles = (host, grid) => [...host.querySelectorAll(`button[data-grid="${grid}"][data-row]`)];
+const labels = (host, grid) => tiles(host, grid).map((one) => one.getAttribute("aria-label"));
 
 let store;
 beforeEach(() => {
   store = new Map();
   globalThis.ft = { store: { get: vi.fn(async (key) => store.get(key) ?? null), set: vi.fn(async (key, value) => (store.set(key, value), true)) } };
 });
+afterEach(() => {
+  document.body.innerHTML = "";
+  delete globalThis.ft;
+});
+
+describe("the board", () => {
+  it("is drawn on a canvas, with the typing form under it and each letter named for a screen reader", async () => {
+    const { host } = mount(context([]));
+    await tick();
+    expect(host.querySelector(".fwd canvas").getAttribute("aria-hidden")).toBe("true");
+    expect(host.querySelector('.fwd [role="group"]').getAttribute("aria-label")).toBe("Your secret word");
+    expect(host.querySelector('button[data-grid="secret"]:not([data-row])').getAttribute("aria-label")).toBe("Your secret word");
+    expect(host.querySelector(".fwd").classList.contains("place")).toBe(true);
+    expect(host.querySelector(".fwd .fwd-form input[name=secret]")).not.toBeNull();
+    type(host, "secret", "Cra");
+    expect(labels(host, "secret")).toEqual(["C: not answered yet", "R: not answered yet", "A: not answered yet"]);
+    expect(host.querySelector(".fwd").classList.contains("empty")).toBe(false);
+    expect(MARKS).toHaveLength(2);
+  });
+
+  it("carries the kit's look for a canvas board, the form where the drawing leaves room, and the turn outline in the sides' colours", () => {
+    expect(STYLE).toContain(TABLETOP_STYLE);
+    expect(STYLE).toContain(`.fwd-form{top:${Math.round(FORM_TOP.play * 100)}%}`);
+    expect(STYLE).toContain(`.fwd.place .fwd-form{top:${Math.round(FORM_TOP.place * 100)}%}`);
+    expect(STYLE).toContain(`.ftg{--hue-side-0:${ART.sides[0].body};--hue-side-1:${ART.sides[1].body}}`);
+  });
+});
 
 describe("the secret word", () => {
   it("is typed or suggested, checked against the word list, and set with a commitment the kit gets", async () => {
-    const host = document.createElement("div");
     const ctx = context([]);
-    board.mount(host, ctx);
+    const { host } = mount(ctx);
     await tick();
     expect(host.textContent).toContain("Five letters");
     expect(host.querySelector('[data-act="commit"]').disabled).toBe(true);
@@ -55,7 +94,6 @@ describe("the secret word", () => {
     type(host, "secret", "ZZZZZ");
     expect(ctx.notify).toHaveBeenCalledWith(expect.stringContaining("Not in the word list"));
     expect(host.textContent).not.toContain("Not in the word list");
-    expect(host.textContent).toContain("Five letters");
     expect(host.querySelector('[data-act="commit"]').disabled).toBe(true);
     type(host, "secret", "Crane");
     expect(host.querySelector('[data-act="commit"]').disabled).toBe(false);
@@ -71,38 +109,40 @@ describe("the secret word", () => {
   });
 
   it("suggests a common word, in Spanish for a Spanish phone, and side 1 commits without the language", async () => {
-    const host = document.createElement("div");
     const ctx = context([PLACED[0]], { lang: "es", t: (key, vars) => translate("es", key, vars) });
-    board.mount(host, ctx);
+    const { host } = mount(ctx);
     await tick();
     host.querySelector('[data-act="suggest"]').click();
     const typed = host.querySelector('[name="secret"]').value;
     expect(typed).toMatch(/^[a-z]{5}$/);
-    const { accepted } = await import("../src/rules.js");
     expect(accepted("en", typed)).toBe(true);
+    expect(labels(host, "secret").map((label) => label[0]).join("")).toBe(typed.toUpperCase());
     host.querySelector('[data-act="commit"]').click();
     await tick();
     await tick();
     expect(ctx.play.mock.calls[0][0]).toMatch(/^c[A-Za-z0-9_-]{43}$/);
-    const spanish = document.createElement("div");
-    board.mount(spanish, context([], { lang: "es", t: (key, vars) => translate("es", key, vars) }));
+    const { host: spanish } = mount(context([], { lang: "es", t: (key, vars) => translate("es", key, vars) }));
     await tick();
     spanish.querySelector('[data-act="suggest"]').click();
     expect(accepted("es", spanish.querySelector('[name="secret"]').value)).toBe(true);
     expect(spanish.textContent).toContain("Cinco letras");
   });
 
-  it("cleans what is typed: lower case, accents off, ñ kept, letters only", () => {
-    expect(cleaned("SEÑOR")).toBe("señor");
-    expect(cleaned("árbol")).toBe("arbol");
-    expect(cleaned("c r-a1ne")).toBe("crane");
-    expect(cleaned("abcdefgh")).toBe("abcde");
+  it("does not commit a word the store would not keep, so it can always be revealed", async () => {
+    globalThis.ft.store.set = vi.fn(async () => false);
+    const ctx = context([]);
+    const { host } = mount(ctx);
+    await tick();
+    type(host, "secret", "crane");
+    host.querySelector('[data-act="commit"]').click();
+    await tick();
+    await tick();
+    expect(ctx.play).not.toHaveBeenCalled();
   });
 
   it("says so when the word it committed is no longer on this phone", async () => {
-    const host = document.createElement("div");
     const ctx = context(PLACED, { mySide: 0, canPlay: true });
-    board.mount(host, ctx);
+    const { host } = mount(ctx);
     await tick();
     await tick();
     expect(ctx.notify).toHaveBeenCalledWith(expect.stringContaining("no longer on this phone"));
@@ -113,21 +153,19 @@ describe("the secret word", () => {
 
 async function kept(moves, me, word, extra = {}) {
   store.set(storeKey("me-1", 0), JSON.stringify({ salt: "WlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpa", word }));
-  const host = document.createElement("div");
   const ctx = context(moves, { mySide: me, ...extra });
-  const mounted = board.mount(host, ctx);
+  const { host, mounted } = mount(ctx);
   await tick();
   await tick();
   return { host, ctx, mounted };
 }
 
 describe("guessing", () => {
-  it("shows the guesses as coloured tiles, both sides', and sends a guess with the honest answer", async () => {
+  it("shows both sides' guesses with their answers, and sends a guess with the honest answer", async () => {
     const { host, ctx } = await kept([...PLACED, ">stare"], 1, "eagle");
-    expect(host.querySelectorAll(".fwd-grid")).toHaveLength(2);
-    const theirRow = host.querySelectorAll(".fwd-grid.small .fwd-row")[0];
-    expect([...theirRow.querySelectorAll(".fwd-tile")].map((tile) => tile.textContent)).toEqual(["S", "T", "A", "R", "E"]);
-    expect([...theirRow.querySelectorAll(".fwd-tile")].map((tile) => tile.className.replace("fwd-tile", "").trim()).join("")).toBe(feedback("stare", "eagle"));
+    expect(host.querySelector(".fwd").classList.contains("place")).toBe(false);
+    expect(tiles(host, "theirs").map((tile) => tile.getAttribute("aria-label")[0]).join("")).toBe("STARE");
+    expect(tiles(host, "theirs").map((tile) => tile.dataset.mark).join("")).toBe(feedback("stare", "eagle"));
     expect(host.querySelector('[data-act="guess"]').disabled).toBe(true);
     type(host, "guess", "about");
     expect(host.querySelector('[data-act="guess"]').disabled).toBe(false);
@@ -136,15 +174,13 @@ describe("guessing", () => {
     expect(ctx.play).toHaveBeenCalledWith(`${feedback("stare", "eagle")}>about`);
   });
 
-  it("colours this side's guesses by the other side's answers, and names each tile", async () => {
+  it("marks this side's guesses by the other side's answers, and names each tile as before", async () => {
     const moves = [...PLACED, ">stare", (s) => `${honestAnswer(s, 1, "eagle")}>about`];
     const { host } = await kept(moves, 0, "crane");
-    const myRow = host.querySelectorAll(".fwd-grid:not(.small) .fwd-row")[0];
-    const tiles = [...myRow.querySelectorAll(".fwd-tile")];
-    expect(tiles.map((tile) => tile.textContent).join("")).toBe("STARE");
-    expect(tiles[4].classList.contains("g")).toBe(true);
-    expect(tiles[4].getAttribute("aria-label")).toBe("E: right place");
-    expect(tiles[0].getAttribute("aria-label")).toBe("S: not in the word");
+    expect(labels(host, "mine")).toEqual(["S: not in the word", "T: not in the word", "A: in the word, elsewhere", "R: not in the word", "E: right place"]);
+    expect(tiles(host, "mine")[4].dataset.mark).toBe("g");
+    expect(host.querySelector('button[data-grid="mine"]:not([data-row])').getAttribute("aria-label")).toBe("Your guesses");
+    expect(host.querySelector('button[data-grid="theirs"]:not([data-row])').getAttribute("aria-label")).toBe("Their guesses");
   });
 
   it("sends the closing answer on its own once the round is decided, then the reveal, and shows the other word", async () => {
@@ -164,7 +200,7 @@ describe("guessing", () => {
     expect(done.result.winner).toBe(0);
     mounted.update(done);
     expect(host.textContent).toContain("Their word was EAGLE");
-    expect(MARKS).toHaveLength(2);
+    expect(labels(host, "theirs").join(" ")).not.toContain("EAGLE");
   });
 });
 
@@ -197,14 +233,5 @@ describe("the result", () => {
     const hidden = hiddenWhenSmall();
     expect(hidden.length).toBeGreaterThan(0);
     for (const selector of hidden) expect(reveal.matches(selector), selector).toBe(false);
-  });
-});
-
-describe("the tiles' size", () => {
-  const css = STYLE.replace(/\/\*[\s\S]*?\*\//g, "");
-
-  it("grows the tiles and the secret word with the board in full screen, and keeps them as they were on the room's boards", () => {
-    expect(/\.fwd\s*\{([^}]*)\}/.exec(css)[1]).toMatch(/--tile:\s*clamp\(12px, 9cqh, 64px\);/);
-    expect(/\.fwd-secret \.fwd-row\s*\{([^}]*)\}/.exec(css)[1]).toMatch(/width:\s*min\(100%, max\(260px, 65cqw\)\);/);
   });
 });
