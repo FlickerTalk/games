@@ -627,7 +627,7 @@ screens instead of the kit's shell, and the pattern the next ones follow.
   passed to every drawing function, `ui` for the interface (bar, buttons, cards, panels) and `art` for
   the play field and the pieces. A test fails on any colour written anywhere else, so the interface can
   take the app's colours later without touching the rules or their tests. Drawing tests check what is
-  drawn, where and how large, with the recording context of `kit/test/avatars/recorder.js`, never
+  drawn, where and how large, with the recording context of `kit/test/canvas/recorder.js`, never
   colour values.
 - **Two phones** use the turn-based kit's `Table` and match unchanged. Both phones lay the same trays
   at the same time: the seed of a round comes from the match id and the round's number, so each

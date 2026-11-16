@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { PROFILES } from "../../src/avatars/cast.js";
 import { drawBadge } from "../../src/avatars/badge.js";
 import { PORTRAIT_SIZE, portraitFaces, portraitSize, standIn, withPortraits } from "../../src/avatars/portraits.js";
-import { contains, draw, recorder, shapes } from "./recorder.js";
+import { contains, draw, recorder, shapes } from "../canvas/recorder.js";
 
 const playing = (myTurn) => ({ phase: "play", me: "m", peer: "p", myTurn, result: null });
 const over = (winner) => ({ phase: "over", me: "m", peer: "p", myTurn: false, result: { winner } });

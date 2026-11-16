@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { bounds, draw, painted, shapes } from "../../../kit/test/avatars/recorder.js";
+import { bounds, draw, painted, shapes } from "../../../kit/test/canvas/recorder.js";
 import { drawEnd, drawPrompt } from "../src/end-art.js";
 import { THEME } from "../src/theme.js";
 import { makeGame, playRound, tap, targetOf } from "./harness.js";

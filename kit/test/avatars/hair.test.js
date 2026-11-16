@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { HAIRS } from "../../src/avatars/cast.js";
 import { drawHairBack, drawHairFront } from "../../src/avatars/hair.js";
-import { colours, draw, shapes } from "./recorder.js";
+import { colours, draw, shapes } from "../canvas/recorder.js";
 
 const both = (hair, options = {}, colour = "#C9693F") =>
   draw((ctx) => {

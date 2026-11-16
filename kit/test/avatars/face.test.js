@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { EXPRESSIONS, HAIRS, HAIR_COLOURS, PROFILES } from "../../src/avatars/cast.js";
 import { drawAvatar } from "../../src/avatars/face.js";
-import { bounds, colours, draw, painted, shapes } from "./recorder.js";
+import { bounds, colours, draw, painted, shapes } from "../canvas/recorder.js";
 
 const SIZES = [32, 44, 64, 120, 240];
 

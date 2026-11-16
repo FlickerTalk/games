@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { EXPRESSIONS } from "../../src/avatars/cast.js";
 import { drawExpression } from "../../src/avatars/expressions.js";
 import { INK } from "../../src/avatars/pen.js";
-import { colours, draw, shapes } from "./recorder.js";
+import { colours, draw, shapes } from "../canvas/recorder.js";
 
 const face = (expression, options = {}) => draw((ctx) => drawExpression(ctx, expression, options));
 

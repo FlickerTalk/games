@@ -3,7 +3,7 @@ import { HAIR_COLOURS, PROFILES } from "../../src/avatars/cast.js";
 import { drawAvatar } from "../../src/avatars/face.js";
 import { drawPick } from "../../src/avatars/pick-draw.js";
 import { pickLayout, pickPress, pickRename, startPick } from "../../src/avatars/pick.js";
-import { colours, contains, draw, shapes } from "./recorder.js";
+import { colours, contains, draw, shapes } from "../canvas/recorder.js";
 
 const YELLOW = "#FFCF3F";
 

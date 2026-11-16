@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { HAIRS, POSES, PROFILES } from "../../src/avatars/cast.js";
 import { drawFigure } from "../../src/avatars/figure.js";
-import { bounds, colours, draw, painted, shapes } from "./recorder.js";
+import { bounds, colours, draw, painted, shapes } from "../canvas/recorder.js";
 
 const figure = (options, size = 190, x = 0, y = 0) => draw((ctx) => drawFigure(ctx, x, y, size, options));
 

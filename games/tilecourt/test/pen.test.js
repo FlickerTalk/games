@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { bounds, draw, painted } from "../../../kit/test/avatars/recorder.js";
+import { bounds, draw, painted } from "../../../kit/test/canvas/recorder.js";
 import { circle, clamp, ease, line, paint, roundedRect, starPath, wave } from "../src/pen.js";
 
 describe("the pen", () => {

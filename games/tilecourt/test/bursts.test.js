@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { bounds, colours, draw, painted } from "../../../kit/test/avatars/recorder.js";
+import { bounds, colours, draw, painted } from "../../../kit/test/canvas/recorder.js";
 import { pieceOf } from "../src/pieces.js";
 import { THEME } from "../src/theme.js";
 import { drawBounce, drawConfetti, drawDust, drawEmptyBonus, drawHand, drawScoreBurst, drawStarFlight, drawWrapped } from "../src/bursts.js";

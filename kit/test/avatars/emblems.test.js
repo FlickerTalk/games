@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { FLICK, PROFILES } from "../../src/avatars/cast.js";
 import { drawEmblem } from "../../src/avatars/emblems.js";
-import { draw, shapes } from "./recorder.js";
+import { draw, shapes } from "../canvas/recorder.js";
 
 const EMBLEMS = [...PROFILES.map((one) => one.emblem), FLICK.emblem];
 
