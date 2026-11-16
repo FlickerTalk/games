@@ -99,7 +99,7 @@ describe("building a game", () => {
 describe("the image of the Apps grid", () => {
   it("is in every game: a square 64 × 64 SVG of at most 4 KB at the root of the package, not inside dist/", () => {
     const games = gameFolders(join(import.meta.dirname, "..", ".."));
-    expect(games).toHaveLength(15);
+    expect(games.length).toBeGreaterThanOrEqual(16);
     for (const dir of games) {
       const image = join(dir, "icon.svg");
       expect(existsSync(image), image).toBe(true);

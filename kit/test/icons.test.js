@@ -114,7 +114,8 @@ describe("no emoji in the interface", () => {
     for (const game of readdirSync(join(root, "games"))) {
       const sheet = join(root, "games", game, "src", "board.css");
       if (existsSync(sheet)) expect(emojiIn(readFileSync(sheet, "utf8")), `${game}/board.css`).toBe("");
-      const source = (existsSync(join(root, "games", game, "src", "board.js")) ? readFileSync(join(root, "games", game, "src", "board.js"), "utf8") : "").replace(/\/\*[\s\S]*?\*\/|\/\/.*$/gm, "");
+      if (!existsSync(join(root, "games", game, "src", "board.js"))) continue;
+      const source = readFileSync(join(root, "games", game, "src", "board.js"), "utf8").replace(/\/\*[\s\S]*?\*\/|\/\/.*$/gm, "");
       expect(emojiIn(source), `${game}/board.js`).toBe("");
     }
     for (const file of readdirSync(join(root, "kit", "src", "canvas"))) {
