@@ -141,14 +141,14 @@ export function drawWagon(ctx, x, y, size, wagon, { time = 0, hop = 0, wobble = 
   ctx.restore();
 }
 
-export function drawGap(ctx, x, y, size, { time = 0, hint = null, aimed = false } = {}, theme) {
+export function drawGap(ctx, x, y, size, { time = 0, hint = null, faint = false } = {}, theme) {
   const { art } = theme;
   const scale = size / BASE;
   ctx.save();
   ctx.translate(x, y);
   ctx.scale(scale, scale);
   ctx.lineJoin = "round";
-  ctx.globalAlpha = aimed ? 1 : 0.72 + Math.sin(time * 3) * 0.1;
+  ctx.globalAlpha = faint ? 0.35 : 0.72 + Math.sin(time * 3) * 0.1;
   drawWheel(ctx, -21, 29, 8, art);
   drawWheel(ctx, 21, 29, 8, art);
   ctx.setLineDash([6, 5]);
@@ -156,7 +156,7 @@ export function drawGap(ctx, x, y, size, { time = 0, hint = null, aimed = false 
   paint(ctx, null, art.ink, 3);
   if (hint === null) roundedRect(ctx, -22, -31, 44, 44, 12);
   else shapePath(ctx, SHAPES[kindOf(hint)], 0, -7, 25);
-  paint(ctx, aimed ? art.white : null, art.ink, 3);
+  paint(ctx, null, art.ink, 3);
   ctx.setLineDash([]);
   if (hint !== null) beatDots(ctx, beatsOf(hint), scale, art);
   ctx.restore();

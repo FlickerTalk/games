@@ -66,6 +66,11 @@ describe("a gap", () => {
     expect(ctx.depth).toBe(0);
   });
 
+  it("is fainter where it only marks the place of the next wagon to couple", () => {
+    const alpha = (options) => draw((pen) => drawGap(pen, 200, 200, 72, options, THEME)).calls.find((call) => call.op === "set" && call.name === "globalAlpha").value;
+    expect(alpha({ faint: true })).toBeLessThan(alpha({ time: 0 }) - 0.2);
+  });
+
   it("shows the outline of the wagon it wants once the player needs a hand", () => {
     const plain = draw((pen) => drawGap(pen, 200, 200, 72, { time: 0 }, THEME));
     const hinted = kinds.map((kind) => lines(draw((pen) => drawGap(pen, 200, 200, 72, { time: 0, hint: wagonOf(kind) }, THEME))));

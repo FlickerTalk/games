@@ -61,7 +61,7 @@ function trainOf(ctx, state, theme, time) {
     if (build.hidden[at]) drawGap(ctx, train.xs[at], train.y, train.size, { time, hint: wagon }, theme);
     else drawWagon(ctx, train.xs[at], train.y, train.size, wagon, { time, hop: tune?.index === at ? tune.within : 0 }, theme);
   });
-  if (build.wagons.length < MOST && !tune) drawGap(ctx, train.xs[build.wagons.length], train.y, train.size, { time }, theme);
+  if (build.wagons.length < MOST && !tune) drawGap(ctx, train.xs[build.wagons.length], train.y, train.size, { faint: true }, theme);
   if (!build.tune) return;
   for (const pop of popsAt(build.wagons, build.tune.start, now)) drawNotePop(ctx, train.xs[pop.index], train.y - train.size * 0.55, train.size, build.wagons[pop.index], pop.progress, theme);
   if (tune && tune.progress < 1) drawPuff(ctx, mix(train.engineX, train.xs[build.wagons.length - 1] + train.size * 0.5, tune.progress), train.y - train.size * 1.05, train.size, time, theme);
