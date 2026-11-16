@@ -3,7 +3,7 @@ import { drawBounce, drawDust, drawEmptyBonus, drawHand, drawScoreBurst } from "
 import { drawButton } from "./buttons.js";
 import { drawCourt, drawGlow, drawOutline } from "./court-art.js";
 import { thresholdsFor, trackOf } from "./levels.js";
-import { pauseLayout } from "./menu-layout.js";
+import { pauseLayout } from "../../../kit/src/canvas/menu-layout.js";
 import { cellsOf } from "./court.js";
 import { drawLayeredClear } from "./line-effects.js";
 import { clamp, ease, mix } from "../../../kit/src/canvas/pen.js";

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { CORNER } from "../src/layout.js";
-import { endLayout, homeLayout, looksLayout, pauseLayout, promptLayout } from "../src/menu-layout.js";
+import { CORNER } from "../../src/canvas/layout.js";
+import { endLayout, homeLayout, looksLayout, pauseLayout, promptLayout } from "../../src/canvas/menu-layout.js";
 
 const SIZES = [[360, 588, true], [384, 801, true], [430, 880, true], [844, 338, true], [1280, 748, true], [384, 556, false], [360, 443, false], [360, 343, false], [1280, 503, false], [352, 556, false], [328, 443, false], [328, 343, false]];
 const overlap = (one, two) => one.x < two.x + two.w && two.x < one.x + one.w && one.y < two.y + two.h && two.y < one.y + one.h;

@@ -1,27 +1,13 @@
-import { CORNER } from "./layout.js";
+import { CORNER, GAP, box, grid, row, span, target } from "./layout.js";
 
 const PAD = 12;
 const TILE = 88;
 const BIG = 120;
-const GAP = 8;
-
-const box = (x, y, w, h) => ({ x, y, w, h });
-const target = (kind, value, area) => ({ kind, value, ...area });
 
 function soundTargets(width, height) {
   const size = height < 420 ? 48 : 56;
   return [target("speaker", "speaker", box(width - 8 - 2 * size, 8, size, size)), target("music", "music", box(width - 8 - size, 8, size, size))];
 }
-
-function row(items, left, top, size, gap = GAP) {
-  return items.map(([kind, value], at) => target(kind, value, box(left + at * (size + gap), top, size, size)));
-}
-
-function grid(items, left, top, columns, size, gap = GAP) {
-  return items.map(([kind, value], at) => target(kind, value, box(left + (at % columns) * (size + gap), top + Math.floor(at / columns) * (size + gap), size, size)));
-}
-
-const span = (count, size, gap = GAP) => count * size + Math.max(0, count - 1) * gap;
 
 function tallHome(width, height, { variants, rival, fill }) {
   const bottom = height - (fill ? CORNER : PAD);

@@ -7,7 +7,7 @@ import { drawCard, drawMiniCourt } from "./home-art.js";
 import { kindOf } from "../../../kit/src/progress/index.js";
 import { PROGRESS } from "./levels.js";
 import { drawLineEffect } from "./line-effects.js";
-import { endLayout, promptLayout } from "./menu-layout.js";
+import { endLayout, promptLayout } from "../../../kit/src/canvas/menu-layout.js";
 import { clamp, paint, roundedRect } from "../../../kit/src/canvas/pen.js";
 import { drawScenery } from "./scenery.js";
 

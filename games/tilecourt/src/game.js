@@ -4,7 +4,7 @@ import { idleDrag } from "./drag.js";
 import { Duel } from "./duel.js";
 import { PROGRESS } from "./levels.js";
 import { playLayout, playTargets } from "./layout.js";
-import { endLayout, homeLayout, looksLayout, pauseLayout, promptLayout } from "./menu-layout.js";
+import { endLayout, homeLayout, looksLayout, pauseLayout, promptLayout } from "../../../kit/src/canvas/menu-layout.js";
 import { act, menuPointer, renamePlayer } from "./menus.js";
 import { finishDue, roundKey } from "./rounds.js";
 import { playPointer } from "./touch.js";

@@ -1,4 +1,6 @@
-export const CORNER = 40;
+import { CORNER } from "../../../kit/src/canvas/layout.js";
+
+export { CORNER };
 
 const PAD = 8;
 const FRAME = 5;
