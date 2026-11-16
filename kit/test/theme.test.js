@@ -6,6 +6,7 @@ import { canvasStyle } from "../src/canvas/element.js";
 const root = join(import.meta.dirname, "..", "..");
 const KIT = join(root, "kit", "src", "style.css");
 const ARENA = join(root, "kit", "src", "live", "arena.css");
+const TABLETOP = join(root, "kit", "src", "tabletop", "tabletop.css");
 const gameStyles = readdirSync(join(root, "games")).map((game) => join(root, "games", game, "src", "board.css")).filter((file) => existsSync(file));
 
 function declarations(css) {
@@ -59,7 +60,7 @@ describe("the games' colours", () => {
   });
 
   it("write no colour of their own except through a token", () => {
-    const sheets = [...[KIT, ARENA, ...gameStyles].map((file) => [file, readFileSync(file, "utf8")]), ["canvas element", canvasStyle("ft-canvas")]];
+    const sheets = [...[KIT, ARENA, TABLETOP, ...gameStyles].map((file) => [file, readFileSync(file, "utf8")]), ["canvas element", canvasStyle("ft-canvas")]];
     expect(sheets.length).toBeGreaterThan(10);
     for (const [file, css] of sheets) {
       for (const one of declarations(css)) {
