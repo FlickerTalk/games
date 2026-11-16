@@ -1,7 +1,9 @@
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { KIT_TEXTS, joinTexts, translator } from "../../../kit/src/i18n.js";
-import { board, DISCS } from "../src/board.js";
+import { TABLETOP_STYLE } from "../../../kit/src/tabletop/board.js";
+import { board, DISCS, STYLE } from "../src/board.js";
 import { TEXTS } from "../src/texts.js";
+import { ART } from "../src/theme.js";
 import { initial, play, result, turn } from "../src/rules.js";
 
 const translate = translator(joinTexts(KIT_TEXTS, TEXTS));
@@ -24,53 +26,70 @@ function context(cells, extra = {}) {
   };
 }
 
-const cell = (host, index) => host.querySelector(`[data-cell="${index}"]`);
+function mount(ctx) {
+  const host = document.createElement("div");
+  host.getBoundingClientRect = () => ({ left: 0, top: 0, width: 352, height: 352, right: 352, bottom: 352 });
+  document.body.append(host);
+  return { host, mounted: board.mount(host, ctx) };
+}
+
+afterEach(() => {
+  document.body.innerHTML = "";
+});
+
+const cell = (host, index) => host.querySelector(`button[data-cell="${index}"]`);
+const marked = (host, name) => [...host.querySelectorAll("button[data-mark]")].filter((one) => one.dataset.mark.split(" ").includes(name)).map((one) => Number(one.dataset.cell)).sort((a, b) => a - b);
+const enabled = (host) => [...host.querySelectorAll("button[data-cell]")].filter((one) => !one.disabled).map((one) => Number(one.dataset.cell)).sort((a, b) => a - b);
 
 describe("the board", () => {
-  it("has sixty-four cells, named with their disc, and counts the discs for a screen reader", () => {
-    const host = document.createElement("div");
-    board.mount(host, context([]));
-    expect(host.querySelectorAll("button.frv-cell")).toHaveLength(64);
+  it("is drawn on a canvas, with the sixty-four cells as named buttons over it, the discs counted for a screen reader", () => {
+    const { host } = mount(context([]));
+    expect(host.querySelector("canvas").getAttribute("aria-hidden")).toBe("true");
+    expect(host.querySelectorAll("button[data-cell]")).toHaveLength(64);
     expect(host.querySelector('[role="group"]').getAttribute("aria-label")).toBe("Board: 2 dark, 2 light");
     expect(cell(host, 27).getAttribute("aria-label")).toBe("Row 4, column 4: light");
     expect(cell(host, 28).getAttribute("aria-label")).toBe("Row 4, column 5: dark");
     expect(cell(host, 0).getAttribute("aria-label")).toBe("Row 1, column 1: empty");
-    expect(cell(host, 28).querySelector("svg.frv-s0")).not.toBeNull();
-    expect(cell(host, 27).querySelector("svg.frv-s1")).not.toBeNull();
+    expect(host.querySelector("button[data-cell]").dataset.cell).toBe("0");
     expect(DISCS).toHaveLength(2);
   });
 
-  it("opens only the cells the user may play, dotted, and plays one on a tap", () => {
-    const host = document.createElement("div");
+  it("opens only the cells the user may play, and plays one on a tap", () => {
     const ctx = context([]);
-    board.mount(host, ctx);
-    expect([...host.querySelectorAll(".frv-cell.legal")].map((one) => Number(one.dataset.cell))).toEqual([19, 26, 37, 44]);
-    expect(cell(host, 19).disabled).toBe(false);
-    expect(cell(host, 0).disabled).toBe(true);
+    const { host } = mount(ctx);
+    expect(enabled(host)).toEqual([19, 26, 37, 44]);
+    expect(marked(host, "can")).toEqual([19, 26, 37, 44]);
     cell(host, 19).click();
     expect(ctx.play).toHaveBeenCalledWith(19);
     cell(host, 0).click();
     expect(ctx.play).toHaveBeenCalledTimes(1);
   });
 
-  it("opens nothing when it is not the user's turn, and names the cells in their language", () => {
-    const host = document.createElement("div");
-    board.mount(host, context([], { canPlay: false, lang: "es", t: (key, vars) => translate("es", key, vars) }));
-    expect(host.querySelectorAll(".frv-cell.legal")).toHaveLength(0);
-    expect(host.querySelectorAll(".frv-cell:enabled")).toHaveLength(0);
+  it("opens nothing when it is not the user's turn, carries nothing to drag, and names the cells in their language", () => {
+    const { host } = mount(context([], { canPlay: false, lang: "es", t: (key, vars) => translate("es", key, vars) }));
+    expect(enabled(host)).toEqual([]);
+    expect(marked(host, "can")).toEqual([]);
+    expect(host.querySelectorAll("[data-drag]")).toHaveLength(0);
     expect(cell(host, 27).getAttribute("aria-label")).toBe("Fila 4, columna 4: clara");
   });
 
-  it("rings the last disc, marks a pending one, and flips the discs a move turned", () => {
-    const host = document.createElement("div");
-    const mounted = board.mount(host, context([]));
+  it("marks the last disc, a pending one, and the discs a move turned", () => {
+    const { host, mounted } = mount(context([]));
     mounted.update(context([19], { pending: true }));
-    expect(cell(host, 19).classList.contains("last")).toBe(true);
-    expect(cell(host, 19).querySelector(".frv-clock")).not.toBeNull();
-    expect(cell(host, 27).classList.contains("flip")).toBe(true);
-    expect(cell(host, 19).classList.contains("flip")).toBe(false);
+    expect(marked(host, "last")).toEqual([19]);
+    expect(marked(host, "pending")).toEqual([19]);
+    expect(marked(host, "turned")).toEqual([27]);
     mounted.update(context([19]));
-    expect(cell(host, 19).querySelector(".frv-clock")).toBeNull();
-    expect(host.querySelectorAll(".flip")).toHaveLength(0);
+    expect(marked(host, "pending")).toEqual([]);
+    expect(marked(host, "turned")).toEqual([27]);
+    mounted.update(context([19, 18]));
+    expect(marked(host, "last")).toEqual([18]);
+    expect(marked(host, "turned")).toEqual([27]);
+    expect(cell(host, 27).getAttribute("aria-label")).toBe("Row 4, column 4: light");
+  });
+
+  it("carries the kit's look for a canvas board, and outlines the player whose turn it is in the colour of that side's discs", () => {
+    expect(STYLE).toContain(TABLETOP_STYLE);
+    expect(STYLE).toContain(`.ftg{--hue-side-0:${ART.pieces[0].body};--hue-side-1:${ART.pieces[1].body}}`);
   });
 });
