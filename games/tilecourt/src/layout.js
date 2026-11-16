@@ -44,7 +44,7 @@ function upright(width, height, { size, tray, fill }, top, gap) {
   const tall = trayTall(cell, tray);
   const span = cell * size;
   const spare = Math.max(0, room - span - tall);
-  const courtY = top + FRAME + Math.floor(spare / 2);
+  const courtY = top + FRAME + spare;
   const slotY = courtY + span + FRAME + gap;
   const left = (width - tray * zone) / 2;
   const slots = Array.from({ length: tray }, (_, at) => box(left + at * zone, slotY, zone, tall));

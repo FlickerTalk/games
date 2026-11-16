@@ -96,3 +96,12 @@ describe("the play screen's layout", () => {
     expect(inside({ x: versus.rival.x - versus.rival.size / 2, y: versus.rival.y - versus.rival.size / 2, w: versus.rival.size, h: versus.rival.size }, 384, 801)).toBe(true);
   });
 });
+
+describe("the space a tall frame has to spare", () => {
+  it("goes above the court, where the courtyard shows, and keeps the tray low within reach", () => {
+    const layout = playLayout(384, 801, { fill: true });
+    const trayBottom = Math.max(...layout.slots.map((slot) => slot.y + slot.h));
+    expect(801 - CORNER - trayBottom).toBeLessThan(2);
+    expect(layout.court.y - (layout.bar.y + layout.bar.h)).toBeGreaterThan(60);
+  });
+});
