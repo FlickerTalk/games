@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { KIT_TEXTS, joinTexts, translator } from "../../../kit/src/i18n.js";
 import { TABLETOP_STYLE } from "../../../kit/src/tabletop/board.js";
 import { MARKS, STYLE, board } from "../src/board.js";
-import { FORM_TOP } from "../src/paint.js";
+import { FORM_TOP, typingLine } from "../src/paint.js";
 import { storeKey } from "../src/secret.js";
 import { TEXTS } from "../src/texts.js";
 import { ART } from "../src/theme.js";
@@ -79,6 +79,33 @@ describe("the board", () => {
     expect(STYLE).toContain(`.fwd-form{top:${Math.round(FORM_TOP.play * 100)}%}`);
     expect(STYLE).toContain(`.fwd.place .fwd-form{top:${Math.round(FORM_TOP.place * 100)}%}`);
     expect(STYLE).toContain(`.ftg{--hue-side-0:${ART.sides[0].body};--hue-side-1:${ART.sides[1].body}}`);
+  });
+});
+
+describe("typing with the phone's keyboard open", () => {
+  const cq = (share) => `${(share * 100).toFixed(2)}cqh`;
+
+  it("moves the field right under the secret row while it has the focus, and keeps that row in view with the field", async () => {
+    const { host } = mount(context([]));
+    await tick();
+    const root = host.querySelector(".fwd");
+    const line = typingLine(352, "place", 0);
+    expect(root.style.getPropertyValue("--typing-top")).toBe(cq(line.top));
+    expect(root.style.getPropertyValue("--typing-reach")).toBe(cq(line.reach));
+    expect(STYLE).toMatch(/\.fwd:focus-within\s+\.fwd-form\s*\{[^}]*top:\s*var\(--typing-top\);[^}]*bottom:\s*auto;/);
+    expect(STYLE).toMatch(/\.fwd-form input\s*\{[^}]*scroll-margin-top:\s*var\(--typing-reach\);/);
+    const field = host.querySelector('[name="secret"]');
+    const shown = vi.spyOn(field, "scrollIntoView");
+    type(host, "secret", "cr");
+    expect(shown).toHaveBeenCalledWith({ block: "nearest" });
+  });
+
+  it("follows this side's next empty row once the words are set", async () => {
+    const moves = [...PLACED, ">stare", (s) => `${honestAnswer(s, 1, "eagle")}>about`];
+    const { host } = await kept(moves, 0, "crane");
+    const line = typingLine(352, "play", 1);
+    expect(host.querySelector(".fwd").style.getPropertyValue("--typing-top")).toBe(cq(line.top));
+    expect(host.querySelector(".fwd").style.getPropertyValue("--typing-reach")).toBe(cq(line.reach));
   });
 });
 

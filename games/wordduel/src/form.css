@@ -41,6 +41,14 @@
   text-transform: uppercase;
   letter-spacing: 0.2em;
   box-sizing: border-box;
+  scroll-margin-top: var(--typing-reach);
+}
+/* a phone's keyboard leaves the room about 130 px, so the field joins the row it fills */
+.ftg .fwd:focus-within .fwd-form {
+  top: var(--typing-top);
+  bottom: auto;
+  align-content: start;
+  background: var(--paper);
 }
 .ftg .fwd-form button {
   min-height: var(--tap);
