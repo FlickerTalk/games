@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { mkdirSync, rmSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { chromium, webkit } from "playwright";
 import { start } from "./serve.js";
@@ -25,7 +25,6 @@ const check = async (name, run) => {
     results.push(["FAIL", name, error.message.split("\n")[0]]);
   }
 };
-rmSync(OUT, { recursive: true, force: true });
 
 async function phone(engine, device, { fill, query = "", side = "a" } = {}) {
   const context = await engine.newContext({ viewport: { width: Math.max(device.width * 2 + 72, 800), height: device.height + 40 }, screen: { width: device.width, height: device.height }, deviceScaleFactor: 2 });
@@ -188,6 +187,7 @@ async function walk(engine, device, fill, query, folder) {
 
 const engines = process.argv.includes("--webkit") ? [["webkit", webkit]] : [["chromium", chromium]];
 for (const [label, type] of engines) {
+  for (const old of existsSync(OUT) ? readdirSync(OUT).filter((name) => name.startsWith(`${label}-`)) : []) rmSync(join(OUT, old), { recursive: true, force: true });
   const engine = await type.launch();
   for (const device of DEVICES) {
     await walk(engine, device, true, "&solo", `${label}-fill-${device.name}-flick`);
