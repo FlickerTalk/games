@@ -7,6 +7,14 @@ export function checkStars(stars) {
   return Object.freeze({ two, three });
 }
 
+export function checkTracks(tracks) {
+  const names = isPlain(tracks) ? Object.keys(tracks) : [];
+  if (!names.length || !names.every((name) => name.length > 0 && name.length <= 64)) {
+    throw new TypeError("a game's tracks are an object of names, each with its stars: { two, three }");
+  }
+  return Object.freeze(Object.fromEntries(names.map((name) => [name, checkStars(tracks[name])])));
+}
+
 export function starsFor(score, { two, three }) {
   if (!Number.isFinite(score)) return 1;
   if (score >= three) return 3;

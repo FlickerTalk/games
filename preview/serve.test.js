@@ -67,9 +67,16 @@ describe("the review harness", () => {
     expect(bridge).toContain("solo: said.solo === true");
     const host = await (await fetch(`${base}/?game=tictactoe&solo`)).text();
     expect(host).toContain('const solo = params.has("solo");');
-    expect(host).toMatch(/live: !solo,[^\n]*solo,/);
-    expect(host).toContain('if (!solo) open("b");');
-    expect(host).toContain("devices.b.hidden = solo;");
+    expect(host).toMatch(/live: !solo && !alone,[^\n]*solo,/);
+    expect(host).toContain('if (!solo && !alone) open("b");');
+    expect(host).toContain("devices.b.hidden = solo || alone;");
+  });
+
+  it("opens one phone with the game outside any conversation with &alone, as the app opens it from its own page", async () => {
+    const host = await (await fetch(`${base}/?game=tilecourt&alone`)).text();
+    expect(host).toContain('const alone = params.has("alone");');
+    expect(host).toMatch(/live: !solo && !alone,[^\n]*chat: alone \? undefined :/);
+    expect(host).toContain('tilecourt: "Tile Court"');
   });
 
   it("gives a game the whole window as the app does: data-fill on the frame's root from the theme message, its page as tall as the frame", async () => {

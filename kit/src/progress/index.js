@@ -1,29 +1,31 @@
 import { checkCurve, isPlain, plateauOf } from "./curve.js";
-import { checkGifts, giftSchedule, ownedLooks } from "./gifts.js";
+import { checkGifts, giftSchedule, ownedLooks, withChosen } from "./gifts.js";
 import { freshRecord, loadRecord, readRecord, saveRecord } from "./record.js";
 import { awardRound, nextRound } from "./round.js";
-import { checkStars } from "./stars.js";
+import { checkStars, checkTracks } from "./stars.js";
 
 export { EASE_AFTER_LOSSES, HALFWAY_FROM_SECONDS, LONGEST_ROUND_SECONDS, hasHalfway, roundSeconds } from "./duration.js";
-export { GIFT_EVERY } from "./gifts.js";
+export { GIFT_EVERY, kindOf } from "./gifts.js";
 export { PASS_AFTER_LOSSES, PROGRESS_KEY, RECORD_VERSION } from "./record.js";
 export { rivalPace } from "./rival.js";
 export { starsFor } from "./stars.js";
 
-const FIELDS = ["curve", "timed", "stars", "gifts"];
+const FIELDS = ["curve", "timed", "stars", "tracks", "gifts"];
 
 function checkSpec(declared) {
   if (!isPlain(declared)) throw new TypeError("a game's progress is declared as an object");
   const unknown = Object.keys(declared).find((field) => !FIELDS.includes(field));
   if (unknown) throw new TypeError(`a game's progress has no field "${unknown}": it takes ${FIELDS.join(", ")}`);
-  const { curve = {}, timed = false, stars, gifts } = declared;
+  const { curve = {}, timed = false, stars, tracks, gifts } = declared;
   if (typeof timed !== "boolean") throw new TypeError("a game's progress says timed: true or false");
-  return Object.freeze({
+  const spec = {
     curve: checkCurve(curve),
     timed,
     stars: stars == null ? null : checkStars(stars),
     gifts: gifts == null ? null : checkGifts(gifts),
-  });
+  };
+  if (tracks != null) spec.tracks = checkTracks(tracks);
+  return Object.freeze(spec);
 }
 
 export function defineProgress(declared) {
@@ -42,7 +44,7 @@ export function defineProgress(declared) {
     owned,
     choose(record, look) {
       const now = readRecord(spec, record);
-      return owned(now).includes(look) ? { ...now, chosen: look } : now;
+      return owned(now).includes(look) ? { ...now, chosen: withChosen(spec.gifts, now.chosen, look) } : now;
     },
   });
 }
