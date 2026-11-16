@@ -17,6 +17,7 @@
     "fill": "node preview/fill.spec.js",
     "tilecourt": "node preview/tilecourt.spec.js",
     "checkers": "node preview/checkers.spec.js",
+    "backgammon": "node preview/backgammon.spec.js",
     "mancala": "node preview/mancala.spec.js",
     "dotsandboxes": "node preview/dotsandboxes.spec.js",
     "gomoku": "node preview/gomoku.spec.js",

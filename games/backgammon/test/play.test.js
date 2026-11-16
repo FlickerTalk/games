@@ -97,6 +97,8 @@ describe("Backgammon against the phone", () => {
     expect(phase).toBe("over");
     expect(["single", "gammon", "backgammon"]).toContain(result.result.reason);
     expect(text(second.element)).toMatch(/You (won|lost)/);
+    expect(second.element.querySelector('.ftg-bar canvas[data-side="them"]').dataset.who).toBe("flick");
+    expect(second.element.querySelector('[data-kit="send"]')).toBeNull();
     for (const core of [first.core, second.core]) expect(core.ft.live.send).not.toHaveBeenCalled();
   }, 60_000);
 });
