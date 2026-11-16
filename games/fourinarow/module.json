@@ -1,7 +1,7 @@
 {
   "id": "com.flickertalk.game.fourinarow",
   "name": "Four in a Row",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "minCoreVersion": "1.6.0",
   "kind": "game",
   "icon": "ellipse-outline",

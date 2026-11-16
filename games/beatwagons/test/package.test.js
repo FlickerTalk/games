@@ -13,7 +13,7 @@ const ME = { id: "com.flickertalk.game.beatwagons", name: "Beat Wagons", compone
 
 describe("the Beat Wagons package", () => {
   it("says it is a game that needs the core 1.6.0, the live channel and sending, and nothing else", () => {
-    expect(checkManifest(dir, ME).version).toBe("1.0.0");
+    expect(checkManifest(dir, ME).version).toBe("1.0.1");
   });
 
   it("names and describes itself in the app's other 20 languages, for the whole family and without anyone else's game names", () => {
@@ -38,6 +38,6 @@ describe("the Beat Wagons package", () => {
   it("defines its element when loaded, with the version of its manifest", () => {
     const code = readFileSync(join(dir, "dist", "index.js"), "utf8");
     expect(code).toContain("ft-beatwagons");
-    expect(code).toContain('"1.0.0"');
+    expect(code).toContain('"1.0.1"');
   });
 });

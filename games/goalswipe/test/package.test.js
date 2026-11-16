@@ -13,7 +13,7 @@ const SAY = { id: "com.flickertalk.game.goalswipe", name: "Goal Swipe", componen
 
 describe("the Goal Swipe package", () => {
   it("says it is a game that needs the core 1.6.0, the live channel and sending, and nothing else", () => {
-    expect(checkManifest(dir, SAY).version).toBe("1.0.0");
+    expect(checkManifest(dir, SAY).version).toBe("1.0.1");
   });
 
   it("names and describes itself in the app's other 20 languages, for the whole family and without anyone else's game names", () => {

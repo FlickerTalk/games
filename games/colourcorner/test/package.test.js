@@ -12,7 +12,7 @@ const ID = { id: "com.flickertalk.game.colourcorner", name: "Colour Corner", com
 
 describe("the Colour Corner package", () => {
   it("says it is a game that needs the core 1.6.0, the live channel and sending, and nothing else", () => {
-    expect(checkManifest(dir, ID).version).toBe("1.0.0");
+    expect(checkManifest(dir, ID).version).toBe("1.0.1");
   });
 
   it("names and describes itself in the app's other 20 languages, never as a game for children", () => {
@@ -35,6 +35,6 @@ describe("the Colour Corner package", () => {
   it("defines its element when loaded, with the version of its manifest", () => {
     const code = readFileSync(join(dir, "dist", "index.js"), "utf8");
     expect(code).toContain("ft-colourcorner");
-    expect(code).toContain('"1.0.0"');
+    expect(code).toContain('"1.0.1"');
   });
 });
