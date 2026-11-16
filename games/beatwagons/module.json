@@ -1,0 +1,98 @@
+{
+  "id": "com.flickertalk.game.beatwagons",
+  "name": "Beat Wagons",
+  "version": "1.0.0",
+  "minCoreVersion": "1.6.0",
+  "kind": "game",
+  "icon": "musical-notes-outline",
+  "components": [
+    "ft-beatwagons"
+  ],
+  "permissions": {
+    "live": true,
+    "send": "propose"
+  },
+  "summary": "A musical pattern puzzle for the whole family: put the missing wagon in the train and it plays its tune, alone, against FlickerTalk or with the other person in the chat, making trains for each other.",
+  "locales": {
+    "es": {
+      "name": "Beat Wagons",
+      "summary": "Un puzle musical de patrones para toda la familia: pon el vagón que falta y el tren toca su melodía, solo, contra FlickerTalk o con la otra persona del chat, componiendo trenes el uno para el otro."
+    },
+    "pt": {
+      "name": "Beat Wagons",
+      "summary": "Um quebra-cabeça musical de padrões para toda a família: coloque o vagão que falta e o trem toca a sua melodia, sozinho, contra o FlickerTalk ou com a outra pessoa da conversa, compondo trens."
+    },
+    "fr": {
+      "name": "Beat Wagons",
+      "summary": "Un puzzle musical de motifs pour toute la famille : place le wagon manquant et le train joue sa mélodie, seul, contre FlickerTalk ou avec l’autre personne du chat, qui complète tes trains."
+    },
+    "de": {
+      "name": "Beat Wagons",
+      "summary": "Ein musikalisches Musterrätsel für die ganze Familie: Setz den fehlenden Wagen ein, und der Zug spielt seine Melodie, allein, gegen FlickerTalk oder mit der anderen Person im Chat."
+    },
+    "it": {
+      "name": "Beat Wagons",
+      "summary": "Un rompicapo musicale di schemi per tutta la famiglia: metti il vagone mancante e il treno suona la sua melodia, da solo, contro FlickerTalk o con l’altra persona della chat, componendo treni."
+    },
+    "ro": {
+      "name": "Beat Wagons",
+      "summary": "Un puzzle muzical cu modele pentru toată familia: pune vagonul care lipsește și trenul își cântă melodia, singur, contra FlickerTalk sau cu cealaltă persoană din chat, compunând trenuri."
+    },
+    "pl": {
+      "name": "Beat Wagons",
+      "summary": "Muzyczna łamigłówka ze wzorami dla całej rodziny: wstaw brakujący wagon, a pociąg zagra melodię — samodzielnie, przeciw FlickerTalk albo z drugą osobą z czatu, układając pociągi dla siebie."
+    },
+    "ru": {
+      "name": "Beat Wagons",
+      "summary": "Музыкальная головоломка с узорами для всей семьи: поставь недостающий вагон, и поезд сыграет мелодию — в одиночку, против FlickerTalk или с собеседником, составляя поезда друг для друга."
+    },
+    "uk": {
+      "name": "Beat Wagons",
+      "summary": "Музична головоломка з візерунками для всієї родини: постав вагон, якого бракує, і потяг зіграє мелодію — наодинці, проти FlickerTalk або зі співрозмовником, складаючи потяги одне для одного."
+    },
+    "tr": {
+      "name": "Beat Wagons",
+      "summary": "Tüm aile için müzikli bir örüntü bulmacası: eksik vagonu yerine koy, tren melodisini çalsın; tek başına, FlickerTalk'a karşı ya da sohbetteki kişiyle birbirinize tren kurarak."
+    },
+    "ar": {
+      "name": "Beat Wagons",
+      "summary": "لغز أنماط موسيقي لكل العائلة: ضع العربة الناقصة فيعزف القطار لحنه، وحدك أو ضد FlickerTalk أو مع الشخص الآخر في المحادثة، يركّب كلٌّ منكما قطارات للآخر."
+    },
+    "hi": {
+      "name": "Beat Wagons",
+      "summary": "पूरे परिवार के लिए संगीत भरी क्रम पहेली: छूटा हुआ डिब्बा लगाएँ और रेलगाड़ी अपनी धुन बजाएगी, अकेले, FlickerTalk के ख़िलाफ़ या चैट के दूसरे व्यक्ति के साथ, एक-दूसरे के लिए रेलगाड़ियाँ बनाकर।"
+    },
+    "bn": {
+      "name": "Beat Wagons",
+      "summary": "পুরো পরিবারের জন্য সুরেলা নকশার ধাঁধা: হারানো বগিটি বসান আর ট্রেন তার সুর বাজাবে, একা, FlickerTalk-এর বিরুদ্ধে বা চ্যাটের অন্য মানুষটির সঙ্গে, একে অপরের জন্য ট্রেন সাজিয়ে।"
+    },
+    "id": {
+      "name": "Beat Wagons",
+      "summary": "Teka-teki pola bermusik untuk seluruh keluarga: pasang gerbong yang hilang dan kereta memainkan lagunya, sendiri, melawan FlickerTalk, atau dengan orang lain di obrolan, saling menyusun kereta."
+    },
+    "vi": {
+      "name": "Beat Wagons",
+      "summary": "Trò giải đố quy luật có âm nhạc cho cả gia đình: đặt toa còn thiếu và đoàn tàu chơi giai điệu của nó, một mình, đấu với FlickerTalk hoặc cùng người kia trong cuộc trò chuyện, xếp tàu cho nhau."
+    },
+    "th": {
+      "name": "Beat Wagons",
+      "summary": "ปริศนาแบบรูปพร้อมเสียงดนตรีสำหรับทั้งครอบครัว: วางตู้ที่หายไปแล้วรถไฟจะเล่นทำนอง เล่นคนเดียว เล่นกับ FlickerTalk หรือกับอีกคนในแชต โดยจัดขบวนรถไฟให้กันและกัน"
+    },
+    "ja": {
+      "name": "Beat Wagons",
+      "summary": "家族みんなで楽しめる音楽のパターンパズル。足りない車両を入れると列車がメロディーをかなでます。ひとりで、FlickerTalk を相手に、またはチャットの相手とおたがいに列車をつくって遊べます。"
+    },
+    "ko": {
+      "name": "Beat Wagons",
+      "summary": "온 가족이 즐기는 음악 규칙 퍼즐: 빠진 객차를 넣으면 기차가 멜로디를 연주합니다. 혼자서, FlickerTalk를 상대로, 또는 채팅 상대와 서로 기차를 꾸며 주며 즐기세요."
+    },
+    "zh-CN": {
+      "name": "Beat Wagons",
+      "summary": "适合全家的音乐规律谜题：放上缺少的车厢，火车就会奏出旋律。可以独自玩、和 FlickerTalk 对玩，或与聊天中的对方互相编火车。"
+    },
+    "zh-TW": {
+      "name": "Beat Wagons",
+      "summary": "適合全家的音樂規律謎題：放上缺少的車廂，火車就會奏出旋律。可以獨自玩、和 FlickerTalk 對玩，或與聊天中的對方互相編火車。"
+    }
+  }
+}
