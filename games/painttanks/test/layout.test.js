@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { checkTargets, eachSize, leastFor } from "../../../kit/test/canvas/sizes.js";
-import { playLayout, playTargets, toScreen, toWorld } from "../src/layout.js";
+import { SIZES, checkTargets, eachSize, leastFor } from "../../../kit/test/canvas/sizes.js";
+import { controlsOf, playLayout, playTargets, toScreen, toWorld } from "../src/layout.js";
 import { WORLD } from "../src/world.js";
 
 const kinds = (targets) => targets.map((one) => one.kind);
@@ -37,14 +37,14 @@ describe("the play screen's layout", () => {
     });
   });
 
-  it("keeps the controls off the battlefield: in the sky above it, or the shoot button on the ground under it", () => {
+  it("keeps the controls off the battlefield: in the sky above it, or on the ground under it", () => {
     eachSize(({ width, height, fill }) => {
       const layout = playLayout(width, height, { fill });
       const [, ground] = toScreen(layout.view, 0, WORLD.height * 0.4);
       const [, foot] = toScreen(layout.view, 0, WORLD.height);
       const shown = width < 352 ? playTargets(layout, {}) : playTargets(layout, { sub: true }).concat(playTargets(layout, {}));
       for (const target of shown) {
-        const clear = target.y + target.h <= ground || (target.kind === "fire" && target.y >= foot - 0.5);
+        const clear = target.y + target.h <= ground || target.y >= foot - 0.5;
         expect(clear, `${width}x${height} ${target.kind}`).toBe(true);
       }
     });
@@ -72,6 +72,19 @@ describe("the play screen's layout", () => {
       expect(layout.view.scale, where).toBeGreaterThanOrEqual((width / WORLD.width) * 0.8);
       const across = WORLD.width * layout.view.scale;
       expect(layout.view.x, where).toBeCloseTo((width - across) / 2, 6);
+    }
+  });
+
+  it("on a frame narrower than 700 px never leaves the shoot button in the sky between the dials, in a short room or a small phone's full screen", () => {
+    const small = [[320, 516, true], [360, 588, true], [375, 615, true], [360, 671, true], [360, 443, false], [328, 443, false], [360, 343, false], [328, 343, false]];
+    for (const [width, height, fill] of [...SIZES.filter(([width]) => width < 700), ...small]) {
+      const layout = playLayout(width, height, { fill });
+      const foot = layout.view.y + WORLD.height * layout.view.scale;
+      for (const sub of [false, true]) {
+        const where = `${width}x${height} ${fill ? "full screen" : "room"} sub ${sub}`;
+        expect(controlsOf(layout, sub).fire.y, where).toBeGreaterThanOrEqual(foot - 0.5);
+        checkTargets(playTargets(layout, { sub }), { width, height, fill, least, name: where });
+      }
     }
   });
 
