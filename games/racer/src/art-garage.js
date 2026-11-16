@@ -1,4 +1,4 @@
-import { PALETTE } from './art-palette.js';
+import { DAY_THEME, PALETTE } from './art-palette.js';
 import { drawPresent } from './art-present.js';
 import { clamp, ellipse, paint, polygon, roundedRect } from './art-shapes.js';
 import { drawPlayerVehicle, hasFixedColor, VEHICLE_COLORS } from './art-vehicles.js';
@@ -120,7 +120,7 @@ function drawSelectionMark(ctx, x, y, radius) {
   ctx.stroke();
 }
 
-function drawGarageTile(ctx, tile, { selected, unlocked, color, time, nudge }) {
+function drawGarageTile(ctx, tile, { selected, unlocked, color, time, nudge, hud }) {
   const chosen = selected === tile.kind && hasVehicle(unlocked, tile.kind);
   const corner = Math.min(24, tile.width * 0.2, tile.height * 0.2);
   ctx.globalAlpha = chosen ? 0.24 : 0.13;
@@ -128,7 +128,7 @@ function drawGarageTile(ctx, tile, { selected, unlocked, color, time, nudge }) {
   paint(ctx, PALETTE.ink, null);
   ctx.globalAlpha = 1;
   roundedRect(ctx, tile.x, tile.y, tile.width, tile.height, corner);
-  paint(ctx, chosen ? PALETTE.playerLight : PALETTE.card, PALETTE.ink, chosen ? 5 : 2.5);
+  paint(ctx, chosen ? PALETTE.playerLight : hud.card, hud.edge, chosen ? 5 : 2.5);
   if (chosen) {
     ctx.save();
     ctx.setLineDash([9, 7]);
@@ -185,13 +185,13 @@ function drawDone(ctx, width, height) {
   ], PALETTE.white, PALETTE.ink, 2.5);
 }
 
-export function drawGarage(ctx, { width, height, kinds, unlocked, selected, color = 'sunshine', time = 0, page = 0, nudge = null }) {
+export function drawGarage(ctx, { width, height, kinds, unlocked, selected, color = 'sunshine', time = 0, page = 0, nudge = null }, { ground, hud } = DAY_THEME) {
   ctx.save();
-  ctx.fillStyle = PALETTE.sky;
+  ctx.fillStyle = ground.sky;
   ctx.fillRect(0, 0, width, height);
-  ellipse(ctx, width * 0.06, height * 0.09, width * 0.12, width * 0.12, PALETTE.playerLight, null);
-  ellipse(ctx, width * 0.96, height * 0.7, width * 0.15, width * 0.15, PALETTE.grassLight, null);
-  for (const tile of garageTiles(width, height, kinds, page)) drawGarageTile(ctx, tile, { selected, unlocked, color, time, nudge });
+  ellipse(ctx, width * 0.06, height * 0.09, width * 0.12, width * 0.12, ground.sun, null);
+  ellipse(ctx, width * 0.96, height * 0.7, width * 0.15, width * 0.15, ground.hill, null);
+  for (const tile of garageTiles(width, height, kinds, page)) drawGarageTile(ctx, tile, { selected, unlocked, color, time, nudge, hud });
   drawColorDots(ctx, width, height, color, hasFixedColor(selected));
   drawDone(ctx, width, height);
   const pageCount = garagePageCount(width, height, kinds);
@@ -201,7 +201,7 @@ export function drawGarage(ctx, { width, height, kinds, unlocked, selected, colo
     drawArrowButton(ctx, buttons.previous);
     drawArrowButton(ctx, buttons.next);
     for (let index = 0; index < pageCount; index += 1) {
-      ellipse(ctx, width / 2 + (index - (pageCount - 1) / 2) * 18, height - 7, index === current ? 5 : 3.5, 3.5, index === current ? PALETTE.ink : PALETTE.hub, null);
+      ellipse(ctx, width / 2 + (index - (pageCount - 1) / 2) * 18, height - 7, index === current ? 5 : 3.5, 3.5, index === current ? hud.text : PALETTE.hub, null);
     }
   }
   ctx.restore();

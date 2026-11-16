@@ -1,8 +1,9 @@
 import { createSession } from './session.js';
 import { injectStyle } from './style.js';
 import { appOpening } from './opening.js';
-import { roomHeight } from './room.js';
 import { createSwitches } from './sound-switches.js';
+import { roomHeight } from './room.js';
+import { pageTheme, switchColours } from './theme.js';
 
 export class RacerElement extends HTMLElement {
   connectedCallback() {
@@ -26,8 +27,12 @@ export class RacerElement extends HTMLElement {
       opening: appOpening,
       switches,
     });
-    this.watch = new MutationObserver(() => this.fitMode());
-    this.watch.observe(page.documentElement, { attributes: true, attributeFilter: ['data-fill'] });
+    this.watch = new MutationObserver(() => {
+      this.fitMode();
+      this.retheme();
+    });
+    this.watch.observe(page.documentElement, { attributes: true, attributeFilter: ['data-fill', 'data-dark', 'style', 'class'] });
+    this.retheme();
     this.sizes = new ResizeObserver((entries) => this.resized(entries.at(-1)?.contentRect));
     this.sizes.observe(this);
     this.resized(this.getBoundingClientRect());
@@ -39,17 +44,25 @@ export class RacerElement extends HTMLElement {
     this.session?.destroy();
     this.watch = null;
     this.sizes = null;
+    this.theme = null;
   }
 
   fitMode() {
     const filling = this.ownerDocument.documentElement.hasAttribute('data-fill');
-    const height = filling ? '' : `${roomHeight({ screenHeight: globalThis.screen?.height, width: this.knownWidth ?? 0 })}px`;
+    const height = filling ? '' : `${roomHeight(globalThis.screen?.height)}px`;
     if (this.style.height !== height) this.style.height = height;
+  }
+
+  retheme() {
+    const theme = pageTheme(this.ownerDocument.documentElement);
+    if (theme === this.theme) return;
+    this.theme = theme;
+    this.session.retheme(theme);
+    for (const [name, value] of Object.entries(switchColours(theme))) this.style.setProperty(name, value);
   }
 
   resized(rect) {
     if (!rect || !this.session) return;
-    this.knownWidth = rect.width;
     this.fitMode();
     this.session.resize({ width: rect.width, height: rect.height, dpr: globalThis.devicePixelRatio || 1 });
   }

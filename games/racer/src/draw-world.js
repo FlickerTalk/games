@@ -63,7 +63,7 @@ function drawRoadArea(ctx, view, game, frame) {
   const area = { width: view.width, height: frame.height, roadLeft: (view.width - roadWidth) / 2, roadWidth };
   ctx.save();
   ctx.translate((frame.width - view.width) / 2, 0);
-  drawRoad(ctx, { ...area, lanes: LANE_COUNT, scroll: game.player.distance * frame.scale + frame.anchorY, scenery: sceneryFor(game.level) });
+  drawRoad(ctx, { ...area, lanes: LANE_COUNT, scroll: game.player.distance * frame.scale + frame.anchorY, scenery: sceneryFor(game.level) }, view.theme?.ground);
   if (game.streaks > STREAKS_FROM) drawSpeedStreaks(ctx, { ...area, time: frame.time, speed: game.streaks });
   ctx.restore();
 }

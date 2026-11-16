@@ -1,4 +1,4 @@
-export { PALETTE, SCENERIES } from './art-palette.js';
+export { DAY_THEME, PALETTE, SCENERIES } from './art-palette.js';
 export { drawPlayerCar, drawRobotCar, drawTrafficCar } from './art-cars.js';
 export { VEHICLE_COLORS, VEHICLE_KINDS, drawPlayerVehicle, hasFixedColor, vehicleTint } from './art-vehicles.js';
 export {

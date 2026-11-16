@@ -1016,6 +1016,9 @@ package's contents. So:
 - The name field that stays open after a touch, the pick screen in the app's colours, the pause when
   the page is hidden and the page's height set on the next frame are one more patch for every game
   but Racer, whose package does not change.
+- Racer as tall as the canvas games in a phone's room, racing on when the frame loses the focus to the
+  app's full screen button, and drawn in the app's theme is its `0.7.3`. It now bundles the kit's
+  `ROOM_CHROME` and canvas theme; the other games' packages do not change.
 
 ## Preview
 

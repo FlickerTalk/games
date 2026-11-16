@@ -1,14 +1,5 @@
-import { PALETTE } from './art-palette.js';
+import { DAY_THEME, PALETTE } from './art-palette.js';
 import { clamp, ellipse, hash, paint, polygon, roundedRect } from './art-shapes.js';
-
-function sceneryColor(scenery) {
-  return {
-    meadow: PALETTE.meadow,
-    desert: PALETTE.desert,
-    snow: PALETTE.snow,
-    night: PALETTE.city
-  }[scenery] || PALETTE.meadow;
-}
 
 function drawRoundTree(ctx, x, y, size, snowy, seed) {
   ctx.save();
@@ -107,16 +98,16 @@ function drawCactus(ctx, x, y, size, seed) {
   ctx.restore();
 }
 
-function drawDune(ctx, x, y, size) {
+function drawDune(ctx, x, y, size, ground) {
   ctx.beginPath();
   ctx.moveTo(x - size * 0.55, y + size * 0.2);
   ctx.quadraticCurveTo(x - size * 0.12, y - size * 0.35, x + size * 0.55, y + size * 0.2);
   ctx.closePath();
-  paint(ctx, PALETTE.desertDark, null);
+  paint(ctx, ground.dune, null);
   ctx.beginPath();
   ctx.moveTo(x - size * 0.12, y - size * 0.12);
   ctx.quadraticCurveTo(x + size * 0.08, y - size * 0.2, x + size * 0.28, y + size * 0.02);
-  ctx.strokeStyle = PALETTE.desert;
+  ctx.strokeStyle = ground.desert;
   ctx.lineWidth = 2;
   ctx.stroke();
 }
@@ -173,11 +164,11 @@ function drawStreetLamp(ctx, x, y, size) {
   ctx.restore();
 }
 
-function drawRoadsideItem(ctx, scenery, x, y, size, seed) {
+function drawRoadsideItem(ctx, scenery, x, y, size, seed, ground) {
   const variant = hash(seed);
   if (scenery === 'desert') {
     if (variant < 0.22) drawRocks(ctx, x, y, size, false);
-    else if (variant < 0.43) drawDune(ctx, x, y, size);
+    else if (variant < 0.43) drawDune(ctx, x, y, size, ground);
     else drawCactus(ctx, x, y, size * 0.85, seed);
   } else if (scenery === 'snow') {
     if (variant < 0.16) drawSnowman(ctx, x, y, size);
@@ -198,9 +189,9 @@ function drawRoadsideItem(ctx, scenery, x, y, size, seed) {
   }
 }
 
-export function drawRoadside(ctx, { width, height, roadLeft, roadWidth, scroll = 0, scenery = 'meadow' }) {
+export function drawRoadside(ctx, { width, height, roadLeft, roadWidth, scroll = 0, scenery = 'meadow' }, ground = DAY_THEME.ground) {
   ctx.save();
-  ctx.fillStyle = sceneryColor(scenery);
+  ctx.fillStyle = ground[scenery] || ground.meadow;
   ctx.fillRect(0, 0, width, height);
   const rightLeft = roadLeft + roadWidth;
   const sideSpace = Math.min(roadLeft, width - rightLeft);
@@ -213,8 +204,8 @@ export function drawRoadside(ctx, { width, height, roadLeft, roadWidth, scroll =
     const size = 52 * scale * (0.82 + hash(row * 4.1) * 0.3);
     const leftX = roadLeft * (0.42 + hash(row * 3.7) * 0.16);
     const rightX = rightLeft + (width - rightLeft) * (0.42 + hash(row * 5.3) * 0.16);
-    drawRoadsideItem(ctx, scenery, leftX, y, size, row * 2.17);
-    drawRoadsideItem(ctx, scenery, rightX, y + spacing * 0.35, size, row * 2.17 + 19);
+    drawRoadsideItem(ctx, scenery, leftX, y, size, row * 2.17, ground);
+    drawRoadsideItem(ctx, scenery, rightX, y + spacing * 0.35, size, row * 2.17 + 19, ground);
   }
   ctx.restore();
 }

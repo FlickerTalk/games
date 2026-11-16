@@ -63,3 +63,25 @@ export const PALETTE = Object.freeze({
 });
 
 export const SCENERIES = Object.freeze(['meadow', 'desert', 'snow', 'night']);
+
+export const DAY_THEME = Object.freeze({
+  ground: Object.freeze({
+    sky: PALETTE.sky,
+    sun: PALETTE.playerLight,
+    hill: PALETTE.grassLight,
+    meadow: PALETTE.meadow,
+    desert: PALETTE.desert,
+    dune: PALETTE.desertDark,
+    snow: PALETTE.snow,
+    night: PALETTE.city
+  }),
+  hud: Object.freeze({
+    strip: PALETTE.hud,
+    card: PALETTE.card,
+    edge: PALETTE.ink,
+    text: PALETTE.ink,
+    track: PALETTE.hudTrack,
+    off: '#DCE3EA',
+    offText: '#5B6878'
+  })
+});

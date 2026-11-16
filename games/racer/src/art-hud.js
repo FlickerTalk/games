@@ -1,13 +1,13 @@
 import { drawRobotCar } from './art-cars.js';
 import { drawPlayerVehicle, vehicleTint } from './art-vehicles.js';
-import { PALETTE } from './art-palette.js';
+import { DAY_THEME, PALETTE } from './art-palette.js';
 import { clamp, ellipse, paint, polygon, roundedRect } from './art-shapes.js';
 
-function drawTinyFlag(ctx, x, y, size) {
+function drawTinyFlag(ctx, x, y, size, ink) {
   ctx.beginPath();
   ctx.moveTo(x, y - size * 0.55);
   ctx.lineTo(x, y + size * 0.55);
-  ctx.strokeStyle = PALETTE.ink;
+  ctx.strokeStyle = ink;
   ctx.lineWidth = 2.5;
   ctx.stroke();
   const cell = size * 0.23;
@@ -17,7 +17,7 @@ function drawTinyFlag(ctx, x, y, size) {
       ctx.fillRect(x + column * cell, y - size * 0.54 + row * cell, cell, cell);
     }
   }
-  ctx.strokeStyle = PALETTE.ink;
+  ctx.strokeStyle = ink;
   ctx.lineWidth = 1.5;
   ctx.strokeRect(x, y - size * 0.54, cell * 3, cell * 2);
 }
@@ -41,25 +41,25 @@ function drawProgressIcon(ctx, drawCar, x, y, size, leading) {
   ctx.restore();
 }
 
-function drawHalfwayMark(ctx, x, y, height) {
+function drawHalfwayMark(ctx, x, y, height, ink) {
   ctx.beginPath();
   ctx.moveTo(x, y + height * 0.14);
   ctx.lineTo(x, y + height * 0.86);
-  ctx.strokeStyle = PALETTE.ink;
+  ctx.strokeStyle = ink;
   ctx.lineWidth = 2.5;
   ctx.lineCap = 'round';
   ctx.stroke();
   ellipse(ctx, x, y + height * 0.14, height * 0.09, height * 0.09, PALETTE.player, PALETTE.ink, 1.5);
 }
 
-export function drawProgressStrip(ctx, x, y, width, height, { player = 0, robot = 0 } = {}, vehicle = {}, rival = null, { halfway = null } = {}) {
+export function drawProgressStrip(ctx, x, y, width, height, { player = 0, robot = 0 } = {}, vehicle = {}, rival = null, { halfway = null } = {}, { hud } = DAY_THEME) {
   const playerProgress = clamp(player, 0, 1);
   const robotProgress = clamp(robot, 0, 1);
   ctx.save();
   roundedRect(ctx, x, y + 3, width, height, height * 0.28);
   paint(ctx, PALETTE.ink, null);
   roundedRect(ctx, x, y, width, height, height * 0.28);
-  paint(ctx, PALETTE.hud, PALETTE.ink, 3);
+  paint(ctx, hud.strip, hud.edge, 3);
   const iconSize = height * 0.68;
   const start = x + iconSize * 0.65;
   const end = x + width - iconSize * 0.75;
@@ -70,7 +70,7 @@ export function drawProgressStrip(ctx, x, y, width, height, { player = 0, robot 
     ctx.beginPath();
     ctx.moveTo(start, rowY);
     ctx.lineTo(end, rowY);
-    ctx.strokeStyle = PALETTE.hudTrack;
+    ctx.strokeStyle = hud.track;
     ctx.lineWidth = height * 0.1;
     ctx.lineCap = 'round';
     ctx.stroke();
@@ -82,8 +82,8 @@ export function drawProgressStrip(ctx, x, y, width, height, { player = 0, robot 
     ctx.lineWidth = height * 0.07;
     ctx.stroke();
   });
-  if (halfway !== null) drawHalfwayMark(ctx, start + (end - start) * halfway, y, height);
-  drawTinyFlag(ctx, end + iconSize * 0.18, y + height * 0.5, height * 0.42);
+  if (halfway !== null) drawHalfwayMark(ctx, start + (end - start) * halfway, y, height, hud.text);
+  drawTinyFlag(ctx, end + iconSize * 0.18, y + height * 0.5, height * 0.42, hud.text);
   const drawPlayer = (context, px, py, w, h, options) => drawPlayerVehicle(context, px, py, w, h, { ...options, ...vehicle });
   drawProgressIcon(ctx, drawPlayer, start + (end - start) * playerProgress, rows[0], iconSize, playerProgress > robotProgress + 0.015);
   const drawOther = rival ? (context, px, py, w, h, options) => drawPlayerVehicle(context, px, py, w, h, { ...options, ...rival }) : drawRobotCar;
