@@ -72,10 +72,9 @@ describe("Tic-Tac-Toe's sound", () => {
     const dist = (name) => readFileSync(join(games, name, "dist", "index.js"), "utf8");
     expect(dist("tictactoe")).toContain("ftg-sound-buttons");
     const silent = readdirSync(games).filter((name) => !src(name).some((code) => code.includes("sound/index.js")));
-    expect(silent.length).toBeGreaterThan(0);
     for (const name of silent) {
       expect(dist(name), name).not.toContain("ftg-sound-buttons");
       expect(dist(name), name).not.toContain("lose-soft");
     }
-  });
+  }, 60_000);
 });

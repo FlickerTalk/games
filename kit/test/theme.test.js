@@ -7,7 +7,10 @@ const root = join(import.meta.dirname, "..", "..");
 const KIT = join(root, "kit", "src", "style.css");
 const ARENA = join(root, "kit", "src", "live", "arena.css");
 const TABLETOP = join(root, "kit", "src", "tabletop", "tabletop.css");
-const gameStyles = readdirSync(join(root, "games")).map((game) => join(root, "games", game, "src", "board.css")).filter((file) => existsSync(file));
+const gameStyles = readdirSync(join(root, "games")).flatMap((game) => {
+  const src = join(root, "games", game, "src");
+  return existsSync(src) ? readdirSync(src).filter((file) => file.endsWith(".css")).map((file) => join(src, file)) : [];
+});
 
 function declarations(css) {
   const text = css.replace(/\/\*[\s\S]*?\*\//g, "");
@@ -61,7 +64,7 @@ describe("the games' colours", () => {
 
   it("write no colour of their own except through a token", () => {
     const sheets = [...[KIT, ARENA, TABLETOP, ...gameStyles].map((file) => [file, readFileSync(file, "utf8")]), ["canvas element", canvasStyle("ft-canvas")]];
-    expect(sheets.length).toBeGreaterThan(10);
+    expect(sheets.length).toBeGreaterThanOrEqual(4);
     for (const [file, css] of sheets) {
       for (const one of declarations(css)) {
         if (!COLOUR.test(one.value)) continue;

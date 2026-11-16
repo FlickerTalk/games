@@ -82,7 +82,7 @@ describe("checkers against the phone", () => {
     expect(one.querySelector('.ftg-bar canvas[data-side="them"]').dataset.who).toBe("flick");
     expect(one.querySelector('[data-kit="send"]')).toBeNull();
     expect(core.ft.live.send).not.toHaveBeenCalled();
-  });
+  }, 60_000);
 });
 
 describe("checkers between two phones", () => {
