@@ -2,6 +2,7 @@ import { DIGITS, drawDigits, drawPortrait, formatNumber } from "../../../kit/src
 import { centreOf } from "../../../kit/src/canvas/layout.js";
 import { circle, clamp, ellipse, line, polygon } from "../../../kit/src/canvas/pen.js";
 
+const WAITING = 0.45;
 const RANGE = { angle: [0, 90], power: [0, 99], torpedo: [-45, 45] };
 
 function surface(ui, pressed) {
@@ -50,14 +51,11 @@ function crosshair(ctx, x, y, d, colour, ui) {
 export function drawFireButton(ctx, area, ui, { pressed = false, waiting = false } = {}) {
   const [x, y] = centreOf(area);
   const d = Math.min(area.w, area.h);
+  const held = pressed && !waiting;
   ctx.save();
-  if (waiting) {
-    circle(ctx, x, y, d / 2 - ui.line, ui.surface, ui.border, ui.line);
-    crosshair(ctx, x, y, d, ui.muted, ui);
-  } else {
-    circle(ctx, x, y, d / 2 - ui.line, pressed ? ui.pressed : ui.accent, ui.accent, ui.line);
-    crosshair(ctx, x, y, d, pressed ? ui.accent : ui.onAccent, ui);
-  }
+  if (waiting) ctx.globalAlpha = WAITING;
+  circle(ctx, x, y, d / 2 - ui.line, held ? ui.pressed : ui.accent, ui.accent, ui.line);
+  crosshair(ctx, x, y, d, held ? ui.accent : ui.onAccent, ui);
   ctx.restore();
 }
 
