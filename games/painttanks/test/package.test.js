@@ -31,7 +31,7 @@ describe("the Paint Tanks package", () => {
   });
 
   it("stays under its size cap, says its one third-party work is Ionicons, and loads nothing from outside", () => {
-    expect(checkDist(dir, { cap: 300 * 1024 })).toBeGreaterThan(20_000);
+    expect(checkDist(dir, { cap: 240 * 1024 })).toBeGreaterThan(20_000);
     expect(readFileSync(join(dir, "dist", "THIRD_PARTY_NOTICES.md"), "utf8")).toContain("its one third-party work is Ionicons");
   });
 

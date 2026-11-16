@@ -1,3 +1,4 @@
+import { cosine, distance, sine } from "./exact.js";
 import { COAST_EDGE, WORLD, groundY, hasGround, seaOf, solidAt, vehicleAt } from "./world.js";
 
 export const STEP = 1 / 60;
@@ -20,23 +21,20 @@ export const speedOf = (power) => 60 + power * 2.2;
 export const torpedoRange = (power) => 60 + power * 3.4;
 
 const facing = (side) => (side === 0 ? 1 : -1);
-const radians = (degrees) => (degrees * Math.PI) / 180;
 
 export function muzzleOf(vehicle, shot) {
   const { x, y, size, family, side } = vehicle;
   const dir = facing(side);
   if (shot.kind === "torpedo") return { x: x + dir * size * 0.5, y: y + size * 0.08 };
-  const turn = radians(shot.angle);
   const [baseX, baseY, reach] = family === "tank" ? [0, 0.5, 0.48] : family === "ship" ? [0, 0.32, 0.43] : [0.05, 0.25, 0.4];
-  return { x: x + dir * size * baseX + dir * Math.cos(turn) * size * reach, y: y - size * baseY - Math.sin(turn) * size * reach };
+  return { x: x + dir * size * baseX + dir * cosine(shot.angle) * size * reach, y: y - size * baseY - sine(shot.angle) * size * reach };
 }
 
 function launch(world, side, shot) {
   const vehicle = vehicleAt(world, side);
   const start = muzzleOf(vehicle, shot);
-  const turn = radians(shot.angle);
   const speed = shot.kind === "torpedo" ? TORPEDO_SPEED : speedOf(shot.power);
-  return { x: start.x, y: start.y, vx: facing(side) * Math.cos(turn) * speed, vy: -Math.sin(turn) * speed };
+  return { x: start.x, y: start.y, vx: facing(side) * cosine(shot.angle) * speed, vy: -sine(shot.angle) * speed };
 }
 
 export function waterAt(field, x) {
@@ -49,13 +47,13 @@ const underwater = (world, x, y) => waterAt(world.field, x) && y > seaOf(world.f
 function vehicleHit(vehicles, ball, time, side) {
   for (const { side: other, hit } of vehicles) {
     if (other === side && time < OWN_GRACE) continue;
-    if (Math.hypot(ball.x - hit.x, ball.y - hit.y) <= hit.r + BALL_RADIUS) return other;
+    if (distance(ball.x - hit.x, ball.y - hit.y) <= hit.r + BALL_RADIUS) return other;
   }
   return null;
 }
 
 function targetHit(ball, targets, struck) {
-  return targets.findIndex((one, at) => !one.hit && !struck.includes(at) && Math.hypot(ball.x - one.x, ball.y - one.y) <= one.size * TARGET_REACH + BALL_RADIUS);
+  return targets.findIndex((one, at) => !one.hit && !struck.includes(at) && distance(ball.x - one.x, ball.y - one.y) <= one.size * TARGET_REACH + BALL_RADIUS);
 }
 
 function outside(ball) {
@@ -118,10 +116,10 @@ function spread(flight, end, shot, options) {
   if (!splashing) return painted;
   const reach = splashOf(shot, options.special);
   for (const { side, hit } of options.vehicles) {
-    if (!painted.includes(side) && Math.hypot(end.x - hit.x, end.y - hit.y) <= hit.r + reach) painted.push(side);
+    if (!painted.includes(side) && distance(end.x - hit.x, end.y - hit.y) <= hit.r + reach) painted.push(side);
   }
   options.targets.forEach((one, at) => {
-    if (!one.hit && !flight.struck.includes(at) && one.kind !== "trampoline" && Math.hypot(end.x - one.x, end.y - one.y) <= one.size * TARGET_REACH + reach) flight.struck.push(at);
+    if (!one.hit && !flight.struck.includes(at) && one.kind !== "trampoline" && distance(end.x - one.x, end.y - one.y) <= one.size * TARGET_REACH + reach) flight.struck.push(at);
   });
   return painted.sort();
 }

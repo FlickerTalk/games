@@ -1,4 +1,5 @@
 import { randomOf } from "../../../kit/src/canvas/random.js";
+import { wave } from "./exact.js";
 
 export const WORLD = Object.freeze({ width: 420, height: 480 });
 export const FIELDS = Object.freeze(["land", "sea", "coast", "deep"]);
@@ -64,7 +65,7 @@ const DEEP_KINDS = { ...KINDS, float: DEEP_FLOAT };
 
 export const seaOf = (field) => SEA[field] ?? null;
 
-export const floorY = (x) => FLOOR + Math.sin((x / WORLD.width) * Math.PI * 4) * 8;
+export const floorY = (x) => FLOOR + wave((x / WORLD.width) * Math.PI * 4) * 8;
 
 export function familyOf(field, side, { practice = false } = {}) {
   if (field === "sea") return "ship";
@@ -82,9 +83,9 @@ export function heightsFor(field, seed) {
   return Array.from({ length: HEIGHT_COUNT }, (_, index) => {
     const x = index / (HEIGHT_COUNT - 1);
     if (field === "sea" || field === "deep") return 0;
-    const small = Math.sin(x * Math.PI * 5.1 * ripple + phase * 0.7) * 0.045;
+    const small = wave(x * Math.PI * 5.1 * ripple + phase * 0.7) * 0.045;
     if (field === "coast") return clamp(0.78 - x * 0.42 + small, 0.3, 0.9);
-    return clamp(0.57 + Math.sin(x * Math.PI * 2.2 + phase) * 0.16 + small, 0.28, 0.86);
+    return clamp(0.57 + wave(x * Math.PI * 2.2 + phase) * 0.16 + small, 0.28, 0.86);
   });
 }
 
@@ -102,7 +103,7 @@ export function groundY(world, x) {
   let surface = REGION_TOP + REGION * (1 - elevation(world.heights, x));
   for (const crater of world.craters) {
     const dx = x - crater.x;
-    if (Math.abs(dx) < crater.r) surface = Math.max(surface, crater.y + Math.sqrt(crater.r ** 2 - dx ** 2));
+    if (Math.abs(dx) < crater.r) surface = Math.max(surface, crater.y + Math.sqrt(crater.r * crater.r - dx * dx));
   }
   return surface;
 }
@@ -110,7 +111,11 @@ export function groundY(world, x) {
 export const islandsOf = (field) => (field === "sea" ? ISLANDS.map(([at, size]) => ({ x: WORLD.width * at, y: SEA.sea + 5, size })) : []);
 
 function onIsland(field, x, y) {
-  return islandsOf(field).some((island) => y <= island.y && ((x - island.x) / (island.size * 0.55)) ** 2 + ((y - island.y) / (island.size * 0.45)) ** 2 <= 1);
+  return islandsOf(field).some((island) => {
+    const across = (x - island.x) / (island.size * 0.55);
+    const down = (y - island.y) / (island.size * 0.45);
+    return y <= island.y && across * across + down * down <= 1;
+  });
 }
 
 export function solidAt(world, x, y) {
