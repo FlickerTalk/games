@@ -95,16 +95,17 @@ test('a hidden page pauses the race, which waits for a new press and counts down
   assert.ok(session.game.raceTime >= raceTime && session.game.raceTime < raceTime + 0.6);
 });
 
-test('losing focus mid-race pauses it the same way', async () => {
+test('losing focus to the app around the game, as a tap on its full screen button does, does not pause the race', async () => {
   const { session, goButton, keyTarget, play } = await setUp();
   goButton.click();
   play(2);
+  const { raceTime } = session.game;
+  const robot = session.game.robot.distance;
   keyTarget.dispatchEvent(new Event('blur'));
   play(1);
-  assert.equal(session.game.state, 'paused');
-  key(keyTarget, 'keydown', 'ArrowUp');
-  play(0.05);
-  assert.equal(session.game.state, 'countdown');
+  assert.equal(session.game.state, 'racing');
+  assert.ok(session.game.raceTime > raceTime + 0.9);
+  assert.ok(session.game.robot.distance > robot);
 });
 
 test('a finger already down when the race paused does not resume it', async () => {

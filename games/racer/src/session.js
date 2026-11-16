@@ -119,18 +119,15 @@ function wire(run, keyTarget) {
     if (run.hidden) pause(run);
     run.clock.reset();
   };
-  const onBlur = () => pause(run);
   const onTap = (event) => tapScreen(run, { x: event.offsetX, y: event.offsetY });
   run.canvas.addEventListener('click', onTap);
   run.goButton.addEventListener('click', start);
   keyTarget.addEventListener('keydown', onKey);
-  keyTarget.addEventListener('blur', onBlur);
   run.page.addEventListener('visibilitychange', onVisibility);
   return () => {
     run.canvas.removeEventListener('click', onTap);
     run.goButton.removeEventListener('click', start);
     keyTarget.removeEventListener('keydown', onKey);
-    keyTarget.removeEventListener('blur', onBlur);
     run.page.removeEventListener('visibilitychange', onVisibility);
   };
 }

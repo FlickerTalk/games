@@ -229,6 +229,32 @@ test('a race goes on across a switch to full screen and back, with the car where
   }
 });
 
+test('a tap on the app\'s full screen button, which takes the focus from the frame, leaves the race running both ways', async () => {
+  room();
+  const racer = await connected((element) => {
+    element.racerOptions = { seed: 3 };
+  });
+  const observer = FakeObserver.made[0];
+  observer.report(360, 343);
+  let now = 1000;
+  const play = (seconds) => {
+    for (let elapsed = 0; elapsed < seconds; elapsed += 0.016) {
+      now += 16;
+      runFrame(now);
+    }
+  };
+  play(0.05);
+  racer.querySelector('button.go').click();
+  play(2);
+  for (const [on, height] of [[true, 588], [false, 343]]) {
+    window.dispatchEvent(new Event('blur'));
+    fullScreen(on);
+    observer.report(360, height);
+    play(0.5);
+    assert.equal(racer.session.game.state, 'racing');
+  }
+});
+
 test('the element carries a sound switch and a music switch, labelled, in the top corners of the stage', async () => {
   const racer = await connected();
   FakeObserver.made[0].report(1248, 700);
