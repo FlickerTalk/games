@@ -3,18 +3,18 @@ import { ellipse, line, paint, polygon, roundedRect, withRim } from "../../../ki
 import { squareAt } from "./layout.js";
 import { kindOf } from "./rules.js";
 
-const ICON_LIFT = 0.13;
+const ICON_LIFT = 0.2;
 
 function spring(ctx, s, theme) {
   const { coil } = theme.art.spring;
-  line(ctx, [[-s * 0.3, s * 0.36], [s * 0.3, s * 0.36]], coil, s * 0.07);
-  line(ctx, [[-s * 0.22, s * 0.36], [s * 0.22, s * 0.27], [-s * 0.22, s * 0.18], [s * 0.22, s * 0.09], [0, s * 0.03]], coil, s * 0.07);
-  polygon(ctx, [[-s * 0.14, s * 0.05], [s * 0.14, s * 0.05], [0, -s * 0.09]], coil, null, 0);
+  line(ctx, [[-s * 0.3, s * 0.39], [s * 0.3, s * 0.39]], coil, s * 0.07);
+  line(ctx, [[-s * 0.22, s * 0.39], [s * 0.22, s * 0.32], [-s * 0.22, s * 0.25], [s * 0.22, s * 0.18], [0, s * 0.14]], coil, s * 0.06);
+  polygon(ctx, [[-s * 0.13, s * 0.15], [s * 0.13, s * 0.15], [0, s * 0.03]], coil, null, 0);
 }
 
 function turbo(ctx, s, theme) {
-  const points = [[-0.2, 0.12], [0.02, 0.12], [-0.05, 0.4], [0.24, 0.04], [0.04, 0.04], [0.12, -0.14]];
-  polygon(ctx, points.map(([x, y]) => [x * s, y * s + s * 0.02]), theme.art.turbo, theme.art.ink, Math.max(1.5, s * 0.035));
+  const points = [[-0.2, 0.2], [0.0, 0.2], [-0.06, 0.42], [0.22, 0.14], [0.03, 0.14], [0.1, 0.0]];
+  polygon(ctx, points.map(([x, y]) => [x * s, y * s]), theme.art.turbo, theme.art.ink, Math.max(1.5, s * 0.035));
 }
 
 function puddle(ctx, s, theme, time) {
@@ -40,7 +40,7 @@ function flag(ctx, s, theme) {
 const ICONS = { spring, turbo, puddle, finish: flag };
 
 function digitSize(size, number, special, least) {
-  const share = special ? 0.36 : number > 9 ? 0.42 : 0.5;
+  const share = special ? 0.34 : number > 9 ? 0.42 : 0.5;
   return Math.max(least, size * share);
 }
 
