@@ -32,7 +32,7 @@ function scores(ctx, layout, { score, best, lang }, theme) {
 }
 
 function progress(ctx, { progress: area }, { score, thresholds }, theme) {
-  if (!thresholds || area.w < 40) return;
+  if (!thresholds || area.w < 120) return;
   const { ui } = theme;
   const filled = clamp(score / thresholds.three);
   const y = area.y + area.h / 2;

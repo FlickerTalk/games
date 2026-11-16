@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { CORNER, playLayout, playTargets } from "../src/layout.js";
 
 const FILL = [[360, 588], [384, 801], [390, 792], [430, 880], [844, 338], [1280, 748]];
-const ROOM = [[384, 556], [360, 443], [360, 343], [1280, 503], [430, 635]];
+const ROOM = [[384, 556], [360, 443], [360, 343], [1280, 503], [430, 635], [352, 556], [328, 443], [328, 343], [398, 635]];
 const COURTS = [{ size: 8, tray: 3 }, { size: 6, tray: 1 }, { size: 9, tray: 3 }];
 
 const inside = (box, width, height) => box.x >= 0 && box.y >= 0 && box.x + box.w <= width + 0.5 && box.y + box.h <= height + 0.5;
@@ -33,12 +33,12 @@ describe("the play screen's layout", () => {
     });
   });
 
-  it("gives every tray slot a zone at least 120 wide and 88 tall, and nothing to touch overlapping", () => {
+  it("gives every tray slot a zone 120 wide where three fit across, never under 100 nor 88 tall, and nothing to touch overlapping", () => {
     each(({ width, height, ...options }) => {
       const targets = playTargets(playLayout(width, height, options));
       const name = `${width}x${height} ${JSON.stringify(options)}`;
       for (const slot of targets.filter((target) => target.kind === "slot")) {
-        expect(slot.w, name).toBeGreaterThanOrEqual(120);
+        expect(slot.w, name).toBeGreaterThanOrEqual(width >= 360 ? 120 : 100);
         expect(slot.h, name).toBeGreaterThanOrEqual(88);
       }
       for (const control of targets.filter((target) => target.kind !== "slot")) {
@@ -112,6 +112,17 @@ describe("a frame too small for the rules", () => {
       const layout = playLayout(width, height, {});
       expect(layout.court.cell).toBeGreaterThanOrEqual(0);
       expect(layout.slots).toHaveLength(3);
+    }
+  });
+});
+
+describe("the room of a phone, a little narrower than its screen", () => {
+  it("keeps the tray under the court with slots a third of the frame wide, rather than shrinking the court", () => {
+    for (const [width, height] of [[352, 556], [328, 443]]) {
+      const layout = playLayout(width, height, {});
+      expect(layout.mode, `${width}x${height}`).toBe("upright");
+      expect(layout.court.cell, `${width}x${height}`).toBeGreaterThanOrEqual(height > 500 ? 40 : 28);
+      expect(layout.slots[0].w).toBe(Math.floor(width / 3));
     }
   });
 });

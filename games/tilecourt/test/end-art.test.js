@@ -53,3 +53,26 @@ describe("the friend's invitation", () => {
     expect(ctx.depth).toBe(0);
   });
 });
+
+describe("the star screen's layout", () => {
+  it("shows three big stars on a phone, as large as the design's", async () => {
+    const { game } = await ended();
+    const ctx = draw((pen) => drawEnd(pen, game.state, null, THEME, 1));
+    const stars = [];
+    ctx.calls.forEach((call, at) => {
+      if (call.op !== "moveTo") return;
+      const path = ctx.calls.slice(at, at + 10);
+      if (path.length === 10 && path.slice(1).every((one) => one.op === "lineTo")) stars.push(bounds(path.flatMap((one) => one.points)));
+    });
+    expect(stars.filter((box) => box.right - box.left >= 40).length).toBe(3);
+  });
+
+  it("keeps its own speaker and music buttons above the shade", async () => {
+    const { game } = await ended();
+    const ctx = draw((pen) => drawEnd(pen, game.state, null, THEME, 1));
+    const shade = ctx.calls.findLastIndex((call) => call.op === "fillRect" && call.points[0][0] === 0 && call.points[1][0] === 384);
+    const after = ctx.calls.slice(shade).filter((call) => call.op === "arc").map((call) => call.points[0]);
+    const music = targetOf(game, "music");
+    expect(after.some(([x, y]) => Math.abs(x - (music.x + music.w / 2)) < 1 && Math.abs(y - (music.y + music.h / 2)) < 1)).toBe(true);
+  });
+});

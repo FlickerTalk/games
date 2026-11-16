@@ -52,3 +52,14 @@ describe("the top bar", () => {
     expect(handle(loud)).toBeGreaterThan(handle(draw((pen) => drawVolume(pen, area, 0, THEME))));
   });
 });
+
+describe("a crowded bar", () => {
+  it("leaves out the star line rather than squeezing its stars together", () => {
+    const layout = playLayout(360, 588, { fill: true, rival: true });
+    expect(layout.progress.w).toBeLessThan(120);
+    const rival = { player: { who: "flick" }, score: 0, thinking: false };
+    const ctx = draw((pen) => drawBar(pen, layout, { score: 0, best: null, thresholds: { two: 180, three: 240 }, sound, rival, lang: "en" }, THEME, 0));
+    const stars = ctx.calls.filter((call, at) => call.op === "moveTo" && ctx.calls[at + 9]?.op === "lineTo" && ctx.calls[at + 10]?.op === "closePath");
+    expect(stars).toHaveLength(0);
+  });
+});

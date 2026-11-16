@@ -3,6 +3,7 @@ export const CORNER = 40;
 const PAD = 8;
 const FRAME = 5;
 const SLOT_WIDE = 120;
+const SLOT_NARROW = 100;
 const SLOT_TALL = 88;
 const SLOT_MOST = 160;
 const CELL_MOST = 72;
@@ -36,7 +37,7 @@ function fitCell(limit, size) {
 
 function upright(width, height, { size, tray, fill, squeeze = false }, top, gap) {
   const zone = Math.min(SLOT_MOST, Math.floor(width / tray));
-  if (zone < SLOT_WIDE && !squeeze) return null;
+  if (zone < (width >= 360 ? SLOT_WIDE : SLOT_NARROW) && !squeeze) return null;
   const bottom = fill ? CORNER : PAD;
   const room = height - top - bottom - 2 * FRAME - gap;
   let cell = fitCell(Math.min(width - 2 * PAD - 2 * FRAME, room - 96), size);

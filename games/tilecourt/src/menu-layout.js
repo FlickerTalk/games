@@ -48,8 +48,8 @@ function wideHome(width, height, { variants, rival, fill }) {
   const gridWidth = span(columns, TILE);
   const beside = rival && PAD + gridWidth + 2 * GAP + BIG + GAP + TILE <= width - PAD;
   const block = gridWidth + 2 * GAP + BIG + (beside ? TILE + GAP : 0);
-  const left = Math.max(PAD, (width - block) / 2);
-  const playX = left + gridWidth + 2 * GAP;
+  const left = Math.max(4, (width - block) / 2);
+  const playX = Math.min(left + gridWidth + 2 * GAP, width - 4 - BIG - (beside ? TILE + GAP : 0));
   const tall = rival && !beside ? BIG + GAP + TILE : BIG;
   const middle = top + Math.max(0, (bottom - top - tall) / 2);
   const seat = beside ? box(playX + BIG + GAP, middle + (BIG - TILE) / 2, TILE, TILE) : box(playX + (BIG - TILE) / 2, middle + BIG + GAP, TILE, TILE);
