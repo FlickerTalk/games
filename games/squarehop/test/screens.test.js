@@ -12,11 +12,42 @@ const DIGITS = /^[0-9]+$/;
 const framed = (game, theme = LIGHT) => paint((ctx) => drawFrame(ctx, game, theme, 1));
 const SHOWN = { sound: { level: "high", music: true, open: false, volume: 1 }, lang: "en", me: { player: { who: "ari" }, square: 12, face: "neutral" }, other: { player: { who: "flick" }, square: 7, face: "neutral", thinking: true }, turn: 1 };
 
+function written(ctx) {
+  const style = {};
+  const found = [];
+  for (const call of ctx.calls) {
+    if (call.op === "set") style[call.name] = call.value;
+    if (call.op !== "fillText") continue;
+    const size = parseFloat(/(\d+)px/.exec(style.font)[1]);
+    const wide = call.text.length * size * 0.62;
+    const [x] = call.points[0];
+    found.push({ text: call.text, size, left: style.textAlign === "right" ? x - wide : x, right: style.textAlign === "right" ? x : x + wide });
+  }
+  return found;
+}
+
 describe("the bar", () => {
-  it("shows both players, their squares where there is room, and the three round buttons", () => {
+  it("shows both players, their squares and the three round buttons at full size where there is room", () => {
     const wide = paint((ctx) => drawBar(ctx, playLayout(384, 801, { fill: true }), SHOWN, LIGHT, 0));
     expect(texts(wide).sort()).toEqual(["12", "7"]);
-    const narrow = paint((ctx) => drawBar(ctx, playLayout(328, 343, { fill: false }), SHOWN, LIGHT, 0));
+    expect(shapes(wide).length).toBeGreaterThan(40);
+  });
+
+  it("keeps both squares readable and apart in the short bar of a phone's room, with a full board of two-digit squares too", () => {
+    for (const [width, height] of [[352, 557], [328, 443], [328, 343]]) {
+      const shown = { ...SHOWN, me: { ...SHOWN.me, square: 30 }, other: { ...SHOWN.other, square: 29 } };
+      const layout = playLayout(width, height, { fill: false });
+      const [mine, theirs] = written(paint((ctx) => drawBar(ctx, layout, shown, LIGHT, 0)));
+      expect([mine.text, theirs.text], `${width}x${height}`).toEqual(["30", "29"]);
+      expect(Math.min(mine.size, theirs.size), `${width}x${height}`).toBeGreaterThanOrEqual(20);
+      expect(mine.left, `${width}x${height}`).toBeGreaterThanOrEqual(layout.bar.x + 38);
+      expect(theirs.left - mine.right, `${width}x${height}`).toBeGreaterThanOrEqual(6);
+      expect(theirs.right, `${width}x${height}`).toBeLessThan(layout.controls.pause.x - 30);
+    }
+  });
+
+  it("leaves the squares to the board in a bar too narrow for them", () => {
+    const narrow = paint((ctx) => drawBar(ctx, playLayout(280, 343, { fill: false }), SHOWN, LIGHT, 0));
     expect(texts(narrow)).toEqual([]);
     expect(shapes(narrow).length).toBeGreaterThan(40);
   });
