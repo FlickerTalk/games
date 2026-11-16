@@ -1,7 +1,7 @@
 import { FONT, oklchOf, softDay, themeFromTokens } from "../../../kit/src/canvas/index.js";
-import { LAND } from "./worlds/land/palette.js";
-import { SEA } from "./worlds/sea/palette.js";
-import { SPACE } from "./worlds/space/palette.js";
+import { LAND } from "./land-palette.js";
+import { SEA } from "./sea-palette.js";
+import { SPACE } from "./space-palette.js";
 
 const PALETTES = { space: SPACE, sea: SEA, land: LAND };
 

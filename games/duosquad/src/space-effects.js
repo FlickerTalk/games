@@ -1,4 +1,4 @@
-import { circle, clamp, ease, ellipse, line, paint, roundedRect } from "../../../../../kit/src/canvas/pen.js";
+import { circle, clamp, ease, ellipse, line, paint, roundedRect } from "../../../kit/src/canvas/pen.js";
 
 export function drawBolt(ctx, x, y, size, look, { seat = 0, wide = false, time = 0 } = {}) {
   const colour = look.bodies[seat][0];

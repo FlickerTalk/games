@@ -10,7 +10,7 @@ import { THEME, lookFor, themeFor } from "../src/theme.js";
 const SRC = join(import.meta.dirname, "..", "src");
 const COLOUR = /#[0-9a-f]{3,8}\b|\b(?:rgba?|hsla?|hwb|lab|lch|oklab|oklch)\(|\b(?:white|black|gr[ae]y|silver|red|blue|green|yellow|orange|purple|pink|brown|transparent)\b(?=["'`])/i;
 const CSS_COLOUR = /^(?:#[0-9A-F]{6}|rgba\(\d{1,3}, \d{1,3}, \d{1,3}, (?:0|1|0\.\d+)\))$/;
-const PALETTE_FILE = /^(?:theme|worlds\/[a-z]+\/palette)\.js$/;
+const PALETTE_FILE = /^(?:theme|[a-z]+-palette)\.js$/;
 const THEMES = Object.keys(APP_THEMES).map((name) => [name, themeFor(tokensFor(name), { dark: name.endsWith("-dark") })]);
 
 function leaves(value, path = []) {
@@ -65,7 +65,7 @@ describe("the theme", () => {
   });
 
   it("names colours only in itself and in each world's palette", () => {
-    const files = readdirSync(SRC, { recursive: true }).filter((file) => file.endsWith(".js") && !PALETTE_FILE.test(file.replaceAll("\\", "/")));
+    const files = readdirSync(SRC).filter((file) => file.endsWith(".js") && !PALETTE_FILE.test(file));
     expect(files.length).toBeGreaterThan(20);
     for (const file of files) {
       const code = readFileSync(join(SRC, file), "utf8");

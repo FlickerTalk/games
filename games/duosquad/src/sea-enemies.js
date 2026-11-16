@@ -1,6 +1,6 @@
-import { TAU, circle, clamp, ease, ellipse, line, polygon } from "../../../../../kit/src/canvas/pen.js";
-import { drawSeatMark } from "../marks.js";
-import { bubbles } from "./effects.js";
+import { TAU, circle, clamp, ease, ellipse, line, polygon } from "../../../kit/src/canvas/pen.js";
+import { drawSeatMark } from "./marks.js";
+import { bubbles } from "./sea-effects.js";
 
 const plate = (ctx, look, points, fill, width = 3) => polygon(ctx, points, fill, look.ink, width);
 

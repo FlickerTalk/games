@@ -1,4 +1,4 @@
-import { circle, ellipse, hash, line, polygon } from "../../../../../kit/src/canvas/pen.js";
+import { circle, ellipse, hash, line, polygon } from "../../../kit/src/canvas/pen.js";
 
 function marks(ctx, zone, width, height) {
   ctx.save();

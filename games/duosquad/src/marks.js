@@ -1,4 +1,4 @@
-import { polygon } from "../../../../kit/src/canvas/pen.js";
+import { polygon } from "../../../kit/src/canvas/pen.js";
 
 // The first seat's things carry a triangle and the second's a diamond, so they are told apart without colour.
 export function drawSeatMark(ctx, x, y, size, seat, fill, stroke = null, width = 0) {

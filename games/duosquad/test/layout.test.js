@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { overlap } from "../../../kit/src/canvas/layout.js";
 import { SIZES, checkTargets, inside } from "../../../kit/test/canvas/sizes.js";
 import { CRAFT_V } from "../src/crafts.js";
+import { homeOf, looksOf } from "../src/game.js";
 import { fromScreen, metricsOf, playLayout, playTargets, toScreen } from "../src/layout.js";
 
 const each = (run) => SIZES.forEach(([width, height, fill]) => run(playLayout(width, height, { fill }), `${width}x${height}`, { width, height, fill }));
@@ -53,5 +54,13 @@ describe("the play screen's layout", () => {
       checkTargets(targets, { ...size, name, least: () => 48 });
       expect(playTargets(layout, { volume: true })[0].kind).toBe("volume");
     });
+  });
+
+  it("fits the home screen with its three worlds and a page of four crafts in every frame, the smallest room too", () => {
+    for (const [width, height, fill] of SIZES) {
+      const state = { width, height, fill, page: 0 };
+      checkTargets(homeOf(state).targets, { width, height, fill, name: "home" });
+      checkTargets(looksOf(state).targets, { width, height, fill, name: "crafts" });
+    }
   });
 });

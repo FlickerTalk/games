@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { draw, shapes } from "../../../../kit/test/canvas/recorder.js";
-import { THEME } from "../../src/theme.js";
-import { ENEMIES } from "../../src/waves.js";
-import { land } from "../../src/worlds/land/index.js";
+import { draw, shapes } from "../../../kit/test/canvas/recorder.js";
+import { THEME } from "../src/theme.js";
+import { ENEMIES } from "../src/waves.js";
+import { land } from "../src/land.js";
 
 const look = THEME.art.worlds.land;
 const outline = (kind, options = {}) => shapes(draw((pen) => land.drawEnemy(pen, 0, 0, 70, kind, look, { time: 0, ...options }))).join("|");

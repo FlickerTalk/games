@@ -16,6 +16,10 @@ export const ZONES = Object.freeze({
   land: Object.freeze(["canyon", "salt", "storm"]),
 });
 
+// crafts to a page of the looks screen
+export const PAGE = 4;
+export const PAGES = Object.freeze([0, 1]);
+
 const FREE_EACH = 2;
 const inTurns = (from, to) => Array.from({ length: to - from }, (_, at) => WORLDS.map((world) => HULLS[world][from + at])).flat();
 

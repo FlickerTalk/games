@@ -1,6 +1,6 @@
-import { land } from "./land/index.js";
-import { sea } from "./sea/index.js";
-import { space } from "./space/index.js";
+import { land } from "./land.js";
+import { sea } from "./sea.js";
+import { space } from "./space.js";
 
 export const WORLD_ART = Object.freeze({ space, sea, land });
 

@@ -1,4 +1,4 @@
-import { circle, ellipse, line, paint, polygon, roundedRect } from "../../../../../kit/src/canvas/pen.js";
+import { circle, ellipse, line, paint, polygon, roundedRect } from "../../../kit/src/canvas/pen.js";
 
 function hover(ctx, look, width, time, dimmed) {
   ctx.save();

@@ -1,5 +1,5 @@
-import { circle, clamp, ease, ellipse, line, paint, polygon, roundedRect } from "../../../../../kit/src/canvas/pen.js";
-import { drawSeatMark } from "../marks.js";
+import { circle, clamp, ease, ellipse, line, paint, polygon, roundedRect } from "../../../kit/src/canvas/pen.js";
+import { drawSeatMark } from "./marks.js";
 
 function lamp(ctx, look, x, y, radius) {
   circle(ctx, x, y, radius + 3, look.iron, look.ink, 2);

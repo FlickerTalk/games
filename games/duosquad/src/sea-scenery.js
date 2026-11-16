@@ -1,5 +1,5 @@
-import { circle, ellipse, hash, line, polygon } from "../../../../../kit/src/canvas/pen.js";
-import { bubbles } from "./effects.js";
+import { circle, ellipse, hash, line, polygon } from "../../../kit/src/canvas/pen.js";
+import { bubbles } from "./sea-effects.js";
 
 function shafts(ctx, zone, width, height, time) {
   ctx.save();

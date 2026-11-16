@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { colours, draw } from "../../../../kit/test/canvas/recorder.js";
-import { HULLS } from "../../src/levels.js";
-import { THEME } from "../../src/theme.js";
-import { land } from "../../src/worlds/land/index.js";
+import { colours, draw } from "../../../kit/test/canvas/recorder.js";
+import { HULLS } from "../src/levels.js";
+import { THEME } from "../src/theme.js";
+import { land } from "../src/land.js";
 
 const look = THEME.art.worlds.land;
 const paints = (hull, options = {}) => colours(draw((pen) => land.drawCraft(pen, 0, 0, 80, hull, look, { seat: 0, time: 0, ...options })));

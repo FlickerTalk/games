@@ -1,4 +1,4 @@
-import { circle, clamp, line, paint, roundedRect } from "../../../../../kit/src/canvas/pen.js";
+import { circle, clamp, line, paint, roundedRect } from "../../../kit/src/canvas/pen.js";
 
 function braid(ctx, look, size, seat, time) {
   const [width, height] = [size * 1.1, size * 1.5];

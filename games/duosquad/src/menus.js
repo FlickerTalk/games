@@ -1,14 +1,14 @@
 import { pickLayout, pickPointer, pickRename, savePlayer, startPick } from "../../../kit/src/avatars/index.js";
 import { chooseLook, pressTargets, volumePointer } from "../../../kit/src/canvas/index.js";
 import { startFriend } from "./friend.js";
-import { HULLS, PROGRESS, WORLDS } from "./levels.js";
+import { HULLS, PAGE, PAGES, PROGRESS, WORLDS, hullOf } from "./levels.js";
 import { beginLocal, leaveRound } from "./rounds.js";
 
 const SHAKE_MS = 600;
 
 function pickLook(game, index) {
   const { state } = game;
-  const look = HULLS[state.world][index];
+  const look = HULLS[state.world][state.page * PAGE + index];
   if (!look) return;
   const { record, owned } = chooseLook(PROGRESS, state.progress, look);
   state.progress = record;
@@ -47,7 +47,12 @@ const ACTIONS = {
     game.state.pick = startPick(game.state.player);
     game.state.screen = "avatar";
   },
-  looks: (game) => (game.state.screen = "looks"),
+  looks(game) {
+    const { state } = game;
+    state.page = Math.floor(HULLS[state.world].indexOf(hullOf(state.progress, state.world)) / PAGE);
+    state.screen = "looks";
+  },
+  tab: (game, value) => PAGES.includes(value) && (game.state.page = value),
   home: (game) => (game.state.screen === "play" ? leaveRound(game) : (game.state.screen = "home")),
   done: (game) => (game.state.screen = "home"),
   look: (game, value) => pickLook(game, value),

@@ -1,4 +1,4 @@
-import { circle, ellipse, line, paint, polygon, roundedRect } from "../../../../../kit/src/canvas/pen.js";
+import { circle, ellipse, line, paint, polygon, roundedRect } from "../../../kit/src/canvas/pen.js";
 
 function engines(ctx, look, places, colour, time, dimmed) {
   for (const [x, y, scale = 1] of places) {

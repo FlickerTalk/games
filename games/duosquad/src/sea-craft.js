@@ -1,5 +1,5 @@
-import { TAU, circle, ellipse, line, paint, polygon, roundedRect } from "../../../../../kit/src/canvas/pen.js";
-import { bubbles } from "./effects.js";
+import { TAU, circle, ellipse, line, paint, polygon, roundedRect } from "../../../kit/src/canvas/pen.js";
+import { bubbles } from "./sea-effects.js";
 
 const SCOUT = 0;
 const TWIN = 1;

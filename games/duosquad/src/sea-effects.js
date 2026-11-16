@@ -1,4 +1,4 @@
-import { TAU, circle, clamp, ease, ellipse, line, paint, polygon, roundedRect } from "../../../../../kit/src/canvas/pen.js";
+import { TAU, circle, clamp, ease, ellipse, line, paint, polygon, roundedRect } from "../../../kit/src/canvas/pen.js";
 
 export function bubbles(ctx, x, y, size, time, count, colour) {
   for (let at = 0; at < count; at += 1) {

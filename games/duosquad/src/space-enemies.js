@@ -1,5 +1,5 @@
-import { circle, clamp, ease, line, paint, polygon, roundedRect } from "../../../../../kit/src/canvas/pen.js";
-import { drawSeatMark } from "../marks.js";
+import { circle, clamp, ease, line, paint, polygon, roundedRect } from "../../../kit/src/canvas/pen.js";
+import { drawSeatMark } from "./marks.js";
 
 function core(ctx, look, x, y, radius) {
   circle(ctx, x, y, radius + 3, look.visor, look.ink, 2);

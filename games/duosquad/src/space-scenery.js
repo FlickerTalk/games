@@ -1,4 +1,4 @@
-import { circle, hash, line, polygon } from "../../../../../kit/src/canvas/pen.js";
+import { circle, hash, line, polygon } from "../../../kit/src/canvas/pen.js";
 
 function stars(ctx, zone, width, height, time) {
   const count = Math.round((width * height) / 19000);

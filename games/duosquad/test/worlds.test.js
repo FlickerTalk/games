@@ -3,7 +3,7 @@ import { bounds, colours, draw, painted, shapes } from "../../../kit/test/canvas
 import { HULLS, ZONES } from "../src/levels.js";
 import { THEME } from "../src/theme.js";
 import { KINDS } from "../src/waves.js";
-import { WORLD_ART } from "../src/worlds/index.js";
+import { WORLD_ART } from "../src/worlds.js";
 
 const NAMES = ["cockpitOf", "drawBolt", "drawBoss", "drawCaught", "drawCraft", "drawEnemy", "drawFreed", "drawHazard", "drawLink", "drawOrb", "drawPop", "drawScenery"];
 const outline = (paint) => shapes(draw(paint)).join("|");

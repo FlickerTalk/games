@@ -2,7 +2,7 @@ import { defaultPlayer, loadPlayer, pickLayout, pickPress, savePlayer } from "..
 import { endLayout, foldWhenIdle, homeLayout, looksLayout, pauseLayout, playMode, soundState } from "../../../kit/src/canvas/index.js";
 import { isChat } from "../../../kit/src/store.js";
 import { advanceFriend, joinFriend } from "./friend.js";
-import { HULLS, PROGRESS, WORLDS } from "./levels.js";
+import { PAGE, PAGES, PROGRESS, WORLDS } from "./levels.js";
 import { playLayout, playTargets } from "./layout.js";
 import { act, menuPointer, renamePlayer } from "./menus.js";
 import { advanceLocal, fallingOf, seenOf } from "./rounds.js";
@@ -23,7 +23,7 @@ async function readOwn(store) {
 
 function freshState() {
   return {
-    screen: "home", mode: "alone", lang: "en", chat: null, world: WORLDS[0], taught: [], steer: null,
+    screen: "home", mode: "alone", lang: "en", chat: null, world: WORLDS[0], taught: [], steer: null, page: 0,
     width: 0, height: 0, fill: false, layout: null, player: defaultPlayer(), progress: PROGRESS.fresh(),
     round: null, outcome: null, paused: false, moments: [], pick: null, press: null,
     sound: { level: "high", music: true, open: false, volume: 1 }, volumeAt: 0,
@@ -31,7 +31,7 @@ function freshState() {
 }
 
 export const homeOf = (state) => homeLayout(state.width, state.height, { variants: WORLDS, rival: true, fill: state.fill });
-export const looksOf = (state) => looksLayout(state.width, state.height, { kind: state.world, count: HULLS[state.world].length, fill: state.fill });
+export const looksOf = (state) => looksLayout(state.width, state.height, { kind: state.page, count: PAGE, fill: state.fill, tabs: PAGES });
 
 function withVolume(game, targets) {
   return game.state.sound.open && game.state.layout ? [{ kind: "volume", value: "volume", ...game.state.layout.volume }, ...targets] : targets;

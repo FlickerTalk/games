@@ -158,16 +158,18 @@ describe("the game", () => {
     expect(game.state).toMatchObject({ screen: "home", round: null });
   });
 
-  it("shows the crafts of the chosen world on the looks screen, and only lets the player take one they have", async () => {
+  it("shows the crafts of the chosen world on the looks screen, four to a page, and only lets the player take one they have", async () => {
     const { game, store } = await makeGame({ opening: { solo: true } });
     await press(game, "variant", "land");
     await press(game, "looks");
-    expect(game.targets().filter((one) => one.kind === "look")).toHaveLength(HULLS.land.length);
+    expect(game.targets().filter((one) => one.kind === "look")).toHaveLength(HULLS.land.length / 2);
+    expect(game.targets().filter((one) => one.kind === "tab").map((one) => one.value)).toEqual([0, 1]);
     await press(game, "look", 1);
     expect(game.state.progress.chosen.land).toBe(HULLS.land[1]);
-    await press(game, "look", 5);
+    await press(game, "tab", 1);
+    await press(game, "look", 1);
     expect(game.state.progress.chosen.land).toBe(HULLS.land[1]);
-    expect(game.state.moments.some((one) => one.kind === "shake" && one.index === 5)).toBe(true);
+    expect(game.state.moments.some((one) => one.kind === "shake" && one.index === 1)).toBe(true);
     expect(JSON.parse(store.kept.get("progress")).chosen.land).toBe(HULLS.land[1]);
     await press(game, "done");
     await press(game, "play");
