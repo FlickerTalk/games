@@ -64,6 +64,7 @@ describe("the play screen", () => {
       for (const rival of [false, true]) {
         const layout = playLayout(width, height, { fill, rival });
         if (!layout.album) continue;
+        expect(layout.bar.h, name).toBeGreaterThan(layout.row);
         const { pause, speaker, music } = layout.controls;
         for (const button of [pause, speaker, music]) expect(overlap(layout.album, button), name).toBe(false);
         expect(layout.album.x, name).toBeGreaterThan(layout.bar.x + 110);

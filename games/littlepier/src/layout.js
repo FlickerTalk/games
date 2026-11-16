@@ -14,10 +14,10 @@ function anglerSize(width, stage, least) {
   return Math.min(clamp(width * 0.24, least, 150), (stage * 0.38 - 6) / 1.2);
 }
 
-function albumBadge(top, rival) {
+function albumBadge(top) {
   const { bar, row, controls } = top;
   const left = controls.pause.x - 8 - 48;
-  if (left < bar.x + 120 || (rival && !(bar.h > row))) return null;
+  if (left < bar.x + 120 || !(bar.h > row)) return null;
   return box(left, bar.y + 4, 48, row - 8);
 }
 
@@ -48,7 +48,7 @@ export function playLayout(width, height, { fill = false, rival = false } = {}) 
   const layout = {
     width, height, fill, ...top,
     ...sceneLayout(box(0, start, width, height - start), { least: 56 }),
-    album: albumBadge(top, rival),
+    album: albumBadge(top),
     hold: box(0, start, width, height - (fill ? CORNER : 0) - start),
   };
   layout.reach = { w: width, h: depthOf(layout, 1) - depthOf(layout, 0), radius: layout.fish * 0.42 };
