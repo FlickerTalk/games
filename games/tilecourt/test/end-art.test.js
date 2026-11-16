@@ -76,3 +76,18 @@ describe("the star screen's layout", () => {
     expect(after.some(([x, y]) => Math.abs(x - (music.x + music.w / 2)) < 1 && Math.abs(y - (music.y + music.h / 2)) < 1)).toBe(true);
   });
 });
+
+describe("the star screen in the room of a small phone", () => {
+  it("still shows the three stars and the score beside the buttons", async () => {
+    for (const gift of [null, "leaves"]) {
+      const { game } = await ended({ width: 328, height: 343, fill: false });
+      const state = { ...game.state, outcome: { ...game.state.outcome, gift, opened: false } };
+      const ctx = draw((pen) => drawEnd(pen, state, null, THEME, 1));
+      const shade = ctx.calls.findLastIndex((call) => call.op === "fillRect" && call.points[0][0] === 0 && call.points[1][0] === 328);
+      const card = ctx.calls.slice(shade);
+      expect(card.filter((call) => call.op === "fillText").map((call) => call.text)).toContain(String(game.state.outcome.score));
+      const stars = card.filter((call, at) => call.op === "moveTo" && card[at + 9]?.op === "lineTo" && card[at + 10]?.op === "closePath");
+      expect(stars.length).toBeGreaterThanOrEqual(3);
+    }
+  });
+});

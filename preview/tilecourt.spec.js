@@ -191,7 +191,8 @@ for (const [label, type] of engines) {
   const engine = await type.launch();
   for (const device of DEVICES) {
     await walk(engine, device, true, "&solo", `${label}-fill-${device.name}-flick`);
-    await walk(engine, device, false, "&alone", `${label}-room-${device.name}-alone`);
+    // WebKit does not take Playwright's screen size, and the room's height comes from the screen
+    if (label === "chromium") await walk(engine, device, false, "&alone", `${label}-room-${device.name}-alone`);
   }
   await walk(engine, DEVICES[1], true, "&alone&theme=ember-dark", `${label}-fill-384x853-dark-app`);
   await engine.close();

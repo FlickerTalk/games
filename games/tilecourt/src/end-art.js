@@ -66,9 +66,20 @@ function scores(ctx, x, y, state, theme) {
   digits(ctx, number(outcome.best, lang), x + 12, y + text.big, text.best, theme);
 }
 
+const ROOMY = 130;
+
+function contentArea(card, home, again, gift, withGift) {
+  const wide = again.x > card.x + card.w / 2 + again.w / 2;
+  if (wide) return { x: home.x + home.w + 8, y: card.y + 12, w: gift.x - home.x - home.w - 24, h: card.h - 24 };
+  const below = { x: card.x + 12, y: home.y + home.h + 4, w: card.w - 24, h: again.y - home.y - home.h - 12 };
+  if (below.h >= ROOMY) return below;
+  const right = withGift ? gift.x - 8 : card.x + card.w - 12;
+  return { x: home.x + home.w + 8, y: home.y, w: right - home.x - home.w - 8, h: again.y - home.y - 4 };
+}
+
 function block(ctx, area, state, rival, theme, time) {
   const { outcome } = state;
-  const star = Math.min(66, area.w / 3.2);
+  const star = Math.max(24, Math.min(66, area.w / 3.2, area.h - 94));
   const parts = [["stars", star + 10], ["score", 84], ["versus", rival ? 110 : 0], ["picture", 90]];
   const shown = [];
   let used = 0;
@@ -108,11 +119,7 @@ export function drawEnd(ctx, state, rival, theme, time) {
   const at = (kind) => layout.targets.find((one) => one.kind === kind);
   const [home, again, gift] = [at("home"), at("again"), at("gift")];
   panel(ctx, layout.card, theme);
-  const wide = again.x > layout.card.x + layout.card.w / 2 + again.w / 2;
-  const area = wide
-    ? { x: home.x + home.w + 8, y: layout.card.y + 12, w: gift.x - home.x - home.w - 24, h: layout.card.h - 24 }
-    : { x: layout.card.x + 12, y: home.y + home.h + 4, w: layout.card.w - 24, h: again.y - home.y - home.h - 12 };
-  block(ctx, area, state, rival, theme, time);
+  block(ctx, contentArea(layout.card, home, again, gift, Boolean(outcome.gift)), state, rival, theme, time);
   present(ctx, gift, outcome, theme, time);
   drawButton(ctx, "home", ...centreOf(home), home.w - 8, theme, { fill: theme.ui.accent });
   drawButton(ctx, "again", ...centreOf(again), again.w, theme);
