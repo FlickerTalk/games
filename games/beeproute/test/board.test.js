@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { bounds, painted, shapes } from "../../../kit/test/canvas/recorder.js";
-import { drawPlay } from "../src/board.js";
+import { drawHint, drawPlay } from "../src/board.js";
 import { DARK, LIGHT, SIZES, gameAt, paint, texts } from "./screens.js";
 
 const at = (game, theme = LIGHT, time = 1) => paint((ctx) => drawPlay(ctx, game.state, theme, time));
@@ -39,6 +39,25 @@ describe("the play screen", () => {
     const shown = at(game);
     game.state.hint = null;
     expect(shapes(shown).length).toBeGreaterThan(shapes(at(game)).length);
+  });
+
+  it("keeps the whole teaching hand inside the frame, over whichever button it points at", async () => {
+    for (const [width, height, fill] of [...SIZES, [384, 723, true], [352, 557, false]]) {
+      const { game } = await gameAt("play", { width, height, fill });
+      for (const button of game.state.layout.buttons.filter((one) => ["command", "undo"].includes(one.kind))) {
+        game.state.hint = { kind: button.kind, value: button.value };
+        for (const time of [0, 0.4, 0.8, 1.2]) {
+          const box = bounds(painted(paint((ctx) => drawHint(ctx, game.state, LIGHT, time))));
+          const where = `${button.kind} ${button.value} at ${width}x${height}`;
+          expect(box.left, where).toBeGreaterThanOrEqual(0);
+          expect(box.top, where).toBeGreaterThanOrEqual(0);
+          expect(box.right, where).toBeLessThanOrEqual(width);
+          expect(box.bottom, where).toBeLessThanOrEqual(height);
+          expect(box.left, where).toBeLessThan(button.x + button.w);
+          expect(box.top, where).toBeLessThan(button.y + button.h);
+        }
+      }
+    }
   });
 
   it("keeps its shapes in a dark theme, adding a light rim around the outlines", async () => {
