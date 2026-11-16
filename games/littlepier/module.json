@@ -1,0 +1,98 @@
+{
+  "id": "com.flickertalk.game.littlepier",
+  "name": "Little Pier",
+  "version": "1.0.0",
+  "minCoreVersion": "1.6.0",
+  "kind": "game",
+  "icon": "fish-outline",
+  "components": [
+    "ft-littlepier"
+  ],
+  "permissions": {
+    "live": true,
+    "send": "propose"
+  },
+  "summary": "Calm fishing with nothing to lose: hold to lower the hook, let go to bring up what bit, and fill a sticker album, alone, with FlickerTalk or with the other person in the chat.",
+  "locales": {
+    "es": {
+      "name": "Little Pier",
+      "summary": "Pesca tranquila en la que no se pierde nada: mantén pulsado para bajar el anzuelo, suelta para subir lo que picó y llena un álbum de cromos, solo, con FlickerTalk o con la otra persona del chat."
+    },
+    "pt": {
+      "name": "Little Pier",
+      "summary": "Pesca tranquila em que nada se perde: segure para baixar o anzol, solte para puxar o que fisgou e complete um álbum de figurinhas, sozinho, com o FlickerTalk ou com a outra pessoa da conversa."
+    },
+    "fr": {
+      "name": "Little Pier",
+      "summary": "Une pêche paisible où l’on ne perd rien : maintiens pour descendre l’hameçon, lâche pour remonter ce qui a mordu et remplis un album d’autocollants, seul, avec FlickerTalk ou avec ton contact."
+    },
+    "de": {
+      "name": "Little Pier",
+      "summary": "Ruhiges Angeln, bei dem man nichts verlieren kann: Halten senkt den Haken, Loslassen holt hoch, was angebissen hat. Füll ein Stickeralbum, allein, mit FlickerTalk oder mit der anderen Person im Chat."
+    },
+    "it": {
+      "name": "Little Pier",
+      "summary": "Pesca tranquilla in cui non si perde nulla: tieni premuto per calare l’amo, lascia per tirare su ciò che ha abboccato e riempi un album di figurine, da solo, con FlickerTalk o con il tuo contatto."
+    },
+    "ro": {
+      "name": "Little Pier",
+      "summary": "Pescuit liniștit, fără nimic de pierdut: ține apăsat ca să cobori cârligul, dă drumul ca să scoți ce a mușcat și umple un album cu abțibilduri, singur, cu FlickerTalk sau cu persoana din chat."
+    },
+    "ru": {
+      "name": "Little Pier",
+      "summary": "Спокойная рыбалка, где нельзя проиграть: удерживай, чтобы опустить крючок, отпусти, чтобы вытащить улов, и собирай альбом наклеек — одному, с FlickerTalk или с собеседником из чата."
+    },
+    "uk": {
+      "name": "Little Pier",
+      "summary": "Спокійна риболовля, де неможливо програти: утримуй, щоб опустити гачок, відпусти, щоб витягти улов, і збирай альбом наліпок — самому, з FlickerTalk або з людиною з чату."
+    },
+    "pl": {
+      "name": "Little Pier",
+      "summary": "Spokojne wędkowanie, w którym nie da się przegrać: przytrzymaj, by opuścić haczyk, puść, by wyciągnąć to, co wzięło, i zapełniaj album z naklejkami — sam, z FlickerTalk albo z drugą osobą z czatu."
+    },
+    "tr": {
+      "name": "Little Pier",
+      "summary": "Kaybetmenin olmadığı sakin bir balık avı: oltayı indirmek için basılı tut, takılanı çekmek için bırak ve çıkartma albümünü doldur; tek başına, FlickerTalk ile ya da sohbetteki kişiyle."
+    },
+    "ar": {
+      "name": "Little Pier",
+      "summary": "صيد هادئ لا خسارة فيه: اضغط مطولًا لإنزال الصنارة، واترك لرفع ما علق بها، واملأ ألبوم الملصقات، وحدك أو مع FlickerTalk أو مع الشخص الآخر في المحادثة."
+    },
+    "hi": {
+      "name": "Little Pier",
+      "summary": "सुकून भरा मछली पकड़ना, जिसमें हारने को कुछ नहीं: काँटा नीचे करने के लिए दबाए रखें, जो फँसा उसे ऊपर लाने के लिए छोड़ें और स्टिकर एल्बम भरें, अकेले, FlickerTalk के साथ या चैट के दूसरे व्यक्ति के साथ।"
+    },
+    "bn": {
+      "name": "Little Pier",
+      "summary": "শান্ত মাছ ধরা, যেখানে হারানোর কিছু নেই: বড়শি নামাতে চেপে ধরুন, যা ধরা পড়ল তুলতে ছেড়ে দিন আর স্টিকার অ্যালবাম ভরান, একা, FlickerTalk-এর সঙ্গে বা চ্যাটের অন্যজনের সঙ্গে।"
+    },
+    "id": {
+      "name": "Little Pier",
+      "summary": "Memancing santai tanpa bisa kalah: tahan untuk menurunkan kail, lepas untuk mengangkat yang tersangkut, dan isi album stiker, sendiri, bersama FlickerTalk, atau bersama orang lain di obrolan."
+    },
+    "vi": {
+      "name": "Little Pier",
+      "summary": "Câu cá thư thả, không có gì để thua: giữ để thả lưỡi câu, thả tay để kéo lên thứ đã cắn câu và làm đầy album nhãn dán, một mình, cùng FlickerTalk hoặc cùng người kia trong cuộc trò chuyện."
+    },
+    "th": {
+      "name": "Little Pier",
+      "summary": "ตกปลาสบาย ๆ ไม่มีแพ้ แตะค้างเพื่อหย่อนเบ็ด ปล่อยเพื่อดึงสิ่งที่ติดเบ็ดขึ้นมา แล้วสะสมสติกเกอร์ให้เต็มอัลบั้ม เล่นคนเดียว เล่นกับ FlickerTalk หรือกับอีกคนในแชท"
+    },
+    "ja": {
+      "name": "Little Pier",
+      "summary": "負けのない、のんびり釣りゲーム。長押しで針をおろし、はなして釣り上げ、ステッカーアルバムをうめよう。ひとりで、FlickerTalk と、またはチャットの相手と。"
+    },
+    "ko": {
+      "name": "Little Pier",
+      "summary": "질 일이 없는 느긋한 낚시: 길게 눌러 낚싯바늘을 내리고, 손을 떼어 문 것을 끌어올려 스티커 앨범을 채우세요. 혼자, FlickerTalk와, 또는 채팅 상대와 함께."
+    },
+    "zh-CN": {
+      "name": "Little Pier",
+      "summary": "不会输的悠闲钓鱼：按住放下鱼钩，松手拉起上钩的东西，集满贴纸相册，可以独自玩、和 FlickerTalk 一起，或和聊天里的对方一起玩。"
+    },
+    "zh-TW": {
+      "name": "Little Pier",
+      "summary": "不會輸的悠閒釣魚：按住放下魚鉤，鬆手拉起上鉤的東西，集滿貼紙相簿，可以獨自玩、和 FlickerTalk 一起，或和聊天裡的對方一起玩。"
+    }
+  }
+}
