@@ -1,0 +1,98 @@
+{
+  "id": "com.flickertalk.game.colourcorner",
+  "name": "Colour Corner",
+  "version": "1.0.0",
+  "minCoreVersion": "1.6.0",
+  "kind": "game",
+  "icon": "color-palette-outline",
+  "components": [
+    "ft-colourcorner"
+  ],
+  "permissions": {
+    "live": true,
+    "send": "propose"
+  },
+  "summary": "Colouring pages filled zone by zone, and free painting with brushes, stamps and a mirror, alone, with FlickerTalk or with the other person in the chat.",
+  "locales": {
+    "es": {
+      "name": "Colour Corner",
+      "summary": "Dibujos para colorear zona a zona y pintura libre con pinceles, sellos y un espejo, solo, con FlickerTalk o con la otra persona del chat."
+    },
+    "pt": {
+      "name": "Colour Corner",
+      "summary": "Desenhos para colorir área por área e pintura livre com pincéis, carimbos e espelho, sozinho, com o FlickerTalk ou com a outra pessoa da conversa."
+    },
+    "fr": {
+      "name": "Colour Corner",
+      "summary": "Des coloriages à remplir zone par zone et de la peinture libre avec pinceaux, tampons et miroir, seul, avec FlickerTalk ou avec l’autre personne du chat."
+    },
+    "de": {
+      "name": "Colour Corner",
+      "summary": "Ausmalbilder, Feld für Feld gefüllt, und freies Malen mit Pinseln, Stempeln und Spiegel, allein, mit FlickerTalk oder mit der anderen Person im Chat."
+    },
+    "it": {
+      "name": "Colour Corner",
+      "summary": "Disegni da colorare zona per zona e pittura libera con pennelli, timbri e uno specchio, da solo, con FlickerTalk o con l’altra persona della chat."
+    },
+    "ro": {
+      "name": "Colour Corner",
+      "summary": "Planșe de colorat umplute zonă cu zonă și pictură liberă cu pensule, ștampile și oglindă, singur, cu FlickerTalk sau cu cealaltă persoană din conversație."
+    },
+    "ru": {
+      "name": "Colour Corner",
+      "summary": "Раскраски, которые заполняются по частям, и свободное рисование кистями, штампами и зеркалом — одному, с FlickerTalk или с собеседником из чата."
+    },
+    "uk": {
+      "name": "Colour Corner",
+      "summary": "Розмальовки, що заповнюються частина за частиною, і вільне малювання пензликами, штампами та дзеркалом — самому, з FlickerTalk або з людиною з чату."
+    },
+    "pl": {
+      "name": "Colour Corner",
+      "summary": "Kolorowanki wypełniane pole po polu i swobodne malowanie pędzlami, stemplami i lustrem — sam, z FlickerTalk albo z drugą osobą z czatu."
+    },
+    "tr": {
+      "name": "Colour Corner",
+      "summary": "Bölüm bölüm doldurulan boyama sayfaları ve fırça, damga ve aynayla serbest boyama; tek başına, FlickerTalk ile ya da sohbetteki kişiyle."
+    },
+    "ar": {
+      "name": "Colour Corner",
+      "summary": "صفحات تلوين تُملأ جزءًا جزءًا، ورسم حر بالفُرش والأختام والمرآة، وحدك أو مع FlickerTalk أو مع الشخص الآخر في المحادثة."
+    },
+    "hi": {
+      "name": "Colour Corner",
+      "summary": "हिस्सा-दर-हिस्सा रंग भरने वाले चित्र और ब्रश, मुहरों व दर्पण से मुक्त चित्रकारी, अकेले, FlickerTalk के साथ या चैट के दूसरे व्यक्ति के साथ।"
+    },
+    "bn": {
+      "name": "Colour Corner",
+      "summary": "অংশ ধরে ধরে রং করার ছবি, আর তুলি, ছাপ ও আয়না দিয়ে মুক্তভাবে আঁকা, একা, FlickerTalk-এর সঙ্গে বা চ্যাটের অন্যজনের সঙ্গে।"
+    },
+    "id": {
+      "name": "Colour Corner",
+      "summary": "Gambar mewarnai yang diisi bagian demi bagian dan melukis bebas dengan kuas, stempel, dan cermin, sendiri, bersama FlickerTalk, atau bersama orang lain di obrolan."
+    },
+    "vi": {
+      "name": "Colour Corner",
+      "summary": "Tranh tô màu theo từng phần và vẽ tự do với cọ, con dấu và gương, chơi một mình, với FlickerTalk hoặc với người kia trong cuộc trò chuyện."
+    },
+    "th": {
+      "name": "Colour Corner",
+      "summary": "ภาพระบายสีที่เติมทีละส่วน และวาดภาพอิสระด้วยพู่กัน ตราปั๊ม และกระจก เล่นคนเดียว เล่นกับ FlickerTalk หรือกับอีกคนในแชท"
+    },
+    "ja": {
+      "name": "Colour Corner",
+      "summary": "部分ごとにぬっていくぬりえと、筆・スタンプ・ミラーで描く自由なお絵かき。ひとりで、FlickerTalk と、またはチャットの相手と。"
+    },
+    "ko": {
+      "name": "Colour Corner",
+      "summary": "부분마다 색을 채우는 색칠 그림과 붓, 도장, 거울로 하는 자유 그리기. 혼자, FlickerTalk와, 또는 채팅 상대와 함께."
+    },
+    "zh-CN": {
+      "name": "Colour Corner",
+      "summary": "逐个区域填色的涂色画，以及用画笔、印章和镜像自由绘画，可以独自玩、和 FlickerTalk 一起，或和聊天里的对方一起玩。"
+    },
+    "zh-TW": {
+      "name": "Colour Corner",
+      "summary": "逐個區域填色的著色畫，以及用畫筆、印章和鏡像自由繪畫，可以獨自玩、和 FlickerTalk 一起，或和聊天裡的對方一起玩。"
+    }
+  }
+}
