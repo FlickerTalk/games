@@ -77,6 +77,16 @@ describe("the soft day", () => {
     expect(softDay("#4C5877", { dark: false })).toBe("#4C5877");
   });
 
+  it("takes a part of the stage deeper still on a dark page when asked, and never on a light one", () => {
+    for (const colour of PALE) {
+      const soft = oklchOf(softDay(colour, { dark: true })).l;
+      const deep = oklchOf(softDay(colour, { dark: true, deeper: 0.1 })).l;
+      expect(soft - deep, colour).toBeCloseTo(0.1, 2);
+      expect(softDay(colour, { dark: false, deeper: 0.1 }), colour).toBe(softDay(colour, { dark: false }));
+    }
+    expect(softStage({ stone: "#F4EBDD" }, { dark: true, deeper: 0.1 }).stone).toBe(softDay("#F4EBDD", { dark: true, deeper: 0.1 }));
+  });
+
   it("keeps a colour's transparency", () => {
     expect(rgbaOf(softDay("rgba(255, 240, 166, 0.4)", { dark: true }))[3]).toBe(0.4);
   });

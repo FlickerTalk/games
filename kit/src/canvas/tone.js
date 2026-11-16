@@ -89,11 +89,11 @@ export function mixColours(from, to, amount) {
   return cssOf(one.map((value, at) => value * amount + two[at] * (1 - amount)));
 }
 
-export function softDay(colour, { dark }) {
+export function softDay(colour, { dark, deeper = 0 }) {
   const rgba = rgbaOf(colour);
   if (!rgba) return colour;
   const tone = oklchOf(colour);
-  if (dark) return fromOklch({ ...tone, l: 0.18 + 0.4 * tone.l, c: tone.c * 0.8 });
+  if (dark) return fromOklch({ ...tone, l: 0.18 + 0.4 * tone.l - deeper, c: tone.c * 0.8 });
   if (tone.l <= 0.8) return cssOf(rgba);
   return fromOklch({ ...tone, l: 0.8 + (tone.l - 0.8) * 0.55 });
 }
