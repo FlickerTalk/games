@@ -1,0 +1,38 @@
+{
+  "id": "com.flickertalk.game.cardcorner",
+  "name": "Card Corner",
+  "version": "1.0.0",
+  "minCoreVersion": "1.6.0",
+  "kind": "game",
+  "icon": "copy-outline",
+  "components": [
+    "ft-cardcorner"
+  ],
+  "permissions": {
+    "live": true,
+    "send": "propose"
+  },
+  "summary": "Four card games with the other person in the chat: Pairs, War, Rummy and Go Fish, with a deck shuffled by both phones.",
+  "locales": {
+    "es": { "name": "Rincón de cartas", "summary": "Cuatro juegos de cartas con la otra persona del chat: Parejas, Guerra, Rummy y Pesca, con una baraja mezclada por los dos teléfonos." },
+    "pt": { "name": "Canto das cartas", "summary": "Quatro jogos de cartas com a outra pessoa da conversa: Pares, Guerra, Rummy e Pesca, com um baralho baralhado pelos dois telefones." },
+    "fr": { "name": "Coin des cartes", "summary": "Quatre jeux de cartes avec l’autre personne de la conversation : Paires, Bataille, Rami et Pêche, avec un jeu mélangé par les deux téléphones." },
+    "de": { "name": "Kartenecke", "summary": "Vier Kartenspiele mit der anderen Person im Chat: Paare, Krieg, Rommé und Go Fish, mit einem von beiden Telefonen gemischten Blatt." },
+    "it": { "name": "Angolo delle carte", "summary": "Quattro giochi di carte con l’altra persona della chat: Coppie, Guerra, Ramino e Pesca, con un mazzo mescolato dai due telefoni." },
+    "ro": { "name": "Colțul cărților", "summary": "Patru jocuri de cărți cu cealaltă persoană din conversație: Perechi, Război, Remi și La pescuit, cu un pachet amestecat de ambele telefoane." },
+    "ru": { "name": "Карточный уголок", "summary": "Четыре карточные игры с собеседником из чата: «Пары», «Пьяница», «Рамми» и «Рыбалка»; колоду тасуют оба телефона." },
+    "uk": { "name": "Картковий куточок", "summary": "Чотири карткові гри зі співрозмовником із чату: «Пари», «П’яниця», «Раммі» та «Риболовля»; колоду тасують обидва телефони." },
+    "pl": { "name": "Karciany kącik", "summary": "Cztery gry karciane z drugą osobą z czatu: Pary, Wojna, Remik i Na ryby, z talią tasowaną przez oba telefony." },
+    "tr": { "name": "Kart Köşesi", "summary": "Sohbetteki diğer kişiyle dört kart oyunu: Eşler, Savaş, Remi ve Balık Tut; desteyi iki telefon birlikte karar." },
+    "ar": { "name": "ركن الورق", "summary": "أربع ألعاب ورق مع الشخص الآخر في الدردشة: الأزواج والحرب ورمي وصيد السمك، بأوراق يخلطها الهاتفان معًا." },
+    "hi": { "name": "ताश का कोना", "summary": "चैट के दूसरे व्यक्ति के साथ ताश के चार खेल: जोड़े, युद्ध, रमी और गो फ़िश; गड्डी दोनों फ़ोन मिलकर फेंटते हैं।" },
+    "bn": { "name": "তাসের কোণ", "summary": "চ্যাটের অন্য ব্যক্তির সঙ্গে তাসের চারটি খেলা: জোড়া, যুদ্ধ, রামি ও গো ফিশ; কার্ড দুই ফোন মিলে ফেটায়।" },
+    "id": { "name": "Pojok Kartu", "summary": "Empat permainan kartu dengan orang lain di obrolan: Pasangan, Perang, Remi, dan Memancing, dengan kartu yang dikocok oleh kedua ponsel." },
+    "vi": { "name": "Góc bài", "summary": "Bốn trò chơi bài với người kia trong cuộc trò chuyện: Cặp đôi, Chiến tranh, Rummy và Câu cá, với bộ bài do cả hai điện thoại xáo." },
+    "th": { "name": "มุมไพ่", "summary": "เกมไพ่สี่เกมกับอีกคนในแชท: จับคู่ สงคราม รัมมี่ และโกฟิช ด้วยสำรับที่โทรศัพท์ทั้งสองสับร่วมกัน" },
+    "ja": { "name": "カードコーナー", "summary": "チャットの相手と遊ぶ4つのトランプゲーム：神経衰弱、戦争、ラミー、ゴーフィッシュ。山札は2台の端末が一緒に混ぜます。" },
+    "ko": { "name": "카드 코너", "summary": "채팅 상대와 즐기는 네 가지 카드 게임: 짝 맞추기, 전쟁, 러미, 고 피시. 카드는 두 휴대폰이 함께 섞어요." },
+    "zh-CN": { "name": "纸牌角", "summary": "与聊天中的对方玩四种纸牌游戏：配对、战争、拉米和钓鱼，牌由两部手机共同洗过。" },
+    "zh-TW": { "name": "紙牌角", "summary": "與聊天中的對方玩四種紙牌遊戲：配對、戰爭、拉密和釣魚，牌由兩支手機共同洗過。" }
+  }
+}
