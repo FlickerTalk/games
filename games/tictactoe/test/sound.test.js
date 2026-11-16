@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { TIMING } from "../../../kit/src/table.js";
@@ -66,10 +66,16 @@ describe("Tic-Tac-Toe's sound", () => {
     expect(names(played).filter((name) => ["place", "pop"].includes(name)).length).toBe(element.table.view.round.moves.length);
   });
 
-  it("is in Tic-Tac-Toe's package, and not in a game that has no sound", () => {
-    const dist = (name) => readFileSync(join(import.meta.dirname, "..", "..", name, "dist", "index.js"), "utf8");
+  it("is in Tic-Tac-Toe's package, and in no game that does not ask for sound", () => {
+    const games = join(import.meta.dirname, "..", "..");
+    const src = (name) => readdirSync(join(games, name, "src")).map((file) => readFileSync(join(games, name, "src", file), "utf8"));
+    const dist = (name) => readFileSync(join(games, name, "dist", "index.js"), "utf8");
     expect(dist("tictactoe")).toContain("ftg-sound-buttons");
-    expect(dist("fourinarow")).not.toContain("ftg-sound-buttons");
-    expect(dist("fourinarow")).not.toContain("lose-soft");
+    const silent = readdirSync(games).filter((name) => !src(name).some((code) => code.includes("sound/index.js")));
+    expect(silent.length).toBeGreaterThan(0);
+    for (const name of silent) {
+      expect(dist(name), name).not.toContain("ftg-sound-buttons");
+      expect(dist(name), name).not.toContain("lose-soft");
+    }
   });
 });
