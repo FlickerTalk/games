@@ -116,6 +116,10 @@ describe("the kit's stylesheet", () => {
     const wide = css.slice(css.indexOf("@media (min-width: 720px)"));
     expect(wide).not.toMatch(/\.ftg-main|\.ftg-stage|\.ftg-players/);
   });
+
+  it("keeps the room's side margin around the board and the players when the app gives the game the whole window, as Ionic pads a page", () => {
+    expect(css).toMatch(/:root\[data-fill\]\s+\.ftg\s*>\s*ion-content\s*\{[^}]*--padding-start:\s*var\(--ion-padding, 16px\);[^}]*--padding-end:\s*var\(--ion-padding, 16px\);/);
+  });
 });
 
 describe("watching the frame", () => {
