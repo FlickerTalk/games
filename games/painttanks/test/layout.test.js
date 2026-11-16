@@ -28,30 +28,42 @@ describe("the play screen's layout", () => {
     expect(open).not.toContain("power");
   });
 
-  it("fits the whole battlefield across the frame, as large as the frame allows, its ground at the bottom", () => {
+  it("fits the whole battlefield across the frame, as large as the frame allows", () => {
     eachSize(({ width, height, fill }) => {
       const { view } = playLayout(width, height, { fill });
       expect(view.scale * WORLD.width, `${width}x${height}`).toBeLessThanOrEqual(width + 0.5);
-      expect(view.y + WORLD.height * view.scale, `${width}x${height}`).toBeCloseTo(height, 0);
+      expect(view.y + WORLD.height * view.scale, `${width}x${height}`).toBeLessThanOrEqual(height + 0.5);
       expect(view.x).toBeGreaterThanOrEqual(-0.5);
     });
   });
 
-  it("keeps the controls in the sky, clear of the vehicles and of the ground between them", () => {
+  it("keeps the controls off the battlefield: in the sky above it, or the shoot button on the ground under it", () => {
     eachSize(({ width, height, fill }) => {
       const layout = playLayout(width, height, { fill });
       const [, ground] = toScreen(layout.view, 0, WORLD.height * 0.4);
+      const [, foot] = toScreen(layout.view, 0, WORLD.height);
       const shown = width < 352 ? playTargets(layout, {}) : playTargets(layout, { sub: true }).concat(playTargets(layout, {}));
       for (const target of shown) {
-        expect(target.y + target.h, `${width}x${height} ${target.kind}`).toBeLessThanOrEqual(ground);
+        const clear = target.y + target.h <= ground || (target.kind === "fire" && target.y >= foot - 0.5);
+        expect(clear, `${width}x${height} ${target.kind}`).toBe(true);
       }
     });
   });
 
-  it("stands the wind flag under the shoot button, inside the frame", () => {
+  it("puts the big shoot button under the battlefield on a phone held upright, without making the battlefield smaller", () => {
+    for (const [width, height] of [[384, 801], [430, 880]]) {
+      const layout = playLayout(width, height, { fill: true });
+      expect(layout.view.scale).toBeCloseTo(width / WORLD.width, 6);
+      expect(layout.fire.w).toBe(120);
+      expect(layout.fire.y).toBeGreaterThanOrEqual(layout.view.y + WORLD.height * layout.view.scale - 0.5);
+      expect(layout.sub.fire).toEqual(layout.fire);
+    }
+  });
+
+  it("stands the wind flag in the sky under the controls, inside the frame", () => {
     eachSize(({ width, height, fill }) => {
-      const { flag, fire } = playLayout(width, height, { fill });
-      expect(flag.y - flag.size).toBeGreaterThanOrEqual(fire.y + fire.h);
+      const { flag, start } = playLayout(width, height, { fill });
+      expect(flag.y - flag.size).toBeGreaterThanOrEqual(start + 88);
       expect(flag.y).toBeLessThan(height);
       expect(flag.x).toBeGreaterThan(0);
       expect(flag.x).toBeLessThan(width);

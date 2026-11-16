@@ -16,11 +16,16 @@ export function miniView(area, field) {
   const world = { field, seed: PICTURE_SEED, heights: heightsFor(field, PICTURE_SEED), craters: [], under: [false, false] };
   const top = WORLD.height * 0.3;
   const hits = [0, 1].map((side) => vehicleAt(world, side).hit.y);
-  const spread = Math.max(...hits) - Math.min(...hits);
-  const scale = Math.min(Math.max(area.w / WORLD.width, area.h / (WORLD.height - top)), area.h / (spread + VEHICLE_SIZE * 1.3));
+  const highest = Math.min(...hits) - VEHICLE_SIZE * 0.6;
+  const cover = Math.max(area.w / WORLD.width, area.h / (WORLD.height - top));
+  if (area.w <= area.h * 2) {
+    const scale = Math.min(cover, area.h / (WORLD.height - highest));
+    const from = WORLD.height - area.h / scale;
+    return { world, scale, x: area.x + (area.w - WORLD.width * scale) / 2, y: area.y - from * scale, from, to: WORLD.height };
+  }
+  const scale = Math.min(cover, area.h / (Math.max(...hits) - Math.min(...hits) + VEHICLE_SIZE * 1.3));
   const shown = area.h / scale;
-  const middle = (Math.min(...hits) + Math.max(...hits)) / 2;
-  const from = Math.max(0, Math.min(WORLD.height - shown, middle - shown * 0.55));
+  const from = Math.max(0, Math.min(WORLD.height - shown, (Math.min(...hits) + Math.max(...hits)) / 2 - shown * 0.55));
   return { world, scale, x: area.x + (area.w - WORLD.width * scale) / 2, y: area.y - from * scale, from, to: from + shown };
 }
 

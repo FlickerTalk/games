@@ -49,7 +49,7 @@ describe("the play screen", () => {
     const ctx = frame(game);
     for (const mark of marks) {
       expect(mark.size).toBeGreaterThanOrEqual(32);
-      expect(mark.y - mark.size / 2).toBeGreaterThan(scene.layout.fire.y + scene.layout.fire.h);
+      expect(mark.y - mark.size / 2).toBeGreaterThan(scene.layout.angle.y + scene.layout.angle.h);
       expect(painted(ctx).some(([x, y]) => Math.hypot(x - mark.x, y - mark.y) < mark.size / 2)).toBe(true);
     }
     expect(marks.filter((one) => one.turn)).toHaveLength(scene.turnSide === null ? 0 : 1);

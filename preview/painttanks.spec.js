@@ -38,7 +38,55 @@ async function pull(s, { release }) {
   await s.page.waitForTimeout(120);
 }
 
-async function steps(s, { check, label }) {
+const other = (s) => s.page.frames().find((one) => one.url().endsWith("/b/frame.html"));
+
+const pressOn = (frame, kind) =>
+  frame.evaluate(async (wanted) => {
+    const game = document.getElementById("view").game;
+    const found = game.targets().find((one) => one.kind === wanted);
+    if (found) game.press(found);
+    await game.idle();
+    return Boolean(found);
+  }, kind);
+
+const roundOn = (frame) =>
+  frame.evaluate(() => {
+    const game = document.getElementById("view").game;
+    return { screen: game.state.screen, turn: game.myTurn(), shots: game.state.round?.states.length ?? 0, side: game.state.round?.mySide ?? null };
+  });
+
+async function friends(s, { check, label }) {
+  await s.page.evaluate(() => globalThis.harness.open("b"));
+  await s.page.frameLocator("#frame-b").locator("canvas").waitFor();
+  await s.page.waitForTimeout(400);
+  await s.tap("play");
+  await s.page.waitForTimeout(600);
+  await s.shot("2-calling");
+  await pressOn(other(s), "accept");
+  await pressOn(other(s), "play");
+  await s.page.waitForTimeout(2500);
+  const [mine, theirs] = [await roundOn(s.inner()), await roundOn(other(s))];
+  await check(`${label}: both phones are in the same battle, on opposite sides, one of them to shoot`, async () => {
+    assert.deepEqual([mine.screen, theirs.screen], ["play", "play"]);
+    assert.deepEqual([mine.side, theirs.side].sort(), [0, 1]);
+    assert.equal(mine.turn !== theirs.turn, true, `turns ${mine.turn} ${theirs.turn}`);
+  });
+  await pressOn(mine.turn ? s.inner() : other(s), "fire");
+  await s.page.waitForTimeout(1200);
+  await s.shot("3-shot");
+  await s.page.waitForTimeout(3500);
+  await check(`${label}: a shot is seen on both phones`, async () => {
+    const seen = [await roundOn(s.inner()), await roundOn(other(s))];
+    assert.deepEqual(seen.map((one) => one.shots), [2, 2]);
+    assert.equal(seen[0].turn !== seen[1].turn, true);
+  });
+  await s.shot("4-answer");
+  await s.page.locator("#frame-b").screenshot({ path: `${s.out}/5-other-phone.png` });
+}
+
+async function steps(s, context) {
+  if (context.label.endsWith("-friend")) return friends(s, context);
+  const { check, label } = context;
   await s.tap("play");
   await check(`${label}: the player's turn comes`, async () => assert.equal(await waitTurn(s), true));
   await s.shot("2-hint");
@@ -93,6 +141,7 @@ await walkCanvasGame({
   modes: [
     { name: "flick", fill: true, query: "&solo" },
     { name: "alone", fill: false, query: "&alone", engines: ["chromium"] },
+    { name: "friend", fill: true, query: "" },
   ],
   steps,
   themes: ["mono-dark", "mono-light", "ember-dark"].map((name) => ({ name, query: "&solo", run: fields })),
