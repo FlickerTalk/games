@@ -10,7 +10,7 @@ export const TEXTS = {
     engineLook: "Engine {n}", sceneryLook: "Station {n}", tabEngine: "Engines", tabScenery: "Stations",
   },
   es: {
-    name: "Beat Wagons", canvas: "Beat Wagons: los vagones del tren siguen un patrón; pon el vagón que falta en el hueco y el tren toca su melodía",
+    name: "Vagones con ritmo", canvas: "Vagones con ritmo: los vagones del tren siguen un patrón; pon el vagón que falta en el hueco y el tren toca su melodía",
     play: "Jugar", again: "Jugar otra vez", home: "Inicio", pause: "Pausa", resume: "Seguir",
     avatar: "Elige tu jugador", looks: "Locomotoras y estaciones", done: "Hecho", gift: "Abrir el regalo", accept: "Unirme", dismiss: "Ahora no",
     call: "Volver a llamar a tu amigo", flick: "FlickerTalk", levels: "Completar los trenes", make: "Componer un tren",
@@ -20,7 +20,7 @@ export const TEXTS = {
     engineLook: "Locomotora {n}", sceneryLook: "Estación {n}", tabEngine: "Locomotoras", tabScenery: "Estaciones",
   },
   fr: {
-    name: "Beat Wagons", canvas: "Beat Wagons : les wagons du train suivent un motif ; place le wagon manquant dans le trou et le train joue sa mélodie",
+    name: "Wagons en rythme", canvas: "Wagons en rythme : les wagons du train suivent un motif ; place le wagon manquant dans le trou et le train joue sa mélodie",
     play: "Jouer", again: "Rejouer", home: "Accueil", pause: "Pause", resume: "Continuer",
     avatar: "Choisis ton joueur", looks: "Locomotives et gares", done: "Terminé", gift: "Ouvrir le cadeau", accept: "Rejoindre", dismiss: "Pas maintenant",
     call: "Rappeler ton ami", flick: "FlickerTalk", levels: "Compléter les trains", make: "Composer un train",
@@ -30,7 +30,7 @@ export const TEXTS = {
     engineLook: "Locomotive {n}", sceneryLook: "Gare {n}", tabEngine: "Locomotives", tabScenery: "Gares",
   },
   de: {
-    name: "Beat Wagons", canvas: "Beat Wagons: Die Wagen des Zuges folgen einem Muster; setz den fehlenden Wagen in die Lücke, und der Zug spielt seine Melodie",
+    name: "Rhythmuswagen", canvas: "Rhythmuswagen: Die Wagen des Zuges folgen einem Muster; setz den fehlenden Wagen in die Lücke, und der Zug spielt seine Melodie",
     play: "Spielen", again: "Noch einmal", home: "Start", pause: "Pause", resume: "Weiter",
     avatar: "Wähle deine Figur", looks: "Loks und Bahnhöfe", done: "Fertig", gift: "Geschenk öffnen", accept: "Mitspielen", dismiss: "Jetzt nicht",
     call: "Deinen Freund noch einmal rufen", flick: "FlickerTalk", levels: "Züge vervollständigen", make: "Einen Zug zusammenstellen",
@@ -40,7 +40,7 @@ export const TEXTS = {
     engineLook: "Lok {n}", sceneryLook: "Bahnhof {n}", tabEngine: "Loks", tabScenery: "Bahnhöfe",
   },
   it: {
-    name: "Beat Wagons", canvas: "Beat Wagons: i vagoni del treno seguono uno schema; metti il vagone mancante nel vuoto e il treno suona la sua melodia",
+    name: "Vagoni a ritmo", canvas: "Vagoni a ritmo: i vagoni del treno seguono uno schema; metti il vagone mancante nel vuoto e il treno suona la sua melodia",
     play: "Gioca", again: "Gioca ancora", home: "Inizio", pause: "Pausa", resume: "Continua",
     avatar: "Scegli il tuo giocatore", looks: "Locomotive e stazioni", done: "Fatto", gift: "Apri il regalo", accept: "Partecipa", dismiss: "Non ora",
     call: "Richiama il tuo amico", flick: "FlickerTalk", levels: "Completa i treni", make: "Componi un treno",
@@ -50,7 +50,7 @@ export const TEXTS = {
     engineLook: "Locomotiva {n}", sceneryLook: "Stazione {n}", tabEngine: "Locomotive", tabScenery: "Stazioni",
   },
   pt: {
-    name: "Beat Wagons", canvas: "Beat Wagons: os vagões do trem seguem um padrão; coloque o vagão que falta no espaço e o trem toca a sua melodia",
+    name: "Vagões com ritmo", canvas: "Vagões com ritmo: os vagões do trem seguem um padrão; coloque o vagão que falta no espaço e o trem toca a sua melodia",
     play: "Jogar", again: "Jogar de novo", home: "Início", pause: "Pausa", resume: "Continuar",
     avatar: "Escolha seu jogador", looks: "Locomotivas e estações", done: "Pronto", gift: "Abrir o presente", accept: "Entrar", dismiss: "Agora não",
     call: "Chamar seu amigo de novo", flick: "FlickerTalk", levels: "Completar os trens", make: "Compor um trem",
@@ -60,7 +60,7 @@ export const TEXTS = {
     engineLook: "Locomotiva {n}", sceneryLook: "Estação {n}", tabEngine: "Locomotivas", tabScenery: "Estações",
   },
   ro: {
-    name: "Beat Wagons", canvas: "Beat Wagons: vagoanele trenului urmează un model; pune vagonul care lipsește în golul lui, iar trenul își cântă melodia",
+    name: "Vagoane cu ritm", canvas: "Vagoane cu ritm: vagoanele trenului urmează un model; pune vagonul care lipsește în golul lui, iar trenul își cântă melodia",
     play: "Joacă", again: "Joacă din nou", home: "Acasă", pause: "Pauză", resume: "Continuă",
     avatar: "Alege-ți jucătorul", looks: "Locomotive și gări", done: "Gata", gift: "Deschide cadoul", accept: "Intră", dismiss: "Nu acum",
     call: "Cheamă-ți din nou prietenul", flick: "FlickerTalk", levels: "Completează trenurile", make: "Compune un tren",
@@ -70,7 +70,7 @@ export const TEXTS = {
     engineLook: "Locomotiva {n}", sceneryLook: "Gara {n}", tabEngine: "Locomotive", tabScenery: "Gări",
   },
   pl: {
-    name: "Beat Wagons", canvas: "Beat Wagons: wagony pociągu układają się we wzór; wstaw brakujący wagon w lukę, a pociąg zagra swoją melodię",
+    name: "Rytmiczne wagoniki", canvas: "Rytmiczne wagoniki: wagony pociągu układają się we wzór; wstaw brakujący wagon w lukę, a pociąg zagra swoją melodię",
     play: "Graj", again: "Zagraj jeszcze raz", home: "Start", pause: "Pauza", resume: "Dalej",
     avatar: "Wybierz gracza", looks: "Lokomotywy i stacje", done: "Gotowe", gift: "Otwórz prezent", accept: "Dołącz", dismiss: "Nie teraz",
     call: "Zawołaj znajomego jeszcze raz", flick: "FlickerTalk", levels: "Uzupełnij pociągi", make: "Ułóż pociąg",
@@ -80,7 +80,7 @@ export const TEXTS = {
     engineLook: "Lokomotywa {n}", sceneryLook: "Stacja {n}", tabEngine: "Lokomotywy", tabScenery: "Stacje",
   },
   ru: {
-    name: "Beat Wagons", canvas: "Beat Wagons: вагоны поезда идут по узору; поставь недостающий вагон на пустое место, и поезд сыграет свою мелодию",
+    name: "Ритмичные вагончики", canvas: "Ритмичные вагончики: вагоны поезда идут по узору; поставь недостающий вагон на пустое место, и поезд сыграет свою мелодию",
     play: "Играть", again: "Ещё раз", home: "Главная", pause: "Пауза", resume: "Дальше",
     avatar: "Выбери игрока", looks: "Паровозы и станции", done: "Готово", gift: "Открыть подарок", accept: "Присоединиться", dismiss: "Не сейчас",
     call: "Позвать друга ещё раз", flick: "FlickerTalk", levels: "Собрать поезда", make: "Составить поезд",
@@ -90,7 +90,7 @@ export const TEXTS = {
     engineLook: "Паровоз {n}", sceneryLook: "Станция {n}", tabEngine: "Паровозы", tabScenery: "Станции",
   },
   uk: {
-    name: "Beat Wagons", canvas: "Beat Wagons: вагони потяга йдуть за візерунком; постав вагон, якого бракує, на порожнє місце, і потяг зіграє свою мелодію",
+    name: "Ритмічні вагончики", canvas: "Ритмічні вагончики: вагони потяга йдуть за візерунком; постав вагон, якого бракує, на порожнє місце, і потяг зіграє свою мелодію",
     play: "Грати", again: "Ще раз", home: "Головна", pause: "Пауза", resume: "Далі",
     avatar: "Обери гравця", looks: "Паровози й станції", done: "Готово", gift: "Відкрити подарунок", accept: "Приєднатися", dismiss: "Не зараз",
     call: "Покликати друга ще раз", flick: "FlickerTalk", levels: "Скласти потяги", make: "Скласти власний потяг",
@@ -100,7 +100,7 @@ export const TEXTS = {
     engineLook: "Паровоз {n}", sceneryLook: "Станція {n}", tabEngine: "Паровози", tabScenery: "Станції",
   },
   tr: {
-    name: "Beat Wagons", canvas: "Beat Wagons: trenin vagonları bir örüntü izler; eksik vagonu boşluğa koy, tren de melodisini çalsın",
+    name: "Ritimli Vagonlar", canvas: "Ritimli Vagonlar: trenin vagonları bir örüntü izler; eksik vagonu boşluğa koy, tren de melodisini çalsın",
     play: "Oyna", again: "Tekrar oyna", home: "Ana sayfa", pause: "Duraklat", resume: "Devam et",
     avatar: "Oyuncunu seç", looks: "Lokomotifler ve istasyonlar", done: "Tamam", gift: "Hediyeyi aç", accept: "Katıl", dismiss: "Şimdi değil",
     call: "Arkadaşını yeniden çağır", flick: "FlickerTalk", levels: "Trenleri tamamla", make: "Tren kur",
@@ -110,7 +110,7 @@ export const TEXTS = {
     engineLook: "Lokomotif {n}", sceneryLook: "İstasyon {n}", tabEngine: "Lokomotifler", tabScenery: "İstasyonlar",
   },
   ar: {
-    name: "Beat Wagons", canvas: "Beat Wagons: عربات القطار تتبع نمطًا؛ ضع العربة الناقصة في الفراغ فيعزف القطار لحنه",
+    name: "عربات الإيقاع", canvas: "عربات الإيقاع: عربات القطار تتبع نمطًا؛ ضع العربة الناقصة في الفراغ فيعزف القطار لحنه",
     play: "العب", again: "العب مرة أخرى", home: "الرئيسية", pause: "إيقاف مؤقت", resume: "تابع",
     avatar: "اختر لاعبك", looks: "القاطرات والمحطات", done: "تم", gift: "افتح الهدية", accept: "انضم", dismiss: "ليس الآن",
     call: "اتصل بصديقك مرة أخرى", flick: "FlickerTalk", levels: "أكمل القطارات", make: "ركّب قطارًا",
@@ -120,7 +120,7 @@ export const TEXTS = {
     engineLook: "القاطرة {n}", sceneryLook: "المحطة {n}", tabEngine: "القاطرات", tabScenery: "المحطات",
   },
   hi: {
-    name: "Beat Wagons", canvas: "Beat Wagons: रेलगाड़ी के डिब्बे एक क्रम में चलते हैं; छूटा हुआ डिब्बा ख़ाली जगह में रखें और रेलगाड़ी अपनी धुन बजाएगी",
+    name: "ताल के डिब्बे", canvas: "ताल के डिब्बे: रेलगाड़ी के डिब्बे एक क्रम में चलते हैं; छूटा हुआ डिब्बा ख़ाली जगह में रखें और रेलगाड़ी अपनी धुन बजाएगी",
     play: "खेलें", again: "फिर से खेलें", home: "होम", pause: "विराम", resume: "जारी रखें",
     avatar: "अपना खिलाड़ी चुनें", looks: "इंजन और स्टेशन", done: "हो गया", gift: "उपहार खोलें", accept: "शामिल हों", dismiss: "अभी नहीं",
     call: "अपने दोस्त को फिर से बुलाएँ", flick: "FlickerTalk", levels: "रेलगाड़ियाँ पूरी करें", make: "रेलगाड़ी बनाएँ",
@@ -130,7 +130,7 @@ export const TEXTS = {
     engineLook: "इंजन {n}", sceneryLook: "स्टेशन {n}", tabEngine: "इंजन", tabScenery: "स्टेशन",
   },
   bn: {
-    name: "Beat Wagons", canvas: "Beat Wagons: ট্রেনের বগিগুলো একটি নকশা মেনে চলে; হারানো বগিটি ফাঁকা জায়গায় বসান, আর ট্রেন তার সুর বাজাবে",
+    name: "তালের বগি", canvas: "তালের বগি: ট্রেনের বগিগুলো একটি নকশা মেনে চলে; হারানো বগিটি ফাঁকা জায়গায় বসান, আর ট্রেন তার সুর বাজাবে",
     play: "খেলুন", again: "আবার খেলুন", home: "হোম", pause: "বিরতি", resume: "চালিয়ে যান",
     avatar: "আপনার খেলোয়াড় বেছে নিন", looks: "ইঞ্জিন আর স্টেশন", done: "হয়ে গেছে", gift: "উপহার খুলুন", accept: "যোগ দিন", dismiss: "এখন নয়",
     call: "বন্ধুকে আবার ডাকুন", flick: "FlickerTalk", levels: "ট্রেন সম্পূর্ণ করুন", make: "ট্রেন সাজান",
@@ -140,7 +140,7 @@ export const TEXTS = {
     engineLook: "ইঞ্জিন {n}", sceneryLook: "স্টেশন {n}", tabEngine: "ইঞ্জিন", tabScenery: "স্টেশন",
   },
   id: {
-    name: "Beat Wagons", canvas: "Beat Wagons: gerbong kereta mengikuti sebuah pola; taruh gerbong yang hilang di tempat kosong dan kereta memainkan lagunya",
+    name: "Gerbong Irama", canvas: "Gerbong Irama: gerbong kereta mengikuti sebuah pola; taruh gerbong yang hilang di tempat kosong dan kereta memainkan lagunya",
     play: "Main", again: "Main lagi", home: "Beranda", pause: "Jeda", resume: "Lanjut",
     avatar: "Pilih pemainmu", looks: "Lokomotif dan stasiun", done: "Selesai", gift: "Buka hadiah", accept: "Ikut", dismiss: "Nanti saja",
     call: "Panggil temanmu lagi", flick: "FlickerTalk", levels: "Lengkapi kereta", make: "Susun kereta",
@@ -150,7 +150,7 @@ export const TEXTS = {
     engineLook: "Lokomotif {n}", sceneryLook: "Stasiun {n}", tabEngine: "Lokomotif", tabScenery: "Stasiun",
   },
   vi: {
-    name: "Beat Wagons", canvas: "Beat Wagons: các toa tàu đi theo một quy luật; đặt toa còn thiếu vào chỗ trống và đoàn tàu sẽ chơi giai điệu của nó",
+    name: "Toa tàu nhịp điệu", canvas: "Toa tàu nhịp điệu: các toa tàu đi theo một quy luật; đặt toa còn thiếu vào chỗ trống và đoàn tàu sẽ chơi giai điệu của nó",
     play: "Chơi", again: "Chơi lại", home: "Trang chính", pause: "Tạm dừng", resume: "Tiếp tục",
     avatar: "Chọn người chơi", looks: "Đầu tàu và nhà ga", done: "Xong", gift: "Mở quà", accept: "Tham gia", dismiss: "Để sau",
     call: "Gọi lại bạn của bạn", flick: "FlickerTalk", levels: "Hoàn thành các đoàn tàu", make: "Xếp một đoàn tàu",
@@ -160,7 +160,7 @@ export const TEXTS = {
     engineLook: "Đầu tàu {n}", sceneryLook: "Nhà ga {n}", tabEngine: "Đầu tàu", tabScenery: "Nhà ga",
   },
   th: {
-    name: "Beat Wagons", canvas: "Beat Wagons: ตู้รถไฟเรียงตามแบบรูป วางตู้ที่หายไปลงในช่องว่าง แล้วรถไฟจะเล่นทำนองของมัน",
+    name: "ตู้รถไฟจังหวะ", canvas: "ตู้รถไฟจังหวะ: ตู้รถไฟเรียงตามแบบรูป วางตู้ที่หายไปลงในช่องว่าง แล้วรถไฟจะเล่นทำนองของมัน",
     play: "เล่น", again: "เล่นอีกครั้ง", home: "หน้าแรก", pause: "หยุดชั่วคราว", resume: "เล่นต่อ",
     avatar: "เลือกผู้เล่นของคุณ", looks: "หัวรถจักรและสถานี", done: "เสร็จ", gift: "เปิดของขวัญ", accept: "เข้าร่วม", dismiss: "ไว้ทีหลัง",
     call: "เรียกเพื่อนอีกครั้ง", flick: "FlickerTalk", levels: "ต่อรถไฟให้ครบ", make: "จัดขบวนรถไฟ",
@@ -170,7 +170,7 @@ export const TEXTS = {
     engineLook: "หัวรถจักร {n}", sceneryLook: "สถานี {n}", tabEngine: "หัวรถจักร", tabScenery: "สถานี",
   },
   ja: {
-    name: "Beat Wagons", canvas: "Beat Wagons：列車の車両はパターンにそって並びます。足りない車両をすきまに入れると、列車がメロディーをかなでます",
+    name: "リズム列車", canvas: "リズム列車：列車の車両はパターンにそって並びます。足りない車両をすきまに入れると、列車がメロディーをかなでます",
     play: "プレイ", again: "もう一度", home: "ホーム", pause: "一時停止", resume: "つづける",
     avatar: "プレイヤーをえらぶ", looks: "機関車と駅", done: "完了", gift: "プレゼントを開ける", accept: "参加する", dismiss: "あとで",
     call: "友だちをもう一度よぶ", flick: "FlickerTalk", levels: "列車を完成させる", make: "列車をつくる",
@@ -180,7 +180,7 @@ export const TEXTS = {
     engineLook: "機関車 {n}", sceneryLook: "駅 {n}", tabEngine: "機関車", tabScenery: "駅",
   },
   ko: {
-    name: "Beat Wagons", canvas: "Beat Wagons: 기차의 객차는 규칙에 따라 이어집니다. 빠진 객차를 빈자리에 넣으면 기차가 멜로디를 연주합니다",
+    name: "리듬 기차", canvas: "리듬 기차: 기차의 객차는 규칙에 따라 이어집니다. 빠진 객차를 빈자리에 넣으면 기차가 멜로디를 연주합니다",
     play: "플레이", again: "다시 하기", home: "홈", pause: "일시 정지", resume: "계속",
     avatar: "플레이어 고르기", looks: "기관차와 역", done: "완료", gift: "선물 열기", accept: "참여", dismiss: "나중에",
     call: "친구를 다시 부르기", flick: "FlickerTalk", levels: "기차 완성하기", make: "기차 꾸미기",
@@ -190,7 +190,7 @@ export const TEXTS = {
     engineLook: "기관차 {n}", sceneryLook: "역 {n}", tabEngine: "기관차", tabScenery: "역",
   },
   "zh-CN": {
-    name: "Beat Wagons", canvas: "Beat Wagons：火车的车厢按规律排列；把缺少的车厢放进空位，火车就会奏出它的旋律",
+    name: "节奏车厢", canvas: "节奏车厢：火车的车厢按规律排列；把缺少的车厢放进空位，火车就会奏出它的旋律",
     play: "开始", again: "再玩一次", home: "主页", pause: "暂停", resume: "继续",
     avatar: "选择你的角色", looks: "火车头和车站", done: "完成", gift: "打开礼物", accept: "加入", dismiss: "以后再说",
     call: "再叫一次你的朋友", flick: "FlickerTalk", levels: "补全火车", make: "编一列火车",
@@ -200,7 +200,7 @@ export const TEXTS = {
     engineLook: "火车头 {n}", sceneryLook: "车站 {n}", tabEngine: "火车头", tabScenery: "车站",
   },
   "zh-TW": {
-    name: "Beat Wagons", canvas: "Beat Wagons：火車的車廂按規律排列；把缺少的車廂放進空位，火車就會奏出它的旋律",
+    name: "節奏車廂", canvas: "節奏車廂：火車的車廂按規律排列；把缺少的車廂放進空位，火車就會奏出它的旋律",
     play: "開始", again: "再玩一次", home: "主頁", pause: "暫停", resume: "繼續",
     avatar: "選擇你的角色", looks: "火車頭和車站", done: "完成", gift: "打開禮物", accept: "加入", dismiss: "以後再說",
     call: "再叫一次你的朋友", flick: "FlickerTalk", levels: "補全火車", make: "編一列火車",

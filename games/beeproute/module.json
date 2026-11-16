@@ -15,83 +15,83 @@
   "summary": "A first programming puzzle for the whole family: lay arrows for a little robot to reach its goal, alone, against FlickerTalk or with the other person in the chat, making levels for each other.",
   "locales": {
     "es": {
-      "name": "Beep Route",
+      "name": "Ruta bip",
       "summary": "Un primer puzle de programación para toda la familia: pon flechas para llevar un robot a la meta, solo, contra FlickerTalk o con la otra persona del chat, creando niveles el uno para el otro."
     },
     "pt": {
-      "name": "Beep Route",
+      "name": "Rota bip",
       "summary": "Um primeiro quebra-cabeça de programação para toda a família: coloque setas para levar um robô à meta, sozinho, contra o FlickerTalk ou com a outra pessoa da conversa, criando níveis."
     },
     "fr": {
-      "name": "Beep Route",
+      "name": "Parcours bip",
       "summary": "Un premier puzzle de programmation pour toute la famille : pose des flèches pour mener un robot au but, seul, contre FlickerTalk ou avec l’autre personne du chat, qui résout tes niveaux."
     },
     "de": {
-      "name": "Beep Route",
+      "name": "Piep-Route",
       "summary": "Ein erstes Programmierrätsel für die ganze Familie: Leg Pfeile, damit ein kleiner Roboter sein Ziel erreicht – allein, gegen FlickerTalk oder mit der anderen Person im Chat, mit Levels füreinander."
     },
     "it": {
-      "name": "Beep Route",
+      "name": "Percorso bip",
       "summary": "Un primo rompicapo di programmazione per tutta la famiglia: metti frecce per portare un robot al traguardo, da solo, contro FlickerTalk o con l’altra persona della chat, creando livelli."
     },
     "ro": {
-      "name": "Beep Route",
+      "name": "Traseu bip",
       "summary": "Un prim puzzle de programare pentru toată familia: pune săgeți ca un roboțel să ajungă la țintă, singur, împotriva lui FlickerTalk sau cu cealaltă persoană din conversație."
     },
     "pl": {
-      "name": "Beep Route",
+      "name": "Trasa bip",
       "summary": "Pierwsza łamigłówka programistyczna dla całej rodziny: układaj strzałki, by mały robot dotarł do celu — sam, przeciw FlickerTalk albo z drugą osobą z czatu, budując sobie nawzajem poziomy."
     },
     "ru": {
-      "name": "Beep Route",
+      "name": "Бип-маршрут",
       "summary": "Первая головоломка о программировании для всей семьи: выкладывай стрелки, чтобы робот добрался до цели, — одному, против FlickerTalk или с собеседником из чата, придумывая уровни."
     },
     "uk": {
-      "name": "Beep Route",
+      "name": "Біп-маршрут",
       "summary": "Перша головоломка про програмування для всієї родини: викладай стрілки, щоб маленький робот дістався цілі, — самому, проти FlickerTalk або з людиною з чату, вигадуючи рівні одне для одного."
     },
     "tr": {
-      "name": "Beep Route",
+      "name": "Bip Rotası",
       "summary": "Tüm aile için ilk programlama bulmacası: küçük bir robotu hedefine ulaştırmak için oklar diz; tek başına, FlickerTalk'a karşı ya da sohbetteki kişiyle birbirinize seviyeler yaparak."
     },
     "ar": {
-      "name": "Beep Route",
+      "name": "مسار بيب",
       "summary": "أول لغز برمجة للعائلة كلها: ضع الأسهم ليصل روبوت صغير إلى هدفه، وحدك أو ضد FlickerTalk أو مع الشخص الآخر في المحادثة، وتصنعان المستويات لبعضكما."
     },
     "hi": {
-      "name": "Beep Route",
+      "name": "बीप रास्ता",
       "summary": "पूरे परिवार के लिए प्रोग्रामिंग की पहली पहेली: एक छोटे रोबोट को उसके लक्ष्य तक पहुँचाने के लिए तीर रखें, अकेले, FlickerTalk के ख़िलाफ़ या चैट के दूसरे व्यक्ति के साथ, एक-दूसरे के लिए स्तर बनाकर।"
     },
     "bn": {
-      "name": "Beep Route",
+      "name": "বিপ-পথ",
       "summary": "পুরো পরিবারের জন্য প্রোগ্রামিংয়ের প্রথম ধাঁধা: ছোট্ট একটি রোবটকে লক্ষ্যে পৌঁছাতে তীর বসান, একা, FlickerTalk-এর বিরুদ্ধে বা চ্যাটের অন্যজনের সঙ্গে, একে অপরের জন্য লেভেল বানিয়ে।"
     },
     "id": {
-      "name": "Beep Route",
+      "name": "Rute Bip",
       "summary": "Teka-teki pemrograman pertama untuk seluruh keluarga: taruh panah agar robot kecil sampai ke tujuannya, sendiri, melawan FlickerTalk, atau bersama orang lain di obrolan sambil saling membuat level."
     },
     "vi": {
-      "name": "Beep Route",
+      "name": "Lộ trình bíp",
       "summary": "Trò giải đố lập trình đầu tiên cho cả gia đình: đặt mũi tên để rô-bốt nhỏ tới đích, chơi một mình, đấu với FlickerTalk hoặc với người kia trong cuộc trò chuyện, tạo màn chơi cho nhau."
     },
     "th": {
-      "name": "Beep Route",
+      "name": "เส้นทางบี๊บ",
       "summary": "ปริศนาการเขียนโปรแกรมแรกสำหรับทั้งครอบครัว วางลูกศรให้หุ่นยนต์ตัวเล็กไปถึงเส้นชัย เล่นคนเดียว เล่นกับ FlickerTalk หรือกับอีกคนในแชท แล้วสร้างด่านให้กันและกัน"
     },
     "ja": {
-      "name": "Beep Route",
+      "name": "ビープルート",
       "summary": "家族みんなのための、はじめてのプログラミングパズル。矢印をならべて小さなロボットをゴールへ。ひとりで、FlickerTalk と、またはチャットの相手とレベルをつくり合って。"
     },
     "ko": {
-      "name": "Beep Route",
+      "name": "삐빅 루트",
       "summary": "온 가족을 위한 첫 프로그래밍 퍼즐: 작은 로봇이 목표에 닿도록 화살표를 놓으세요. 혼자, FlickerTalk와, 또는 채팅 상대와 서로 레벨을 만들어 주며."
     },
     "zh-CN": {
-      "name": "Beep Route",
+      "name": "哔哔路线",
       "summary": "全家都能玩的第一个编程谜题：摆好箭头，带小机器人走到终点，可以独自玩、和 FlickerTalk 玩，或和聊天里的对方互相出关卡。"
     },
     "zh-TW": {
-      "name": "Beep Route",
+      "name": "嗶嗶路線",
       "summary": "全家都能玩的第一個程式謎題：擺好箭頭，帶小機器人走到終點，可以獨自玩、和 FlickerTalk 玩，或和聊天裡的對方互相出關卡。"
     }
   }

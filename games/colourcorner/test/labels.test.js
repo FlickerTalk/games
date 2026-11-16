@@ -10,7 +10,7 @@ import { PATTERNS } from "../src/paints.js";
 describe("the words outside the canvas", () => {
   it("are in the app's 21 languages, English the source, with the same keys and gaps", () => {
     checkTexts(TEXTS);
-    for (const lang of Object.keys(TEXTS)) expect(TEXTS[lang].name, lang).toBe("Colour Corner");
+    for (const lang of Object.keys(TEXTS)) expect(TEXTS[lang].canvas.startsWith(TEXTS[lang].name), lang).toBe(true);
   });
 
   it("are real translations, not copies of the English", () => {

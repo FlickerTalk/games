@@ -7,7 +7,7 @@ describe("the words outside the canvas", () => {
   it("are in the app's 21 languages, English the source, with the same keys and gaps", () => {
     checkTexts(TEXTS);
     expect(TEXTS.en.name).toBe("Tile Court");
-    for (const lang of Object.keys(TEXTS)) expect(TEXTS[lang].name, lang).toBe("Tile Court");
+    for (const lang of Object.keys(TEXTS)) expect(TEXTS[lang].canvas.startsWith(TEXTS[lang].name), lang).toBe(true);
   });
 
   it("name every button the canvas draws, for a screen reader", () => {

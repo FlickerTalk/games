@@ -15,83 +15,83 @@
   "summary": "A toy robot match for the whole family: pick the glove, the boot or the shield at the same moment as your rival, against FlickerTalk, two on one phone or with the other person in the chat.",
   "locales": {
     "es": {
-      "name": "Robot Rumble",
+      "name": "Combate de robots",
       "summary": "Un combate de robots de juguete para toda la familia: elige guante, bota o escudo a la vez que tu rival, contra FlickerTalk, dos en un mismo teléfono o con la otra persona del chat."
     },
     "pt": {
-      "name": "Robot Rumble",
+      "name": "Luta de robôs",
       "summary": "Uma luta de robôs de brinquedo para toda a família: escolha luva, bota ou escudo ao mesmo tempo que seu rival, contra o FlickerTalk, a dois no mesmo telefone ou com a outra pessoa da conversa."
     },
     "fr": {
-      "name": "Robot Rumble",
+      "name": "Duel de robots",
       "summary": "Un duel de robots jouets pour toute la famille : choisis le gant, la botte ou le bouclier en même temps que ton rival, contre FlickerTalk, à deux sur un téléphone ou avec l’autre personne du chat."
     },
     "de": {
-      "name": "Robot Rumble",
+      "name": "Roboter-Rauferei",
       "summary": "Ein Spielzeugroboter-Duell für die ganze Familie: Wähle Handschuh, Stiefel oder Schild zugleich mit deinem Gegner, gegen FlickerTalk, zu zweit an einem Handy oder mit der anderen Person im Chat."
     },
     "it": {
-      "name": "Robot Rumble",
+      "name": "Sfida tra robot",
       "summary": "Una sfida tra robot giocattolo per tutta la famiglia: scegli guanto, stivale o scudo nello stesso momento del rivale, contro FlickerTalk, in due su un telefono o con l’altra persona della chat."
     },
     "ro": {
-      "name": "Robot Rumble",
+      "name": "Duelul roboților",
       "summary": "Un duel între roboți de jucărie pentru toată familia: alege mănușa, gheata sau scutul în același moment cu rivalul, contra FlickerTalk, în doi pe un telefon sau cu cealaltă persoană din chat."
     },
     "ru": {
-      "name": "Robot Rumble",
+      "name": "Битва роботов",
       "summary": "Поединок игрушечных роботов для всей семьи: выбирай перчатку, ботинок или щит одновременно с соперником — против FlickerTalk, вдвоём на одном телефоне или с собеседником в чате."
     },
     "uk": {
-      "name": "Robot Rumble",
+      "name": "Битва роботів",
       "summary": "Двобій іграшкових роботів для всієї родини: обирай рукавичку, черевик або щит одночасно із суперником — проти FlickerTalk, удвох на одному телефоні або зі співрозмовником у чаті."
     },
     "pl": {
-      "name": "Robot Rumble",
+      "name": "Bitka robotów",
       "summary": "Pojedynek robotów zabawek dla całej rodziny: wybierz rękawicę, but lub tarczę w tej samej chwili co rywal, przeciwko FlickerTalk, we dwoje na jednym telefonie albo z drugą osobą z czatu."
     },
     "tr": {
-      "name": "Robot Rumble",
+      "name": "Robot Kapışması",
       "summary": "Tüm aile için oyuncak robot karşılaşması: rakibinle aynı anda eldiveni, botu ya da kalkanı seç; FlickerTalk’a karşı, tek telefonda iki kişi ya da sohbetteki diğer kişiyle."
     },
     "ar": {
-      "name": "Robot Rumble",
+      "name": "نزال الروبوتات",
       "summary": "مباراة بين روبوتات لعبة لكل العائلة: اختر القفاز أو الحذاء أو الدرع في اللحظة نفسها مع خصمك، ضد FlickerTalk، أو لاعبان على هاتف واحد، أو مع الشخص الآخر في المحادثة."
     },
     "hi": {
-      "name": "Robot Rumble",
+      "name": "रोबोटों का मुक़ाबला",
       "summary": "पूरे परिवार के लिए खिलौना रोबोटों का मुक़ाबला: अपने प्रतिद्वंद्वी के साथ एक ही पल में दस्ताना, जूता या ढाल चुनें, FlickerTalk के ख़िलाफ़, एक फ़ोन पर दो लोग या चैट के दूसरे व्यक्ति के साथ।"
     },
     "bn": {
-      "name": "Robot Rumble",
+      "name": "রোবটের লড়াই",
       "summary": "পুরো পরিবারের জন্য খেলনা রোবটের লড়াই: প্রতিপক্ষের সঙ্গে একই মুহূর্তে দস্তানা, বুট বা ঢাল বেছে নাও, FlickerTalk-এর বিরুদ্ধে, এক ফোনে দুজন বা চ্যাটের অন্য মানুষটির সঙ্গে।"
     },
     "id": {
-      "name": "Robot Rumble",
+      "name": "Adu Robot",
       "summary": "Adu robot mainan untuk seluruh keluarga: pilih sarung tinju, sepatu bot, atau perisai pada saat yang sama dengan lawanmu, melawan FlickerTalk, berdua di satu ponsel, atau dengan orang lain di obrolan."
     },
     "vi": {
-      "name": "Robot Rumble",
+      "name": "Robot so tài",
       "summary": "Trận đấu robot đồ chơi cho cả gia đình: chọn găng tay, ủng hoặc khiên cùng lúc với đối thủ, đấu với FlickerTalk, hai người trên một điện thoại hoặc với người kia trong cuộc trò chuyện."
     },
     "th": {
-      "name": "Robot Rumble",
+      "name": "ศึกหุ่นยนต์",
       "summary": "ศึกหุ่นยนต์ของเล่นสำหรับทั้งครอบครัว เลือกนวม รองเท้าบูต หรือโล่พร้อมกับคู่แข่ง เล่นกับ FlickerTalk สองคนในโทรศัพท์เครื่องเดียว หรือกับอีกคนในแชต"
     },
     "ja": {
-      "name": "Robot Rumble",
+      "name": "ロボットランブル",
       "summary": "家族みんなで楽しめるおもちゃロボットの対決。相手と同時にグローブ、ブーツ、シールドのどれかを選ぼう。FlickerTalkと、1台のスマホで2人で、またはチャットの相手と遊べます。"
     },
     "ko": {
-      "name": "Robot Rumble",
+      "name": "로봇 럼블",
       "summary": "온 가족이 즐기는 장난감 로봇 대결: 상대와 같은 순간에 글러브, 부츠, 방패 중 하나를 고르세요. FlickerTalk와, 한 휴대폰에서 둘이, 또는 채팅 상대와 함께 즐겨요."
     },
     "zh-CN": {
-      "name": "Robot Rumble",
+      "name": "机器人大乱斗",
       "summary": "适合全家人的玩具机器人对决：和对手同时选择拳套、靴子或盾牌，可以对战 FlickerTalk、两人共用一部手机，或与聊天中的对方一起玩。"
     },
     "zh-TW": {
-      "name": "Robot Rumble",
+      "name": "機器人大亂鬥",
       "summary": "適合全家人的玩具機器人對決：和對手同時選擇拳套、靴子或盾牌，可以對戰 FlickerTalk、兩人共用一支手機，或與聊天中的對方一起玩。"
     }
   }

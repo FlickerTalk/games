@@ -8,7 +8,7 @@ export const TEXTS = {
     wrapped: "A surprise, still wrapped", fire: "Shoot", angle: "Aim higher, now {n} degrees", power: "More power, now {n}", dive: "Dive", surface: "Come up",
   },
   es: {
-    name: "Paint Tanks", canvas: "Paint Tanks: tira hacia atrás desde tu vehículo y suelta para lanzar pintura al otro lado; tres capas ganan", play: "Jugar", again: "Jugar otra vez",
+    name: "Tanques de pintura", canvas: "Tanques de pintura: tira hacia atrás desde tu vehículo y suelta para lanzar pintura al otro lado; tres capas ganan", play: "Jugar", again: "Jugar otra vez",
     home: "Inicio", pause: "Pausa", resume: "Seguir", avatar: "Elige tu jugador", looks: "Vehículos y bolas de pintura", done: "Hecho", gift: "Abrir el regalo", accept: "Unirme",
     dismiss: "Ahora no", land: "Colinas", sea: "Mar abierto", coast: "Costa", deep: "Mar profundo", rivalFlick: "Contra FlickerTalk; toca para practicar la puntería",
     rivalFriend: "Contra tu amigo; toca para practicar la puntería", practiceFlick: "Práctica de puntería; toca para jugar contra FlickerTalk", practiceFriend: "Práctica de puntería; toca para jugar contra tu amigo",
@@ -16,7 +16,7 @@ export const TEXTS = {
     wrapped: "Una sorpresa, todavía envuelta", fire: "Lanzar", angle: "Apuntar más alto, ahora {n} grados", power: "Más fuerza, ahora {n}", dive: "Sumergirse", surface: "Subir",
   },
   fr: {
-    name: "Paint Tanks", canvas: "Paint Tanks : tire en arrière depuis ton véhicule et lâche pour lancer de la peinture de l’autre côté ; trois couches gagnent", play: "Jouer", again: "Rejouer",
+    name: "Chars à peinture", canvas: "Chars à peinture : tire en arrière depuis ton véhicule et lâche pour lancer de la peinture de l’autre côté ; trois couches gagnent", play: "Jouer", again: "Rejouer",
     home: "Accueil", pause: "Pause", resume: "Continuer", avatar: "Choisis ton joueur", looks: "Véhicules et boules de peinture", done: "Terminé", gift: "Ouvrir le cadeau", accept: "Rejoindre",
     dismiss: "Pas maintenant", land: "Collines", sea: "Pleine mer", coast: "Côte", deep: "Mer profonde", rivalFlick: "Contre FlickerTalk ; touche pour t’entraîner au tir",
     rivalFriend: "Contre ton ami ; touche pour t’entraîner au tir", practiceFlick: "Entraînement au tir ; touche pour jouer contre FlickerTalk", practiceFriend: "Entraînement au tir ; touche pour jouer contre ton ami",
@@ -24,7 +24,7 @@ export const TEXTS = {
     wrapped: "Une surprise encore emballée", fire: "Lancer", angle: "Viser plus haut, maintenant {n} degrés", power: "Plus de force, maintenant {n}", dive: "Plonger", surface: "Remonter",
   },
   de: {
-    name: "Paint Tanks", canvas: "Paint Tanks: Zieh von deinem Fahrzeug nach hinten und lass los, um Farbe auf die andere Seite zu werfen; drei Farbschichten gewinnen", play: "Spielen", again: "Nochmal spielen",
+    name: "Farbpanzer", canvas: "Farbpanzer: Zieh von deinem Fahrzeug nach hinten und lass los, um Farbe auf die andere Seite zu werfen; drei Farbschichten gewinnen", play: "Spielen", again: "Nochmal spielen",
     home: "Start", pause: "Pause", resume: "Weiter", avatar: "Wähle deinen Spieler", looks: "Fahrzeuge und Farbkugeln", done: "Fertig", gift: "Geschenk öffnen", accept: "Mitspielen",
     dismiss: "Jetzt nicht", land: "Hügel", sea: "Offenes Meer", coast: "Küste", deep: "Tiefsee", rivalFlick: "Gegen FlickerTalk; tippen für Zielübung",
     rivalFriend: "Gegen deinen Freund; tippen für Zielübung", practiceFlick: "Zielübung; tippen, um gegen FlickerTalk zu spielen", practiceFriend: "Zielübung; tippen, um gegen deinen Freund zu spielen",
@@ -32,7 +32,7 @@ export const TEXTS = {
     wrapped: "Eine Überraschung, noch eingepackt", fire: "Werfen", angle: "Höher zielen, jetzt {n} Grad", power: "Mehr Kraft, jetzt {n}", dive: "Abtauchen", surface: "Auftauchen",
   },
   it: {
-    name: "Paint Tanks", canvas: "Paint Tanks: tira indietro dal tuo veicolo e lascia andare per lanciare vernice dall’altra parte; tre mani di vernice vincono", play: "Gioca", again: "Gioca ancora",
+    name: "Carri a vernice", canvas: "Carri a vernice: tira indietro dal tuo veicolo e lascia andare per lanciare vernice dall’altra parte; tre mani di vernice vincono", play: "Gioca", again: "Gioca ancora",
     home: "Inizio", pause: "Pausa", resume: "Continua", avatar: "Scegli il tuo giocatore", looks: "Veicoli e palle di vernice", done: "Fatto", gift: "Apri il regalo", accept: "Unisciti",
     dismiss: "Non ora", land: "Colline", sea: "Mare aperto", coast: "Costa", deep: "Mare profondo", rivalFlick: "Contro FlickerTalk; tocca per il tiro al bersaglio",
     rivalFriend: "Contro il tuo amico; tocca per il tiro al bersaglio", practiceFlick: "Tiro al bersaglio; tocca per giocare contro FlickerTalk", practiceFriend: "Tiro al bersaglio; tocca per giocare contro il tuo amico",
@@ -40,7 +40,7 @@ export const TEXTS = {
     wrapped: "Una sorpresa ancora incartata", fire: "Lancia", angle: "Mira più in alto, ora {n} gradi", power: "Più forza, ora {n}", dive: "Immergiti", surface: "Risali",
   },
   pt: {
-    name: "Paint Tanks", canvas: "Paint Tanks: puxe para trás a partir do seu veículo e solte para lançar tinta no outro lado; três camadas vencem", play: "Jogar", again: "Jogar de novo",
+    name: "Tanques de tinta", canvas: "Tanques de tinta: puxe para trás a partir do seu veículo e solte para lançar tinta no outro lado; três camadas vencem", play: "Jogar", again: "Jogar de novo",
     home: "Início", pause: "Pausa", resume: "Continuar", avatar: "Escolha seu jogador", looks: "Veículos e bolas de tinta", done: "Pronto", gift: "Abrir o presente", accept: "Entrar",
     dismiss: "Agora não", land: "Colinas", sea: "Mar aberto", coast: "Costa", deep: "Mar profundo", rivalFlick: "Contra o FlickerTalk; toque para treinar a pontaria",
     rivalFriend: "Contra seu amigo; toque para treinar a pontaria", practiceFlick: "Treino de pontaria; toque para jogar contra o FlickerTalk", practiceFriend: "Treino de pontaria; toque para jogar contra seu amigo",
@@ -48,7 +48,7 @@ export const TEXTS = {
     wrapped: "Uma surpresa ainda embrulhada", fire: "Lançar", angle: "Mirar mais alto, agora {n} graus", power: "Mais força, agora {n}", dive: "Mergulhar", surface: "Subir",
   },
   ro: {
-    name: "Paint Tanks", canvas: "Paint Tanks: trage înapoi de la vehiculul tău și dă drumul ca să arunci vopsea în cealaltă parte; trei straturi câștigă", play: "Joacă", again: "Joacă din nou",
+    name: "Tancuri cu vopsea", canvas: "Tancuri cu vopsea: trage înapoi de la vehiculul tău și dă drumul ca să arunci vopsea în cealaltă parte; trei straturi câștigă", play: "Joacă", again: "Joacă din nou",
     home: "Acasă", pause: "Pauză", resume: "Continuă", avatar: "Alege-ți jucătorul", looks: "Vehicule și bile cu vopsea", done: "Gata", gift: "Deschide cadoul", accept: "Intră",
     dismiss: "Nu acum", land: "Dealuri", sea: "Marea largă", coast: "Coastă", deep: "Marea adâncă", rivalFlick: "Împotriva lui FlickerTalk; atinge pentru tragere la țintă",
     rivalFriend: "Împotriva prietenului tău; atinge pentru tragere la țintă", practiceFlick: "Tragere la țintă; atinge ca să joci împotriva lui FlickerTalk", practiceFriend: "Tragere la țintă; atinge ca să joci împotriva prietenului tău",
@@ -56,7 +56,7 @@ export const TEXTS = {
     wrapped: "O surpriză, încă împachetată", fire: "Aruncă", angle: "Țintește mai sus, acum {n} grade", power: "Mai multă forță, acum {n}", dive: "Scufundă-te", surface: "Ieși la suprafață",
   },
   pl: {
-    name: "Paint Tanks", canvas: "Paint Tanks: odciągnij od swojego pojazdu i puść, żeby rzucić farbą na drugą stronę; trzy warstwy farby wygrywają", play: "Graj", again: "Zagraj jeszcze raz",
+    name: "Czołgi z farbą", canvas: "Czołgi z farbą: odciągnij od swojego pojazdu i puść, żeby rzucić farbą na drugą stronę; trzy warstwy farby wygrywają", play: "Graj", again: "Zagraj jeszcze raz",
     home: "Start", pause: "Pauza", resume: "Dalej", avatar: "Wybierz gracza", looks: "Pojazdy i kule z farbą", done: "Gotowe", gift: "Otwórz prezent", accept: "Dołącz",
     dismiss: "Nie teraz", land: "Wzgórza", sea: "Otwarte morze", coast: "Wybrzeże", deep: "Głębokie morze", rivalFlick: "Przeciw FlickerTalk; dotknij, aby ćwiczyć celowanie",
     rivalFriend: "Przeciw znajomemu; dotknij, aby ćwiczyć celowanie", practiceFlick: "Ćwiczenie celowania; dotknij, aby grać przeciw FlickerTalk", practiceFriend: "Ćwiczenie celowania; dotknij, aby grać przeciw znajomemu",
@@ -64,7 +64,7 @@ export const TEXTS = {
     wrapped: "Niespodzianka, jeszcze zapakowana", fire: "Rzuć", angle: "Celuj wyżej, teraz {n} stopni", power: "Więcej siły, teraz {n}", dive: "Zanurz się", surface: "Wynurz się",
   },
   ru: {
-    name: "Paint Tanks", canvas: "Paint Tanks: потяни назад от своей машины и отпусти, чтобы бросить краску на другую сторону; три слоя краски побеждают", play: "Играть", again: "Ещё раз",
+    name: "Танки с краской", canvas: "Танки с краской: потяни назад от своей машины и отпусти, чтобы бросить краску на другую сторону; три слоя краски побеждают", play: "Играть", again: "Ещё раз",
     home: "Главная", pause: "Пауза", resume: "Продолжить", avatar: "Выбери игрока", looks: "Машины и шарики с краской", done: "Готово", gift: "Открыть подарок", accept: "Присоединиться",
     dismiss: "Не сейчас", land: "Холмы", sea: "Открытое море", coast: "Побережье", deep: "Глубокое море", rivalFlick: "Против FlickerTalk; нажми, чтобы потренироваться в меткости",
     rivalFriend: "Против друга; нажми, чтобы потренироваться в меткости", practiceFlick: "Тренировка меткости; нажми, чтобы играть против FlickerTalk", practiceFriend: "Тренировка меткости; нажми, чтобы играть против друга",
@@ -72,7 +72,7 @@ export const TEXTS = {
     wrapped: "Сюрприз, ещё в упаковке", fire: "Бросить", angle: "Целиться выше, сейчас {n} градусов", power: "Сильнее, сейчас {n}", dive: "Погрузиться", surface: "Всплыть",
   },
   uk: {
-    name: "Paint Tanks", canvas: "Paint Tanks: потягни назад від свого транспорту й відпусти, щоб кинути фарбу на інший бік; три шари фарби перемагають", play: "Грати", again: "Ще раз",
+    name: "Танки з фарбою", canvas: "Танки з фарбою: потягни назад від свого транспорту й відпусти, щоб кинути фарбу на інший бік; три шари фарби перемагають", play: "Грати", again: "Ще раз",
     home: "Головна", pause: "Пауза", resume: "Продовжити", avatar: "Обери гравця", looks: "Транспорт і кульки з фарбою", done: "Готово", gift: "Відкрити подарунок", accept: "Приєднатися",
     dismiss: "Не зараз", land: "Пагорби", sea: "Відкрите море", coast: "Узбережжя", deep: "Глибоке море", rivalFlick: "Проти FlickerTalk; торкнися, щоб потренувати влучність",
     rivalFriend: "Проти друга; торкнися, щоб потренувати влучність", practiceFlick: "Тренування влучності; торкнися, щоб грати проти FlickerTalk", practiceFriend: "Тренування влучності; торкнися, щоб грати проти друга",
@@ -80,7 +80,7 @@ export const TEXTS = {
     wrapped: "Сюрприз, ще запакований", fire: "Кинути", angle: "Цілитися вище, зараз {n} градусів", power: "Сильніше, зараз {n}", dive: "Пірнути", surface: "Спливти",
   },
   tr: {
-    name: "Paint Tanks", canvas: "Paint Tanks: aracından geriye çek ve diğer tarafa boya fırlatmak için bırak; üç kat boya kazanır", play: "Oyna", again: "Tekrar oyna",
+    name: "Boya Tankları", canvas: "Boya Tankları: aracından geriye çek ve diğer tarafa boya fırlatmak için bırak; üç kat boya kazanır", play: "Oyna", again: "Tekrar oyna",
     home: "Ana sayfa", pause: "Duraklat", resume: "Devam et", avatar: "Oyuncunu seç", looks: "Araçlar ve boya topları", done: "Tamam", gift: "Hediyeyi aç", accept: "Katıl",
     dismiss: "Şimdi değil", land: "Tepeler", sea: "Açık deniz", coast: "Kıyı", deep: "Derin deniz", rivalFlick: "FlickerTalk'a karşı; nişan çalışması için dokun",
     rivalFriend: "Arkadaşına karşı; nişan çalışması için dokun", practiceFlick: "Nişan çalışması; FlickerTalk'a karşı oynamak için dokun", practiceFriend: "Nişan çalışması; arkadaşına karşı oynamak için dokun",
@@ -88,7 +88,7 @@ export const TEXTS = {
     wrapped: "Henüz paketli bir sürpriz", fire: "Fırlat", angle: "Daha yukarı nişan al, şimdi {n} derece", power: "Daha güçlü, şimdi {n}", dive: "Dal", surface: "Yüzeye çık",
   },
   ar: {
-    name: "Paint Tanks", canvas: "Paint Tanks: اسحب إلى الخلف من مركبتك ثم أفلِت لترمي الطلاء على الجهة الأخرى؛ ثلاث طبقات تفوز", play: "العب", again: "العب مرة أخرى",
+    name: "دبابات الطلاء", canvas: "دبابات الطلاء: اسحب إلى الخلف من مركبتك ثم أفلِت لترمي الطلاء على الجهة الأخرى؛ ثلاث طبقات تفوز", play: "العب", again: "العب مرة أخرى",
     home: "الرئيسية", pause: "إيقاف مؤقت", resume: "تابع", avatar: "اختر لاعبك", looks: "المركبات وكرات الطلاء", done: "تم", gift: "افتح الهدية", accept: "انضم",
     dismiss: "ليس الآن", land: "التلال", sea: "البحر المفتوح", coast: "الساحل", deep: "أعماق البحر", rivalFlick: "ضد FlickerTalk؛ اضغط للتدرّب على التصويب",
     rivalFriend: "ضد صديقك؛ اضغط للتدرّب على التصويب", practiceFlick: "تدريب على التصويب؛ اضغط للعب ضد FlickerTalk", practiceFriend: "تدريب على التصويب؛ اضغط للعب ضد صديقك",
@@ -96,7 +96,7 @@ export const TEXTS = {
     wrapped: "مفاجأة ما زالت مغلّفة", fire: "ارمِ", angle: "صوّب أعلى، الآن {n} درجة", power: "قوة أكبر، الآن {n}", dive: "اغطس", surface: "اصعد",
   },
   hi: {
-    name: "Paint Tanks", canvas: "Paint Tanks: अपनी गाड़ी से पीछे खींचो और छोड़ो ताकि दूसरी तरफ़ रंग फेंको; रंग की तीन परतें जीतती हैं", play: "खेलें", again: "फिर से खेलें",
+    name: "रंग वाले टैंक", canvas: "रंग वाले टैंक: अपनी गाड़ी से पीछे खींचो और छोड़ो ताकि दूसरी तरफ़ रंग फेंको; रंग की तीन परतें जीतती हैं", play: "खेलें", again: "फिर से खेलें",
     home: "होम", pause: "रोकें", resume: "जारी रखें", avatar: "अपना खिलाड़ी चुनें", looks: "गाड़ियाँ और रंग की गेंदें", done: "हो गया", gift: "तोहफ़ा खोलें", accept: "जुड़ें",
     dismiss: "अभी नहीं", land: "पहाड़ियाँ", sea: "खुला समुद्र", coast: "तट", deep: "गहरा समुद्र", rivalFlick: "FlickerTalk के ख़िलाफ़; निशाना अभ्यास के लिए छुएँ",
     rivalFriend: "अपने दोस्त के ख़िलाफ़; निशाना अभ्यास के लिए छुएँ", practiceFlick: "निशाना अभ्यास; FlickerTalk के ख़िलाफ़ खेलने के लिए छुएँ", practiceFriend: "निशाना अभ्यास; अपने दोस्त के ख़िलाफ़ खेलने के लिए छुएँ",
@@ -104,7 +104,7 @@ export const TEXTS = {
     wrapped: "एक सरप्राइज़, अभी भी लिपटा हुआ", fire: "फेंकें", angle: "ऊपर निशाना लें, अभी {n} डिग्री", power: "ज़्यादा ज़ोर, अभी {n}", dive: "डुबकी लगाएँ", surface: "ऊपर आएँ",
   },
   bn: {
-    name: "Paint Tanks", canvas: "Paint Tanks: তোমার গাড়ি থেকে পেছনে টেনে ছেড়ে দাও, অন্য দিকে রং ছুড়তে; রঙের তিনটি পরত জেতে", play: "খেলো", again: "আবার খেলো",
+    name: "রঙের ট্যাংক", canvas: "রঙের ট্যাংক: তোমার গাড়ি থেকে পেছনে টেনে ছেড়ে দাও, অন্য দিকে রং ছুড়তে; রঙের তিনটি পরত জেতে", play: "খেলো", again: "আবার খেলো",
     home: "হোম", pause: "থামাও", resume: "চালিয়ে যাও", avatar: "তোমার খেলোয়াড় বেছে নাও", looks: "গাড়ি আর রঙের বল", done: "হয়ে গেছে", gift: "উপহার খোলো", accept: "যোগ দাও",
     dismiss: "এখন না", land: "পাহাড়", sea: "খোলা সমুদ্র", coast: "উপকূল", deep: "গভীর সমুদ্র", rivalFlick: "FlickerTalk-এর বিরুদ্ধে; লক্ষ্যভেদ অনুশীলনের জন্য ছোঁও",
     rivalFriend: "তোমার বন্ধুর বিরুদ্ধে; লক্ষ্যভেদ অনুশীলনের জন্য ছোঁও", practiceFlick: "লক্ষ্যভেদ অনুশীলন; FlickerTalk-এর বিরুদ্ধে খেলতে ছোঁও", practiceFriend: "লক্ষ্যভেদ অনুশীলন; তোমার বন্ধুর বিরুদ্ধে খেলতে ছোঁও",
@@ -112,7 +112,7 @@ export const TEXTS = {
     wrapped: "একটি চমক, এখনও মোড়া", fire: "ছোড়ো", angle: "আরও উঁচুতে তাক করো, এখন {n} ডিগ্রি", power: "আরও জোর, এখন {n}", dive: "ডুব দাও", surface: "ভেসে ওঠো",
   },
   id: {
-    name: "Paint Tanks", canvas: "Paint Tanks: tarik ke belakang dari kendaraanmu lalu lepaskan untuk melempar cat ke sisi lain; tiga lapis cat menang", play: "Main", again: "Main lagi",
+    name: "Tank Cat", canvas: "Tank Cat: tarik ke belakang dari kendaraanmu lalu lepaskan untuk melempar cat ke sisi lain; tiga lapis cat menang", play: "Main", again: "Main lagi",
     home: "Beranda", pause: "Jeda", resume: "Lanjut", avatar: "Pilih pemainmu", looks: "Kendaraan dan bola cat", done: "Selesai", gift: "Buka hadiah", accept: "Gabung",
     dismiss: "Nanti saja", land: "Perbukitan", sea: "Laut lepas", coast: "Pantai", deep: "Laut dalam", rivalFlick: "Melawan FlickerTalk; ketuk untuk latihan membidik",
     rivalFriend: "Melawan temanmu; ketuk untuk latihan membidik", practiceFlick: "Latihan membidik; ketuk untuk melawan FlickerTalk", practiceFriend: "Latihan membidik; ketuk untuk melawan temanmu",
@@ -120,7 +120,7 @@ export const TEXTS = {
     wrapped: "Kejutan yang masih terbungkus", fire: "Lempar", angle: "Bidik lebih tinggi, sekarang {n} derajat", power: "Lebih kuat, sekarang {n}", dive: "Menyelam", surface: "Naik ke permukaan",
   },
   vi: {
-    name: "Paint Tanks", canvas: "Paint Tanks: kéo ngược ra sau từ xe của bạn rồi thả để ném sơn sang phía bên kia; ba lớp sơn là thắng", play: "Chơi", again: "Chơi lại",
+    name: "Xe tăng bắn sơn", canvas: "Xe tăng bắn sơn: kéo ngược ra sau từ xe của bạn rồi thả để ném sơn sang phía bên kia; ba lớp sơn là thắng", play: "Chơi", again: "Chơi lại",
     home: "Trang chủ", pause: "Tạm dừng", resume: "Tiếp tục", avatar: "Chọn người chơi", looks: "Xe và bóng sơn", done: "Xong", gift: "Mở quà", accept: "Tham gia",
     dismiss: "Để sau", land: "Đồi", sea: "Biển khơi", coast: "Bờ biển", deep: "Biển sâu", rivalFlick: "Đấu với FlickerTalk; chạm để tập ngắm bắn",
     rivalFriend: "Đấu với bạn của bạn; chạm để tập ngắm bắn", practiceFlick: "Tập ngắm bắn; chạm để đấu với FlickerTalk", practiceFriend: "Tập ngắm bắn; chạm để đấu với bạn của bạn",
@@ -128,7 +128,7 @@ export const TEXTS = {
     wrapped: "Một bất ngờ vẫn còn gói", fire: "Ném", angle: "Ngắm cao hơn, giờ là {n} độ", power: "Mạnh hơn, giờ là {n}", dive: "Lặn xuống", surface: "Nổi lên",
   },
   th: {
-    name: "Paint Tanks", canvas: "Paint Tanks: ดึงถอยหลังจากยานของคุณแล้วปล่อยเพื่อยิงสีไปอีกฝั่ง สีสามชั้นชนะ", play: "เล่น", again: "เล่นอีกครั้ง",
+    name: "รถถังปาสี", canvas: "รถถังปาสี: ดึงถอยหลังจากยานของคุณแล้วปล่อยเพื่อยิงสีไปอีกฝั่ง สีสามชั้นชนะ", play: "เล่น", again: "เล่นอีกครั้ง",
     home: "หน้าหลัก", pause: "หยุดชั่วคราว", resume: "เล่นต่อ", avatar: "เลือกผู้เล่นของคุณ", looks: "ยานพาหนะและลูกบอลสี", done: "เสร็จ", gift: "เปิดของขวัญ", accept: "เข้าร่วม",
     dismiss: "ไว้ทีหลัง", land: "เนินเขา", sea: "ทะเลเปิด", coast: "ชายฝั่ง", deep: "ทะเลลึก", rivalFlick: "เล่นกับ FlickerTalk แตะเพื่อฝึกยิงเป้า",
     rivalFriend: "เล่นกับเพื่อนของคุณ แตะเพื่อฝึกยิงเป้า", practiceFlick: "ฝึกยิงเป้า แตะเพื่อเล่นกับ FlickerTalk", practiceFriend: "ฝึกยิงเป้า แตะเพื่อเล่นกับเพื่อนของคุณ",
@@ -136,7 +136,7 @@ export const TEXTS = {
     wrapped: "เซอร์ไพรส์ที่ยังห่ออยู่", fire: "ยิงสี", angle: "เล็งสูงขึ้น ตอนนี้ {n} องศา", power: "แรงขึ้น ตอนนี้ {n}", dive: "ดำน้ำ", surface: "ขึ้นผิวน้ำ",
   },
   ja: {
-    name: "Paint Tanks", canvas: "Paint Tanks：自分の乗り物から後ろに引いて離すと、相手側にペンキを飛ばせます。ペンキ3回で勝ち", play: "あそぶ", again: "もう一度",
+    name: "ペンキ戦車", canvas: "ペンキ戦車：自分の乗り物から後ろに引いて離すと、相手側にペンキを飛ばせます。ペンキ3回で勝ち", play: "あそぶ", again: "もう一度",
     home: "ホーム", pause: "一時停止", resume: "つづける", avatar: "プレイヤーをえらぶ", looks: "乗り物とペンキボール", done: "完了", gift: "プレゼントを開ける", accept: "参加する",
     dismiss: "あとで", land: "丘", sea: "外海", coast: "海岸", deep: "深海", rivalFlick: "FlickerTalk と対戦。タップでまと当て練習",
     rivalFriend: "友だちと対戦。タップでまと当て練習", practiceFlick: "まと当て練習。タップで FlickerTalk と対戦", practiceFriend: "まと当て練習。タップで友だちと対戦",
@@ -144,7 +144,7 @@ export const TEXTS = {
     wrapped: "まだ包まれたサプライズ", fire: "飛ばす", angle: "もっと上をねらう、いま {n} 度", power: "もっと強く、いま {n}", dive: "もぐる", surface: "浮上する",
   },
   ko: {
-    name: "Paint Tanks", canvas: "Paint Tanks: 내 탈것에서 뒤로 당겼다가 놓으면 상대편으로 물감을 날려요. 물감 세 번이면 승리", play: "놀기", again: "다시 하기",
+    name: "물감 탱크", canvas: "물감 탱크: 내 탈것에서 뒤로 당겼다가 놓으면 상대편으로 물감을 날려요. 물감 세 번이면 승리", play: "놀기", again: "다시 하기",
     home: "홈", pause: "일시 정지", resume: "계속하기", avatar: "플레이어 고르기", looks: "탈것과 물감 공", done: "완료", gift: "선물 열기", accept: "참여하기",
     dismiss: "나중에", land: "언덕", sea: "넓은 바다", coast: "해안", deep: "깊은 바다", rivalFlick: "FlickerTalk와 대결, 탭하면 과녁 연습",
     rivalFriend: "친구와 대결, 탭하면 과녁 연습", practiceFlick: "과녁 연습, 탭하면 FlickerTalk와 대결", practiceFriend: "과녁 연습, 탭하면 친구와 대결",
@@ -152,7 +152,7 @@ export const TEXTS = {
     wrapped: "아직 포장된 깜짝 선물", fire: "날리기", angle: "더 높이 겨누기, 지금 {n}도", power: "더 세게, 지금 {n}", dive: "잠수하기", surface: "떠오르기",
   },
   "zh-CN": {
-    name: "Paint Tanks", canvas: "Paint Tanks：从你的车辆向后拉，松手就把颜料射向对面；涂上三层就赢", play: "开始", again: "再玩一次",
+    name: "颜料坦克", canvas: "颜料坦克：从你的车辆向后拉，松手就把颜料射向对面；涂上三层就赢", play: "开始", again: "再玩一次",
     home: "首页", pause: "暂停", resume: "继续", avatar: "选择你的角色", looks: "车辆和颜料球", done: "完成", gift: "打开礼物", accept: "加入",
     dismiss: "以后再说", land: "丘陵", sea: "开阔海面", coast: "海岸", deep: "深海", rivalFlick: "对战 FlickerTalk；轻点改为打靶练习",
     rivalFriend: "对战你的朋友；轻点改为打靶练习", practiceFlick: "打靶练习；轻点改为对战 FlickerTalk", practiceFriend: "打靶练习；轻点改为对战你的朋友",
@@ -160,7 +160,7 @@ export const TEXTS = {
     wrapped: "还包着的惊喜", fire: "发射", angle: "瞄高一点，现在 {n} 度", power: "再用力一点，现在 {n}", dive: "下潜", surface: "上浮",
   },
   "zh-TW": {
-    name: "Paint Tanks", canvas: "Paint Tanks：從你的車輛往後拉，放手就把顏料射向對面；塗上三層就贏", play: "開始", again: "再玩一次",
+    name: "顏料坦克", canvas: "顏料坦克：從你的車輛往後拉，放手就把顏料射向對面；塗上三層就贏", play: "開始", again: "再玩一次",
     home: "首頁", pause: "暫停", resume: "繼續", avatar: "選擇你的角色", looks: "車輛和顏料球", done: "完成", gift: "打開禮物", accept: "加入",
     dismiss: "以後再說", land: "丘陵", sea: "開闊海面", coast: "海岸", deep: "深海", rivalFlick: "對戰 FlickerTalk；輕點改為打靶練習",
     rivalFriend: "對戰你的朋友；輕點改為打靶練習", practiceFlick: "打靶練習；輕點改為對戰 FlickerTalk", practiceFriend: "打靶練習；輕點改為對戰你的朋友",

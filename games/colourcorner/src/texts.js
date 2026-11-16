@@ -18,7 +18,7 @@ export const TEXTS = {
     page_fireEngine: "Fire engine",
   },
   es: {
-    name: "Colour Corner", canvas: "Colour Corner: elige un color y toca una parte del dibujo para colorearla", play: "Empezar a colorear",
+    name: "Rincón de colores", canvas: "Rincón de colores: elige un color y toca una parte del dibujo para colorearla", play: "Empezar a colorear",
     another: "Colorear otro dibujo", pages: "Dibujos para colorear", free: "Pintura libre", together: "Colorear un dibujo juntos, por turnos",
     avatar: "Elige tu jugador", looks: "Mi galería", flick: "FlickerTalk", call: "Volver a llamar a tu amigo", back: "Atrás", home: "Inicio", undo: "Deshacer",
     done: "Terminado: colgarlo en mi galería", prev: "Dibujos anteriores", next: "Más dibujos", edit: "Seguir coloreando", send: "Enviar el dibujo al chat",
@@ -36,7 +36,7 @@ export const TEXTS = {
     page_unicorn: "Unicornio", page_train: "Tren", page_mandala: "Mandala", page_plane: "Avión", page_fireEngine: "Camión de bomberos",
   },
   pt: {
-    name: "Colour Corner", canvas: "Colour Corner: escolha uma cor e toque numa parte do desenho para colori-la", play: "Começar a colorir",
+    name: "Canto das cores", canvas: "Canto das cores: escolha uma cor e toque numa parte do desenho para colori-la", play: "Começar a colorir",
     another: "Colorir outro desenho", pages: "Desenhos para colorir", free: "Pintura livre", together: "Colorir um desenho juntos, revezando",
     avatar: "Escolha seu jogador", looks: "Minha galeria", flick: "FlickerTalk", call: "Chamar seu amigo de novo", back: "Voltar", home: "Início", undo: "Desfazer",
     done: "Pronto: pendurar na minha galeria", prev: "Desenhos anteriores", next: "Mais desenhos", edit: "Continuar colorindo", send: "Enviar o desenho para a conversa",
@@ -54,7 +54,7 @@ export const TEXTS = {
     page_sailboat: "Veleiro", page_unicorn: "Unicórnio", page_train: "Trem", page_mandala: "Mandala", page_plane: "Avião", page_fireEngine: "Caminhão de bombeiros",
   },
   fr: {
-    name: "Colour Corner", canvas: "Colour Corner : choisis une couleur, puis touche une partie du dessin pour la colorier", play: "Commencer à colorier",
+    name: "Coin des couleurs", canvas: "Coin des couleurs : choisis une couleur, puis touche une partie du dessin pour la colorier", play: "Commencer à colorier",
     another: "Colorier un autre dessin", pages: "Coloriages", free: "Peinture libre", together: "Colorier un dessin ensemble, chacun son tour",
     avatar: "Choisis ton joueur", looks: "Ma galerie", flick: "FlickerTalk", call: "Rappeler ton ami", back: "Retour", home: "Accueil", undo: "Annuler",
     done: "Terminé : l’accrocher dans ma galerie", prev: "Dessins précédents", next: "Plus de dessins", edit: "Continuer à colorier", send: "Envoyer le dessin dans le chat",
@@ -72,7 +72,7 @@ export const TEXTS = {
     page_sailboat: "Voilier", page_unicorn: "Licorne", page_train: "Train", page_mandala: "Mandala", page_plane: "Avion", page_fireEngine: "Camion de pompiers",
   },
   de: {
-    name: "Colour Corner", canvas: "Colour Corner: Wähle eine Farbe und tippe auf einen Teil des Bildes, um ihn auszumalen", play: "Ausmalen beginnen",
+    name: "Malecke", canvas: "Malecke: Wähle eine Farbe und tippe auf einen Teil des Bildes, um ihn auszumalen", play: "Ausmalen beginnen",
     another: "Ein anderes Bild ausmalen", pages: "Ausmalbilder", free: "Freies Malen", together: "Gemeinsam ein Bild ausmalen, abwechselnd",
     avatar: "Wähle deine Figur", looks: "Meine Galerie", flick: "FlickerTalk", call: "Deinen Freund noch einmal rufen", back: "Zurück", home: "Start", undo: "Rückgängig",
     done: "Fertig: in meine Galerie hängen", prev: "Vorherige Bilder", next: "Mehr Bilder", edit: "Weiter ausmalen", send: "Bild in den Chat schicken",
@@ -91,7 +91,7 @@ export const TEXTS = {
     page_plane: "Flugzeug", page_fireEngine: "Feuerwehrauto",
   },
   it: {
-    name: "Colour Corner", canvas: "Colour Corner: scegli un colore, poi tocca una parte del disegno per colorarla", play: "Inizia a colorare",
+    name: "Angolo dei colori", canvas: "Angolo dei colori: scegli un colore, poi tocca una parte del disegno per colorarla", play: "Inizia a colorare",
     another: "Colora un altro disegno", pages: "Disegni da colorare", free: "Pittura libera", together: "Colora un disegno insieme, a turno",
     avatar: "Scegli il tuo giocatore", looks: "La mia galleria", flick: "FlickerTalk", call: "Richiama il tuo amico", back: "Indietro", home: "Inizio", undo: "Annulla",
     done: "Finito: appendilo nella mia galleria", prev: "Disegni precedenti", next: "Altri disegni", edit: "Continua a colorare", send: "Invia il disegno nella chat",
@@ -110,7 +110,7 @@ export const TEXTS = {
     page_plane: "Aereo", page_fireEngine: "Camion dei pompieri",
   },
   ro: {
-    name: "Colour Corner", canvas: "Colour Corner: alege o culoare, apoi atinge o parte a desenului ca s-o colorezi", play: "Începe să colorezi",
+    name: "Colțul culorilor", canvas: "Colțul culorilor: alege o culoare, apoi atinge o parte a desenului ca s-o colorezi", play: "Începe să colorezi",
     another: "Colorează alt desen", pages: "Planșe de colorat", free: "Pictură liberă", together: "Colorați un desen împreună, pe rând",
     avatar: "Alege-ți jucătorul", looks: "Galeria mea", flick: "FlickerTalk", call: "Cheamă-ți din nou prietenul", back: "Înapoi", home: "Acasă", undo: "Anulează",
     done: "Gata: agață-l în galeria mea", prev: "Desenele anterioare", next: "Mai multe desene", edit: "Colorează în continuare", send: "Trimite desenul în conversație",
@@ -129,7 +129,7 @@ export const TEXTS = {
     page_plane: "Avion", page_fireEngine: "Mașină de pompieri",
   },
   pl: {
-    name: "Colour Corner", canvas: "Colour Corner: wybierz farbę, a potem dotknij części obrazka, żeby ją pokolorować", play: "Zacznij kolorować",
+    name: "Kolorowy kącik", canvas: "Kolorowy kącik: wybierz farbę, a potem dotknij części obrazka, żeby ją pokolorować", play: "Zacznij kolorować",
     another: "Pokoloruj inny obrazek", pages: "Kolorowanki", free: "Swobodne malowanie", together: "Kolorujcie razem jeden obrazek, na zmianę",
     avatar: "Wybierz gracza", looks: "Moja galeria", flick: "FlickerTalk", call: "Zawołaj znowu znajomego", back: "Wstecz", home: "Start", undo: "Cofnij",
     done: "Gotowe: powieś w mojej galerii", prev: "Poprzednie obrazki", next: "Więcej obrazków", edit: "Koloruj dalej", send: "Wyślij obrazek na czat",
@@ -148,7 +148,7 @@ export const TEXTS = {
     page_plane: "Samolot", page_fireEngine: "Wóz strażacki",
   },
   ru: {
-    name: "Colour Corner", canvas: "Colour Corner: выбери краску и коснись части картинки, чтобы её раскрасить", play: "Начать раскрашивать",
+    name: "Цветной уголок", canvas: "Цветной уголок: выбери краску и коснись части картинки, чтобы её раскрасить", play: "Начать раскрашивать",
     another: "Раскрасить другую картинку", pages: "Раскраски", free: "Свободное рисование", together: "Раскрасить одну картинку вместе, по очереди",
     avatar: "Выбери игрока", looks: "Моя галерея", flick: "FlickerTalk", call: "Позвать друга ещё раз", back: "Назад", home: "Главная", undo: "Отменить",
     done: "Готово: повесить в мою галерею", prev: "Предыдущие картинки", next: "Ещё картинки", edit: "Раскрашивать дальше", send: "Отправить картинку в чат",
@@ -167,7 +167,7 @@ export const TEXTS = {
     page_train: "Поезд", page_mandala: "Мандала", page_plane: "Самолёт", page_fireEngine: "Пожарная машина",
   },
   uk: {
-    name: "Colour Corner", canvas: "Colour Corner: обери фарбу й торкнися частини малюнка, щоб її розфарбувати", play: "Почати розфарбовувати",
+    name: "Кольоровий куточок", canvas: "Кольоровий куточок: обери фарбу й торкнися частини малюнка, щоб її розфарбувати", play: "Почати розфарбовувати",
     another: "Розфарбувати інший малюнок", pages: "Розмальовки", free: "Вільне малювання", together: "Розфарбувати один малюнок разом, по черзі",
     avatar: "Обери гравця", looks: "Моя галерея", flick: "FlickerTalk", call: "Покликати друга ще раз", back: "Назад", home: "Головна", undo: "Скасувати",
     done: "Готово: повісити в мою галерею", prev: "Попередні малюнки", next: "Ще малюнки", edit: "Розфарбовувати далі", send: "Надіслати малюнок у чат",
@@ -186,7 +186,7 @@ export const TEXTS = {
     page_sailboat: "Вітрильник", page_unicorn: "Єдиноріг", page_train: "Потяг", page_mandala: "Мандала", page_plane: "Літак", page_fireEngine: "Пожежна машина",
   },
   tr: {
-    name: "Colour Corner", canvas: "Colour Corner: bir boya seç, sonra boyamak için resmin bir bölümüne dokun", play: "Boyamaya başla",
+    name: "Renk Köşesi", canvas: "Renk Köşesi: bir boya seç, sonra boyamak için resmin bir bölümüne dokun", play: "Boyamaya başla",
     another: "Başka bir resim boya", pages: "Boyama sayfaları", free: "Serbest boyama", together: "Bir sayfayı sırayla birlikte boyayın",
     avatar: "Oyuncunu seç", looks: "Galerim", flick: "FlickerTalk", call: "Arkadaşını yeniden çağır", back: "Geri", home: "Ana sayfa", undo: "Geri al",
     done: "Bitti: galerime as", prev: "Önceki resimler", next: "Daha fazla resim", edit: "Boyamaya devam et", send: "Resmi sohbete gönder",
@@ -204,7 +204,7 @@ export const TEXTS = {
     page_unicorn: "Tek boynuzlu at", page_train: "Tren", page_mandala: "Mandala", page_plane: "Uçak", page_fireEngine: "İtfaiye aracı",
   },
   ar: {
-    name: "Colour Corner", canvas: "Colour Corner: اختر لونًا، ثم المس جزءًا من الصورة لتلوّنه", play: "ابدأ التلوين", another: "لوّن صورة أخرى",
+    name: "ركن الألوان", canvas: "ركن الألوان: اختر لونًا، ثم المس جزءًا من الصورة لتلوّنه", play: "ابدأ التلوين", another: "لوّن صورة أخرى",
     pages: "صفحات التلوين", free: "رسم حر", together: "لوّنا صفحة واحدة معًا بالتناوب", avatar: "اختر لاعبك", looks: "معرضي", flick: "FlickerTalk",
     call: "ادعُ صديقك مرة أخرى", back: "رجوع", home: "الرئيسية", undo: "تراجع", done: "انتهيت: علّقها في معرضي", prev: "الصور السابقة", next: "مزيد من الصور",
     edit: "تابع التلوين", send: "أرسل الصورة إلى المحادثة", gift: "افتح الهدية", accept: "انضم", dismiss: "ليس الآن", wrapped: "صفحة مفاجأة ما زالت مغلّفة",
@@ -221,7 +221,7 @@ export const TEXTS = {
     page_unicorn: "حصان وحيد القرن", page_train: "قطار", page_mandala: "ماندالا", page_plane: "طائرة", page_fireEngine: "سيارة إطفاء",
   },
   hi: {
-    name: "Colour Corner", canvas: "Colour Corner: एक रंग चुनें, फिर चित्र के किसी हिस्से को छूकर उसमें रंग भरें", play: "रंग भरना शुरू करें",
+    name: "रंगों का कोना", canvas: "रंगों का कोना: एक रंग चुनें, फिर चित्र के किसी हिस्से को छूकर उसमें रंग भरें", play: "रंग भरना शुरू करें",
     another: "दूसरे चित्र में रंग भरें", pages: "रंग भरने वाले चित्र", free: "मुक्त चित्रकारी", together: "बारी-बारी से साथ मिलकर एक चित्र में रंग भरें",
     avatar: "अपना खिलाड़ी चुनें", looks: "मेरी गैलरी", flick: "FlickerTalk", call: "अपने दोस्त को फिर बुलाएँ", back: "वापस", home: "होम", undo: "पूर्ववत करें",
     done: "पूरा हुआ: मेरी गैलरी में टाँगें", prev: "पिछले चित्र", next: "और चित्र", edit: "रंग भरते रहें", send: "चित्र चैट में भेजें", gift: "उपहार खोलें",
@@ -239,7 +239,7 @@ export const TEXTS = {
     page_sailboat: "पाल वाली नाव", page_unicorn: "यूनिकॉर्न", page_train: "रेलगाड़ी", page_mandala: "मंडल", page_plane: "हवाई जहाज़", page_fireEngine: "दमकल गाड़ी",
   },
   bn: {
-    name: "Colour Corner", canvas: "Colour Corner: একটি রং বেছে নিন, তারপর ছবির কোনো অংশ ছুঁয়ে সেটি রং করুন", play: "রং করা শুরু করুন",
+    name: "রঙের কোণ", canvas: "রঙের কোণ: একটি রং বেছে নিন, তারপর ছবির কোনো অংশ ছুঁয়ে সেটি রং করুন", play: "রং করা শুরু করুন",
     another: "আরেকটি ছবিতে রং করুন", pages: "রং করার ছবি", free: "মুক্তভাবে আঁকা", together: "পালা করে একসঙ্গে একটি ছবিতে রং করুন",
     avatar: "আপনার খেলোয়াড় বেছে নিন", looks: "আমার গ্যালারি", flick: "FlickerTalk", call: "বন্ধুকে আবার ডাকুন", back: "ফিরে যান", home: "হোম",
     undo: "পূর্বাবস্থায় ফেরান", done: "শেষ: আমার গ্যালারিতে টাঙিয়ে দিন", prev: "আগের ছবি", next: "আরও ছবি", edit: "রং করা চালিয়ে যান",
@@ -257,7 +257,7 @@ export const TEXTS = {
     page_sailboat: "পালতোলা নৌকা", page_unicorn: "ইউনিকর্ন", page_train: "ট্রেন", page_mandala: "ম্যান্ডালা", page_plane: "উড়োজাহাজ", page_fireEngine: "দমকলের গাড়ি",
   },
   id: {
-    name: "Colour Corner", canvas: "Colour Corner: pilih cat, lalu sentuh bagian gambar untuk mewarnainya", play: "Mulai mewarnai",
+    name: "Pojok Warna", canvas: "Pojok Warna: pilih cat, lalu sentuh bagian gambar untuk mewarnainya", play: "Mulai mewarnai",
     another: "Warnai gambar lain", pages: "Gambar mewarnai", free: "Melukis bebas", together: "Warnai satu gambar bersama, bergantian",
     avatar: "Pilih pemainmu", looks: "Galeriku", flick: "FlickerTalk", call: "Panggil temanmu lagi", back: "Kembali", home: "Beranda", undo: "Urungkan",
     done: "Selesai: gantung di galeriku", prev: "Gambar sebelumnya", next: "Gambar lainnya", edit: "Lanjut mewarnai", send: "Kirim gambar ke obrolan",
@@ -275,7 +275,7 @@ export const TEXTS = {
     page_unicorn: "Unikorn", page_train: "Kereta api", page_mandala: "Mandala", page_plane: "Pesawat", page_fireEngine: "Mobil pemadam kebakaran",
   },
   vi: {
-    name: "Colour Corner", canvas: "Colour Corner: chọn một màu, rồi chạm vào một phần của bức tranh để tô màu phần đó", play: "Bắt đầu tô màu",
+    name: "Góc tô màu", canvas: "Góc tô màu: chọn một màu, rồi chạm vào một phần của bức tranh để tô màu phần đó", play: "Bắt đầu tô màu",
     another: "Tô bức tranh khác", pages: "Tranh tô màu", free: "Vẽ tự do", together: "Cùng tô một bức tranh, lần lượt từng người", avatar: "Chọn người chơi",
     looks: "Phòng tranh của tôi", flick: "FlickerTalk", call: "Gọi lại bạn của bạn", back: "Quay lại", home: "Trang chính", undo: "Hoàn tác",
     done: "Xong: treo vào phòng tranh của tôi", prev: "Tranh trước", next: "Thêm tranh", edit: "Tô tiếp", send: "Gửi bức tranh vào cuộc trò chuyện", gift: "Mở quà",
@@ -293,7 +293,7 @@ export const TEXTS = {
     page_unicorn: "Kỳ lân", page_train: "Tàu hỏa", page_mandala: "Mandala", page_plane: "Máy bay", page_fireEngine: "Xe cứu hỏa",
   },
   th: {
-    name: "Colour Corner", canvas: "Colour Corner: เลือกสี แล้วแตะส่วนหนึ่งของภาพเพื่อระบายสี", play: "เริ่มระบายสี", another: "ระบายสีภาพอื่น", pages: "ภาพระบายสี",
+    name: "มุมระบายสี", canvas: "มุมระบายสี: เลือกสี แล้วแตะส่วนหนึ่งของภาพเพื่อระบายสี", play: "เริ่มระบายสี", another: "ระบายสีภาพอื่น", pages: "ภาพระบายสี",
     free: "วาดภาพอิสระ", together: "ผลัดกันระบายสีภาพเดียวกันด้วยกัน", avatar: "เลือกผู้เล่นของคุณ", looks: "แกลเลอรีของฉัน", flick: "FlickerTalk",
     call: "เรียกเพื่อนอีกครั้ง", back: "ย้อนกลับ", home: "หน้าแรก", undo: "เลิกทำ", done: "เสร็จแล้ว: แขวนไว้ในแกลเลอรีของฉัน", prev: "ภาพก่อนหน้า",
     next: "ภาพเพิ่มเติม", edit: "ระบายสีต่อ", send: "ส่งภาพไปที่แชท", gift: "เปิดของขวัญ", accept: "เข้าร่วม", dismiss: "ไว้ทีหลัง", wrapped: "ภาพเซอร์ไพรส์ที่ยังห่ออยู่",
@@ -311,7 +311,7 @@ export const TEXTS = {
     page_fireEngine: "รถดับเพลิง",
   },
   ja: {
-    name: "Colour Corner", canvas: "Colour Corner：絵の具をえらんでから、絵の一部にふれて色をぬろう", play: "ぬりはじめる", another: "ほかの絵をぬる", pages: "ぬりえ",
+    name: "ぬりえコーナー", canvas: "ぬりえコーナー：絵の具をえらんでから、絵の一部にふれて色をぬろう", play: "ぬりはじめる", another: "ほかの絵をぬる", pages: "ぬりえ",
     free: "自由にお絵かき", together: "1枚の絵を交代でいっしょにぬる", avatar: "プレイヤーをえらぶ", looks: "わたしのギャラリー", flick: "FlickerTalk",
     call: "友だちをもう一度よぶ", back: "もどる", home: "ホーム", undo: "元にもどす", done: "完成：わたしのギャラリーにかざる", prev: "前の絵", next: "つぎの絵",
     edit: "ぬりつづける", send: "絵をチャットに送る", gift: "プレゼントをあける", accept: "参加する", dismiss: "あとで", wrapped: "まだ包まれたままのサプライズの絵",
@@ -327,7 +327,7 @@ export const TEXTS = {
     page_unicorn: "ユニコーン", page_train: "電車", page_mandala: "マンダラ", page_plane: "飛行機", page_fireEngine: "消防車",
   },
   ko: {
-    name: "Colour Corner", canvas: "Colour Corner: 물감을 고른 다음, 그림의 한 부분을 눌러 색칠하세요", play: "색칠 시작", another: "다른 그림 색칠하기", pages: "색칠할 그림",
+    name: "색칠 코너", canvas: "색칠 코너: 물감을 고른 다음, 그림의 한 부분을 눌러 색칠하세요", play: "색칠 시작", another: "다른 그림 색칠하기", pages: "색칠할 그림",
     free: "자유 그리기", together: "한 그림을 번갈아 가며 함께 색칠하기", avatar: "플레이어 고르기", looks: "내 갤러리", flick: "FlickerTalk", call: "친구를 다시 부르기",
     back: "뒤로", home: "홈", undo: "실행 취소", done: "완성: 내 갤러리에 걸기", prev: "이전 그림", next: "그림 더 보기", edit: "계속 색칠하기", send: "그림을 채팅으로 보내기",
     gift: "선물 열기", accept: "참여", dismiss: "나중에", wrapped: "아직 포장된 깜짝 그림", picture: "그림 {n}", zone: "그림의 {n}번 부분", tool_fill: "한 부분을 물감으로 채우기",
@@ -343,7 +343,7 @@ export const TEXTS = {
     page_plane: "비행기", page_fireEngine: "소방차",
   },
   "zh-CN": {
-    name: "Colour Corner", canvas: "Colour Corner：选一种颜料，再点一下画中的某个部分给它上色", play: "开始涂色", another: "给另一幅画涂色", pages: "涂色画",
+    name: "涂色角", canvas: "涂色角：选一种颜料，再点一下画中的某个部分给它上色", play: "开始涂色", another: "给另一幅画涂色", pages: "涂色画",
     free: "自由绘画", together: "一起轮流给同一幅画涂色", avatar: "选择你的玩家", looks: "我的画廊", flick: "FlickerTalk", call: "再叫一次朋友", back: "返回", home: "主页",
     undo: "撤销", done: "完成：挂到我的画廊", prev: "前面的画", next: "更多画", edit: "继续涂色", send: "把画发送到聊天", gift: "打开礼物", accept: "加入", dismiss: "以后再说",
     wrapped: "一幅还没拆开的惊喜画", picture: "第 {n} 幅画", zone: "画的第 {n} 部分", tool_fill: "用颜料填满一个区域", tool_brush: "画笔", tool_eraser: "橡皮擦",
@@ -358,7 +358,7 @@ export const TEXTS = {
     page_mandala: "曼陀罗", page_plane: "飞机", page_fireEngine: "消防车",
   },
   "zh-TW": {
-    name: "Colour Corner", canvas: "Colour Corner：選一種顏料，再點一下畫中的某個部分幫它上色", play: "開始塗色", another: "幫另一幅畫塗色", pages: "著色畫",
+    name: "著色角", canvas: "著色角：選一種顏料，再點一下畫中的某個部分幫它上色", play: "開始塗色", another: "幫另一幅畫塗色", pages: "著色畫",
     free: "自由繪畫", together: "一起輪流幫同一幅畫塗色", avatar: "選擇你的玩家", looks: "我的畫廊", flick: "FlickerTalk", call: "再叫一次朋友", back: "返回", home: "首頁",
     undo: "復原", done: "完成：掛到我的畫廊", prev: "前面的畫", next: "更多畫作", edit: "繼續塗色", send: "把畫傳到聊天", gift: "打開禮物", accept: "加入", dismiss: "以後再說",
     wrapped: "一幅還沒拆開的驚喜畫", picture: "第 {n} 幅畫", zone: "畫的第 {n} 部分", tool_fill: "用顏料填滿一個區域", tool_brush: "畫筆", tool_eraser: "橡皮擦",

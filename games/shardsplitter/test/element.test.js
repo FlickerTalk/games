@@ -35,7 +35,7 @@ describe("the Shard Splitter element", () => {
     const { element } = await mount();
     const canvas = element.querySelector("canvas");
     expect(canvas.getAttribute("role")).toBe("img");
-    expect(canvas.getAttribute("aria-label")).toMatch(/^Shard Splitter: toca un divisor/);
+    expect(canvas.getAttribute("aria-label")).toMatch(/^Rompecristales: toca un divisor/);
   });
 
   it("lays a named button over everything the canvas lets the player touch", async () => {

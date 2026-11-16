@@ -10,7 +10,7 @@ export const TEXTS = {
     wrapped: "A surprise, still wrapped",
   },
   es: {
-    name: "Paddle Pop", canvas: "Paddle Pop: arrastra tu pala a izquierda y derecha para devolver la pelota al otro lado", play: "Jugar",
+    name: "Pala y pelota", canvas: "Pala y pelota: arrastra tu pala a izquierda y derecha para devolver la pelota al otro lado", play: "Jugar",
     again: "Jugar otra vez", home: "Inicio", pause: "Pausa", resume: "Seguir", avatar: "Elige tu jugador", looks: "Palas y mesas",
     done: "Hecho", gift: "Abrir el regalo", flick: "FlickerTalk", call: "Volver a llamar a tu amigo", waiting: "Esperando a tu amigo",
     here: "Tu amigo ya está aquí", ready: "Tu amigo está listo para jugar", away: "Tu amigo no tiene el juego abierto",
@@ -20,7 +20,7 @@ export const TEXTS = {
     wrapped: "Una sorpresa, todavía envuelta",
   },
   fr: {
-    name: "Paddle Pop", canvas: "Paddle Pop : fais glisser ta raquette à gauche et à droite pour renvoyer la balle de l’autre côté", play: "Jouer",
+    name: "Raquette et balle", canvas: "Raquette et balle : fais glisser ta raquette à gauche et à droite pour renvoyer la balle de l’autre côté", play: "Jouer",
     again: "Rejouer", home: "Accueil", pause: "Pause", resume: "Continuer", avatar: "Choisis ton joueur", looks: "Raquettes et tables",
     done: "Terminé", gift: "Ouvrir le cadeau", flick: "FlickerTalk", call: "Rappeler ton ami", waiting: "En attente de ton ami",
     here: "Ton ami est là", ready: "Ton ami est prêt à jouer", away: "Ton ami n’a pas le jeu ouvert",
@@ -30,7 +30,7 @@ export const TEXTS = {
     wrapped: "Une surprise encore emballée",
   },
   de: {
-    name: "Paddle Pop", canvas: "Paddle Pop: Zieh deinen Schläger nach links und rechts, um den Ball auf die andere Seite zurückzuspielen", play: "Spielen",
+    name: "Schläger und Ball", canvas: "Schläger und Ball: Zieh deinen Schläger nach links und rechts, um den Ball auf die andere Seite zurückzuspielen", play: "Spielen",
     again: "Noch einmal", home: "Start", pause: "Pause", resume: "Weiter", avatar: "Wähle deine Figur", looks: "Schläger und Tische",
     done: "Fertig", gift: "Geschenk öffnen", flick: "FlickerTalk", call: "Deinen Freund noch einmal rufen", waiting: "Warten auf deinen Freund",
     here: "Dein Freund ist da", ready: "Dein Freund ist bereit zum Spielen", away: "Dein Freund hat das Spiel nicht geöffnet",
@@ -40,7 +40,7 @@ export const TEXTS = {
     ice: "Eisbahn-Tisch", space: "Weltraum-Tisch", wrapped: "Eine Überraschung, noch verpackt",
   },
   it: {
-    name: "Paddle Pop", canvas: "Paddle Pop: trascina la tua racchetta a sinistra e a destra per rimandare la palla dall’altra parte", play: "Gioca",
+    name: "Racchetta e palla", canvas: "Racchetta e palla: trascina la tua racchetta a sinistra e a destra per rimandare la palla dall’altra parte", play: "Gioca",
     again: "Gioca ancora", home: "Inizio", pause: "Pausa", resume: "Continua", avatar: "Scegli il tuo giocatore", looks: "Racchette e tavoli",
     done: "Fatto", gift: "Apri il regalo", flick: "FlickerTalk", call: "Richiama il tuo amico", waiting: "In attesa del tuo amico",
     here: "Il tuo amico è qui", ready: "Il tuo amico è pronto a giocare", away: "Il tuo amico non ha il gioco aperto",
@@ -50,7 +50,7 @@ export const TEXTS = {
     wrapped: "Una sorpresa ancora incartata",
   },
   pt: {
-    name: "Paddle Pop", canvas: "Paddle Pop: arraste sua raquete para a esquerda e a direita para mandar a bola de volta para o outro lado", play: "Jogar",
+    name: "Raquete e bola", canvas: "Raquete e bola: arraste sua raquete para a esquerda e a direita para mandar a bola de volta para o outro lado", play: "Jogar",
     again: "Jogar de novo", home: "Início", pause: "Pausa", resume: "Continuar", avatar: "Escolha seu jogador", looks: "Raquetes e mesas",
     done: "Pronto", gift: "Abrir o presente", flick: "FlickerTalk", call: "Chamar seu amigo de novo", waiting: "Esperando seu amigo",
     here: "Seu amigo chegou", ready: "Seu amigo está pronto para jogar", away: "Seu amigo não está com o jogo aberto",
@@ -60,7 +60,7 @@ export const TEXTS = {
     wrapped: "Uma surpresa ainda embrulhada",
   },
   ro: {
-    name: "Paddle Pop", canvas: "Paddle Pop: trage-ți paleta la stânga și la dreapta ca să trimiți mingea înapoi pe partea cealaltă", play: "Joacă",
+    name: "Paletă și minge", canvas: "Paletă și minge: trage-ți paleta la stânga și la dreapta ca să trimiți mingea înapoi pe partea cealaltă", play: "Joacă",
     again: "Joacă din nou", home: "Acasă", pause: "Pauză", resume: "Continuă", avatar: "Alege-ți jucătorul", looks: "Palete și mese",
     done: "Gata", gift: "Deschide cadoul", flick: "FlickerTalk", call: "Cheamă-ți din nou prietenul", waiting: "În așteptarea prietenului tău",
     here: "Prietenul tău a venit", ready: "Prietenul tău e gata de joc", away: "Prietenul tău nu are jocul deschis",
@@ -70,7 +70,7 @@ export const TEXTS = {
     wrapped: "O surpriză încă împachetată",
   },
   pl: {
-    name: "Paddle Pop", canvas: "Paddle Pop: przesuwaj paletkę w lewo i w prawo, by odbić piłkę na drugą stronę", play: "Graj",
+    name: "Paletka i piłka", canvas: "Paletka i piłka: przesuwaj paletkę w lewo i w prawo, by odbić piłkę na drugą stronę", play: "Graj",
     again: "Zagraj jeszcze raz", home: "Start", pause: "Pauza", resume: "Dalej", avatar: "Wybierz gracza", looks: "Paletki i stoły",
     done: "Gotowe", gift: "Otwórz prezent", flick: "FlickerTalk", call: "Zawołaj znowu znajomego", waiting: "Oczekiwanie na znajomego",
     here: "Twój znajomy już jest", ready: "Twój znajomy jest gotowy do gry", away: "Twój znajomy nie ma otwartej gry",
@@ -80,7 +80,7 @@ export const TEXTS = {
     wrapped: "Niespodzianka, jeszcze zapakowana",
   },
   ru: {
-    name: "Paddle Pop", canvas: "Paddle Pop: двигай ракетку влево и вправо, чтобы отбивать мяч на другую сторону", play: "Играть",
+    name: "Ракетка и мяч", canvas: "Ракетка и мяч: двигай ракетку влево и вправо, чтобы отбивать мяч на другую сторону", play: "Играть",
     again: "Ещё раз", home: "Главная", pause: "Пауза", resume: "Продолжить", avatar: "Выбери игрока", looks: "Ракетки и столы",
     done: "Готово", gift: "Открыть подарок", flick: "FlickerTalk", call: "Позвать друга ещё раз", waiting: "Ждём друга",
     here: "Друг уже здесь", ready: "Друг готов играть", away: "У друга не открыта игра",
@@ -90,7 +90,7 @@ export const TEXTS = {
     wrapped: "Сюрприз, ещё в упаковке",
   },
   uk: {
-    name: "Paddle Pop", canvas: "Paddle Pop: рухай ракетку ліворуч і праворуч, щоб відбивати м’яч на інший бік", play: "Грати",
+    name: "Ракетка і м’яч", canvas: "Ракетка і м’яч: рухай ракетку ліворуч і праворуч, щоб відбивати м’яч на інший бік", play: "Грати",
     again: "Ще раз", home: "Головна", pause: "Пауза", resume: "Продовжити", avatar: "Обери гравця", looks: "Ракетки та столи",
     done: "Готово", gift: "Відкрити подарунок", flick: "FlickerTalk", call: "Покликати друга ще раз", waiting: "Чекаємо на друга",
     here: "Друг уже тут", ready: "Друг готовий грати", away: "У друга не відкрита гра",
@@ -100,7 +100,7 @@ export const TEXTS = {
     wrapped: "Сюрприз, ще запакований",
   },
   tr: {
-    name: "Paddle Pop", canvas: "Paddle Pop: topu karşı tarafa geri göndermek için raketini sola ve sağa sürükle", play: "Oyna",
+    name: "Raket ve Top", canvas: "Raket ve Top: topu karşı tarafa geri göndermek için raketini sola ve sağa sürükle", play: "Oyna",
     again: "Yeniden oyna", home: "Ana sayfa", pause: "Duraklat", resume: "Devam et", avatar: "Oyuncunu seç", looks: "Raketler ve masalar",
     done: "Tamam", gift: "Hediyeyi aç", flick: "FlickerTalk", call: "Arkadaşını yeniden çağır", waiting: "Arkadaşın bekleniyor",
     here: "Arkadaşın geldi", ready: "Arkadaşın oynamaya hazır", away: "Arkadaşında oyun açık değil",
@@ -110,7 +110,7 @@ export const TEXTS = {
     wrapped: "Henüz açılmamış bir sürpriz",
   },
   ar: {
-    name: "Paddle Pop", canvas: "Paddle Pop: اسحب مضربك يمينًا ويسارًا لتعيد الكرة إلى الجهة الأخرى", play: "العب",
+    name: "مضرب وكرة", canvas: "مضرب وكرة: اسحب مضربك يمينًا ويسارًا لتعيد الكرة إلى الجهة الأخرى", play: "العب",
     again: "العب مرة أخرى", home: "الرئيسية", pause: "إيقاف مؤقت", resume: "تابع", avatar: "اختر لاعبك", looks: "المضارب والطاولات",
     done: "تم", gift: "افتح الهدية", flick: "FlickerTalk", call: "ادعُ صديقك مرة أخرى", waiting: "بانتظار صديقك",
     here: "وصل صديقك", ready: "صديقك جاهز للعب", away: "اللعبة غير مفتوحة لدى صديقك",
@@ -120,7 +120,7 @@ export const TEXTS = {
     wrapped: "مفاجأة ما زالت مغلّفة",
   },
   hi: {
-    name: "Paddle Pop", canvas: "Paddle Pop: गेंद को दूसरी तरफ़ वापस भेजने के लिए अपना पैडल बाएँ-दाएँ खींचें", play: "खेलें",
+    name: "पैडल और गेंद", canvas: "पैडल और गेंद: गेंद को दूसरी तरफ़ वापस भेजने के लिए अपना पैडल बाएँ-दाएँ खींचें", play: "खेलें",
     again: "फिर से खेलें", home: "होम", pause: "रोकें", resume: "जारी रखें", avatar: "अपना खिलाड़ी चुनें", looks: "पैडल और टेबल",
     done: "हो गया", gift: "उपहार खोलें", flick: "FlickerTalk", call: "अपने दोस्त को फिर बुलाएँ", waiting: "आपके दोस्त का इंतज़ार है",
     here: "आपका दोस्त आ गया है", ready: "आपका दोस्त खेलने के लिए तैयार है", away: "आपके दोस्त ने गेम नहीं खोला है",
@@ -130,7 +130,7 @@ export const TEXTS = {
     wrapped: "एक सरप्राइज़, अभी भी लिपटा हुआ",
   },
   bn: {
-    name: "Paddle Pop", canvas: "Paddle Pop: বলটি অন্য দিকে ফেরত পাঠাতে আপনার প্যাডেল বাঁয়ে-ডানে টানুন", play: "খেলুন",
+    name: "প্যাডেল আর বল", canvas: "প্যাডেল আর বল: বলটি অন্য দিকে ফেরত পাঠাতে আপনার প্যাডেল বাঁয়ে-ডানে টানুন", play: "খেলুন",
     again: "আবার খেলুন", home: "হোম", pause: "বিরতি", resume: "চালিয়ে যান", avatar: "আপনার খেলোয়াড় বেছে নিন", looks: "প্যাডেল আর টেবিল",
     done: "হয়ে গেছে", gift: "উপহার খুলুন", flick: "FlickerTalk", call: "বন্ধুকে আবার ডাকুন", waiting: "আপনার বন্ধুর অপেক্ষায়",
     here: "আপনার বন্ধু এসে গেছে", ready: "আপনার বন্ধু খেলতে তৈরি", away: "আপনার বন্ধুর গেমটি খোলা নেই",
@@ -140,7 +140,7 @@ export const TEXTS = {
     space: "মহাকাশ টেবিল", wrapped: "একটি চমক, এখনও মোড়ানো",
   },
   id: {
-    name: "Paddle Pop", canvas: "Paddle Pop: geser raketmu ke kiri dan kanan untuk mengembalikan bola ke seberang", play: "Main",
+    name: "Raket dan Bola", canvas: "Raket dan Bola: geser raketmu ke kiri dan kanan untuk mengembalikan bola ke seberang", play: "Main",
     again: "Main lagi", home: "Beranda", pause: "Jeda", resume: "Lanjut", avatar: "Pilih pemainmu", looks: "Raket dan meja",
     done: "Selesai", gift: "Buka hadiah", flick: "FlickerTalk", call: "Panggil temanmu lagi", waiting: "Menunggu temanmu",
     here: "Temanmu sudah datang", ready: "Temanmu siap bermain", away: "Temanmu tidak sedang membuka game ini",
@@ -150,7 +150,7 @@ export const TEXTS = {
     wrapped: "Kejutan yang masih terbungkus",
   },
   vi: {
-    name: "Paddle Pop", canvas: "Paddle Pop: kéo vợt sang trái và phải để đánh bóng trả về phía bên kia", play: "Chơi",
+    name: "Vợt và bóng", canvas: "Vợt và bóng: kéo vợt sang trái và phải để đánh bóng trả về phía bên kia", play: "Chơi",
     again: "Chơi lại", home: "Trang chính", pause: "Tạm dừng", resume: "Tiếp tục", avatar: "Chọn người chơi", looks: "Vợt và bàn",
     done: "Xong", gift: "Mở quà", flick: "FlickerTalk", call: "Gọi lại bạn của bạn", waiting: "Đang chờ bạn của bạn",
     here: "Bạn của bạn đã đến", ready: "Bạn của bạn đã sẵn sàng chơi", away: "Bạn của bạn chưa mở trò chơi",
@@ -160,7 +160,7 @@ export const TEXTS = {
     wrapped: "Một bất ngờ vẫn còn gói",
   },
   th: {
-    name: "Paddle Pop", canvas: "Paddle Pop: ลากไม้ตีไปทางซ้ายและขวาเพื่อตีลูกกลับไปอีกฝั่ง", play: "เล่น",
+    name: "ไม้ตีกับลูกบอล", canvas: "ไม้ตีกับลูกบอล: ลากไม้ตีไปทางซ้ายและขวาเพื่อตีลูกกลับไปอีกฝั่ง", play: "เล่น",
     again: "เล่นอีกครั้ง", home: "หน้าแรก", pause: "หยุดชั่วคราว", resume: "เล่นต่อ", avatar: "เลือกผู้เล่นของคุณ", looks: "ไม้ตีและโต๊ะ",
     done: "เสร็จ", gift: "เปิดของขวัญ", flick: "FlickerTalk", call: "เรียกเพื่อนอีกครั้ง", waiting: "กำลังรอเพื่อนของคุณ",
     here: "เพื่อนของคุณมาแล้ว", ready: "เพื่อนของคุณพร้อมเล่นแล้ว", away: "เพื่อนของคุณไม่ได้เปิดเกมอยู่",
@@ -170,7 +170,7 @@ export const TEXTS = {
     wrapped: "เซอร์ไพรส์ที่ยังห่ออยู่",
   },
   ja: {
-    name: "Paddle Pop", canvas: "Paddle Pop：ラケットを左右にドラッグして、ボールを向こう側へ打ち返そう", play: "あそぶ", again: "もう一度",
+    name: "ラケットとボール", canvas: "ラケットとボール：ラケットを左右にドラッグして、ボールを向こう側へ打ち返そう", play: "あそぶ", again: "もう一度",
     home: "ホーム", pause: "一時停止", resume: "つづける", avatar: "プレイヤーをえらぶ", looks: "ラケットとテーブル", done: "完了",
     gift: "プレゼントをあける", flick: "FlickerTalk", call: "友だちをもう一度よぶ", waiting: "友だちを待っています", here: "友だちが来ました",
     ready: "友だちの準備ができました", away: "友だちはゲームを開いていません", update: "友だちとあそぶにはゲームを更新してください",
@@ -179,7 +179,7 @@ export const TEXTS = {
     pond: "池のテーブル", ice: "スケートリンクのテーブル", space: "宇宙のテーブル", wrapped: "まだ包まれたままのサプライズ",
   },
   ko: {
-    name: "Paddle Pop", canvas: "Paddle Pop: 라켓을 좌우로 끌어 공을 상대편으로 받아넘기세요", play: "플레이", again: "다시 하기", home: "홈",
+    name: "라켓과 공", canvas: "라켓과 공: 라켓을 좌우로 끌어 공을 상대편으로 받아넘기세요", play: "플레이", again: "다시 하기", home: "홈",
     pause: "일시정지", resume: "계속", avatar: "플레이어 고르기", looks: "라켓과 테이블", done: "완료", gift: "선물 열기", flick: "FlickerTalk",
     call: "친구를 다시 부르기", waiting: "친구를 기다리는 중", here: "친구가 왔어요", ready: "친구가 플레이할 준비가 됐어요",
     away: "친구가 게임을 열어 두지 않았어요", update: "친구와 플레이하려면 게임을 업데이트하세요", vsFlick: "FlickerTalk와 대결",
@@ -188,7 +188,7 @@ export const TEXTS = {
     wrapped: "아직 포장된 깜짝 선물",
   },
   "zh-CN": {
-    name: "Paddle Pop", canvas: "Paddle Pop：左右拖动你的球拍，把球打回对面", play: "开始", again: "再玩一次", home: "主页", pause: "暂停",
+    name: "球拍弹弹乐", canvas: "球拍弹弹乐：左右拖动你的球拍，把球打回对面", play: "开始", again: "再玩一次", home: "主页", pause: "暂停",
     resume: "继续", avatar: "选择你的玩家", looks: "球拍和球台", done: "完成", gift: "打开礼物", flick: "FlickerTalk", call: "再叫一次朋友",
     waiting: "正在等你的朋友", here: "你的朋友来了", ready: "你的朋友准备好了", away: "你的朋友没有打开游戏",
     update: "更新游戏才能和朋友一起玩", vsFlick: "和 FlickerTalk 对战", pair: "在这台设备上双人对战", tabPaddle: "球拍", tabTable: "球台",
@@ -196,7 +196,7 @@ export const TEXTS = {
     ice: "冰场球台", space: "太空球台", wrapped: "还没拆开的惊喜",
   },
   "zh-TW": {
-    name: "Paddle Pop", canvas: "Paddle Pop：左右拖曳你的球拍，把球打回對面", play: "開始", again: "再玩一次", home: "首頁", pause: "暫停",
+    name: "球拍彈彈樂", canvas: "球拍彈彈樂：左右拖曳你的球拍，把球打回對面", play: "開始", again: "再玩一次", home: "首頁", pause: "暫停",
     resume: "繼續", avatar: "選擇你的玩家", looks: "球拍和球桌", done: "完成", gift: "打開禮物", flick: "FlickerTalk", call: "再叫一次朋友",
     waiting: "正在等你的朋友", here: "你的朋友來了", ready: "你的朋友準備好了", away: "你的朋友沒有開啟遊戲",
     update: "更新遊戲才能和朋友一起玩", vsFlick: "和 FlickerTalk 對戰", pair: "在這台裝置上雙人對戰", tabPaddle: "球拍", tabTable: "球桌",

@@ -15,83 +15,83 @@
   "summary": "A bumping game for the whole family: dash where your arrow points and push the other player off the floating platform, against FlickerTalk or with the other person in the chat.",
   "locales": {
     "es": {
-      "name": "Bumper Ring",
+      "name": "Ring de empujones",
       "summary": "Un juego de empujones para toda la familia: lánzate hacia donde apunta tu flecha y saca al otro jugador de la plataforma flotante, contra FlickerTalk o con la otra persona del chat."
     },
     "pt": {
-      "name": "Bumper Ring",
+      "name": "Ringue de empurrões",
       "summary": "Um jogo de empurrões para toda a família: dispare na direção da sua seta e tire o outro jogador da plataforma flutuante, contra o FlickerTalk ou com a outra pessoa da conversa."
     },
     "fr": {
-      "name": "Bumper Ring",
+      "name": "Ring de bousculade",
       "summary": "Un jeu de bousculade pour toute la famille : fonce là où pointe ta flèche et pousse l’autre joueur hors de la plateforme flottante, contre FlickerTalk ou avec l’autre personne du chat."
     },
     "de": {
-      "name": "Bumper Ring",
+      "name": "Schubsring",
       "summary": "Ein Schubsspiel für die ganze Familie: Sause in Pfeilrichtung los und schubse die andere Person von der schwimmenden Plattform, gegen FlickerTalk oder mit der anderen Person im Chat."
     },
     "it": {
-      "name": "Bumper Ring",
+      "name": "Ring degli spintoni",
       "summary": "Un gioco di spintoni per tutta la famiglia: scatta dove punta la tua freccia e spingi l’altro giocatore giù dalla piattaforma galleggiante, contro FlickerTalk o con l’altra persona della chat."
     },
     "ro": {
-      "name": "Bumper Ring",
+      "name": "Ringul îmbrâncelilor",
       "summary": "Un joc cu îmbrânceli pentru toată familia: țâșnește încotro arată săgeata ta și împinge celălalt jucător de pe platforma plutitoare, împotriva lui FlickerTalk sau cu cealaltă persoană din conversație."
     },
     "ru": {
-      "name": "Bumper Ring",
+      "name": "Ринг-толкалка",
       "summary": "Игра в толкалки для всей семьи: рвани туда, куда смотрит стрелка, и столкни другого игрока с плавучей платформы — против FlickerTalk или с собеседником из чата."
     },
     "uk": {
-      "name": "Bumper Ring",
+      "name": "Ринг-штовханка",
       "summary": "Гра у штовханки для всієї родини: рвони туди, куди вказує стрілка, і зіштовхни іншого гравця з плавучої платформи — проти FlickerTalk або з людиною з чату."
     },
     "pl": {
-      "name": "Bumper Ring",
+      "name": "Ring przepychanek",
       "summary": "Gra w przepychanki dla całej rodziny: rusz tam, gdzie wskazuje strzałka, i zepchnij drugiego gracza z pływającej platformy — przeciw FlickerTalk albo z drugą osobą z czatu."
     },
     "tr": {
-      "name": "Bumper Ring",
+      "name": "İtişme Ringi",
       "summary": "Tüm aile için bir itişme oyunu: okunun gösterdiği yöne atıl ve diğer oyuncuyu yüzen platformdan it; FlickerTalk’a karşı ya da sohbetteki kişiyle."
     },
     "ar": {
-      "name": "Bumper Ring",
+      "name": "حلبة التدافع",
       "summary": "لعبة تدافع لكل العائلة: اندفع نحو اتجاه سهمك وادفع اللاعب الآخر خارج المنصة العائمة، ضد FlickerTalk أو مع الشخص الآخر في المحادثة."
     },
     "hi": {
-      "name": "Bumper Ring",
+      "name": "धक्का-मुक्की अखाड़ा",
       "summary": "पूरे परिवार के लिए धक्का-मुक्की का खेल: अपने तीर की दिशा में झपटें और दूसरे खिलाड़ी को तैरते प्लेटफ़ॉर्म से धकेल दें, FlickerTalk के ख़िलाफ़ या चैट के दूसरे व्यक्ति के साथ।"
     },
     "bn": {
-      "name": "Bumper Ring",
+      "name": "ঠেলাঠেলির রিং",
       "summary": "পুরো পরিবারের জন্য ঠেলাঠেলির খেলা: তীরের দিকে ছুটে গিয়ে অন্য খেলোয়াড়কে ভাসমান প্ল্যাটফর্ম থেকে ঠেলে ফেলুন, FlickerTalk-এর বিরুদ্ধে বা চ্যাটের অন্যজনের সঙ্গে।"
     },
     "id": {
-      "name": "Bumper Ring",
+      "name": "Arena Dorong",
       "summary": "Permainan dorong-dorongan untuk seluruh keluarga: melesat ke arah panahmu dan dorong pemain lain dari panggung terapung, melawan FlickerTalk atau bersama orang lain di obrolan."
     },
     "vi": {
-      "name": "Bumper Ring",
+      "name": "Võ đài xô đẩy",
       "summary": "Trò chơi xô đẩy cho cả gia đình: lao theo hướng mũi tên và đẩy người chơi kia khỏi sân nổi, đấu với FlickerTalk hoặc với người kia trong cuộc trò chuyện."
     },
     "th": {
-      "name": "Bumper Ring",
+      "name": "เวทีดันกัน",
       "summary": "เกมดันกันสำหรับทั้งครอบครัว พุ่งไปตามทิศที่ลูกศรชี้แล้วดันอีกฝ่ายให้ตกจากแท่นลอยน้ำ เล่นกับ FlickerTalk หรือกับอีกคนในแชท"
     },
     "ja": {
-      "name": "Bumper Ring",
+      "name": "おしあいリング",
       "summary": "家族みんなで楽しめる押し合いゲーム。矢印の向きにダッシュして、相手を浮かぶ足場から押し出そう。FlickerTalk と、またはチャットの相手と。"
     },
     "ko": {
-      "name": "Bumper Ring",
+      "name": "밀어내기 링",
       "summary": "온 가족을 위한 밀어내기 게임: 화살표 방향으로 돌진해 상대를 떠 있는 발판 밖으로 밀어내세요. FlickerTalk와, 또는 채팅 상대와 함께."
     },
     "zh-CN": {
-      "name": "Bumper Ring",
+      "name": "碰碰擂台",
       "summary": "适合全家的碰碰游戏：朝箭头方向冲出去，把对方推下漂浮的平台，可以和 FlickerTalk 比，或和聊天里的对方一起玩。"
     },
     "zh-TW": {
-      "name": "Bumper Ring",
+      "name": "碰碰擂台",
       "summary": "適合全家的碰碰遊戲：朝箭頭方向衝出去，把對方推下漂浮的平台，可以和 FlickerTalk 比，或和聊天裡的對方一起玩。"
     }
   }

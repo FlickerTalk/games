@@ -3,7 +3,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { buildGame } from "../../../kit/build.js";
-import { LOCALES, checkDist, checkManifest } from "../../../kit/test/helpers.js";
+import { LOCALES, checkDist, checkManifest, checkNamesTranslated } from "../../../kit/test/helpers.js";
 
 const dir = join(import.meta.dirname, "..");
 const dist = join(dir, "dist");
@@ -31,10 +31,12 @@ describe("the Racer package", () => {
   it("names and describes itself in the app's other 20 languages", () => {
     const { locales, summary: english } = manifest();
     expect(Object.keys(locales).sort()).toEqual([...LOCALES].sort());
+    checkNamesTranslated(manifest());
     for (const lang of LOCALES) {
       const { name, summary, ...rest } = locales[lang];
       expect(rest, lang).toEqual({});
-      expect(name, lang).toBe("Racer");
+      expect(name.trim(), lang).not.toBe("");
+      expect([...name].length, lang).toBeLessThanOrEqual(64);
       expect(summary.trim().length, lang).toBeGreaterThan(10);
       expect([...summary].length, lang).toBeLessThanOrEqual(200);
       expect(summary, lang).not.toBe(english);

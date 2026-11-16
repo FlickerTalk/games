@@ -15,83 +15,83 @@
   "summary": "A calm puzzle for all ages: drag tiles onto a courtyard and fill rows and columns, alone, against FlickerTalk or with the other person in the chat.",
   "locales": {
     "es": {
-      "name": "Tile Court",
+      "name": "Patio de piezas",
       "summary": "Un puzle tranquilo para todas las edades: arrastra piezas a un patio y llena filas y columnas, solo, contra FlickerTalk o con la otra persona del chat."
     },
     "pt": {
-      "name": "Tile Court",
+      "name": "Pátio das peças",
       "summary": "Um quebra-cabeça tranquilo para todas as idades: arraste peças para um pátio e preencha linhas e colunas, sozinho, contra o FlickerTalk ou com a outra pessoa da conversa."
     },
     "fr": {
-      "name": "Tile Court",
+      "name": "Cour carrelée",
       "summary": "Un puzzle tranquille pour tous les âges : fais glisser des pièces dans une cour et remplis lignes et colonnes, seul, contre FlickerTalk ou avec l’autre personne du chat."
     },
     "de": {
-      "name": "Tile Court",
+      "name": "Kachelhof",
       "summary": "Ein ruhiges Rätsel für jedes Alter: Zieh Teile in einen Innenhof und füll Reihen und Spalten, allein, gegen FlickerTalk oder mit der anderen Person im Chat."
     },
     "it": {
-      "name": "Tile Court",
+      "name": "Cortile delle tessere",
       "summary": "Un rompicapo tranquillo per tutte le età: trascina i pezzi in un cortile e riempi righe e colonne, da solo, contro FlickerTalk o con l’altra persona della chat."
     },
     "ro": {
-      "name": "Tile Court",
+      "name": "Curtea cu dale",
       "summary": "Un puzzle liniștit pentru toate vârstele: trage piese într-o curte și umple rânduri și coloane, singur, împotriva lui FlickerTalk sau cu cealaltă persoană din conversație."
     },
     "ru": {
-      "name": "Tile Court",
+      "name": "Плиточный дворик",
       "summary": "Спокойная головоломка для любого возраста: перетаскивай фигуры во двор и заполняй ряды и столбцы — одному, против FlickerTalk или с собеседником из чата."
     },
     "uk": {
-      "name": "Tile Court",
+      "name": "Плитковий дворик",
       "summary": "Спокійна головоломка для будь-якого віку: перетягуй фігури у двір і заповнюй ряди та стовпці — самому, проти FlickerTalk або з людиною з чату."
     },
     "pl": {
-      "name": "Tile Court",
+      "name": "Kafelkowy dziedziniec",
       "summary": "Spokojna łamigłówka dla każdego: przeciągaj elementy na dziedziniec i wypełniaj rzędy i kolumny — sam, przeciw FlickerTalk albo z drugą osobą z czatu."
     },
     "tr": {
-      "name": "Tile Court",
+      "name": "Karo Avlusu",
       "summary": "Her yaşa uygun sakin bir bulmaca: parçaları avluya sürükle, satırları ve sütunları doldur; tek başına, FlickerTalk'a karşı ya da sohbetteki kişiyle."
     },
     "ar": {
-      "name": "Tile Court",
+      "name": "فناء البلاط",
       "summary": "لغز هادئ لكل الأعمار: اسحب القطع إلى الفناء واملأ الصفوف والأعمدة، وحدك أو ضد FlickerTalk أو مع الشخص الآخر في المحادثة."
     },
     "hi": {
-      "name": "Tile Court",
+      "name": "टाइलों का आँगन",
       "summary": "हर उम्र के लिए एक शांत पहेली: टुकड़ों को आँगन में खींचें और पंक्तियाँ व स्तंभ भरें, अकेले, FlickerTalk के ख़िलाफ़ या चैट के दूसरे व्यक्ति के साथ।"
     },
     "bn": {
-      "name": "Tile Court",
+      "name": "টালির উঠোন",
       "summary": "সব বয়সের জন্য এক শান্ত ধাঁধা: টুকরোগুলো উঠোনে টেনে এনে সারি আর কলাম ভরান, একা, FlickerTalk-এর বিরুদ্ধে বা চ্যাটের অন্যজনের সঙ্গে।"
     },
     "id": {
-      "name": "Tile Court",
+      "name": "Halaman Ubin",
       "summary": "Teka-teki tenang untuk segala usia: seret kepingan ke halaman dan isi baris serta kolom, sendiri, melawan FlickerTalk, atau bersama orang lain di obrolan."
     },
     "vi": {
-      "name": "Tile Court",
+      "name": "Sân gạch",
       "summary": "Trò xếp hình nhẹ nhàng cho mọi lứa tuổi: kéo các mảnh vào sân và lấp đầy hàng, cột, chơi một mình, đấu với FlickerTalk hoặc với người kia trong cuộc trò chuyện."
     },
     "th": {
-      "name": "Tile Court",
+      "name": "ลานกระเบื้อง",
       "summary": "ปริศนาสบาย ๆ สำหรับทุกวัย ลากชิ้นส่วนลงในลานแล้วเติมแถวและคอลัมน์ให้เต็ม เล่นคนเดียว เล่นกับ FlickerTalk หรือกับอีกคนในแชท"
     },
     "ja": {
-      "name": "Tile Court",
+      "name": "タイルの中庭",
       "summary": "だれでも楽しめる、のんびりパズル。ピースを中庭へドラッグして行と列をうめよう。ひとりで、FlickerTalk と、またはチャットの相手と。"
     },
     "ko": {
-      "name": "Tile Court",
+      "name": "타일 안뜰",
       "summary": "모든 연령을 위한 차분한 퍼즐: 조각을 안뜰로 끌어 줄과 열을 채우세요. 혼자, FlickerTalk와, 또는 채팅 상대와 함께."
     },
     "zh-CN": {
-      "name": "Tile Court",
+      "name": "瓷砖庭院",
       "summary": "适合各个年龄的轻松拼图：把拼片拖进庭院，填满行和列，可以独自玩、和 FlickerTalk 比，或和聊天里的对方一起玩。"
     },
     "zh-TW": {
-      "name": "Tile Court",
+      "name": "磁磚庭院",
       "summary": "適合各個年齡的輕鬆拼圖：把拼片拖進庭院，填滿行和列，可以獨自玩、和 FlickerTalk 比，或和聊天裡的對方一起玩。"
     }
   }

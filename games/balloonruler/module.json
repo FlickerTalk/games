@@ -15,83 +15,83 @@
   "summary": "Where does the number live? Touch the ruler and a suction-cup arrow pops the balloon there: the closer, the better. Dots to fractions, alone, with FlickerTalk or with the other person in the chat.",
   "locales": {
     "es": {
-      "name": "Balloon Ruler",
+      "name": "Regla de globos",
       "summary": "¿Dónde vive el número? Toca la regla y una flecha con ventosa explota el globo de ese punto: cuanto más cerca, mejor. De puntos a fracciones, solo, con FlickerTalk o con la otra persona del chat."
     },
     "pt": {
-      "name": "Balloon Ruler",
+      "name": "Régua de balões",
       "summary": "Onde mora o número? Toque na régua e uma flecha com ventosa estoura o balão dali: quanto mais perto, melhor. De pontinhos a frações, sozinho, com o FlickerTalk ou com a outra pessoa da conversa."
     },
     "fr": {
-      "name": "Balloon Ruler",
+      "name": "Règle aux ballons",
       "summary": "Où vit ce nombre ? Touche la règle et une flèche à ventouse éclate le ballon à cet endroit : plus c’est près, mieux c’est. Des points aux fractions, seul, avec FlickerTalk ou avec ton contact."
     },
     "de": {
-      "name": "Balloon Ruler",
+      "name": "Ballonlineal",
       "summary": "Wo wohnt die Zahl? Tippe auf das Lineal, und ein Saugnapfpfeil lässt dort den Ballon platzen: je näher, desto besser. Von Punkten bis Brüchen, allein, mit FlickerTalk oder deinem Chatpartner."
     },
     "it": {
-      "name": "Balloon Ruler",
+      "name": "Righello dei palloncini",
       "summary": "Dove abita il numero? Tocca il righello e una freccia a ventosa scoppia il palloncino in quel punto: più vicino, meglio è. Dai puntini alle frazioni, da solo, con FlickerTalk o con il tuo contatto."
     },
     "ro": {
-      "name": "Balloon Ruler",
+      "name": "Rigla cu baloane",
       "summary": "Unde stă numărul? Atinge rigla și o săgeată cu ventuză sparge balonul de acolo: cu cât mai aproape, cu atât mai bine. De la buline la fracții, singur, cu FlickerTalk sau cu celălalt din conversație."
     },
     "ru": {
-      "name": "Balloon Ruler",
+      "name": "Линейка с шариками",
       "summary": "Где живёт число? Коснись линейки, и стрела с присоской лопнет шарик в этом месте: чем ближе, тем лучше. От точек до дробей, в одиночку, с FlickerTalk или с собеседником из чата."
     },
     "uk": {
-      "name": "Balloon Ruler",
+      "name": "Лінійка з кульками",
       "summary": "Де живе число? Торкнися лінійки, і стріла з присоскою лусне кульку в цьому місці: що ближче, то краще. Від крапок до дробів, наодинці, з FlickerTalk або зі співрозмовником із чату."
     },
     "pl": {
-      "name": "Balloon Ruler",
+      "name": "Balonowa linijka",
       "summary": "Gdzie mieszka liczba? Dotknij linijki, a strzała z przyssawką przebije balon w tym miejscu: im bliżej, tym lepiej. Od kropek po ułamki, w pojedynkę, z FlickerTalk albo z drugą osobą z czatu."
     },
     "tr": {
-      "name": "Balloon Ruler",
+      "name": "Balonlu Cetvel",
       "summary": "Sayı nerede yaşıyor? Cetvele dokun, vantuzlu ok o noktadaki balonu patlatsın: ne kadar yakınsa o kadar iyi. Noktalardan kesirlere, tek başına, FlickerTalk ile ya da sohbetteki kişiyle."
     },
     "ar": {
-      "name": "Balloon Ruler",
+      "name": "مسطرة البالونات",
       "summary": "أين يسكن العدد؟ المس المسطرة فيفرقع سهم بمحجم البالون في ذلك الموضع: كلما اقتربت كان أفضل. من النقاط إلى الكسور، وحدك أو مع FlickerTalk أو مع الطرف الآخر في المحادثة."
     },
     "hi": {
-      "name": "Balloon Ruler",
+      "name": "गुब्बारों वाला रूलर",
       "summary": "संख्या कहाँ रहती है? रूलर को छुएँ और सक्शन कप वाला तीर उसी जगह का गुब्बारा फोड़ देगा: जितना पास, उतना अच्छा। बिंदुओं से भिन्नों तक, अकेले, FlickerTalk के साथ या चैट के दूसरे व्यक्ति के साथ।"
     },
     "bn": {
-      "name": "Balloon Ruler",
+      "name": "বেলুনের রুলার",
       "summary": "সংখ্যাটি কোথায় থাকে? রুলারে ছোঁও, আর সাকশন কাপ লাগানো তির সেখানকার বেলুন ফাটিয়ে দেবে: যত কাছে, তত ভালো। বিন্দু থেকে ভগ্নাংশ পর্যন্ত, একা, FlickerTalk-এর সঙ্গে বা চ্যাটের অন্য মানুষটির সঙ্গে।"
     },
     "id": {
-      "name": "Balloon Ruler",
+      "name": "Penggaris Balon",
       "summary": "Di mana angkanya? Sentuh penggaris dan panah berpenghisap memecahkan balon di situ: makin dekat, makin bagus. Dari titik sampai pecahan, sendirian, dengan FlickerTalk, atau dengan lawan bicara."
     },
     "vi": {
-      "name": "Balloon Ruler",
+      "name": "Thước bóng bay",
       "summary": "Con số ở đâu? Chạm vào thước, mũi tên giác hút sẽ làm nổ quả bóng ở chỗ đó: càng gần càng tốt. Từ chấm tròn đến phân số, chơi một mình, với FlickerTalk hoặc với người kia trong cuộc trò chuyện."
     },
     "th": {
-      "name": "Balloon Ruler",
+      "name": "ไม้บรรทัดลูกโป่ง",
       "summary": "ตัวเลขอยู่ตรงไหน แตะไม้บรรทัดแล้วลูกศรหัวจุกยางจะยิงลูกโป่งตรงนั้นให้แตก ยิ่งใกล้ยิ่งดี ตั้งแต่จุดไปจนถึงเศษส่วน เล่นคนเดียว เล่นกับ FlickerTalk หรือกับอีกคนในแชต"
     },
     "ja": {
-      "name": "Balloon Ruler",
+      "name": "風船ものさし",
       "summary": "その数はどこにある？定規にタッチすると、吸盤の矢がその場所の風船を割ります。近いほど高得点。点の数から分数まで、ひとりでも、FlickerTalkとでも、チャットの相手とでも遊べます。"
     },
     "ko": {
-      "name": "Balloon Ruler",
+      "name": "풍선 눈금자",
       "summary": "수는 어디에 있을까요? 자를 터치하면 흡착 화살이 그 자리의 풍선을 터뜨립니다. 가까울수록 좋아요. 점에서 분수까지, 혼자서, FlickerTalk와 함께, 또는 대화 상대와 함께 즐기세요."
     },
     "zh-CN": {
-      "name": "Balloon Ruler",
+      "name": "气球尺",
       "summary": "这个数住在哪儿？点一下尺子，吸盘箭就会射破那里的气球：越近越好。从圆点到分数，可以自己玩，和 FlickerTalk 玩，或和聊天中的对方一起玩。"
     },
     "zh-TW": {
-      "name": "Balloon Ruler",
+      "name": "氣球尺",
       "summary": "這個數住在哪裡？點一下尺，吸盤箭就會射破那裡的氣球：越近越好。從圓點到分數，可以自己玩、和 FlickerTalk 玩，或和聊天中的對方一起玩。"
     }
   }

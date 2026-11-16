@@ -31,7 +31,7 @@ describe("the Little Pier element", () => {
     const { element } = await mount();
     const canvas = element.querySelector("canvas");
     expect(canvas.getAttribute("role")).toBe("img");
-    expect(canvas.getAttribute("aria-label")).toMatch(/^Little Pier: mantén pulsada el agua/);
+    expect(canvas.getAttribute("aria-label")).toMatch(/^Pequeño muelle: mantén pulsada el agua/);
   });
 
   it("lays a named button over everything the canvas lets the player touch, the water included", async () => {

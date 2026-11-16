@@ -7,10 +7,10 @@ import { TEXTS } from "../src/texts.js";
 const NEW = ["canvas", "looks", "steerLeft", "steerRight", "tabPlane", "tabHelicopter", "propeller", "jet", "seaplane", "stunt", "paper", "bubble", "tandem", "rescue", "saucer", "recolour"];
 
 describe("the words outside the canvas", () => {
-  it("are in the app's 21 languages, English the source, with the same keys, the name kept, nothing left in English", () => {
+  it("are in the app's 21 languages, English the source, with the same keys, the canvas label opening with the game's name, nothing left in English", () => {
     checkTexts(TEXTS);
     for (const lang of Object.keys(TEXTS)) {
-      expect(TEXTS[lang].name, lang).toBe("Sky Chase");
+      expect(TEXTS[lang].canvas.startsWith(TEXTS[lang].name), lang).toBe(true);
       if (lang === "en") continue;
       for (const key of NEW) expect(TEXTS[lang][key], `${lang} ${key}`).not.toBe(TEXTS.en[key]);
     }
