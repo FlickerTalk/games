@@ -12,7 +12,7 @@ const HOLD = Object.freeze({
   idle: { bow: [22, -14], other: [-22, -10], turn: -0.12 },
   aiming: { bow: [28, -30], other: [4, -30], turn: null },
   release: { bow: [28, -30], other: [-14, -34], turn: null },
-  cheer: { bow: [26, -70], other: [-26, -74], turn: -0.5 },
+  cheer: { bow: [26, -62], other: [-26, -74], turn: 0 },
   oops: { bow: [22, -14], other: [-26, -30], turn: -0.12 },
 });
 

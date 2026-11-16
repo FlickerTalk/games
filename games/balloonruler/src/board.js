@@ -76,14 +76,18 @@ function revealed(ctx, state, theme) {
   if (since === null || !last) return;
   const { ruler } = layout;
   const scale = clamp(layout.unit / 60, 0.6, 1);
-  const mine = rulerX(layout, round.shot.guess);
-  drawPlanted(ctx, mine, ruler.y + 2, { tip: progress.chosen.tip, scale }, theme);
-  drawTruePlace(ctx, rulerX(layout, numberOf(round).share), ruler.y + ruler.h * 0.2, clamp(ruler.h * 0.42, 22, 30), since / 0.6, theme);
-  threadAndMarker(ctx, state, round.shot.guess, "mine", layout.thread, since, theme);
+  drawPlanted(ctx, rulerX(layout, round.shot.guess), ruler.y + 2, { tip: progress.chosen.tip, scale }, theme);
+  drawTruePlace(ctx, rulerX(layout, numberOf(round).share), ruler.y + 3, clamp(ruler.h * 0.42, 22, 30), since / 0.6, theme);
   if (last.ghost !== null && last.ghost !== undefined) drawGhost(ctx, rulerX(layout, last.ghost), ruler.y - 14, 22, theme);
-  if (!flickLanded(state)) return;
-  drawPlanted(ctx, rulerX(layout, last.flick), ruler.y + 2, { tip: "cork", scale: scale * 0.85, rival: true }, theme);
-  threadAndMarker(ctx, state, last.flick, "rival", layout.thread + 13, since - FLIGHT, theme);
+  if (flickLanded(state)) drawPlanted(ctx, rulerX(layout, last.flick), ruler.y + 2, { tip: "cork", scale: scale * 0.85, rival: true }, theme);
+}
+
+function threads(ctx, state, theme) {
+  const { layout, round, last } = state;
+  const since = sinceLanding(round);
+  if (since === null || !last) return;
+  threadAndMarker(ctx, state, round.shot.guess, "mine", layout.thread, since, theme);
+  if (flickLanded(state)) threadAndMarker(ctx, state, last.flick, "rival", layout.thread + 13, since - FLIGHT, theme);
 }
 
 function flights(ctx, state, theme) {
@@ -157,6 +161,7 @@ export function drawPlay(ctx, state, theme, time) {
     flights(ctx, state, theme);
   });
   fadeEdges(ctx, width, height, theme.ui.page);
+  rimmed(ctx, theme, () => threads(ctx, state, theme));
   interfaceLayer(ctx, state, theme, time);
   if (state.hint && !round.shot) drawHintHand(ctx, rulerX(layout, numberOf(round).share), ruler.y + ruler.h * 0.5 + 34, 76, (time % 2.4) / 2.4, theme.ui);
   if (state.paused) drawPause(ctx, state, theme.ui, { layout: pauseLayout(width, height, { fill: state.fill }) });

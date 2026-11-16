@@ -63,6 +63,11 @@ describe("the play screen", () => {
         expect(layout.flick.flip).toBe(true);
       }
       expect(playLayout(width, height, { fill }).flick, name).toBeNull();
+      const { stars } = layout;
+      const row = { x: stars.x - stars.size * 1.6, y: stars.y - stars.size / 2, w: stars.size * 3.2, h: stars.size };
+      expect(inside(row, width, height), name).toBe(true);
+      for (const area of [body, layout.card, layout.ruler, ...(layout.flick ? [figure(layout.flick)] : [])]) expect(overlap(row, area), name).toBe(false);
+      expect(row.y, name).toBeGreaterThanOrEqual(layout.bar.y + layout.bar.h);
     });
   });
 

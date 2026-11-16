@@ -7,6 +7,7 @@ const WIDE_FROM = 700;
 const TALL_FROM = 420;
 const RULER_MOST = 760;
 const SLICE = 88;
+const STAR = 28;
 const SIZES = [0.72, 0.86, 1];
 
 const clamp = (value, low, high) => Math.min(high, Math.max(low, value));
@@ -21,10 +22,10 @@ function tall(width, top, bottom, flick) {
   const feet = bottom - 4;
   return {
     mode: "tall", card, ruler,
-    zone: { top: card.y + card.h + 8, bottom: ruler.y },
+    zone: { top: card.y + card.h + 8 + STAR + 6, bottom: ruler.y },
     archer: { x: ruler.x + ruler.w * 0.2, y: feet, size, flip: false },
     flick: flick ? { x: ruler.x + ruler.w * 0.8, y: feet, size, flip: true } : null,
-    stars: { x: width / 2, y: feet - size * 0.5, size: clamp(size * 0.3, 24, 36) },
+    stars: { x: width / 2, y: card.y + card.h + 8 + STAR / 2, size: STAR },
     touchBottom: ruler.y + ruler.h + 24,
   };
 }
