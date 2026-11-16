@@ -15,7 +15,8 @@
     "room": "node preview/room.spec.js",
     "bar": "node preview/bar.spec.js",
     "fill": "node preview/fill.spec.js",
-    "tilecourt": "node preview/tilecourt.spec.js"
+    "tilecourt": "node preview/tilecourt.spec.js",
+    "checkers": "node preview/checkers.spec.js"
   },
   "devDependencies": {
     "@ionic/core": "9.0.4",
