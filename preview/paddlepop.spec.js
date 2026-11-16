@@ -5,8 +5,6 @@ import { start } from "./serve.js";
 import { toneOf, toneShares, walkCanvasGame } from "./canvas-walk.js";
 
 const OUT = "/private/tmp/ftgames-paddlepop-shots";
-const PICK_SCREEN_OVERFLOWS_THE_SMALLEST_ROOM = { inside: false };
-
 
 async function dragPaddle(s, from, to, { release = true } = {}) {
   const points = await s.evaluate(
@@ -63,7 +61,7 @@ async function steps(s, { check, label }) {
   await s.tap("tab", "table");
   await s.shot("10-tables");
   await s.tap("done");
-  await s.tap("avatar", undefined, PICK_SCREEN_OVERFLOWS_THE_SMALLEST_ROOM);
+  await s.tap("avatar");
   await s.shot("11-avatar");
 }
 

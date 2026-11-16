@@ -151,10 +151,22 @@ const nameField = (s) =>
     return { open: !field.hidden, focused: document.activeElement === field, name: document.querySelector("canvas").parentElement.game.state.pick?.choice.name ?? null };
   });
 
+const DARK_PAGE_BRIGHT_MOST = 30;
+
+async function darkPage(s, check, name) {
+  await check(name, async () => {
+    const { bright } = toneShares(await s.samples());
+    assert.ok(bright < DARK_PAGE_BRIGHT_MOST, `${bright}% at L>=0.8`);
+  });
+}
+
 async function renameByTouch(s, check, label) {
+  await s.touch("avatar");
+  await s.shot("profiles");
+  await darkPage(s, check, `${label}: the profiles are on the app's dark page`);
+  await s.touch("profile", (await s.targets()).find((one) => one.kind === "profile").value);
+  await darkPage(s, check, `${label}: the hair and the name are on the app's dark page`);
   await check(`${label}: a touch on the name opens its field, which stays open and focused`, async () => {
-    await s.touch("avatar");
-    await s.touch("profile", (await s.targets()).find((one) => one.kind === "profile").value);
     await s.touch("rename");
     assert.deepEqual(await nameField(s), { open: true, focused: true, name: "" });
   });
@@ -197,7 +209,7 @@ export async function walkCanvasGame({ game, out, modes, steps, themes = [], dev
     }
     if (engineName === "chromium" && rename) {
       const label = `${engineName}-touch-${devices[1].name}`;
-      const s = await phone(engine, base, game, devices[1], { fill: true, query: modes[0].query, out: join(out, label), hasTouch: true });
+      const s = await phone(engine, base, game, devices[1], { fill: true, query: `${modes[0].query}&theme=mono-dark`, out: join(out, label), hasTouch: true });
       await setup(s);
       await renameByTouch(s, check, label);
       await check(`${label}: no errors`, async () => assert.deepEqual(s.problems, []));

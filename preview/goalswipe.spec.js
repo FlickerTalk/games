@@ -5,7 +5,6 @@ import { start } from "./serve.js";
 import { toneOf, toneShares, walkCanvasGame } from "./canvas-walk.js";
 
 const OUT = "/private/tmp/ftgames-goalswipe-shots";
-const PICK_SCREEN_OVERFLOWS_THE_SMALLEST_ROOM = { inside: false };
 const CORNER = { x: 0.2, y: 0.35 };
 
 const swipePoints = (frame, aim) =>
@@ -103,7 +102,7 @@ async function steps(s, { check, label }) {
   await s.tap("tab", "field");
   await s.shot("12-fields");
   await s.tap("done");
-  await s.tap("avatar", undefined, PICK_SCREEN_OVERFLOWS_THE_SMALLEST_ROOM);
+  await s.tap("avatar");
   await s.shot("13-avatar");
 }
 

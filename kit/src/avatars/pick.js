@@ -23,7 +23,42 @@ const indexOf = (list, id) => Math.max(0, list.findIndex((one) => one.id === id)
 const STRIDE = { hair: HAIR_ITEM + ITEM_GAP, colour: COLOUR_ITEM + ITEM_GAP };
 
 export function startPick(choice) {
-  return { step: "profile", choice: normalizePlayer(choice), scroll: { hair: 0, colour: 0 }, press: null };
+  return { step: "profile", choice: normalizePlayer(choice), scroll: { hair: 0, colour: 0, profile: null }, press: null };
+}
+
+function profileTarget(state, lang, profile, area) {
+  return {
+    kind: "profile",
+    value: profile.id,
+    ...area,
+    label: avatarText(lang, "profile", { name: profile.name, emblem: avatarText(lang, emblemKey(profile.emblem)) }),
+    selected: profile.id === state.choice.who,
+    visible: true,
+  };
+}
+
+function profileGrid(state, area, lang, { cols, rows, cell }) {
+  const size = Math.floor(cell);
+  const left = area.x + (area.w - cols * size - (cols - 1) * GAP) / 2;
+  const top = area.y + Math.max(0, (area.h - rows * size - (rows - 1) * GAP) / 2);
+  const targets = PROFILES.map((profile, at) => profileTarget(state, lang, profile, box(left + (at % cols) * (size + GAP), top + Math.floor(at / cols) * (size + GAP), size, size)));
+  return { top, strips: [], targets };
+}
+
+function profileStrip(state, area, lang) {
+  const rows = Math.max(1, Math.floor((area.h + GAP) / (PICK_TARGET + GAP)));
+  const size = Math.floor(Math.min(MOST_CELL, Math.max(PICK_TARGET, (area.h - (rows - 1) * GAP) / rows)));
+  const cols = Math.ceil(PROFILES.length / rows);
+  const tall = rows * size + (rows - 1) * GAP;
+  const top = area.y + Math.max(0, (area.h - tall) / 2);
+  const most = Math.max(0, cols * size + (cols - 1) * GAP - area.w);
+  const own = Math.floor(indexOf(PROFILES, state.choice.who) / rows) * (size + GAP) - (area.w - size) / 2;
+  const scroll = clamp(state.scroll?.profile ?? own, 0, most);
+  const targets = PROFILES.map((profile, at) => {
+    const x = area.x + Math.floor(at / rows) * (size + GAP) - scroll;
+    return { ...profileTarget(state, lang, profile, box(x, top + (at % rows) * (size + GAP), size, size)), strip: "profile", visible: x < area.x + area.w && x + size > area.x };
+  });
+  return { top, strips: [{ kind: "profile", ...box(area.x, top, area.w, tall), scroll, most, label: avatarText(lang, "pick") }], targets };
 }
 
 function profileLayout(state, width, height, lang) {
@@ -34,20 +69,8 @@ function profileLayout(state, width, height, lang) {
     const cell = Math.min((area.w - (cols - 1) * GAP) / cols, (area.h - (rows - 1) * GAP) / rows, MOST_CELL);
     if (!best || cell > best.cell) best = { cols, rows, cell };
   }
-  const cell = Math.floor(Math.max(best.cell, PICK_TARGET));
-  const gridWidth = best.cols * cell + (best.cols - 1) * GAP;
-  const gridHeight = best.rows * cell + (best.rows - 1) * GAP;
-  const left = area.x + (area.w - gridWidth) / 2;
-  const top = area.y + Math.max(0, (area.h - gridHeight) / 2);
-  const targets = PROFILES.map((profile, at) => ({
-    kind: "profile",
-    value: profile.id,
-    ...box(left + (at % best.cols) * (cell + GAP), top + Math.floor(at / best.cols) * (cell + GAP), cell, cell),
-    label: avatarText(lang, "profile", { name: profile.name, emblem: avatarText(lang, emblemKey(profile.emblem)) }),
-    selected: profile.id === state.choice.who,
-    visible: true,
-  }));
-  return { width, height, step: "profile", title: { text: avatarText(lang, "pick"), x: width / 2, y: top - GAP - TITLE / 2 }, strips: [], targets };
+  const { top, strips, targets } = best.cell >= PICK_TARGET ? profileGrid(state, area, lang, best) : profileStrip(state, area, lang);
+  return { width, height, step: "profile", title: { text: avatarText(lang, "pick"), x: width / 2, y: top - GAP - TITLE / 2 }, strips, targets };
 }
 
 function strip(kind, area, state, lang) {
@@ -129,7 +152,7 @@ function choose(state, changes) {
 export function pickPress(state, target) {
   const kind = target?.kind;
   if (kind === "profile" && known(PROFILES, target.value)) {
-    const scroll = { hair: indexOf(HAIRS, state.choice.hair) * STRIDE.hair, colour: indexOf(HAIR_COLOURS, state.choice.hairColour) * STRIDE.colour };
+    const scroll = { ...state.scroll, hair: indexOf(HAIRS, state.choice.hair) * STRIDE.hair, colour: indexOf(HAIR_COLOURS, state.choice.hairColour) * STRIDE.colour };
     return { state: { ...state, step: "look", choice: { ...state.choice, who: target.value }, scroll, press: null }, ask: null };
   }
   if (kind === "back") return { state: { ...state, step: "profile", press: null }, ask: null };

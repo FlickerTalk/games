@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { HAIRS, HAIR_COLOURS, PROFILES } from "../../src/avatars/cast.js";
+import { SIZES } from "../canvas/sizes.js";
 import { PICK_TARGET, pickAt, pickLayout, pickPointer, pickPress, pickRename, startPick } from "../../src/avatars/pick.js";
 
 const FRAMES = [
@@ -82,6 +83,55 @@ describe("the pick screen", () => {
         if (layout.preview) expect(layout.preview.size, where).toBeGreaterThanOrEqual(96);
       }
     }
+  });
+
+  it("keeps every profile inside the frame at every size a canvas game is shown at, scrolling them where they do not all fit", () => {
+    for (const [width, height] of SIZES) {
+      const layout = pickLayout(start(), width, height);
+      const where = `${width}×${height}`;
+      const within = (box) => box.x >= 0 && box.y >= 0 && box.x + box.w <= width && box.y + box.h <= height;
+      expect(layout.title.y, where).toBeGreaterThanOrEqual(11);
+      expect(layout.targets, where).toHaveLength(PROFILES.length);
+      for (const target of layout.targets) expect(Math.min(target.w, target.h), `${target.value} ${where}`).toBeGreaterThanOrEqual(PICK_TARGET);
+      const [strip] = layout.strips;
+      if (!strip) {
+        for (const target of layout.targets) expect(within(target) && target.visible && !target.strip, `${target.value} ${where}`).toBe(true);
+        continue;
+      }
+      expect(strip.kind, where).toBe("profile");
+      expect(within(strip), where).toBe(true);
+      expect(strip.most, where).toBeGreaterThan(0);
+      for (const target of layout.targets) {
+        expect(target.strip, where).toBe("profile");
+        expect(target.y >= strip.y && target.y + target.h <= strip.y + strip.h, `${target.value} ${where}`).toBe(true);
+        expect(target.visible, `${target.value} ${where}`).toBe(target.x < strip.x + strip.w && target.x + target.w > strip.x);
+      }
+      const apart = layout.targets.every((one) => layout.targets.every((two) => one === two || !overlap(one, two)));
+      expect(apart, where).toBe(true);
+    }
+    expect(pickLayout(start(), 328, 343).strips).toHaveLength(1);
+    expect(pickLayout(start(), 384, 556).strips).toEqual([]);
+  });
+
+  it("opens the scrolling profiles on the player's own, and reaches the last one by dragging", () => {
+    const state = start({ who: "nico" });
+    const layout = pickLayout(state, 328, 343);
+    const [strip] = layout.strips;
+    const whole = (target) => target.x >= strip.x && target.x + target.w <= strip.x + strip.w;
+    expect(whole(layout.targets.find((one) => one.value === "nico"))).toBe(true);
+    expect(whole(pickLayout(start({ who: "ari" }), 328, 343).targets[0])).toBe(true);
+    const y = strip.y + strip.h / 2;
+    let drag = pickPointer(start({ who: "ari" }), pickLayout(start({ who: "ari" }), 328, 343), { type: "down", x: strip.x + strip.w - 10, y });
+    drag = pickPointer(drag.state, layout, { type: "move", x: strip.x + strip.w - 9000, y });
+    const moved = pickLayout(drag.state, 328, 343);
+    expect(moved.strips[0].scroll).toBe(moved.strips[0].most);
+    expect(whole(moved.targets.at(-1))).toBe(true);
+    drag = pickPointer(drag.state, moved, { type: "up", x: strip.x + strip.w - 9000, y });
+    expect(drag.state.step).toBe("profile");
+    const last = moved.targets.at(-1);
+    let tap = pickPointer(drag.state, moved, { type: "down", x: centre(last)[0], y: centre(last)[1] });
+    tap = pickPointer(tap.state, moved, { type: "up", x: centre(last)[0], y: centre(last)[1] });
+    expect(tap.state).toMatchObject({ step: "look", choice: { who: last.value } });
   });
 
   it("keeps the chosen avatar right above its name, and the hair step's two columns centred on a wide frame", () => {

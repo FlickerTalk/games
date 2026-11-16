@@ -3,8 +3,6 @@ import { toneShares, walkCanvasGame } from "./canvas-walk.js";
 
 const OUT = "/private/tmp/ftgames-painttanks-shots";
 const FIELDS = ["land", "sea", "coast", "deep"];
-const PICK_SCREEN_OVERFLOWS_THE_SMALLEST_ROOM = { inside: false };
-
 
 const waitTurn = (s) =>
   s.evaluate(async () => {
@@ -114,7 +112,7 @@ async function steps(s, context) {
   await s.shot("10-submarines");
   await s.tap("done");
   await s.tap("done");
-  await s.tap("avatar", undefined, PICK_SCREEN_OVERFLOWS_THE_SMALLEST_ROOM);
+  await s.tap("avatar");
   await s.shot("11-avatar");
 }
 
@@ -133,7 +131,6 @@ async function fields(s, { check, label, theme }) {
     await s.tap("home");
   }
 }
-
 
 await walkCanvasGame({
   game: "painttanks",

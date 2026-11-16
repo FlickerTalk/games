@@ -5,7 +5,6 @@ import { start } from "./serve.js";
 import { toneOf, toneShares, walkCanvasGame } from "./canvas-walk.js";
 
 const OUT = "/private/tmp/ftgames-balloonfair-shots";
-const PICK_SCREEN_OVERFLOWS_THE_SMALLEST_ROOM = { inside: false };
 
 const toolFor = (label) => (label.endsWith("-alone") ? "bow" : label.includes("-room-") ? "blaster" : "popgun");
 
@@ -94,7 +93,7 @@ async function steps(s, { check, label }) {
   await s.tap("looks");
   await s.shot("10-fairs");
   await s.tap("done");
-  await s.tap("avatar", undefined, PICK_SCREEN_OVERFLOWS_THE_SMALLEST_ROOM);
+  await s.tap("avatar");
   await s.shot("11-avatar");
 }
 

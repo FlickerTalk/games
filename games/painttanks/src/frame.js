@@ -100,7 +100,7 @@ export function drawFrame(ctx, game, theme, time) {
   if (screen === "play") drawPlay(ctx, scene, theme, time);
   else if (screen === "end") drawEnd(ctx, state, scene, theme, time);
   else if (screen === "looks") drawLooks(ctx, state, theme, time);
-  else if (screen === "avatar" && state.pick) drawPick(ctx, pickLayout(state.pick, width, height, state.lang), state.pick, { time, lang: state.lang });
+  else if (screen === "avatar" && state.pick) drawPick(ctx, pickLayout(state.pick, width, height, state.lang), state.pick, { time, lang: state.lang, ui: theme.ui });
   else drawHome(ctx, state, seatOf(game), theme, time);
   if (game.duel?.status.prompt && (screen === "home" || screen === "end")) drawPrompt(ctx, { ...state, player: standIn(state.player) }, theme, time);
 }
