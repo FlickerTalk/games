@@ -1,0 +1,98 @@
+{
+  "id": "com.flickertalk.game.squarehop",
+  "name": "Square Hop Rally",
+  "version": "1.0.0",
+  "minCoreVersion": "1.6.0",
+  "kind": "game",
+  "icon": "flag-outline",
+  "components": [
+    "ft-squarehop"
+  ],
+  "permissions": {
+    "live": true,
+    "send": "propose"
+  },
+  "summary": "A race by turns for the whole family: two dice are rolled, you choose one and hop that many numbered squares. Against FlickerTalk, with the other person in the chat or two on one phone.",
+  "locales": {
+    "es": {
+      "name": "Square Hop Rally",
+      "summary": "Una carrera por turnos para toda la familia: salen dos dados, eliges uno y saltas ese número de casillas numeradas. Contra FlickerTalk, con la otra persona del chat o dos en un teléfono."
+    },
+    "pt": {
+      "name": "Square Hop Rally",
+      "summary": "Uma corrida por turnos para toda a família: saem dois dados, você escolhe um e salta esse número de casas numeradas. Contra o FlickerTalk, com a outra pessoa da conversa ou dois num telefone."
+    },
+    "fr": {
+      "name": "Square Hop Rally",
+      "summary": "Une course au tour par tour pour toute la famille : deux dés sont lancés, tu en choisis un et tu sautes ce nombre de cases numérotées. Contre FlickerTalk, avec l’autre personne du chat ou à deux."
+    },
+    "de": {
+      "name": "Square Hop Rally",
+      "summary": "Ein Wettlauf in Zügen für die ganze Familie: Zwei Würfel fallen, du wählst einen und hüpfst so viele nummerierte Felder. Gegen FlickerTalk, mit der anderen Person im Chat oder zu zweit am Telefon."
+    },
+    "it": {
+      "name": "Square Hop Rally",
+      "summary": "Una corsa a turni per tutta la famiglia: si tirano due dadi, ne scegli uno e salti di altrettante caselle numerate. Contro FlickerTalk, con l’altra persona della chat o in due su un telefono."
+    },
+    "ro": {
+      "name": "Square Hop Rally",
+      "summary": "O cursă pe rând pentru toată familia: se aruncă două zaruri, alegi unul și sari tot atâtea căsuțe numerotate. Împotriva lui FlickerTalk, cu cealaltă persoană din conversație sau în doi pe un telefon."
+    },
+    "pl": {
+      "name": "Square Hop Rally",
+      "summary": "Wyścig na tury dla całej rodziny: wypadają dwie kostki, wybierasz jedną i skaczesz o tyle ponumerowanych pól. Przeciw FlickerTalk, z drugą osobą z czatu albo we dwoje na jednym telefonie."
+    },
+    "ru": {
+      "name": "Square Hop Rally",
+      "summary": "Гонка по очереди для всей семьи: выпадают два кубика, вы выбираете один и прыгаете на столько пронумерованных клеток. Против FlickerTalk, с собеседником из чата или вдвоём на одном телефоне."
+    },
+    "uk": {
+      "name": "Square Hop Rally",
+      "summary": "Перегони по черзі для всієї родини: випадають два кубики, ви обираєте один і стрибаєте на стільки пронумерованих клітинок. Проти FlickerTalk, зі співрозмовником із чату або вдвох на одному телефоні."
+    },
+    "tr": {
+      "name": "Square Hop Rally",
+      "summary": "Tüm aile için sırayla oynanan bir yarış: iki zar atılır, birini seçer ve o kadar numaralı kare zıplarsın. FlickerTalk’a karşı, sohbetteki kişiyle ya da tek telefonda iki kişi."
+    },
+    "ar": {
+      "name": "Square Hop Rally",
+      "summary": "سباق بالأدوار لكل العائلة: يُرمى نردان، تختار واحدًا وتقفز بعدده على مربعات مرقّمة، مع نوابض وتوربو وبرك ماء. ضد FlickerTalk، أو مع الشخص الآخر في المحادثة، أو لاعبان على هاتف واحد."
+    },
+    "hi": {
+      "name": "Square Hop Rally",
+      "summary": "पूरे परिवार के लिए बारी-बारी की दौड़: दो पासे फेंके जाते हैं, आप एक चुनते हैं और उतने नंबर वाले खाने कूदते हैं। FlickerTalk के ख़िलाफ़, चैट के दूसरे व्यक्ति के साथ या एक फ़ोन पर दो लोग।"
+    },
+    "bn": {
+      "name": "Square Hop Rally",
+      "summary": "পুরো পরিবারের জন্য পালা করে খেলার দৌড়: দুটি ছক্কা পড়ে, আপনি একটি বেছে নিয়ে ততগুলো নম্বর দেওয়া ঘর লাফান। FlickerTalk-এর বিরুদ্ধে, চ্যাটের অন্য জনের সঙ্গে বা এক ফোনে দুজন।"
+    },
+    "id": {
+      "name": "Square Hop Rally",
+      "summary": "Balapan bergiliran untuk seluruh keluarga: dua dadu dilempar, kamu memilih satu lalu melompat sebanyak itu di petak bernomor. Melawan FlickerTalk, dengan temanmu di chat, atau berdua di satu ponsel."
+    },
+    "vi": {
+      "name": "Square Hop Rally",
+      "summary": "Cuộc đua theo lượt cho cả gia đình: gieo hai viên xúc xắc, bạn chọn một viên rồi nhảy bấy nhiêu ô đánh số. Đấu với FlickerTalk, với người kia trong cuộc trò chuyện hoặc hai người trên một máy."
+    },
+    "th": {
+      "name": "Square Hop Rally",
+      "summary": "เกมแข่งผลัดตาสำหรับทั้งครอบครัว: ทอยลูกเต๋าสองลูก เลือกหนึ่งลูกแล้วกระโดดไปตามจำนวนช่องที่มีหมายเลข แข่งกับ FlickerTalk กับอีกคนในแชต หรือสองคนบนโทรศัพท์เครื่องเดียว"
+    },
+    "ja": {
+      "name": "Square Hop Rally",
+      "summary": "家族みんなで楽しめるターン制のレース。サイコロが2つ出るので1つ選び、その数だけ番号つきのマスを進みます。バネやターボ、水たまりも登場。FlickerTalk と対戦、チャットの相手と、または1台でふたりで。"
+    },
+    "ko": {
+      "name": "Square Hop Rally",
+      "summary": "온 가족이 즐기는 턴제 경주: 주사위 두 개가 나오면 하나를 골라 그 수만큼 번호가 적힌 칸을 뜁니다. 길에는 스프링, 터보, 물웅덩이가 있어요. FlickerTalk와 겨루거나, 채팅 상대와, 또는 한 기기에서 둘이."
+    },
+    "zh-CN": {
+      "name": "Square Hop Rally",
+      "summary": "适合全家的回合制赛跑：掷出两颗骰子，选一颗，在带数字的格子上跳相应的格数，途中有弹簧、加速和水坑。可对战 FlickerTalk、与聊天中的对方一起玩，或两人共用一部手机。"
+    },
+    "zh-TW": {
+      "name": "Square Hop Rally",
+      "summary": "適合全家的回合制賽跑：擲出兩顆骰子，選一顆，在帶數字的格子上跳相應的格數，途中有彈簧、加速和水坑。可對戰 FlickerTalk、與聊天中的對方一起玩，或兩人共用一部手機。"
+    }
+  }
+}

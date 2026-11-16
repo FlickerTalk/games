@@ -75,21 +75,16 @@ describe("two phones racing by turns", () => {
   });
 
   it("never put the secret seed on the wire before the other side's seed is in", async () => {
-    const { a, b } = phones();
-    const [one, two] = [await open(a, memoryStore()), await open(b)];
-    await one.start();
-    await both(one, two);
-    await both(one, two);
-    const committer = one.seen.mySide === 0 ? one : two;
+    const { one, two, a, b } = await racing();
+    const committer = one.round.me === 0 ? one : two;
     const core = committer === one ? a : b;
-    if (committer === two) {
-      await two.start();
-      await both(one, two);
-    }
     const secret = JSON.parse(await committer.store.get(committer.key)).seed;
-    const sent = core.sent.map((data) => atob(data)).join("\n");
-    expect(committer.seen.state.commit).not.toBeNull();
-    expect(sent).not.toContain(secret);
+    const carrying = core.sent.map((data) => JSON.parse(atob(data))).filter((message) => JSON.stringify(message).includes(secret));
+    expect(carrying.length).toBeGreaterThan(0);
+    for (const message of carrying) {
+      expect(message.game.moves[1]).toMatch(/^s/);
+      expect(message.game.moves[2]).toBe(`r${secret}`);
+    }
   });
 
   it("carry each pick as one move and reach the same finish on both phones", async () => {
@@ -131,19 +126,11 @@ describe("two phones racing by turns", () => {
 
   it("give the round up when the phone that committed has lost its seed", async () => {
     const { a, b } = phones();
-    const stores = [memoryStore(), memoryStore()];
-    const [one, two] = [await open(a, stores[0]), await open(b, stores[1])];
+    const forgetful = () => ({ ...memoryStore(), get: async () => null });
+    const [one, two] = [await open(a, forgetful()), await open(b, forgetful())];
     await one.start();
     await both(one, two);
-    await both(one, two);
-    const committer = one.seen.mySide === 0 ? one : two;
-    const other = committer === one ? two : one;
-    if (committer === two) {
-      await two.start();
-      await both(one, two);
-    }
-    await committer.store.forget(committer.key);
-    await other.start();
+    await two.start();
     await both(one, two);
     await both(one, two);
     expect(one.duty()).toBe("over");
