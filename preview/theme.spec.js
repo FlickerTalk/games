@@ -103,6 +103,42 @@ for (const game of ["tictactoe", "fourinarow", "chess"]) {
   });
 }
 
+async function openCanvas(game, { theme = "", scheme = "light" } = {}) {
+  const context = await browser.newContext({ viewport: { width: 800, height: 820 }, colorScheme: scheme });
+  const page = await context.newPage();
+  const errors = [];
+  page.on("pageerror", (error) => errors.push(error.message));
+  await page.goto(`${base}/?game=${game}&bare&closed&solo${theme ? `&theme=${theme}` : ""}`);
+  await page.evaluate(() => globalThis.harness.open("a"));
+  let frame;
+  for (let tries = 0; !frame; tries += 1) {
+    frame = page.frames().find((one) => one.url().endsWith(`/frame/${game}/a/frame.html`));
+    if (!frame) await page.waitForTimeout(50);
+    if (tries > 100) throw new Error("no frame");
+  }
+  await frame.waitForSelector("canvas");
+  const ui = () => frame.evaluate(() => document.querySelector("canvas").parentElement.theme.ui);
+  return { context, page, ui, errors };
+}
+
+await check("tilecourt: no app colours → the app's default palette, light or dark as the system is", async () => {
+  for (const [scheme, page] of [["light", "#FFFFFF"], ["dark", "#000000"]]) {
+    const { context, ui } = await openCanvas("tilecourt", { scheme });
+    assert.equal((await ui()).page, page);
+    await context.close();
+  }
+});
+
+await check("tilecourt: the app's colours draw its interface, and a theme switched with the game open repaints it at once", async () => {
+  const { context, page, ui, errors } = await openCanvas("tilecourt", { theme: "mono-dark", scheme: "light" });
+  assert.deepEqual([(await ui()).page, (await ui()).text, (await ui()).dark], ["#000000", "#F5F5F5", true]);
+  await page.evaluate(() => globalThis.harness.setTheme("ember-light"));
+  await page.waitForTimeout(150);
+  assert.deepEqual([(await ui()).page, (await ui()).accent, (await ui()).dark], ["#FBF8F5", "#9E4C10", false]);
+  assert.deepEqual(errors, []);
+  await context.close();
+});
+
 await check("the app's secondary-text colour where it reads (mono dark), the kit's own where it does not (ember light)", async () => {
   const muted = async (theme) => {
     const { context, page, frame } = await open("tictactoe", { theme });

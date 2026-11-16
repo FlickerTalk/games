@@ -19,6 +19,7 @@ kit/                      shared code, compiled INTO each game's dist/index.js (
   src/live/               the real-time part: session, wire, pace, follow, the page (arena) and its texts
   src/sound/              effects, music and the volume line, made by the game, for the games that ask for it
   src/avatars/            the players' faces: cast, drawing, the stored choice, the pick screen, portraits
+  src/canvas/             what a game drawn on a canvas builds on (see "Building a canvas game")
   build.js                buildGame(): one game folder → its dist/
   test/                   the kit's tests, and helpers.js for every game's tests
 games/<name>/             one catalogue package per game (games/tilecourt/: a canvas game, see "A canvas game")
@@ -49,7 +50,7 @@ npm run bar           # the game's bar in Chromium and WebKit, in Ionic's md and
 npm run room          # every game, in every state, in the app's game room on two phone sizes (npm run room -- gomoku: just one)
 npm run theme         # the games in the app's colours in Chromium, and in their own palette without them
 npm run fill          # five games entering and leaving full screen mid-match at four frame sizes (npm run fill -- chess: just one)
-npm run tilecourt     # Tile Court in Chromium at four phone and tablet sizes, in the room and full screen (-- --webkit: in WebKit)
+npm run tilecourt     # Tile Court's walk in Chromium: four sizes, in the room and full screen, and its play screen in three of the app's themes (-- --webkit: in WebKit)
 ```
 
 `frame`, `room`, `bar`, `theme`, `fill` and `tilecourt` run the built packages (`frame` reads `games/chess/dist/`), so run
@@ -238,7 +239,10 @@ colour itself, and rows and chips would vanish white on white. The warning and `
   palette applies: dark when the app says `data-dark`, or when the system is dark.
 - A board uses the tokens for everything around its art, and writes its art's own colours (chess
   squares, markers) as `--art-*` tokens. A test fails on any other colour literal in the CSS.
-- `npm run theme` checks this in Chromium; the preview has a theme selector (`?theme=ember-dark`…).
+- `npm run theme` checks this in Chromium; the preview has a theme selector with the app's four colour
+  directions, light and dark (`?theme=ember-dark`, `mono-light`, `aurora-dark`, `lime-light`…).
+- A canvas game reads the same variables from the root itself (`readTokens`) and builds its interface
+  palette with `themeFromTokens` (see "Building a canvas game").
 
 ### Texts
 
@@ -608,38 +612,113 @@ await progress.save(ft.store, record);
 ## A canvas game
 
 Tile Court (`games/tilecourt/`) is the first game drawn entirely on a canvas, with its own bar and
-screens instead of the kit's shell, and the pattern the next ones follow.
+screens instead of the kit's shell. What it shares with the games that follow lives in the canvas
+kit (next section); what is left in its folder is the game itself: the rules, the court, the pieces,
+the courtyards, the line effects and its texts.
 
-- **Its element** (`element.js`) holds one canvas, sizes itself and redraws every frame: in a
-  conversation's room it is as tall as `ROOM_CHROME` leaves of the screen (300 to 1,100 px); with
-  `data-fill` it fills the frame, which the app gives it under its own bar, so the game needs no strip
-  of its own at the top. It follows `data-fill` and its own size live. Pointer events go to a
-  DOM-free game object (`game.js`), which the tests drive directly.
-- **No words on the canvas**, digits only. What the canvas lets the player touch is also laid out as
-  transparent buttons with translated labels (`labels.js`, `texts.js`), for the keyboard and screen
-  readers; the player's name is typed in a real field. The kit's pick screen is drawn on the canvas
-  as the kit draws it.
-- **Layouts are pure functions** (`layout.js`, `menu-layout.js`): for any frame they give the targets,
-  tested at phone, room, sideways and tablet sizes for size (88 px, tray slots 120 px where three fit
-  across, the main buttons 120 px), overlap, and nothing to touch in the bottom corners of a full
-  screen (the room's frame does not reach the screen's corners).
-- **One theme module** (`theme.js`): every colour, stroke, radius and font size, in a frozen object
-  passed to every drawing function, `ui` for the interface (bar, buttons, cards, panels) and `art` for
-  the play field and the pieces. A test fails on any colour written anywhere else, so the interface can
-  take the app's colours later without touching the rules or their tests. Drawing tests check what is
-  drawn, where and how large, with the recording context of `kit/test/canvas/recorder.js`, never
-  colour values.
-- **Two phones** use the turn-based kit's `Table` and match unchanged. Both phones lay the same trays
-  at the same time: the seed of a round comes from the match id and the round's number, so each
-  phone deals it alone; each sends its whole round as one move of at most 56 letters (the seed and every
-  placement), the round's starter first, and the rules lay the placements again to work out the score.
-  A phone keeps the rounds the match cannot take yet and sends them as soon as it can, so a player
-  never waits for the other, and a round played while the other phone was away is compared when they
-  meet. The live part of the kit is not used: it needs both phones answering every 6 seconds.
-- **Against FlickerTalk** the phone plays the same trays as Flick on this phone, tray by tray as the
-  player goes, and never touches `ft.live`. Outside a conversation it is the puzzle alone.
+- **Its element** is the kit's (`defineCanvasGame`): one canvas, as tall as `ROOM_CHROME` leaves of
+  the screen in a conversation's room (300 to 1,100 px) and the whole frame with `data-fill`, which the
+  app gives it under its own bar, so the game keeps no strip of its own at the top. Pointer events go
+  to a DOM-free game object (`game.js`), which the tests drive directly.
+- **No words on the canvas**, digits only, 20 px or larger. What the canvas lets the player touch is
+  also laid out as transparent buttons with translated labels (`labels.js`, `texts.js`), for the
+  keyboard and screen readers; the player's name is typed in a real field. The kit's pick screen is
+  drawn on the canvas as the avatars module draws it.
+- **At home in the app.** The game sits on the page of a dark, minimal chat, with no border. Its
+  interface (bar, score, buttons, tray frames, home, looks, pause and round-end card, volume line)
+  takes the app's colours, in its four colour directions, light and dark: flat surfaces with a thin
+  border and 16 px corners, no shadow, thin outline icons of 24 px or more, and a pressed look on every
+  control from the moment a finger is on it. The courtyard is the approved art on a **soft day**: the
+  same daytime hues, brought to mid lightness on a dark page (the court a little deeper than the
+  courtyard) and only a little less pale on a light one, its top and bottom fading into the page. The
+  pieces and effects keep their full colour, and on a dark page every dark outline gets a thin light
+  rim. In dark mono the share of the play screen at OKLCH lightness 0.8 or more went from 84.8 % to
+  about 3 %; `npm run tilecourt` measures it again.
+- **Layouts are pure functions** (`layout.js` for the play screen, the kit's for the menus): for any
+  frame they give the targets, tested at phone, room, sideways and tablet sizes for size (88 px, tray
+  slots 120 px where three fit across, the main buttons 120 px), overlap, and nothing to touch in the
+  bottom corners of a full screen (the room's frame does not reach the screen's corners).
+- **One theme module** (`theme.js`): `themeFor(tokens)` gives a frozen `{ ui, art, stroke, text, font }`
+  passed to every drawing function, `ui` from the app's colours and `art` the approved palette of the
+  play field and the pieces, its courtyards softened for the page. A test fails on any colour written
+  anywhere else. Drawing tests check what is drawn, where and how large, with the recording context of
+  `kit/test/canvas/recorder.js`, never colour values.
+- **Two phones** play the same seeded round and compare (the kit's `SameRounds`): each sends its whole
+  round as one move of at most 56 letters (the seed and every placement), and the rules lay the
+  placements again to work out the score. The live part of the kit is not used: it needs both phones
+  answering every 6 seconds.
+- **Against FlickerTalk** Flick plays the same trays on this phone, tray by tray as the player goes
+  (`localFlick`), and nothing touches `ft.live`; the round's card shows both players and both scores
+  side by side. Outside a conversation it is the puzzle alone.
 - It uses the kit's `progress` (levels, stars per track, gifts of two kinds), `avatars` (the player's
   face, Flick, the pick screen) and `sound` (`createSound`, `soundControls` drawn on the canvas).
+
+## Building a canvas game
+
+`kit/src/canvas/` is what a game drawn on a canvas builds on, imported from
+`kit/src/canvas/index.js`. A game that does not import it carries none of it: the board games'
+packages do not change by a byte (a test checks they hold none of it). It is about 33 KB minified
+(60 KB of source); Tile Court weighs 171 KB with it.
+
+**The files of a new game** (`games/<name>/`), besides `module.json`, `THIRD_PARTY_NOTICES.md` and
+`icon.svg` as for any game:
+
+| File | What it holds |
+| --- | --- |
+| `src/index.js` | `defineCanvasGame(manifest.components[0], { version, create, draw, theme, label, button, canvasLabel, music, sound })` and nothing else. |
+| `src/game.js` | The game object, without DOM: `state` (with `lang`, `width`, `height`, `fill`, `screen`, `press`, `sound`), `open(opening)`, `resize(width, height, fill)`, `frame(ms)`, `targets()`, `pointer({ type, x, y, id })`, `press(target)`, and optionally `rename(text)`, `resting()`, `syncSound()`, `idle()`, `close()`. `create` receives `{ ft, sound, controls, app, onAsk, onChange }`. |
+| `src/frame.js` | `draw(ctx, game, theme, seconds)`: clears and draws the screen the state is on. |
+| `src/theme.js` | `themeFor(tokens, mode)`: `{ ui: themeFromTokens(tokens, mode), art }`, memoised; the only file that names a colour. |
+| `src/layout.js` | The play screen's layout, a pure function of the frame's size; the menus' come from the kit. |
+| `src/texts.js`, `src/labels.js` | The labels of the buttons laid over the canvas, in the app's 21 languages. |
+| `test/` | A test per module (layouts with `kit/test/canvas/sizes.js`, drawings with `recorder.js`, the theme in the eight app themes of `themes.js`), and `package.test.js`. |
+| `preview/<name>.spec.js` | Its walk, and a script for it in `package.json`. |
+
+**Which piece for what**
+
+| For | Use |
+| --- | --- |
+| The element: sizing to the frame in the room and full screen, device pixel ratio, resize, the loop that stops while hidden or `resting()`, pointer input in canvas coordinates, labelled buttons over the targets, the name field, the sound and its controls, the app's colours read and followed live | `defineCanvasGame`, `roomHeight` |
+| The interface's colours: page, surface, surface2, border, text, muted, accent, onAccent (AA checked), with `pressed`, `track`, `shade`, `halo`, `rim`, `ink`, `paper`, `radius`, `line` | `themeFromTokens(tokens, { dark })`, `readTokens`, `FALLBACK_TOKENS` |
+| A stage that sits on the page | `softStage(palette, { dark })`, `softDay(colour, { dark, deeper })`, `pen.fadeEdges`, `pen.withRim` |
+| Drawing | `pen` (`roundedRect`, `paint`, `circle`, `ellipse`, `polygon`, `line`, `starPath`, `clamp`, `ease`, `mix`, `hash`…) |
+| Laying out | `box`, `row`, `grid`, `span`, `within`, `overlap`, `centreOf`, `CORNER`; `barLayout`, `homeLayout`, `endLayout`, `looksLayout`, `pauseLayout`, `promptLayout` |
+| Buttons | `drawRoundButton(ctx, glyph, x, y, size, ui, { primary, pressed })`, `drawGlyph`, `drawMark`, `GLYPHS` |
+| The top bar | `drawTopBar` (score, best, stars to reach, the rival's portrait, pause, speaker and music, the volume line), `drawStar`, `drawStarProgress`, `drawPortrait`, `drawDigits`, `formatNumber` |
+| The screens | `drawHome` (your face, the rival's seat, the looks, the variants, the big play button), `drawRoundEnd` (1–3 stars or none, both players side by side, the gift), `drawLooks`, `chooseLook`, `drawPresent`, `drawPause`, `drawPrompt`, `drawHintHand`, `drawCard` |
+| Touch | `pressTargets`, `volumePointer`, `foldWhenIdle`, `soundState` |
+| Two phones on the same seeded round | `sameRoundRules({ id, gv, read })`, `SameRounds`, `seedOf`, `randomOf` |
+| Flick on the phone | `playMode(opening, chat)`, `localFlick({ seed, start, step, over })` |
+| The walk | `walkCanvasGame` from `preview/canvas-walk.js` |
+
+**Avoid**: words on the canvas (digits only, and the labels as buttons over it); a colour anywhere
+but `theme.js`; cream panels, ink outlines or shadows in the interface; redrawing the approved art
+to fit the theme (soften the stage, keep the pieces); a layout measured once at mount; a strip kept
+for the app's buttons; `ft.live` in a match against Flick, or any message when the game merely opens.
+
+**Its walk** checks, at 360×640, 384×853, 430×932 and 1280×800, in the room and full screen, that the
+frame is sized and does not scroll, that every target is inside the frame on every screen it reaches,
+and that nothing is written to the console; it saves a screenshot of each step. A game configures it
+in a few lines:
+
+```js
+import { walkCanvasGame } from "./canvas-walk.js";
+
+await walkCanvasGame({
+  game: "racer",
+  out: "/private/tmp/ftgames-racer-shots",
+  modes: [{ name: "flick", fill: true, query: "&solo" }, { name: "alone", fill: false, query: "&alone", engines: ["chromium"] }],
+  steps: async (s, { check, label }) => {
+    await s.tap("play");
+    await s.shot("2-play");
+  },
+  themes: ["mono-dark", "mono-light", "ember-dark"].map((name) => ({ name, query: "&solo", run: async (s) => { await s.tap("play"); await s.shot("play"); } })),
+});
+```
+
+The room runs in Chromium only: its height comes from the screen's, which WebKit does not take from
+Playwright. `s` offers `tap(kind, value)`, `shot(name)`, `targets()`, `measure()`, `samples(area)` (the
+canvas's pixels, for `toneShares`) and `evaluate(fn, arg)` in the game's frame.
 
 ## Sound
 
