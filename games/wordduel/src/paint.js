@@ -60,6 +60,14 @@ export function tileBox(grid, row, column) {
   return { x: grid.x + column * (grid.tile + grid.gap), y: grid.y + row * (grid.tile + grid.gap), w: grid.tile, h: grid.tile };
 }
 
+export function typingLine(size, phase, row) {
+  const layout = layoutFor(size, phase);
+  const grid = phase === "place" ? layout.row : layout.mine;
+  const tile = tileBox(grid, Math.min(row, grid.rows - 1), 0);
+  const top = tile.y + tile.h + tileDepth(tile.h) + grid.gap * 2;
+  return { top: top / size, reach: (top - tile.y + grid.gap) / size };
+}
+
 function drawRow(ctx, theme, grid, row, line = {}) {
   const { word = "", answer = "", typing = false, pending = false, flips = null } = line;
   for (let column = 0; column < COLUMNS; column += 1) {

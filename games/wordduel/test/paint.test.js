@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { bounds, colours, draw, painted } from "../../../kit/test/canvas/recorder.js";
-import { FORM_TOP, drawBoard, layoutFor, tileBox } from "../src/paint.js";
+import { FORM_TOP, drawBoard, layoutFor, tileBox, typingLine } from "../src/paint.js";
 import { themeFor } from "../src/theme.js";
 
 const light = themeFor(null, { dark: false });
@@ -80,6 +80,22 @@ describe("the Word Duel board, drawn", () => {
     expect(colours(kept)).toContain(light.tiles.g.face);
     const { row } = layoutFor(352, "place");
     expect(row.tile).toBeGreaterThan(layoutFor(352, "play").mine.tile);
+  });
+
+  it("puts the typing line right under the row being typed and reaches back over that row, so the 130 px a phone's keyboard leaves the room holds both", () => {
+    const keyboardRoom = 130;
+    const field = 44;
+    for (const size of [300, 328, 352]) {
+      const rows = [["place", layoutFor(size, "place").row, 0], ...[0, 1, 2, 3, 4, 5].map((row) => ["play", layoutFor(size, "play").mine, row])];
+      for (const [phase, grid, row] of rows) {
+        const where = `${size} ${phase} row ${row}`;
+        const tile = tileBox(grid, row, 0);
+        const line = typingLine(size, phase, row);
+        expect(line.top * size, where).toBeGreaterThan(tile.y + tile.h);
+        expect((line.top - line.reach) * size, where).toBeLessThan(tile.y);
+        expect(line.reach * size + field, where).toBeLessThanOrEqual(keyboardRoom);
+      }
+    }
   });
 
   it("lowers the bare blocks on a dark page and keeps the answers in their full colour", () => {

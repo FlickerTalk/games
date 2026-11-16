@@ -2,7 +2,7 @@ import FORM_CSS from "./form.css";
 import { TABLETOP_STYLE, canvasBoard } from "../../../kit/src/tabletop/board.js";
 import { formHtml } from "./form.js";
 import { sideMark } from "./marks.js";
-import { FORM_TOP } from "./paint.js";
+import { FORM_TOP, typingLine } from "./paint.js";
 import { dueMove, guessMove, secretMove } from "./picking.js";
 import { LENGTH, MAX_GUESSES, SALT_BYTES, accepted, langFor, solvedAt, suggest } from "./rules.js";
 import { createScene } from "./scene.js";
@@ -10,6 +10,8 @@ import { cleaned, keeper, storeKey } from "./secret.js";
 import { ART, themeFor } from "./theme.js";
 
 const percent = (share) => `${Math.round(share * 100)}%`;
+const boardShare = (share) => `${(share * 100).toFixed(2)}cqh`;
+const NOMINAL_SIZE = 352;
 
 export const STYLE = [
   TABLETOP_STYLE,
@@ -35,6 +37,7 @@ class Desk {
     this.ctx = context;
     this.local = { typed: "", word: null, salt: null, lost: false, loaded: false, auto: null, told: "" };
     host.innerHTML = '<div class="fwd empty"><div class="fwd-table"></div><div class="fwd-form"></div></div>';
+    this.host = host;
     this.root = host.firstElementChild;
     this.form = this.root.lastElementChild;
     this.keep = keeper(coreOf(host));
@@ -102,8 +105,17 @@ class Desk {
   paint() {
     const view = this.formView();
     this.root.className = `fwd${this.local.typed ? "" : " empty"}${view.phase === "place" ? " place" : ""} s${this.ctx.mySide ?? 0}`;
+    this.placeTypingLine(view.phase);
     this.form.innerHTML = formHtml(view);
     this.tell(this.notice());
+  }
+
+  placeTypingLine(phase) {
+    const size = Math.round(this.host.getBoundingClientRect().width) || NOMINAL_SIZE;
+    const row = phase === "place" ? 0 : this.ctx.state.guesses[this.ctx.mySide ?? 0].length;
+    const line = typingLine(size, phase === "place" ? "place" : "play", row);
+    this.root.style.setProperty("--typing-top", boardShare(line.top));
+    this.root.style.setProperty("--typing-reach", boardShare(line.reach));
   }
 
   settle() {
@@ -145,6 +157,7 @@ class Desk {
     const button = this.form.querySelector('[data-act="commit"], [data-act="guess"]');
     if (button) button.disabled = !(this.ctx.canPlay && accepted(this.lang(), this.local.typed));
     this.tell(this.notice());
+    field.scrollIntoView({ block: "nearest" });
   }
 
   async click(button) {
