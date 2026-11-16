@@ -1,4 +1,4 @@
-import { paint, roundedRect } from "./pen.js";
+import { paint, roundedRect } from "../../../kit/src/canvas/pen.js";
 import { pieceOf } from "./pieces.js";
 import { drawPieceCentred } from "./tiles.js";
 
@@ -9,10 +9,9 @@ export function slotCell(piece, slot, cell) {
   return Math.min(cell * 0.6, (slot.w - 2 * ROOM) / (piece.width + 0.4), (slot.h - 2 * ROOM) / (piece.height + 0.4));
 }
 
-function card(ctx, slot, theme) {
-  const { ui, stroke } = theme;
-  roundedRect(ctx, slot.x + INSET, slot.y + INSET, slot.w - 2 * INSET, slot.h - 2 * INSET, ui.radius.slot);
-  paint(ctx, ui.card, ui.ink, stroke.base);
+function card(ctx, slot, { ui }) {
+  roundedRect(ctx, slot.x + INSET, slot.y + INSET, slot.w - 2 * INSET, slot.h - 2 * INSET, ui.radius);
+  paint(ctx, ui.surface, ui.border, ui.line);
 }
 
 export function drawTray(ctx, slots, pieces, cell, theme, { time = 0, lifted = -1, stuck = false } = {}) {

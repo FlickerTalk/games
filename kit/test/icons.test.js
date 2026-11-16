@@ -1,4 +1,4 @@
-import { readFileSync, readdirSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ICONS, icon } from "../src/icons.js";
@@ -112,10 +112,13 @@ describe("no emoji in the interface", () => {
 
   it("on any game's board, nor in any stylesheet", async () => {
     for (const game of readdirSync(join(root, "games"))) {
-      const css = readFileSync(join(root, "games", game, "src", "board.css"), "utf8");
-      expect(emojiIn(css), `${game}/board.css`).toBe("");
+      const sheet = join(root, "games", game, "src", "board.css");
+      if (existsSync(sheet)) expect(emojiIn(readFileSync(sheet, "utf8")), `${game}/board.css`).toBe("");
       const source = readFileSync(join(root, "games", game, "src", "board.js"), "utf8").replace(/\/\*[\s\S]*?\*\/|\/\/.*$/gm, "");
       expect(emojiIn(source), `${game}/board.js`).toBe("");
+    }
+    for (const file of readdirSync(join(root, "kit", "src", "canvas"))) {
+      expect(emojiIn(readFileSync(join(root, "kit", "src", "canvas", file), "utf8")), `canvas/${file}`).toBe("");
     }
     expect(emojiIn(readFileSync(join(root, "kit", "src", "style.css"), "utf8"))).toBe("");
     const shell = readFileSync(join(root, "kit", "src", "shell.js"), "utf8").replace(/\/\*[\s\S]*?\*\/|\/\/.*$/gm, "");

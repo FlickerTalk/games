@@ -1,5 +1,5 @@
 import { EMPTY } from "./court.js";
-import { paint, roundedRect } from "./pen.js";
+import { paint, roundedRect } from "../../../kit/src/canvas/pen.js";
 import { drawTile } from "./tiles.js";
 
 function sockets(ctx, { x, y, cell, size }, art) {

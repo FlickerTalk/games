@@ -1,12 +1,10 @@
-import { drawBar } from "./bar.js";
+import { centreOf, drawPause, drawTopBar, pauseLayout } from "../../../kit/src/canvas/index.js";
+import { clamp, ease, fadeEdges, mix, withRim } from "../../../kit/src/canvas/pen.js";
 import { drawBounce, drawDust, drawEmptyBonus, drawHand, drawScoreBurst } from "./bursts.js";
-import { drawButton } from "./buttons.js";
 import { drawCourt, drawGlow, drawOutline } from "./court-art.js";
-import { thresholdsFor, trackOf } from "./levels.js";
-import { pauseLayout } from "./menu-layout.js";
 import { cellsOf } from "./court.js";
+import { thresholdsFor, trackOf } from "./levels.js";
 import { drawLayeredClear } from "./line-effects.js";
-import { clamp, ease, mix } from "./pen.js";
 import { pieceOf } from "./pieces.js";
 import { drawScenery } from "./scenery.js";
 import { drawLifted } from "./tiles.js";
@@ -16,7 +14,8 @@ import { variantOf } from "./variants.js";
 const HINT_LOOP = 2.6;
 
 const progressOf = (moment, time) => clamp((time * 1000 - moment.start) / moment.duration);
-const centreOf = (area) => [area.x + area.w / 2, area.y + area.h / 2];
+
+export const rimmed = (ctx, theme, draw) => withRim(ctx, { ink: theme.art.ink, colour: theme.art.rim }, draw);
 
 export function rivalOf(state) {
   if (state.flick) return { player: { who: "flick" }, score: state.flick.round.score, thinking: false, face: state.flick.round.score > state.round.score ? "confident" : "focused" };
@@ -28,11 +27,16 @@ function bestOf(state) {
   return track ? (state.progress.bests?.[track] ?? null) : state.progress.best;
 }
 
+export function drawStage(ctx, state, band, theme, time) {
+  rimmed(ctx, theme, () => drawScenery(ctx, state.progress.chosen.court, { w: state.width, h: state.height }, band, theme, time));
+  fadeEdges(ctx, state.width, state.height, theme.ui.page);
+}
+
 function field(ctx, state, theme, time) {
   const { layout, round, drag } = state;
   const where = layout.court;
-  const band = { x: 0, y: layout.bar.y + layout.bar.h, w: state.width, h: where.y - 5 - (layout.bar.y + layout.bar.h) };
-  drawScenery(ctx, state.progress.chosen.court, { w: state.width, h: state.height }, band, theme, time);
+  const top = layout.bar.y + layout.bar.h;
+  drawStage(ctx, state, { x: 0, y: top, w: state.width, h: where.y - 5 - top }, theme, time);
   drawCourt(ctx, where, round.court.cells, theme, { beds: variantOf(round.variant).beds });
   if (drag.phase === "lifted" && drag.target) {
     drawGlow(ctx, where, drag.target.lines, theme, time);
@@ -52,7 +56,8 @@ function tray(ctx, state, theme, time) {
 
 function bar(ctx, state, theme, time) {
   const rival = rivalOf(state);
-  drawBar(ctx, state.layout, { score: state.round.score, best: bestOf(state), thresholds: thresholdsFor(state.round.variant), sound: state.sound, rival, lang: state.lang }, theme, time);
+  const shown = { score: state.round.score, best: bestOf(state), thresholds: thresholdsFor(state.round.variant), sound: state.sound, rival, lang: state.lang, press: state.press };
+  drawTopBar(ctx, state.layout, shown, theme.ui, time);
 }
 
 function hint(ctx, state, theme, time) {
@@ -88,23 +93,17 @@ function moments(ctx, state, theme, time) {
   }
 }
 
-function pause(ctx, state, theme) {
-  ctx.save();
-  ctx.fillStyle = theme.ui.shade;
-  ctx.fillRect(0, 0, state.width, state.height);
-  for (const target of pauseLayout(state.width, state.height, { fill: state.fill }).targets) {
-    drawButton(ctx, target.kind === "resume" ? "play" : "home", ...centreOf(target), Math.min(target.w, target.h), theme);
-  }
-  ctx.restore();
-}
-
 export function drawPlay(ctx, state, theme, time) {
   if (!state.round || !state.layout) return;
-  field(ctx, state, theme, time);
-  tray(ctx, state, theme, time);
+  rimmed(ctx, theme, () => {
+    field(ctx, state, theme, time);
+    tray(ctx, state, theme, time);
+  });
   bar(ctx, state, theme, time);
-  hint(ctx, state, theme, time);
-  if (state.drag.phase === "lifted") drawLifted(ctx, pieceOf(state.drag.piece), state.drag.point.x, state.drag.point.y - state.layout.lift, state.layout.court.cell, theme, time);
-  moments(ctx, state, theme, time);
-  if (state.paused) pause(ctx, state, theme);
+  rimmed(ctx, theme, () => {
+    hint(ctx, state, theme, time);
+    if (state.drag.phase === "lifted") drawLifted(ctx, pieceOf(state.drag.piece), state.drag.point.x, state.drag.point.y - state.layout.lift, state.layout.court.cell, theme, time);
+    moments(ctx, state, theme, time);
+  });
+  if (state.paused) drawPause(ctx, state, theme.ui, { layout: pauseLayout(state.width, state.height, { fill: state.fill }) });
 }

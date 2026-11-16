@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { INK, circle, line, paint, polygon, roundedRect } from "../../src/avatars/pen.js";
-import { draw } from "./recorder.js";
+import { draw } from "../canvas/recorder.js";
 
 const ops = (ctx) => ctx.calls.map((call) => (call.op === "set" ? `${call.name}=${call.value}` : call.op));
 

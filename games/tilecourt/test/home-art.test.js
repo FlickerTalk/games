@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { bounds, draw, painted, shapes } from "../../../kit/test/avatars/recorder.js";
+import { bounds, draw, painted, shapes } from "../../../kit/test/canvas/recorder.js";
 import { drawHome, drawLooks } from "../src/home-art.js";
 import { THEME } from "../src/theme.js";
 import { makeGame, tap, targetOf } from "./harness.js";
@@ -33,6 +33,22 @@ describe("the home screen's drawing", () => {
     const away = draw((pen) => drawHome(pen, game.state, { ...seat, player: { who: "noa" }, here: false, away: true }, THEME, 0));
     expect(shapes(here)).not.toEqual(shapes(away));
     expect(away.calls.some((call) => call.name === "globalAlpha" && call.value < 0.6)).toBe(true);
+  });
+});
+
+describe("the home screen's clear strip", () => {
+  it("keeps the courtyard's details under the sound buttons, never behind them", async () => {
+    for (const [width, height] of [[384, 801], [430, 880]]) {
+      const { game } = await makeGame({ width, height });
+      const ctx = draw((pen) => drawHome(pen, game.state, null, THEME, 0.3));
+      const clip = ctx.calls.findIndex((call) => call.op === "clip");
+      const [[left, top], [right, bottom]] = ctx.calls[clip - 1].points;
+      for (const kind of ["speaker", "music"]) {
+        const button = targetOf(game, kind);
+        const apart = right <= button.x || left >= button.x + button.w || bottom <= button.y || top >= button.y + button.h;
+        expect(apart, `${width}x${height} ${kind}`).toBe(true);
+      }
+    }
   });
 });
 

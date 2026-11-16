@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { HAIRS } from "../../src/avatars/cast.js";
 import { drawBadge, drawRoundEnd } from "../../src/avatars/badge.js";
 import { drawAvatar } from "../../src/avatars/face.js";
-import { bounds, colours, contains, draw, painted, shapes } from "./recorder.js";
+import { bounds, colours, contains, draw, painted, shapes } from "../canvas/recorder.js";
 
 const badge = (options, size = 44, x = 100, y = 100) => draw((ctx) => drawBadge(ctx, x, y, size, options));
 const roundEnd = (options, size = 120, x = 300, y = 200) => draw((ctx) => drawRoundEnd(ctx, x, y, size, options));

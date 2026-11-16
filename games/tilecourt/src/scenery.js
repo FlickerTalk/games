@@ -1,4 +1,4 @@
-import { circle, ellipse, hash, line, paint, roundedRect } from "./pen.js";
+import { circle, ellipse, hash, line, paint, roundedRect } from "../../../kit/src/canvas/pen.js";
 
 export const SCENERIES = Object.freeze(["patio", "rooftop", "greenhouse", "seaside", "night"]);
 

@@ -1,27 +1,13 @@
-import { CORNER } from "./layout.js";
+import { CORNER, GAP, box, grid, row, span, target } from "./layout.js";
 
 const PAD = 12;
 const TILE = 88;
 const BIG = 120;
-const GAP = 8;
-
-const box = (x, y, w, h) => ({ x, y, w, h });
-const target = (kind, value, area) => ({ kind, value, ...area });
 
 function soundTargets(width, height) {
   const size = height < 420 ? 48 : 56;
   return [target("speaker", "speaker", box(width - 8 - 2 * size, 8, size, size)), target("music", "music", box(width - 8 - size, 8, size, size))];
 }
-
-function row(items, left, top, size, gap = GAP) {
-  return items.map(([kind, value], at) => target(kind, value, box(left + at * (size + gap), top, size, size)));
-}
-
-function grid(items, left, top, columns, size, gap = GAP) {
-  return items.map(([kind, value], at) => target(kind, value, box(left + (at % columns) * (size + gap), top + Math.floor(at / columns) * (size + gap), size, size)));
-}
-
-const span = (count, size, gap = GAP) => count * size + Math.max(0, count - 1) * gap;
 
 function tallHome(width, height, { variants, rival, fill }) {
   const bottom = height - (fill ? CORNER : PAD);
@@ -79,9 +65,9 @@ export function endLayout(width, height, { gift = false, fill = false } = {}) {
   return { width, height, card, targets };
 }
 
-export function looksLayout(width, height, { kind, count, fill = false }) {
+export function looksLayout(width, height, { kind, count, fill = false, tabs = [] }) {
   const bottom = height - (fill ? CORNER : PAD);
-  const header = row([["done", "done"], ["tab", "court"], ["tab", "effect"]], PAD, 8, TILE);
+  const header = row([["done", "done"], ...(tabs.length > 1 ? tabs.map((tab) => ["tab", tab]) : [])], PAD, 8, TILE);
   const top = 8 + TILE + PAD;
   const room = Math.max(TILE, Math.min((width - 2 * PAD + GAP) / 3, (bottom - top + GAP) / 2) - GAP);
   const size = Math.floor(Math.min(140, Math.max(TILE, room)));

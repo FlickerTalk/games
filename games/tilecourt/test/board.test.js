@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { bounds, draw, painted } from "../../../kit/test/avatars/recorder.js";
+import { bounds, draw, painted } from "../../../kit/test/canvas/recorder.js";
 import { drawPlay } from "../src/board.js";
-import { THEME } from "../src/theme.js";
+import { THEME, themeFor } from "../src/theme.js";
+import { tokensFor } from "../../../kit/test/canvas/themes.js";
+import { colours } from "../../../kit/test/canvas/recorder.js";
 import { anyMove, makeGame, pointOver, tap, targetOf } from "./harness.js";
 import { pieceOf } from "../src/pieces.js";
 
@@ -59,5 +61,21 @@ describe("the play screen's drawing", () => {
     const count = (game) => draw((pen) => drawPlay(pen, game.state, THEME, 0)).calls.length;
     expect(flick.game.state.layout.rival).not.toBeNull();
     expect(count(flick.game)).toBeGreaterThan(count(alone.game));
+  });
+
+  it("rims the pieces with a light line on a dark page, so their dark outline never vanishes, and not on a light one", async () => {
+    const { game } = await playing();
+    const dark = themeFor(tokensFor("mono-dark"));
+    const strokes = (theme) => draw((pen) => drawPlay(pen, { ...game.state, hint: null }, theme, 0)).calls.filter((call) => call.op === "set" && call.name === "strokeStyle").map((call) => call.value);
+    expect(strokes(dark)).toContain(dark.art.rim);
+    const light = themeFor(tokensFor("mono-light"));
+    expect(strokes(dark).length).toBeGreaterThan(strokes(light).length + 20);
+  });
+
+  it("draws the bar and the tray's frames in the app's colours", async () => {
+    const { game } = await playing();
+    const theme = themeFor(tokensFor("ember-dark"));
+    const used = colours(draw((pen) => drawPlay(pen, { ...game.state, hint: null }, theme, 0)));
+    expect(used).toEqual(expect.arrayContaining([theme.ui.surface, theme.ui.border, theme.ui.text]));
   });
 });

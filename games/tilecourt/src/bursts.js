@@ -1,9 +1,14 @@
-import { drawStar } from "./bar.js";
+import { drawHintHand, drawPresent } from "../../../kit/src/canvas/index.js";
+import { clamp, ease, ellipse, hash, mix, paint, starPath } from "../../../kit/src/canvas/pen.js";
 import { drawLineEffect } from "./line-effects.js";
-import { clamp, ease, ellipse, hash, line, mix, paint, polygon, roundedRect } from "./pen.js";
 import { drawPieceCentred } from "./tiles.js";
 
 const live = (t) => t > 0 && t < 1;
+
+function drawStar(ctx, x, y, size, theme) {
+  starPath(ctx, x, y, size / 2);
+  paint(ctx, theme.art.effects.spark, theme.art.ink, Math.max(theme.stroke.thin, size * 0.07));
+}
 
 export function drawDust(ctx, x, y, size, progress, theme) {
   const t = clamp(progress);
@@ -53,7 +58,7 @@ export function drawStarFlight(ctx, from, to, progress, theme, count = 3) {
     const local = clamp((t - star * 0.1) / 0.8);
     if (!live(local)) continue;
     const travel = ease(local);
-    drawStar(ctx, mix(from[0], to[0], travel), mix(from[1], to[1], travel) - Math.sin(local * Math.PI) * 45, 22 - local * 8, true, theme);
+    drawStar(ctx, mix(from[0], to[0], travel), mix(from[1], to[1], travel) - Math.sin(local * Math.PI) * 45, 22 - local * 8, theme);
   }
 }
 
@@ -63,13 +68,13 @@ export function drawScoreBurst(ctx, x, y, points, progress, theme, lang) {
   const words = `+${new Intl.NumberFormat(lang || "en").format(points)}`;
   ctx.save();
   ctx.globalAlpha = 1 - t;
-  ctx.font = `800 ${theme.ui.text.burst}px ${theme.font}`;
+  ctx.font = `800 ${theme.text.burst}px ${theme.font}`;
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
   ctx.direction = "ltr";
   ctx.lineWidth = theme.stroke.bold;
-  ctx.strokeStyle = theme.ui.ink;
-  ctx.fillStyle = theme.ui.icon;
+  ctx.strokeStyle = theme.art.ink;
+  ctx.fillStyle = theme.art.white;
   const rise = y - ease(t) * 45;
   ctx.strokeText(words, x, rise);
   ctx.fillText(words, x, rise);
@@ -83,47 +88,14 @@ export function drawEmptyBonus(ctx, x, y, size, progress, theme) {
     const rise = Math.sin(t * Math.PI) * size * (0.08 + at * 0.02) + t * size * 0.3;
     drawLineEffect(ctx, "lanterns", x + size * offset, y - rise, size * 0.35, clamp(t + at * 0.2), theme);
   });
-  drawStar(ctx, x - size * 0.38, y - size * 0.28, size * 0.15, true, theme);
-  drawStar(ctx, x + size * 0.38, y - size * 0.2, size * 0.11, true, theme);
+  drawStar(ctx, x - size * 0.38, y - size * 0.28, size * 0.15, theme);
+  drawStar(ctx, x + size * 0.38, y - size * 0.2, size * 0.11, theme);
 }
 
 export function drawHand(ctx, x, y, size, progress, theme) {
-  const { ui, stroke } = theme;
-  const press = 0.92 + Math.sin(clamp(progress) * Math.PI * 2) * 0.08;
-  const width = Math.max(stroke.thin, size * 0.045);
-  ctx.save();
-  ctx.translate(x, y);
-  ctx.scale(press, press);
-  ctx.globalAlpha = 0.25;
-  ellipse(ctx, 0, 0, size * 0.3, size * 0.3, ui.icon);
-  ctx.globalAlpha = 1;
-  roundedRect(ctx, -size * 0.11, -size * 0.04, size * 0.24, size * 0.55, size * 0.11);
-  paint(ctx, ui.card, ui.ink, width);
-  roundedRect(ctx, -size * 0.08, -size * 0.45, size * 0.17, size * 0.51, size * 0.085);
-  paint(ctx, ui.card, ui.ink, width);
-  for (let finger = 0; finger < 3; finger += 1) {
-    roundedRect(ctx, size * (0.08 + finger * 0.08), size * (0.06 + finger * 0.025), size * 0.12, size * 0.32, size * 0.06);
-    paint(ctx, ui.card, ui.ink, Math.max(stroke.hair, size * 0.035));
-  }
-  polygon(ctx, [[-size * 0.12, size * 0.42], [size * 0.25, size * 0.42], [size * 0.3, size * 0.68], [-size * 0.18, size * 0.68]], ui.accent, ui.ink, width);
-  ctx.restore();
+  drawHintHand(ctx, x, y, size, progress, theme.ui);
 }
 
-export function drawWrapped(ctx, { x, y, w, h }, shake, theme) {
-  const { effects, ink } = theme.art;
-  const width = theme.stroke.thin;
-  ctx.save();
-  ctx.translate(x + w / 2, y + h);
-  ctx.rotate(Math.sin(clamp(shake) * Math.PI * 4) * 0.12 * (1 - clamp(shake)));
-  ctx.translate(-w / 2, -h);
-  roundedRect(ctx, w * 0.1, h * 0.3, w * 0.8, h * 0.66, w * 0.08);
-  paint(ctx, effects.gift, ink, width);
-  roundedRect(ctx, w * 0.04, h * 0.2, w * 0.92, h * 0.18, w * 0.05);
-  paint(ctx, effects.giftLid, ink, width);
-  ctx.fillStyle = effects.ribbon;
-  ctx.fillRect(w * 0.43, h * 0.22, w * 0.14, h * 0.72);
-  ellipse(ctx, w * 0.38, h * 0.13, w * 0.15, h * 0.09, effects.ribbon, ink, width);
-  ellipse(ctx, w * 0.62, h * 0.13, w * 0.15, h * 0.09, effects.ribbon, ink, width);
-  line(ctx, [[w * 0.5, h * 0.2], [w * 0.5, h * 0.12]], ink, width);
-  ctx.restore();
+export function drawWrapped(ctx, area, shake, theme) {
+  drawPresent(ctx, area, shake, theme.art.present);
 }

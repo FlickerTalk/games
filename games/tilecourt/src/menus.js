@@ -1,37 +1,21 @@
 import { pickLayout, pickPointer, pickRename, savePlayer, startPick } from "../../../kit/src/avatars/index.js";
+import { chooseLook, pressTargets as pressCanvas } from "../../../kit/src/canvas/index.js";
 import { LOOKS, PROGRESS } from "./levels.js";
 import { beginRound } from "./rounds.js";
 import { volumePointer } from "./touch.js";
 
 const SHAKE_MS = 600;
-const within = (area, { x, y }) => x >= area.x && x < area.x + area.w && y >= area.y && y < area.y + area.h;
 
-export function pressTargets(game, event, onPress) {
-  const { state } = game;
-  const hit = game.targets().find((target) => within(target, event)) ?? null;
-  if (event.type === "down") {
-    state.press = hit && { kind: hit.kind, value: hit.value };
-    return undefined;
-  }
-  if (event.type === "cancel") state.press = null;
-  if (event.type !== "up") return undefined;
-  const pressed = state.press;
-  state.press = null;
-  if (hit && pressed && hit.kind === pressed.kind && hit.value === pressed.value) onPress(hit);
-  return undefined;
-}
+export const pressTargets = (game, event, onPress) => pressCanvas(game.state, game.targets(), event, onPress);
 
-function chooseLook(game, index) {
+function pickLook(game, index) {
   const { state } = game;
   const look = LOOKS[state.looks][index];
   if (!look) return;
-  if (PROGRESS.owned(state.progress).includes(look)) {
-    state.progress = PROGRESS.choose(state.progress, look);
-    game.saveProgress();
-    game.sound.play("tap");
-    return;
-  }
-  state.moments.push({ kind: "shake", index, start: game.now(), duration: SHAKE_MS });
+  const { record, owned } = chooseLook(PROGRESS, state.progress, look);
+  state.progress = record;
+  if (owned) game.saveProgress();
+  else state.moments.push({ kind: "shake", index, start: game.now(), duration: SHAKE_MS });
   game.sound.play("tap");
 }
 
@@ -72,7 +56,7 @@ const ACTIONS = {
   home: (game) => (game.state.screen === "play" ? leaveRound(game) : (game.state.screen = "home")),
   done: (game) => (game.state.screen = "home"),
   tab: (game, value) => (game.state.looks = value),
-  look: (game, value) => chooseLook(game, value),
+  look: (game, value) => pickLook(game, value),
   gift(game) {
     game.state.outcome.opened = true;
     game.sound.play("star");

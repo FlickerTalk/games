@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { bounds, draw, painted, shapes } from "../../../kit/test/avatars/recorder.js";
+import { bounds, draw, painted, shapes } from "../../../kit/test/canvas/recorder.js";
 import { EMPTY } from "../src/court.js";
 import { drawCourt, drawGlow, drawOutline } from "../src/court-art.js";
 import { THEME } from "../src/theme.js";

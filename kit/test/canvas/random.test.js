@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { SEED_LENGTH, isSeed, randomOf, seedOf } from "../src/random.js";
+import { SEED_LENGTH, isSeed, randomOf, seedOf } from "../../src/canvas/random.js";
 
 describe("the game's randomness", () => {
   it("turns any text into a seed of eight letters a move can carry", () => {
