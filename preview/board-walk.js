@@ -6,7 +6,8 @@ import { DEVICES, toneShares } from "./canvas-walk.js";
 import { start } from "./serve.js";
 
 const BAR_AND_BAND = 120;
-const BRIGHT_MOST = 5;
+// the light side's pieces keep their full colour, about 7 % of a full board of them
+const BRIGHT_MOST = 10;
 // the kit's tablet room lays the board beside the players, 4 px taller than the room in every game
 const TABLET = 720;
 

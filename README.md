@@ -779,7 +779,7 @@ travels so it can be followed, a move dropped by a finger lands where it was dro
 way to the other phone is shown faded with a clock. `walkBoardGame` (`preview/board-walk.js`) runs a board
 game in Chromium at four sizes, in the room and full screen, in mono light and dark and in ember dark:
 the canvas sharp, the board inside the frame, nothing scrolling in full screen, the game in a phone's room
-when the room can hold its smallest board, at most 5 % of the board bright on a dark page, no errors, and
+when the room can hold its smallest board, at most 10 % of the board bright on a dark page (the light side's pieces, in their full colour; the approved board's light squares alone were nearly half of it), no errors, and
 a screenshot of each step. A 360×640 phone's room (343 px) cannot hold Checkers' smallest board under the
 bar: there the room scrolls, as it always has.
 
