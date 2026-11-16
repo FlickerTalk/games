@@ -25,11 +25,12 @@ async function touch(element, selector) {
   await tick();
 }
 
-const LIVE = '.fce-pick [data-suit], .fce-hand [data-card]:not([disabled]), .fce [data-act="draw"]:not([disabled]), .fce [data-act="pass"]:not([disabled])';
+const LIVE = 'button[data-suit], button[data-card]:not([disabled]), button[data-key="stock"]:not([disabled])';
+const table = (element) => element.querySelector('.ftg-board [role="group"]').getAttribute("aria-label");
 
 async function move(element) {
   await touch(element, LIVE);
-  if (element.querySelector(".fce-pick [data-suit]")) await touch(element, LIVE);
+  if (element.querySelector("button[data-suit]")) await touch(element, LIVE);
 }
 
 async function match() {
@@ -63,6 +64,8 @@ async function think(element) {
 
 describe("Crazy Eights against the phone", () => {
   it("deals with the phone, which still reveals its seed after the game is closed and opened again, and plays the round out", async () => {
+    vi.useRealTimers();
+    vi.useFakeTimers({ toNotFake: ["Date"] });
     const records = new Map();
     const first = await alone(records);
     first.element.table.timing.unseen = TIMING.think;
@@ -91,8 +94,9 @@ describe("Crazy Eights against the phone", () => {
     expect(phase).toBe("over");
     expect(["out", "stuck"]).toContain(result.result.reason);
     expect(text(second.element)).toMatch(/You won|You lost|draw/i);
+    expect(second.element.querySelector('.ftg-bar canvas[data-side="them"]').dataset.who).toBe("flick");
     for (const core of [first.core, second.core]) expect(core.ft.live.send).not.toHaveBeenCalled();
-  });
+  }, 60_000);
 });
 
 describe("Crazy Eights between two phones", () => {
@@ -108,14 +112,14 @@ describe("Crazy Eights between two phones", () => {
     expect(n.table.record.game.moves).toEqual(moves);
     expect(d.table.view.state.phase).toBe("play");
     expect(text(n)).toContain("Your turn");
-    expect(n.querySelectorAll(".fce-hand [data-card]")).toHaveLength(7);
-    expect(d.querySelectorAll(".fce-backs i")).toHaveLength(7);
+    expect(n.querySelectorAll("button[data-card]")).toHaveLength(7);
+    expect(table(d)).toMatch(/^Crazy Eights: 7 cards · /);
     await move(n);
     expect(n.table.record.game.moves).toHaveLength(4);
     expect(d.table.record.game.moves).toEqual(n.table.record.game.moves);
     expect(text(d)).toContain("Your turn");
     const theirs = d.table.view.state.hands[1].length;
-    expect(d.querySelectorAll(".fce-backs i")).toHaveLength(Math.min(theirs, 12));
+    expect(table(d)).toMatch(new RegExp(`^Crazy Eights: ${theirs} cards · `));
   });
 
   it("keeps a move made without a connection pending, and sends it with the next hello", async () => {

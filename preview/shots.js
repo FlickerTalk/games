@@ -28,7 +28,7 @@ export const PLAYS = {
     draw: null,
   },
   eights: {
-    live: '.fce-pick [data-suit], .fce-hand [data-card]:not([disabled]), .fce [data-act="draw"]:not([disabled]), .fce [data-act="pass"]:not([disabled]), .fce-nop',
+    live: 'button[data-suit], button[data-card]:not([disabled]), button[data-key="stock"]:not([disabled]), .ftg-board:not(:has(button[data-suit], button[data-card]:not([disabled]), button[data-key="stock"]:not([disabled]))) .ftt-layer',
     opening: ["cx8jxSSANsElcUhyWYQnHbPHMpMPnPB8HpL930Inpl-s", "s80JcE8EJ3mxGXfHp3HKxP9jNGT5PQhij", "rA2PgYn7__fThFZ_Ii73ZzJ-OvK5a5t_B"],
     winning: ["p49", "p47", "p39", "p43", "p4", "p30", "p26", "d", "d", "d", "d", "d", "p34", "p8", "p1", "p14", "p23", "p22", "d", "p24", "d", "p11", "p6", "p33c", "p48", "p42"],
     draw: ["cWZoYBVknK-OtqEIqUbE7Ixr7Ne4WLeCj-5U07bmQEIU", "stiwo6CprO_WhCWDjzGbkGguesTx8odFa", "rK8Vnc_8Z2Eqh7mrlREsZiXy2NSVzoQgL", "d", "p14", "p1", "p3", "p42", "p47", "p48", "p45", "p44", "p33s", "p2", "p8", "d", "d", "p9", "p0", "d", "d", "d", "d", "d", "d", "p26", "p37", "p27", "d", "p30", "p31", "p28", "d", "d", "p29", "d", "d", "d", "p7h", "p22", "p21", "p13", "p18", "d", "d", "p17", "d", "p4", "p11", "d", "p10", "d", "d", "p36", "d", "p34", "d", "d", "d", "d", "p20c", "p51", "p39", "p41", "p40", "p50", "d", "d", "d", "p43", "d", "d", "d", "d", "d", "p49", "d", "d", "p46d", "d", "p38", "x", "p25", "p16", "p15", "p19", "p32", "p6", "p5", "x", "p12", "x", "x"],

@@ -18,6 +18,7 @@
     "tilecourt": "node preview/tilecourt.spec.js",
     "checkers": "node preview/checkers.spec.js",
     "seabattle": "node preview/seabattle.spec.js",
+    "eights": "node preview/eights.spec.js",
     "wordgrid": "node preview/wordgrid.spec.js",
     "wordduel": "node preview/wordduel.spec.js",
     "backgammon": "node preview/backgammon.spec.js",
