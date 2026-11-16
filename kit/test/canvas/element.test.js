@@ -26,7 +26,10 @@ function fakeGame(env) {
       game.frames += 1;
     },
     targets: () => [{ kind: "play", value: "play", x: 10, y: 20, w: 120, h: 120 }, { kind: "slot", value: 0, x: 0, y: 300, w: 100, h: 100 }],
-    pointer: (event) => game.pointers.push(event),
+    pointer: (event) => {
+      game.pointers.push(event);
+      if (game.asksOnUp && event.type === "up") env.onAsk("rename");
+    },
     press: (target) => game.presses.push(target.kind),
     rename: (text) => {
       game.renamed = text;
@@ -61,6 +64,25 @@ async function mount(opening = {}) {
   await Promise.resolve();
   return { core, element, game: element.game };
 }
+
+function send(element, name, Kind = PointerEvent) {
+  const event = new Kind(name, { bubbles: true, cancelable: true, clientX: 5, clientY: 5, pointerId: 1 });
+  const canvas = element.querySelector("canvas");
+  canvas.dispatchEvent(event);
+  const field = element.querySelector("input");
+  if (name === "mousedown" && !event.defaultPrevented && document.activeElement === field) field.blur();
+  return event;
+}
+
+function tapName(element, order) {
+  element.game.asksOnUp = true;
+  for (const [name, Kind] of order) send(element, name, Kind);
+  element.game.asksOnUp = false;
+  return element.querySelector("input");
+}
+
+const TOUCH = [["pointerdown"], ["pointerup"], ["touchend", Event], ["mousedown", MouseEvent], ["mouseup", MouseEvent], ["click", MouseEvent]];
+const MOUSE = [["pointerdown"], ["mousedown", MouseEvent], ["pointerup"], ["mouseup", MouseEvent], ["click", MouseEvent]];
 
 const buttons = (element) => [...element.querySelectorAll("button")];
 const settle = () => new Promise((resolve) => setTimeout(resolve, 0));
@@ -126,6 +148,41 @@ describe("a canvas game's element", () => {
     field.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
     expect(field.hidden).toBe(true);
     expect(game.renamed).toBe("Bea");
+  });
+
+  it("keeps the name field open and focused after a touch, whose mouse events come after the finger lifts", async () => {
+    const { element, game } = await mount();
+    const field = tapName(element, TOUCH);
+    expect(field.hidden).toBe(false);
+    expect(document.activeElement).toBe(field);
+    expect(game.renamed).toBe(null);
+  });
+
+  it("keeps the name field open and focused after a click with a mouse", async () => {
+    const { element, game } = await mount();
+    const field = tapName(element, MOUSE);
+    expect(field.hidden).toBe(false);
+    expect(document.activeElement).toBe(field);
+    expect(game.renamed).toBe(null);
+  });
+
+  it("closes the name field and keeps the name when the player touches the canvas afterwards, or leaves the field", async () => {
+    for (const order of [TOUCH, MOUSE]) {
+      const { element, game } = await mount();
+      const field = tapName(element, order);
+      field.value = "Bea";
+      send(element, "pointerdown");
+      expect(field.hidden).toBe(true);
+      expect(game.renamed).toBe("Bea");
+      expect(game.pointers.at(-1).type).toBe("down");
+      element.remove();
+    }
+    const { element, game } = await mount();
+    const field = tapName(element, TOUCH);
+    field.value = "Leo";
+    field.blur();
+    expect(field.hidden).toBe(true);
+    expect(game.renamed).toBe("Leo");
   });
 
   it("takes the app's colours, follows them when the app changes its theme, and falls back on its own", async () => {

@@ -61,11 +61,16 @@ class CanvasGameElement extends HTMLElement {
   listen() {
     const point = (type) => (event) => {
       const area = this.canvas.getBoundingClientRect();
-      if (type === "down") this.canvas.setPointerCapture?.(event.pointerId);
+      if (type === "down") {
+        this.named();
+        this.canvas.setPointerCapture?.(event.pointerId);
+      }
       this.game.pointer({ type, x: event.clientX - area.left, y: event.clientY - area.top, id: event.pointerId });
       this.changed();
     };
     for (const [name, type] of POINTERS) this.canvas.addEventListener(name, point(type));
+    // After a touch the browser sends mousedown once the finger has lifted, which would take the focus from the name field just opened.
+    this.canvas.addEventListener("mousedown", (event) => this.field.hidden || event.preventDefault());
     this.field.addEventListener("keydown", (event) => event.key === "Enter" && this.named());
     this.field.addEventListener("blur", () => this.named());
     this.watch = new MutationObserver(() => {
