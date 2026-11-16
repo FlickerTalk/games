@@ -8,7 +8,11 @@ import "../src/index.js";
 const tick = () => settle([...document.querySelectorAll("ft-seabattle")].map((element) => element.table));
 const kinds = (core) => core.sent.map((data) => JSON.parse(new TextDecoder().decode(fromBase64(data))).k);
 const text = (element) => element.textContent.replace(/\s+/g, " ");
-const cell = (element, index) => element.querySelector(`[data-cell="${index}"]`);
+const cell = (element, index) => element.querySelector(`button[data-cell="${index}"]`);
+const marks = (button) => (button?.dataset.mark ?? "").split(" ");
+const owned = (element, mark) => [...element.querySelectorAll("button[data-own]")].filter((one) => marks(one).includes(mark)).map((one) => Number(one.dataset.own));
+const aimed = (element, mark) => [...element.querySelectorAll("button[data-cell]")].filter((one) => marks(one).includes(mark)).map((one) => Number(one.dataset.cell));
+const boardLabel = (element) => element.querySelector('.ftg-board [role="group"]').getAttribute("aria-label");
 
 async function phone(core, opening = {}) {
   const element = document.createElement("ft-seabattle");
@@ -29,7 +33,7 @@ async function touch(element, target) {
 
 async function fire(element, index) {
   await touch(element, index);
-  await touch(element, ".fsb-ghost");
+  await touch(element, "[data-ghost]");
 }
 
 async function match() {
@@ -40,13 +44,13 @@ async function match() {
   await tick();
   const [s, o] = one.table.view.myTurn ? [one, two] : [two, one];
   await touch(s, '[data-act="ready"]');
-  expect(text(s)).toContain("Waiting for the other fleet");
+  expect(boardLabel(s)).toContain("Waiting for the other fleet");
   await touch(o, '[data-act="ready"]');
   return { a, b, one, two, s, o };
 }
 
 beforeEach(() => {
-  vi.useFakeTimers();
+  vi.useFakeTimers({ toNotFake: ["Date"] });
   document.body.innerHTML = "";
 });
 afterEach(() => {
@@ -106,6 +110,8 @@ describe("Sea Battle against the phone", () => {
     expect(result.result.reason).toBe("sunk");
     expect(state.reveals.map((reveal) => reveal.ok)).toEqual([true, true]);
     expect(text(second.element)).toMatch(/You (won|lost)/);
+    expect(second.element.querySelector('.ftg-bar canvas[data-side="them"]').dataset.who).toBe("flick");
+    expect(second.element.querySelector('[data-kit="send"]')).toBeNull();
     for (const core of [first.core, second.core]) expect(core.ft.live.send).not.toHaveBeenCalled();
   });
 });
@@ -121,18 +127,19 @@ describe("Sea Battle between two phones", () => {
 
     await fire(s, 11);
     expect(text(o)).toContain("Your turn");
-    expect(o.querySelector(".fsb-bottom .fsb-cell.ship.last")).not.toBeNull();
+    expect(owned(o, "last")).toEqual([11]);
+    expect(owned(o, "ship")).toContain(11);
     await fire(o, 0);
     expect(o.table.record.game.moves.slice(2)).toEqual([">11", "h>0"]);
     for (const side of [s, o]) expect(side.table.record.game.moves).toEqual(s.table.record.game.moves);
-    expect(cell(s, 11).classList.contains("hit")).toBe(true);
+    expect(marks(cell(s, 11))).toContain("hit");
     expect(cell(s, 11).getAttribute("aria-label")).toBe("Row 2, column 2: hit");
-    expect(s.querySelector(".fsb-bottom .fsb-cell.last")).not.toBeNull();
-    expect(s.querySelector(".fsb-bottom .fsb-cell.miss")).toBeNull();
+    expect(owned(s, "last")).toEqual([0]);
+    expect(owned(s, "miss")).toEqual([0]);
     await fire(s, 12);
     expect(s.table.record.game.moves.at(-1)).toBe("m>12");
-    expect(s.querySelector(".fsb-bottom .fsb-cell.miss")).not.toBeNull();
-    expect(o.querySelector(".fsb-sea.big .fsb-cell.miss")).not.toBeNull();
+    expect(owned(s, "miss")).toEqual([0]);
+    expect(aimed(o, "miss")).toEqual([0]);
   });
 
   it("keeps a shot made without a connection pending, and sends it with the next hello", async () => {
@@ -141,7 +148,7 @@ describe("Sea Battle between two phones", () => {
     s.ft.live.send = vi.fn(async () => false);
     await fire(s, 11);
     expect(text(s)).toContain("The other phone cannot be reached right now.");
-    expect(cell(s, 11).querySelector(".fsb-clock")).not.toBeNull();
+    expect(aimed(s, "pending")).toEqual([11]);
     expect(o.table.record.game.moves).toHaveLength(2);
     s.ft.live.send = send;
     await touch(s, '[data-kit="back"]');
@@ -149,6 +156,7 @@ describe("Sea Battle between two phones", () => {
     await tick();
     expect(o.table.record.game.moves).toHaveLength(3);
     expect(text(o)).toContain("Your turn");
+    expect(aimed(s, "pending")).toEqual([]);
   });
 
   it("sinks the whole fleet, reveals both, and gives the round to the starter", async () => {
@@ -165,7 +173,8 @@ describe("Sea Battle between two phones", () => {
     expect(text(s)).toContain("The whole fleet was sunk");
     expect(text(o)).toContain("You lost");
     expect(s.table.record.game.moves.at(-1)).toMatch(/^r/);
-    expect(s.querySelectorAll(".fsb-sea.big .fsb-cell.sunk")).toHaveLength(17);
+    expect(aimed(s, "sunk")).toHaveLength(17);
+    expect(aimed(o, "ship")).toEqual(DEFAULT_FLEET.flatMap(shipCells).sort((a, b) => a - b));
     await touch(s, '[data-kit="send"]');
     expect(s.ft.say).toHaveBeenCalledWith(expect.stringContaining("🚢 Sea Battle"));
   });

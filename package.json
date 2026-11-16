@@ -17,6 +17,7 @@
     "fill": "node preview/fill.spec.js",
     "tilecourt": "node preview/tilecourt.spec.js",
     "checkers": "node preview/checkers.spec.js",
+    "seabattle": "node preview/seabattle.spec.js",
     "eights": "node preview/eights.spec.js"
   },
   "devDependencies": {
