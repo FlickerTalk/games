@@ -30,3 +30,7 @@ export function setHostTheme(root, name) {
   for (const [property, value] of Object.entries(APP_THEMES[name] ?? {})) root.style.setProperty(property, value);
   root.toggleAttribute("data-dark", Boolean(name?.endsWith("-dark")));
 }
+
+const NAMES = { page: "--ion-background-color", text: "--ion-text-color", muted: "--ion-color-medium", border: "--ion-border-color", accent: "--ion-color-primary", onAccent: "--ion-color-primary-contrast" };
+
+export const tokensFor = (name) => Object.fromEntries(Object.entries(NAMES).map(([key, variable]) => [key, APP_THEMES[name][variable]]));
