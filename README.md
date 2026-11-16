@@ -21,7 +21,7 @@ kit/                      shared code, compiled INTO each game's dist/index.js (
   src/avatars/            the players' faces: cast, drawing, the stored choice, the pick screen, portraits
   build.js                buildGame(): one game folder → its dist/
   test/                   the kit's tests, and helpers.js for every game's tests
-games/<name>/             one catalogue package per game
+games/<name>/             one catalogue package per game (games/tilecourt/: a canvas game, see "A canvas game")
   module.json             what the catalogue reads (kind "game", live + send only)
   THIRD_PARTY_NOTICES.md  copied into dist/ by the build
   build.js                optional: `export const plugins = [...]`, esbuild plugins for this game's build
@@ -49,9 +49,10 @@ npm run bar           # the game's bar in Chromium and WebKit, in Ionic's md and
 npm run room          # every game, in every state, in the app's game room on two phone sizes (npm run room -- gomoku: just one)
 npm run theme         # the games in the app's colours in Chromium, and in their own palette without them
 npm run fill          # five games entering and leaving full screen mid-match at four frame sizes (npm run fill -- chess: just one)
+npm run tilecourt     # Tile Court in Chromium at four phone and tablet sizes, in the room and full screen (-- --webkit: in WebKit)
 ```
 
-`frame`, `room`, `bar`, `theme` and `fill` run the built packages (`frame` reads `games/chess/dist/`), so run
+`frame`, `room`, `bar`, `theme`, `fill` and `tilecourt` run the built packages (`frame` reads `games/chess/dist/`), so run
 `npm run build` before them.
 
 `dist/` is committed: after changing `src/` or the kit, run `npm run build` and commit what changed.
@@ -582,6 +583,16 @@ await progress.save(ft.store, record);
   `progress.owned(record)` lists the looks the player has. Never a price, a coin, a padlock, a countdown,
   a streak, a "come back tomorrow", a chance or anything bought. A game that declares no `gifts` never
   gets one.
+- **Looks of several kinds.** A game whose gifts are of more than one kind (Tile Court gives line
+  effects and courtyards) adds `kinds: { effect: [...], court: [...] }` to `gifts`: every look in
+  exactly one kind, and each kind with at least one free look. `chosen` is then one look per kind,
+  `{ "effect": "lanterns", "court": "patio" }`; a gift becomes the chosen look of its own kind and
+  `choose` changes only that kind. `kindOf(gifts, look)` names a look's kind. Without `kinds`, nothing
+  changes.
+- **Tracks.** A game played on several boards (a small court, a big one, the court of the day) declares
+  `tracks: { small: { two, three }, ... }` and passes `track` with a round's result: the stars come from
+  that track's scores and the best mark is kept in `bests[track]`, apart from `best`. Every track counts
+  towards levels and gifts alike; a track the game did not declare throws.
 - **Drawing is the game's**: the module has no DOM, no timers and no randomness. It gives the state and
   what happened; the game draws the wrapped gift, its opening and the stars.
 - **Kept** in the game's own `ft.store` under the key `progress`, one record per game:
@@ -593,6 +604,42 @@ await progress.save(ft.store, record);
   one. Reading and saving never throw: `load` gives a new record when the store fails, `save` answers
   `false`. A store that never answers is waited for; a game that cannot wait races `load` against its
   own timer.
+
+## A canvas game
+
+Tile Court (`games/tilecourt/`) is the first game drawn entirely on a canvas, with its own bar and
+screens instead of the kit's shell, and the pattern the next ones follow.
+
+- **Its element** (`element.js`) holds one canvas, sizes itself and redraws every frame: in a
+  conversation's room it is as tall as `ROOM_CHROME` leaves of the screen (300 to 1,100 px); with
+  `data-fill` it fills the frame, which the app gives it under its own bar, so the game needs no strip
+  of its own at the top. It follows `data-fill` and its own size live. Pointer events go to a
+  DOM-free game object (`game.js`), which the tests drive directly.
+- **No words on the canvas**, digits only. What the canvas lets the player touch is also laid out as
+  transparent buttons with translated labels (`labels.js`, `texts.js`), for the keyboard and screen
+  readers; the player's name is typed in a real field. The kit's pick screen is drawn on the canvas
+  as the kit draws it.
+- **Layouts are pure functions** (`layout.js`, `menu-layout.js`): for any frame they give the targets,
+  tested at phone, room, sideways and tablet sizes for size (88 px, tray slots 120 px where three fit
+  across, the main buttons 120 px), overlap, and nothing to touch in the bottom corners of a full
+  screen (the room's frame does not reach the screen's corners).
+- **One theme module** (`theme.js`): every colour, stroke, radius and font size, in a frozen object
+  passed to every drawing function, `ui` for the interface (bar, buttons, cards, panels) and `art` for
+  the play field and the pieces. A test fails on any colour written anywhere else, so the interface can
+  take the app's colours later without touching the rules or their tests. Drawing tests check what is
+  drawn, where and how large, with the recording context of `kit/test/avatars/recorder.js`, never
+  colour values.
+- **Two phones** use the turn-based kit's `Table` and match unchanged. Both phones lay the same trays
+  at the same time: the seed of a round comes from the match id and the round's number, so each
+  phone deals it alone; each sends its whole round as one move of at most 56 letters (the seed and every
+  placement), the round's starter first, and the rules lay the placements again to work out the score.
+  A phone keeps the rounds the match cannot take yet and sends them as soon as it can, so a player
+  never waits for the other, and a round played while the other phone was away is compared when they
+  meet. The live part of the kit is not used: it needs both phones answering every 6 seconds.
+- **Against FlickerTalk** the phone plays the same trays as Flick on this phone, tray by tray as the
+  player goes, and never touches `ft.live`. Outside a conversation it is the puzzle alone.
+- It uses the kit's `progress` (levels, stars per track, gifts of two kinds), `avatars` (the player's
+  face, Flick, the pick screen) and `sound` (`createSound`, `soundControls` drawn on the canvas).
 
 ## Sound
 
@@ -809,11 +856,13 @@ package's contents. So:
 - Full screen (the board sized from the frame the app gives the game, live) is one more patch for every
   game: `1.1.1`.
 - Sound is `1.2.0` for Tic-Tac-Toe, the first game that has it. The other games' packages do not change.
+- Tile Court is first published at `1.0.0`. The kit's progress module learnt looks of several kinds and
+  tracks for it; no other game imports that module, so no other package changes.
 
 ## Preview
 
 `npm run preview` serves two phones side by side (with `&solo`, one phone in a match against itself, as
-in the FlickerTalk conversation); each runs the game in an iframe built like the app's
+in the FlickerTalk conversation; with `&alone`, one phone with the game opened outside a conversation); each runs the game in an iframe built like the app's
 plugin sheet (`sandbox="allow-scripts"`, the Content-Security-Policy the core gives a plugin without
 network, and Ionic lent as the app lends it), and the page between them plays the core: records in memory, the live channel (with a switch
 for the connection), “close” and “open” for each phone, and `say` into a mock composer.
