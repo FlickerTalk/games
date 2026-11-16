@@ -32,6 +32,8 @@ function reached(balloons, guess) {
   return best;
 }
 
+export const aimedBalloon = (round) => (round.shot ? reached(allBalloons(round, round.shot.index), round.shot.guess) : null);
+
 export function balloonsIn(round) {
   const index = Math.min(indexOf(round), MOST_SHOTS - 1);
   const balloons = allBalloons(round, index);

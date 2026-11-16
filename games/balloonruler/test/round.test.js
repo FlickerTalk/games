@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { MOST_SHOTS, numbersOf } from "../src/numbers.js";
-import { FLIGHT, REVEAL, RIVAL_REVEAL, balloonsIn, indexOf, numberOf, resumeRound, roundSnapshot, scoreIn, shoot, startRound, stepRound, timeLeft } from "../src/round.js";
+import { FLIGHT, REVEAL, RIVAL_REVEAL, aimedBalloon, balloonsIn, indexOf, numberOf, resumeRound, roundSnapshot, scoreIn, shoot, startRound, stepRound, timeLeft } from "../src/round.js";
 
 const SEED = "Ruler001";
 const SETUP = { stage: 1, count: 3, spread: 0.3, ticks: false };
@@ -34,6 +34,8 @@ describe("a round", () => {
     const truth = numberOf(round).share;
     const flying = shoot(round, truth);
     expect(flying.shot).toMatchObject({ index: 0, landed: false });
+    expect(aimedBalloon(flying)).toMatchObject({ real: true });
+    expect(aimedBalloon(round)).toBeNull();
     expect(shoot(flying, 0.9)).toBe(flying);
     const landed = stepRound(flying, FLIGHT + 0.01);
     expect(landed.events).toEqual([expect.objectContaining({ kind: "land", index: 0, stars: 3, far: false, real: true })]);
