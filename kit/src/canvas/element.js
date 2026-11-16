@@ -6,6 +6,7 @@ import { readTokens } from "./theme.js";
 const ROOM_LEAST = 300;
 const ROOM_MOST = 1100;
 const NAME_MOST = 24;
+const PAUSE_AGAIN = 120; // ms
 const POINTERS = [["pointerdown", "down"], ["pointermove", "move"], ["pointerup", "up"], ["pointercancel", "cancel"]];
 
 export const roomHeight = (screenHeight) => Math.round(Math.min(ROOM_MOST, Math.max(ROOM_LEAST, (screenHeight || 853) - ROOM_CHROME)));
@@ -131,6 +132,9 @@ class CanvasGameElement extends HTMLElement {
     this.game.press(pause);
     this.labels();
     this.game.frame(performance.now());
+    // A live round sends at most one message every 83 ms, so the frame above may not have told the other phone.
+    clearTimeout(this.repeat);
+    this.repeat = setTimeout(() => this.isConnected && this.game.frame(performance.now()), PAUSE_AGAIN);
   }
 
   wake() {
@@ -188,6 +192,7 @@ class CanvasGameElement extends HTMLElement {
 
   disconnectedCallback() {
     cancelAnimationFrame(this.pending);
+    clearTimeout(this.repeat);
     this.pending = 0;
     this.watch?.disconnect();
     this.sizes?.disconnect();

@@ -244,12 +244,24 @@ describe("a canvas game's element", () => {
     expect(game.presses).toEqual(["pause"]);
     expect(game.frames).toBe(before + 1);
     expect(buttons(element).map((button) => button.getAttribute("aria-label"))).toEqual(["resume!"]);
+    await new Promise((resolve) => setTimeout(resolve, 200));
+    expect(game.frames).toBe(before + 2);
     setHidden(false);
     frames.splice(0).forEach((frame) => frame(2000));
     setHidden(true);
     setHidden(false);
     expect(game.presses).toEqual(["pause"]);
     expect(game.paused).toBe(true);
+  });
+
+  it("does not run the frame that repeats the pause once the game has left the page", async () => {
+    const { element, game } = await mount();
+    game.playing = true;
+    setHidden(true);
+    const before = game.frames;
+    element.remove();
+    await new Promise((resolve) => setTimeout(resolve, 200));
+    expect(game.frames).toBe(before);
   });
 
   it("leaves a game that is not in a round as it is when the page is hidden", async () => {
