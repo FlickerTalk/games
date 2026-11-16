@@ -36,6 +36,22 @@ describe("the home screen's drawing", () => {
   });
 });
 
+describe("the home screen's clear strip", () => {
+  it("keeps the courtyard's details under the sound buttons, never behind them", async () => {
+    for (const [width, height] of [[384, 801], [430, 880]]) {
+      const { game } = await makeGame({ width, height });
+      const ctx = draw((pen) => drawHome(pen, game.state, null, THEME, 0.3));
+      const clip = ctx.calls.findIndex((call) => call.op === "clip");
+      const [[left, top], [right, bottom]] = ctx.calls[clip - 1].points;
+      for (const kind of ["speaker", "music"]) {
+        const button = targetOf(game, kind);
+        const apart = right <= button.x || left >= button.x + button.w || bottom <= button.y || top >= button.y + button.h;
+        expect(apart, `${width}x${height} ${kind}`).toBe(true);
+      }
+    }
+  });
+});
+
 describe("the looks' drawing", () => {
   it("draws each owned look and wraps the others, with no writing", async () => {
     const { game } = await makeGame();

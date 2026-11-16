@@ -46,4 +46,14 @@ describe("touches on the court", () => {
     await later(3500);
     expect(game.state.sound.open).toBe(false);
   });
+
+  it("let the drawing rest while the round is paused, and wake it when it goes on", async () => {
+    const { game } = await makeGame();
+    await tap(game, targetOf(game, "play"));
+    expect(game.resting()).toBe(false);
+    await tap(game, targetOf(game, "pause"));
+    expect(game.resting()).toBe(true);
+    await tap(game, targetOf(game, "resume"));
+    expect(game.resting()).toBe(false);
+  });
 });

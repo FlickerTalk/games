@@ -41,6 +41,11 @@ describe("the end of a round's drawing", () => {
     const rival = { player: { who: "flick" }, score: 77 };
     const ctx = draw((pen) => drawEnd(pen, game.state, rival, THEME, 1));
     expect(texts(ctx)).toContain("77");
+    const shade = ctx.calls.findLastIndex((call) => call.op === "fillRect" && call.points[0][0] === 0 && call.points[1][0] === 384);
+    const at = (text) => ctx.calls.slice(shade).find((call) => call.op === "fillText" && call.text === text).points[0];
+    const mine = String(game.state.outcome.score);
+    expect(Math.abs(at(mine)[1] - at("77")[1])).toBeLessThan(2);
+    expect(at(mine)[0]).toBeLessThan(at("77")[0]);
     const waiting = draw((pen) => drawEnd(pen, game.state, { player: { who: "noa" }, score: null }, THEME, 1));
     expect(texts(waiting)).not.toContain("77");
   });
@@ -74,6 +79,14 @@ describe("the star screen's layout", () => {
     const after = ctx.calls.slice(shade).filter((call) => call.op === "arc").map((call) => call.points[0]);
     const music = targetOf(game, "music");
     expect(after.some(([x, y]) => Math.abs(x - (music.x + music.w / 2)) < 1 && Math.abs(y - (music.y + music.h / 2)) < 1)).toBe(true);
+  });
+});
+
+describe("the star screen against Flick in the room of a small phone", () => {
+  it("still shows both scores side by side", async () => {
+    const { game } = await ended({ width: 328, height: 343, fill: false });
+    const ctx = draw((pen) => drawEnd(pen, game.state, { player: { who: "flick" }, score: 77 }, THEME, 1));
+    expect(texts(ctx)).toEqual(expect.arrayContaining([String(game.state.outcome.score), "77"]));
   });
 });
 

@@ -1,23 +1,16 @@
 import { defaultPlayer, loadPlayer, pickLayout, pickPress, savePlayer } from "../../../kit/src/avatars/index.js";
+import { endLayout, foldWhenIdle, homeLayout, looksLayout, pauseLayout, playMode, promptLayout, soundState } from "../../../kit/src/canvas/index.js";
 import { isChat } from "../../../kit/src/store.js";
 import { idleDrag } from "./drag.js";
 import { Duel } from "./duel.js";
 import { PROGRESS } from "./levels.js";
 import { playLayout, playTargets } from "./layout.js";
-import { endLayout, homeLayout, looksLayout, pauseLayout, promptLayout } from "../../../kit/src/canvas/menu-layout.js";
 import { act, menuPointer, renamePlayer } from "./menus.js";
 import { finishDue, roundKey } from "./rounds.js";
 import { playPointer } from "./touch.js";
 
 export const VARIANT_ORDER = Object.freeze(["main", "small", "big", "daily"]);
 const OWN_KEY = "tilecourt";
-const FOLD_MS = 3000;
-
-function modeOf(opening, chat) {
-  if (!chat) return "alone";
-  if (opening.solo === true) return "flick";
-  return opening.live ? "friend" : "alone";
-}
 
 async function readOwn(store) {
   try {
@@ -50,14 +43,13 @@ export function createGame({ ft, sound, controls, app = "1.0.0", now = () => per
   game.saveOwn = () => game.run(() => game.store?.set(OWN_KEY, JSON.stringify({ variant: state.variant, taught: state.taught })));
   game.saveProgress = () => game.run(() => PROGRESS.save(game.store, state.progress));
   game.syncSound = () => {
-    const { volume, music } = sound.settings;
-    state.sound = { level: controls.icon, music, open: controls.open, volume };
+    state.sound = soundState(sound, controls);
   };
 
   game.open = async (opening = {}) => {
     state.lang = opening.lang || "en";
     state.chat = isChat(opening.chat) ? opening.chat : null;
-    state.mode = modeOf(opening, state.chat);
+    state.mode = playMode(opening, state.chat);
     state.player = (await loadPlayer(game.store)) ?? defaultPlayer();
     state.progress = await PROGRESS.load(game.store);
     Object.assign(state, await readOwn(game.store));
@@ -83,10 +75,7 @@ export function createGame({ ft, sound, controls, app = "1.0.0", now = () => per
   game.targets = () => targetsOf(game);
   game.pointer = (event) => (state.screen === "play" ? playPointer(game, event) : menuPointer(game, event));
   game.frame = (time) => {
-    if (state.sound.open && time - state.volumeAt > FOLD_MS) {
-      controls.fold();
-      game.syncSound();
-    }
+    if (foldWhenIdle(state, controls, time)) game.syncSound();
     state.moments = state.moments.filter((moment) => time < moment.start + moment.duration);
     if (state.returning && time >= state.returning.until) state.returning = null;
     if (state.endAt !== null && time >= state.endAt) finishDue(game);
@@ -104,6 +93,7 @@ export function createGame({ ft, sound, controls, app = "1.0.0", now = () => per
     }
     return undefined;
   };
+  game.resting = () => state.paused;
   game.close = () => game.duel?.leave();
   return game;
 }

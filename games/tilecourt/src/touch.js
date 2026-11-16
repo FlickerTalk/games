@@ -1,43 +1,14 @@
-import { lineValue } from "../../../kit/src/sound/index.js";
+import { volumePointer as volumeCanvas, within } from "../../../kit/src/canvas/index.js";
 import { cancelDrag, dropDrag, liftPiece, moveDrag } from "./drag.js";
 import { act, pressTargets } from "./menus.js";
 import { layPiece } from "./rounds.js";
 import { variantOf } from "./variants.js";
 
 const BOUNCE_MS = 450;
-const within = (area, { x, y }) => x >= area.x && x < area.x + area.w && y >= area.y && y < area.y + area.h;
-
-function slide(game, { x }) {
-  const { volume } = game.state.layout;
-  game.controls.slide(lineValue(x, volume.x + 24, volume.x + volume.w - 24));
-  game.state.volumeAt = game.now();
-  game.syncSound();
-}
 
 export function volumePointer(game, event) {
   const { state } = game;
-  if (state.press?.kind === "volume") {
-    if (event.type === "move") slide(game, event);
-    if (event.type === "up" || event.type === "cancel") {
-      if (event.type === "up") slide(game, event);
-      game.controls.release();
-      state.press = null;
-      game.syncSound();
-    }
-    return true;
-  }
-  if (event.type !== "down" || !state.sound.open || !state.layout) return false;
-  if (within(state.layout.volume, event)) {
-    state.press = { kind: "volume" };
-    slide(game, event);
-    return true;
-  }
-  const speaker = game.targets().find((one) => one.kind === "speaker");
-  if (!speaker || !within(speaker, event)) {
-    game.controls.fold();
-    game.syncSound();
-  }
-  return false;
+  return volumeCanvas(state, event, { volume: state.layout?.volume, controls: game.controls, targets: game.targets(), now: game.now, sync: game.syncSound });
 }
 
 function field(state) {

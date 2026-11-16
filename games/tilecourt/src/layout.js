@@ -1,4 +1,4 @@
-import { CORNER } from "../../../kit/src/canvas/layout.js";
+import { CORNER, barLayout, box } from "../../../kit/src/canvas/index.js";
 
 export { CORNER };
 
@@ -10,24 +10,7 @@ const SLOT_TALL = 88;
 const SLOT_MOST = 160;
 const CELL_MOST = 72;
 
-const box = (x, y, w, h) => ({ x, y, w, h });
 const clamp = (value, low, high) => Math.min(high, Math.max(low, value));
-
-function barOf(width, height, rival) {
-  const tiny = height < 420;
-  const tall = height >= 600;
-  const row = tiny ? 48 : 56;
-  const bar = box(PAD, PAD, width - 2 * PAD, tall ? row + 32 : row);
-  const right = bar.x + bar.w;
-  const music = box(right - row, bar.y, row, row);
-  const speaker = box(music.x - row, bar.y, row, row);
-  const pause = box(speaker.x - row, bar.y, row, row);
-  const badge = tall ? 32 : 40;
-  const rivalAt = !rival ? null : tall ? { x: right - 14 - badge / 2, y: bar.y + row + 15, size: badge } : { x: pause.x - 4 - badge / 2, y: bar.y + row / 2, size: badge };
-  const lineEnd = rivalAt && tall ? rivalAt.x - badge / 2 - 64 : right - 14;
-  const progress = tall ? box(bar.x + 14, bar.y + row + 10, lineEnd - bar.x - 14, 12) : box(bar.x + 14, bar.y + bar.h - 9, pause.x - bar.x - 28 - (rivalAt ? badge + 48 : 0), 5);
-  return { bar, row, gap: tiny ? 8 : 12, controls: { pause, speaker, music }, rival: rivalAt, progress, best: tall || !rival };
-}
 
 function trayTall(cell, count) {
   return Math.round(clamp(cell * 2.5, count === 1 ? SLOT_WIDE : 96, 132));
@@ -84,14 +67,12 @@ function besideRow(width, height, { size, tray, fill }, top, gap) {
 }
 
 export function playLayout(width, height, { size = 8, tray = 3, rival = false, fill = false } = {}) {
-  const top = barOf(width, height, rival);
+  const top = barLayout(width, height, { rival });
   const start = top.bar.y + top.bar.h + top.gap;
   const options = { size, tray, fill };
   const found = [upright, besideColumn, besideRow].map((arrange) => arrange(width, height, options, start, top.gap)).filter(Boolean);
   const best = found.length ? found.reduce((one, two) => (two.court.cell > one.court.cell ? two : one)) : upright(width, height, { ...options, squeeze: true }, start, top.gap);
-  const { speaker } = top.controls;
-  const volume = box(Math.max(PAD, Math.min(width - PAD - 240, speaker.x + speaker.w / 2 - 120)), top.bar.y + top.bar.h + 6, 240, 64);
-  return { width, height, fill, ...top, ...best, volume, lift: best.court.cell * 1.5 };
+  return { width, height, fill, ...top, ...best, lift: best.court.cell * 1.5 };
 }
 
 export function playTargets(layout, { volume = false } = {}) {
