@@ -17,6 +17,7 @@
     "fill": "node preview/fill.spec.js",
     "tilecourt": "node preview/tilecourt.spec.js",
     "checkers": "node preview/checkers.spec.js",
+    "fourinarow": "node preview/fourinarow.spec.js",
     "reversi": "node preview/reversi.spec.js",
     "seabattle": "node preview/seabattle.spec.js"
   },

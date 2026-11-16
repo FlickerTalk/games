@@ -2,14 +2,16 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { KV, PROTOCOL, fromBase64, seal } from "../../../kit/src/envelope.js";
 import { TIMING } from "../../../kit/src/table.js";
 import { fakeCore, phones, settle, within } from "../../../kit/test/helpers.js";
+import { landing } from "../src/rules.js";
 import "../src/index.js";
 
 const tick = () => settle([...document.querySelectorAll("ft-fourinarow")].map((element) => element.table));
 const kinds = (core) => core.sent.map((data) => JSON.parse(new TextDecoder().decode(fromBase64(data))).k);
 const text = (element) => element.textContent.replace(/\s+/g, " ");
-const column = (element, index) => element.querySelector(`[data-col="${index}"]`);
-const slot = (element, cell) => element.querySelector(`[data-cell="${cell}"]`);
-const discs = (element, side) => element.querySelectorAll(`.ffr-col svg.ffr-s${side}`).length;
+const column = (element, index) => element.querySelector(`button[data-col="${index}"]`);
+const discs = (element, side) =>
+  [...element.querySelectorAll("button[data-col]")].flatMap((one) => one.getAttribute("aria-label").split(": ")[1].split(", ")).filter((mark) => mark === (side ? "O" : "X")).length;
+const marked = (element, name) => [...element.querySelectorAll("button[data-mark]")].filter((one) => one.dataset.mark.split(" ").includes(name)).map((one) => Number(one.dataset.col));
 
 const DRAW = [0, 1, 0, 1, 0, 0, 2, 0, 2, 0, 2, 1, 1, 1, 3, 1, 3, 2, 2, 4, 2, 4, 3, 3, 5, 3, 5, 3, 5, 4, 4, 5, 6, 5, 6, 5, 6, 6, 4, 6, 4, 6];
 
@@ -62,6 +64,23 @@ describe("Four in a Row against the phone", () => {
     expect(one.table.view.myTurn).toBe(true);
     expect(core.ft.live.send).not.toHaveBeenCalled();
   });
+
+  it("plays a whole round against the phone to its end, the phone always Flick and never a word on the live channel", async () => {
+    const core = fakeCore();
+    const one = await phone(core, { live: false, solo: true });
+    one.table.random = () => new Uint8Array(32).fill(1);
+    await touch(one, '[data-kit="new"]');
+    for (let turn = 0; one.table.view.phase === "play" && turn < 60; turn += 1) {
+      if (one.table.view.myTurn) await touch(one, [0, 1, 2, 3, 4, 5, 6].find((index) => landing(one.table.view.state.cells, index) >= 0));
+      await vi.advanceTimersByTimeAsync(TIMING.think);
+      await tick();
+    }
+    expect(one.table.view.phase).toBe("over");
+    expect(text(one)).toMatch(/You (won|lost)|Draw/);
+    expect(one.querySelector('.ftg-bar canvas[data-side="them"]').dataset.who).toBe("flick");
+    expect(one.querySelector('[data-kit="send"]')).toBeNull();
+    expect(core.ft.live.send).not.toHaveBeenCalled();
+  });
 });
 
 describe("Four in a Row between two phones", () => {
@@ -78,7 +97,8 @@ describe("Four in a Row between two phones", () => {
     for (const side of [x, o]) {
       expect(discs(side, 0)).toBe(4);
       expect(discs(side, 1)).toBe(3);
-      expect([...side.querySelectorAll(".ffr-slot.win")].map((one) => Number(one.dataset.cell))).toEqual([17, 24, 31, 38]);
+      expect(marked(side, "win")).toEqual([3]);
+      expect(column(side, 3).getAttribute("aria-label")).toBe("Column 4: X, X, X, X");
       expect(column(side, 0).disabled).toBe(true);
     }
     expect(text(x)).toContain("You won");
@@ -86,7 +106,7 @@ describe("Four in a Row between two phones", () => {
 
     await touch(o, '[data-kit="again"]');
     expect(text(o)).toContain("Round 2 · Your turn");
-    expect(o.querySelectorAll(".ffr-col svg")).toHaveLength(0);
+    expect(discs(o, 0) + discs(o, 1)).toBe(0);
     let who = o;
     for (const index of DRAW) {
       await touch(who, index);
@@ -109,7 +129,7 @@ describe("Four in a Row between two phones", () => {
     x.ft.live.send = vi.fn(async () => false);
     await touch(x, 2);
     expect(text(x)).toContain("The other phone cannot be reached right now.");
-    expect(slot(x, 37).querySelector(".ffr-clock")).not.toBeNull();
+    expect(marked(x, "pending")).toEqual([2]);
     expect(o.table.record.game.moves).toEqual([]);
     x.ft.live.send = send;
     await touch(x, '[data-kit="back"]');
@@ -117,7 +137,7 @@ describe("Four in a Row between two phones", () => {
     await tick();
     expect(o.table.record.game.moves).toEqual([2]);
     expect(column(o, 2).getAttribute("aria-label")).toBe("Column 3: X");
-    expect(slot(x, 37).querySelector(".ffr-clock")).toBeNull();
+    expect(marked(x, "pending")).toEqual([]);
     expect(text(o)).toContain("Your turn");
   });
 
@@ -131,7 +151,7 @@ describe("Four in a Row between two phones", () => {
     await touch(x, 3);
     await vi.advanceTimersByTimeAsync(8_100);
     expect(text(x)).toContain("The other person does not have “Four in a Row” open in this conversation.");
-    expect(slot(x, 38).querySelector(".ffr-clock")).not.toBeNull();
+    expect(marked(x, "pending")).toEqual([3]);
 
     const back = fakeCore({ records: oCore.records });
     xCore.wire = (data) => setTimeout(() => back.hear(data), 0);
@@ -144,7 +164,7 @@ describe("Four in a Row between two phones", () => {
     expect(again.table.screen).toBe("match");
     expect(column(again, 3).getAttribute("aria-label")).toBe("Column 4: X");
     expect(text(x)).not.toContain("does not have");
-    expect(slot(x, 38).querySelector(".ffr-clock")).toBeNull();
+    expect(marked(x, "pending")).toEqual([]);
     await touch(again, 3);
     expect(column(x, 3).getAttribute("aria-label")).toBe("Column 4: X, O");
   });
