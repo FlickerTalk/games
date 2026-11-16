@@ -65,9 +65,9 @@ export function endLayout(width, height, { gift = false, fill = false } = {}) {
   return { width, height, card, targets };
 }
 
-export function looksLayout(width, height, { kind, count, fill = false }) {
+export function looksLayout(width, height, { kind, count, fill = false, tabs = [] }) {
   const bottom = height - (fill ? CORNER : PAD);
-  const header = row([["done", "done"], ["tab", "court"], ["tab", "effect"]], PAD, 8, TILE);
+  const header = row([["done", "done"], ...(tabs.length > 1 ? tabs.map((tab) => ["tab", tab]) : [])], PAD, 8, TILE);
   const top = 8 + TILE + PAD;
   const room = Math.max(TILE, Math.min((width - 2 * PAD + GAP) / 3, (bottom - top + GAP) / 2) - GAP);
   const size = Math.floor(Math.min(140, Math.max(TILE, room)));

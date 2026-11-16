@@ -120,7 +120,7 @@ function targetsOf(game) {
   if (state.screen === "play") return state.paused ? pauseLayout(width, height, { fill }).targets : playTargets(state.layout, { volume: state.sound.open });
   if (state.screen === "home") return withVolume(game, homeLayout(width, height, { variants: VARIANT_ORDER, rival: state.mode !== "alone", fill }).targets);
   if (state.screen === "end") return withVolume(game, endLayout(width, height, { gift: Boolean(state.outcome?.gift && !state.outcome.opened), fill }).targets);
-  if (state.screen === "looks") return looksLayout(width, height, { kind: state.looks, count: state.looks === "court" ? 5 : 6, fill }).targets;
+  if (state.screen === "looks") return looksLayout(width, height, { kind: state.looks, count: state.looks === "court" ? 5 : 6, fill, tabs: ["court", "effect"] }).targets;
   if (state.screen === "avatar" && state.pick) return pickLayout(state.pick, width, height, state.lang).targets.filter((one) => one.visible);
   return [];
 }

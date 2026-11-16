@@ -101,7 +101,7 @@ export function drawLooks(ctx, state, theme, time) {
   const owned = PROGRESS.owned(state.progress);
   ctx.save();
   drawScenery(ctx, state.progress.chosen.court, { w: width, h: height }, { x: 0, y: 0, w: 0, h: 0 }, theme, time);
-  for (const target of looksLayout(width, height, { kind, count: looks.length, fill: state.fill }).targets) {
+  for (const target of looksLayout(width, height, { kind, count: looks.length, fill: state.fill, tabs: ["court", "effect"] }).targets) {
     if (target.kind === "done") drawButton(ctx, "check", ...centreOf(target), target.w - 8, theme, { fill: theme.ui.good });
     if (target.kind === "tab") tab(ctx, target, state, theme, time);
     if (target.kind !== "look") continue;
