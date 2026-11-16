@@ -1,0 +1,98 @@
+{
+  "id": "com.flickertalk.game.racer",
+  "name": "Racer",
+  "version": "0.7.2",
+  "minCoreVersion": "1.6.0",
+  "kind": "game",
+  "icon": "car-sport-outline",
+  "components": [
+    "ft-racer"
+  ],
+  "permissions": {
+    "live": true,
+    "send": "propose"
+  },
+  "summary": "A race against a friendly robot car: press to go, slide to steer.",
+  "locales": {
+    "es": {
+      "name": "Racer",
+      "summary": "Una carrera contra un simpático coche robot: mantén pulsado para avanzar y desliza para girar."
+    },
+    "pt": {
+      "name": "Racer",
+      "summary": "Uma corrida contra um simpático carro-robô: mantenha pressionado para andar e deslize para virar."
+    },
+    "fr": {
+      "name": "Racer",
+      "summary": "Une course contre une gentille voiture robot : appuie pour avancer, fais glisser pour tourner."
+    },
+    "de": {
+      "name": "Racer",
+      "summary": "Ein Rennen gegen ein freundliches Roboterauto: Drücken zum Fahren, Wischen zum Lenken."
+    },
+    "it": {
+      "name": "Racer",
+      "summary": "Una gara contro una simpatica auto robot: tieni premuto per andare, scorri per sterzare."
+    },
+    "ro": {
+      "name": "Racer",
+      "summary": "O cursă împotriva unei mașini-robot prietenoase: apasă ca să mergi, glisează ca să virezi."
+    },
+    "ru": {
+      "name": "Racer",
+      "summary": "Гонка с дружелюбной машиной-роботом: нажми, чтобы ехать, и веди пальцем, чтобы рулить."
+    },
+    "uk": {
+      "name": "Racer",
+      "summary": "Перегони з доброю машиною-роботом: натисни, щоб їхати, і веди пальцем, щоб кермувати."
+    },
+    "pl": {
+      "name": "Racer",
+      "summary": "Wyścig z przyjaznym samochodem-robotem: przytrzymaj, by jechać, i przesuń palec, by skręcać."
+    },
+    "tr": {
+      "name": "Racer",
+      "summary": "Sevimli bir robot arabaya karşı yarış: gitmek için basılı tut, yön vermek için kaydır."
+    },
+    "ar": {
+      "name": "Racer",
+      "summary": "سباق مع سيارة روبوت لطيفة: اضغط لتنطلق، واسحب إصبعك لتوجيه السيارة."
+    },
+    "hi": {
+      "name": "Racer",
+      "summary": "एक दोस्ताना रोबोट कार से रेस: चलने के लिए दबाकर रखें, मुड़ने के लिए उंगली सरकाएँ।"
+    },
+    "bn": {
+      "name": "Racer",
+      "summary": "এক বন্ধুসুলভ রোবট গাড়ির সঙ্গে দৌড়: চলতে চেপে ধরে রাখুন, ঘুরতে আঙুল সরান।"
+    },
+    "id": {
+      "name": "Racer",
+      "summary": "Balapan melawan mobil robot yang ramah: tekan untuk melaju, geser untuk berbelok."
+    },
+    "vi": {
+      "name": "Racer",
+      "summary": "Cuộc đua với một chiếc xe rô-bốt thân thiện: nhấn giữ để chạy, vuốt để lái."
+    },
+    "th": {
+      "name": "Racer",
+      "summary": "แข่งกับรถหุ่นยนต์ใจดี กดค้างไว้เพื่อวิ่ง แล้วเลื่อนนิ้วเพื่อเลี้ยว"
+    },
+    "ja": {
+      "name": "Racer",
+      "summary": "やさしいロボットカーとレース。押して進み、指をすべらせてハンドルを切ろう。"
+    },
+    "ko": {
+      "name": "Racer",
+      "summary": "친절한 로봇 자동차와 경주해요. 눌러서 달리고, 손가락을 밀어서 방향을 바꿔요."
+    },
+    "zh-CN": {
+      "name": "Racer",
+      "summary": "和友好的机器人赛车比一比：按住前进，滑动转向。"
+    },
+    "zh-TW": {
+      "name": "Racer",
+      "summary": "和友善的機器人賽車比一比：按住前進，滑動轉向。"
+    }
+  }
+}
