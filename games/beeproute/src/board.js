@@ -13,6 +13,7 @@ import { drawTile } from "./tiles-art.js";
 import { drawWorld } from "./world-art.js";
 
 const HINT_LOOP = 1.6;
+const HAND_REACH = { right: 0.42, down: 0.76 };
 const progressOf = (moment, time) => Math.min(1, Math.max(0, (time * 1000 - moment.start) / moment.duration));
 
 export const rimmed = (ctx, theme, draw) => withRim(ctx, { ink: theme.art.ink, colour: theme.art.rim }, draw);
@@ -95,7 +96,10 @@ export function drawHint(ctx, state, theme, time) {
   const aim = state.hint && state.layout.buttons.find((one) => one.kind === state.hint.kind && one.value === state.hint.value);
   if (!aim) return;
   const [x, y] = centreOf(aim);
-  drawHintHand(ctx, x + aim.w * 0.12, y + aim.h * 0.42, Math.min(72, aim.w * 0.8), (time % HINT_LOOP) / HINT_LOOP, theme.ui);
+  const size = Math.min(72, aim.w * 0.8);
+  const handX = Math.min(x + aim.w * 0.12, state.width - size * HAND_REACH.right);
+  const handY = Math.min(y + aim.h * 0.42, state.height - size * HAND_REACH.down);
+  drawHintHand(ctx, handX, handY, size, (time % HINT_LOOP) / HINT_LOOP, theme.ui);
 }
 
 export function barShown(state, { level, got = 0 } = {}) {

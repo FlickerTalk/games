@@ -16,6 +16,8 @@ function fakeGame(env) {
     pointers: [],
     renamed: null,
     closed: false,
+    playing: false,
+    paused: false,
     rest: false,
     frames: 0,
     open: async (opening) => {
@@ -25,9 +27,19 @@ function fakeGame(env) {
     frame: () => {
       game.frames += 1;
     },
-    targets: () => [{ kind: "play", value: "play", x: 10, y: 20, w: 120, h: 120 }, { kind: "slot", value: 0, x: 0, y: 300, w: 100, h: 100 }],
-    pointer: (event) => game.pointers.push(event),
-    press: (target) => game.presses.push(target.kind),
+    targets: () => (game.paused ? [{ kind: "resume", value: "resume", x: 10, y: 20, w: 120, h: 120 }] : [
+      { kind: "play", value: "play", x: 10, y: 20, w: 120, h: 120 },
+      { kind: "slot", value: 0, x: 0, y: 300, w: 100, h: 100 },
+      ...(game.playing ? [{ kind: "pause", value: "pause", x: 300, y: 8, w: 48, h: 48 }] : []),
+    ]),
+    pointer: (event) => {
+      game.pointers.push(event);
+      if (game.asksOnUp && event.type === "up") env.onAsk("rename");
+    },
+    press: (target) => {
+      game.presses.push(target.kind);
+      if (target.kind === "pause") game.paused = true;
+    },
     rename: (text) => {
       game.renamed = text;
     },
@@ -62,6 +74,30 @@ async function mount(opening = {}) {
   return { core, element, game: element.game };
 }
 
+function send(element, name, Kind = PointerEvent) {
+  const event = new Kind(name, { bubbles: true, cancelable: true, clientX: 5, clientY: 5, pointerId: 1 });
+  const canvas = element.querySelector("canvas");
+  canvas.dispatchEvent(event);
+  const field = element.querySelector("input");
+  if (name === "mousedown" && !event.defaultPrevented && document.activeElement === field) field.blur();
+  return event;
+}
+
+function tapName(element, order) {
+  element.game.asksOnUp = true;
+  for (const [name, Kind] of order) send(element, name, Kind);
+  element.game.asksOnUp = false;
+  return element.querySelector("input");
+}
+
+const TOUCH = [["pointerdown"], ["pointerup"], ["touchend", Event], ["mousedown", MouseEvent], ["mouseup", MouseEvent], ["click", MouseEvent]];
+const MOUSE = [["pointerdown"], ["mousedown", MouseEvent], ["pointerup"], ["mouseup", MouseEvent], ["click", MouseEvent]];
+
+function setHidden(hidden) {
+  Object.defineProperty(document, "hidden", { value: hidden, configurable: true });
+  document.dispatchEvent(new Event("visibilitychange"));
+}
+
 const buttons = (element) => [...element.querySelectorAll("button")];
 const settle = () => new Promise((resolve) => setTimeout(resolve, 0));
 
@@ -73,7 +109,10 @@ beforeEach(() => {
   document.documentElement.removeAttribute("data-fill");
   setHostTheme(document.documentElement, null);
 });
-afterEach(() => vi.unstubAllGlobals());
+afterEach(() => {
+  vi.unstubAllGlobals();
+  Object.defineProperty(document, "hidden", { value: false, configurable: true });
+});
 
 describe("a canvas game's element", () => {
   it("draws on one canvas named in the player's language, and makes the game with the sound and its controls", async () => {
@@ -128,6 +167,41 @@ describe("a canvas game's element", () => {
     expect(game.renamed).toBe("Bea");
   });
 
+  it("keeps the name field open and focused after a touch, whose mouse events come after the finger lifts", async () => {
+    const { element, game } = await mount();
+    const field = tapName(element, TOUCH);
+    expect(field.hidden).toBe(false);
+    expect(document.activeElement).toBe(field);
+    expect(game.renamed).toBe(null);
+  });
+
+  it("keeps the name field open and focused after a click with a mouse", async () => {
+    const { element, game } = await mount();
+    const field = tapName(element, MOUSE);
+    expect(field.hidden).toBe(false);
+    expect(document.activeElement).toBe(field);
+    expect(game.renamed).toBe(null);
+  });
+
+  it("closes the name field and keeps the name when the player touches the canvas afterwards, or leaves the field", async () => {
+    for (const order of [TOUCH, MOUSE]) {
+      const { element, game } = await mount();
+      const field = tapName(element, order);
+      field.value = "Bea";
+      send(element, "pointerdown");
+      expect(field.hidden).toBe(true);
+      expect(game.renamed).toBe("Bea");
+      expect(game.pointers.at(-1).type).toBe("down");
+      element.remove();
+    }
+    const { element, game } = await mount();
+    const field = tapName(element, TOUCH);
+    field.value = "Leo";
+    field.blur();
+    expect(field.hidden).toBe(true);
+    expect(game.renamed).toBe("Leo");
+  });
+
   it("takes the app's colours, follows them when the app changes its theme, and falls back on its own", async () => {
     setHostTheme(document.documentElement, "mono-dark");
     const { element } = await mount();
@@ -159,6 +233,44 @@ describe("a canvas game's element", () => {
     Object.defineProperty(document, "hidden", { value: false, configurable: true });
     document.dispatchEvent(new Event("visibilitychange"));
     expect(frames).toHaveLength(1);
+  });
+
+  it("pauses a round when the page is hidden, runs one frame so the other phone hears it, and stays paused when the page is shown again", async () => {
+    const { element, game } = await mount();
+    frames.splice(0).forEach((frame) => frame(1000));
+    game.playing = true;
+    const before = game.frames;
+    setHidden(true);
+    expect(game.presses).toEqual(["pause"]);
+    expect(game.frames).toBe(before + 1);
+    expect(buttons(element).map((button) => button.getAttribute("aria-label"))).toEqual(["resume!"]);
+    await new Promise((resolve) => setTimeout(resolve, 200));
+    expect(game.frames).toBe(before + 2);
+    setHidden(false);
+    frames.splice(0).forEach((frame) => frame(2000));
+    setHidden(true);
+    setHidden(false);
+    expect(game.presses).toEqual(["pause"]);
+    expect(game.paused).toBe(true);
+  });
+
+  it("does not run the frame that repeats the pause once the game has left the page", async () => {
+    const { element, game } = await mount();
+    game.playing = true;
+    setHidden(true);
+    const before = game.frames;
+    element.remove();
+    await new Promise((resolve) => setTimeout(resolve, 200));
+    expect(game.frames).toBe(before);
+  });
+
+  it("leaves a game that is not in a round as it is when the page is hidden", async () => {
+    const { game } = await mount();
+    const before = game.frames;
+    setHidden(true);
+    setHidden(false);
+    expect(game.presses).toEqual([]);
+    expect(game.frames).toBe(before);
   });
 
   it("starts the game's music once open, and lets go of its loop, its sound and the game when it leaves the page", async () => {

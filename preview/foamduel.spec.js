@@ -5,7 +5,6 @@ import { start } from "./serve.js";
 import { toneOf, toneShares, walkCanvasGame } from "./canvas-walk.js";
 
 const OUT = "/private/tmp/ftgames-foamduel-shots";
-const PICK_SCREEN_OVERFLOWS_THE_SMALLEST_ROOM = { inside: false };
 // a tap sooner than this after the bell is taken for a tap before it
 const HUMAN_MS = 170;
 
@@ -118,7 +117,7 @@ async function steps(s, { check, label }) {
   await s.tap("tab", "scenery");
   await s.shot("12-places");
   await s.tap("done");
-  await s.tap("avatar", undefined, PICK_SCREEN_OVERFLOWS_THE_SMALLEST_ROOM);
+  await s.tap("avatar");
   await s.shot("13-avatar");
 }
 

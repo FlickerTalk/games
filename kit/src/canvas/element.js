@@ -6,6 +6,7 @@ import { readTokens } from "./theme.js";
 const ROOM_LEAST = 300;
 const ROOM_MOST = 1100;
 const NAME_MOST = 24;
+const PAUSE_AGAIN = 120; // ms
 const POINTERS = [["pointerdown", "down"], ["pointermove", "move"], ["pointerup", "up"], ["pointercancel", "cancel"]];
 
 export const roomHeight = (screenHeight) => Math.round(Math.min(ROOM_MOST, Math.max(ROOM_LEAST, (screenHeight || 853) - ROOM_CHROME)));
@@ -61,11 +62,16 @@ class CanvasGameElement extends HTMLElement {
   listen() {
     const point = (type) => (event) => {
       const area = this.canvas.getBoundingClientRect();
-      if (type === "down") this.canvas.setPointerCapture?.(event.pointerId);
+      if (type === "down") {
+        this.named();
+        this.canvas.setPointerCapture?.(event.pointerId);
+      }
       this.game.pointer({ type, x: event.clientX - area.left, y: event.clientY - area.top, id: event.pointerId });
       this.changed();
     };
     for (const [name, type] of POINTERS) this.canvas.addEventListener(name, point(type));
+    // After a touch the browser sends mousedown once the finger has lifted, which would take the focus from the name field just opened.
+    this.canvas.addEventListener("mousedown", (event) => this.field.hidden || event.preventDefault());
     this.field.addEventListener("keydown", (event) => event.key === "Enter" && this.named());
     this.field.addEventListener("blur", () => this.named());
     this.watch = new MutationObserver(() => {
@@ -75,7 +81,7 @@ class CanvasGameElement extends HTMLElement {
     this.watch.observe(this.ownerDocument.documentElement, { attributes: true, attributeFilter: ["data-fill", "data-dark", "style", "class"] });
     this.sizes = globalThis.ResizeObserver ? new ResizeObserver(() => this.measure()) : null;
     this.sizes?.observe(this);
-    this.shown = () => this.wake();
+    this.shown = () => (this.ownerDocument.hidden ? this.away() : this.wake());
     this.ownerDocument.addEventListener("visibilitychange", this.shown);
   }
 
@@ -118,6 +124,17 @@ class CanvasGameElement extends HTMLElement {
   changed() {
     this.labels();
     this.wake();
+  }
+
+  away() {
+    const pause = this.game.targets().find((target) => target.kind === "pause");
+    if (!pause) return;
+    this.game.press(pause);
+    this.labels();
+    this.game.frame(performance.now());
+    // A live round sends at most one message every 83 ms, so the frame above may not have told the other phone.
+    clearTimeout(this.repeat);
+    this.repeat = setTimeout(() => this.isConnected && this.game.frame(performance.now()), PAUSE_AGAIN);
   }
 
   wake() {
@@ -175,6 +192,7 @@ class CanvasGameElement extends HTMLElement {
 
   disconnectedCallback() {
     cancelAnimationFrame(this.pending);
+    clearTimeout(this.repeat);
     this.pending = 0;
     this.watch?.disconnect();
     this.sizes?.disconnect();

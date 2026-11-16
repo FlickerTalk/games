@@ -60,6 +60,21 @@ describe("the play screen's layout", () => {
     }
   });
 
+  it("in a phone's room puts the shoot button under a battlefield a little smaller, never in the sky between the dials", () => {
+    for (const [width, height] of [[352, 557], [384, 556], [398, 635], [430, 635]]) {
+      const layout = playLayout(width, height, { fill: false });
+      const where = `${width}x${height}`;
+      const foot = layout.view.y + WORLD.height * layout.view.scale;
+      expect(layout.fire.y, where).toBeGreaterThanOrEqual(foot - 0.5);
+      expect(layout.fire.y + layout.fire.h, where).toBeLessThanOrEqual(height);
+      expect(layout.fire.w, where).toBeGreaterThanOrEqual(88);
+      expect(layout.sub.fire, where).toEqual(layout.fire);
+      expect(layout.view.scale, where).toBeGreaterThanOrEqual((width / WORLD.width) * 0.8);
+      const across = WORLD.width * layout.view.scale;
+      expect(layout.view.x, where).toBeCloseTo((width - across) / 2, 6);
+    }
+  });
+
   it("stands the wind flag in the sky under the controls, inside the frame", () => {
     eachSize(({ width, height, fill }) => {
       const { flag, start } = playLayout(width, height, { fill });

@@ -27,7 +27,16 @@ describe("the aiming controls", () => {
   it("press the shoot and dive buttons at once, grey the shoot button out while waiting, and turn the dive arrow under water", () => {
     const fire = { x: 0, y: 0, w: 120, h: 120 };
     expect(colours(draw((ctx) => drawFireButton(ctx, fire, ui, { pressed: true })))).not.toEqual(colours(draw((ctx) => drawFireButton(ctx, fire, ui, {}))));
-    expect(colours(draw((ctx) => drawFireButton(ctx, fire, ui, { waiting: true })))).toContain(ui.muted);
+    const ready = draw((ctx) => drawFireButton(ctx, fire, ui, {}));
+    const fills = (ctx) => ctx.calls.filter((call) => call.op === "set" && call.name === "fillStyle").map((call) => call.value);
+    const faded = (ctx) => ctx.calls.some((call) => call.op === "set" && call.name === "globalAlpha" && call.value < 1);
+    expect(fills(ready)).toEqual([ui.accent]);
+    expect(colours(ready)).toContain(ui.onAccent);
+    expect(faded(ready)).toBe(false);
+    const waiting = draw((ctx) => drawFireButton(ctx, fire, ui, { waiting: true }));
+    expect(fills(waiting)).toEqual([ui.accent]);
+    expect(colours(waiting)).not.toContain(ui.surface);
+    expect(faded(waiting)).toBe(true);
     expect(shapes(draw((ctx) => drawDiveButton(ctx, area, ui, { under: true })))).not.toEqual(shapes(draw((ctx) => drawDiveButton(ctx, area, ui, { under: false }))));
   });
 

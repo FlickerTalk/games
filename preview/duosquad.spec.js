@@ -5,7 +5,6 @@ import { start } from "./serve.js";
 import { toneShares, walkCanvasGame } from "./canvas-walk.js";
 
 const OUT = "/private/tmp/ftgames-duosquad-shots";
-const PICK_SCREEN_OVERFLOWS_THE_SMALLEST_ROOM = { inside: false };
 
 const worldFor = (label) => (label.endsWith("-alone") ? "land" : label.includes("-room-") ? "sea" : "space");
 
@@ -105,7 +104,7 @@ async function steps(s, { check, label }) {
   await s.tap("tab", 1);
   await s.shot("10-more-crafts");
   await s.tap("done");
-  await s.tap("avatar", undefined, PICK_SCREEN_OVERFLOWS_THE_SMALLEST_ROOM);
+  await s.tap("avatar");
   await s.shot("11-avatar");
 }
 

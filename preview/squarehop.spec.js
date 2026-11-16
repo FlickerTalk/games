@@ -2,7 +2,6 @@ import assert from "node:assert/strict";
 import { toneOf, toneShares, walkCanvasGame } from "./canvas-walk.js";
 
 const OUT = "/private/tmp/ftgames-squarehop-shots";
-const PICK_SCREEN_OVERFLOWS_THE_SMALLEST_ROOM = { inside: false };
 
 const stateOf = (s) =>
   s.evaluate(() => {
@@ -83,7 +82,7 @@ async function steps(s, { check, label }) {
   await s.tap("tab", "dice");
   await s.shot("9-dice");
   await s.tap("done");
-  await s.tap("avatar", undefined, PICK_SCREEN_OVERFLOWS_THE_SMALLEST_ROOM);
+  await s.tap("avatar");
   await s.shot("10-avatar");
 }
 

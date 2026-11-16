@@ -4,7 +4,6 @@ import { shortest } from "../games/beeproute/src/solver.js";
 import { toneOf, toneShares, walkCanvasGame } from "./canvas-walk.js";
 
 const OUT = "/private/tmp/ftgames-beeproute-shots";
-const PICK_SCREEN_OVERFLOWS_THE_SMALLEST_ROOM = { inside: false };
 const WALL_AT = 14;
 
 const stateOf = (s) =>
@@ -103,7 +102,7 @@ async function steps(s, { check, label }) {
   await makeLevel(s, { check, label, flick: label.endsWith("-flick") });
   if ((await stateOf(s)).screen === "play") await s.tap("pause");
   await s.tap("home");
-  await s.tap("avatar", undefined, PICK_SCREEN_OVERFLOWS_THE_SMALLEST_ROOM);
+  await s.tap("avatar");
   await s.shot("13-avatar");
 }
 

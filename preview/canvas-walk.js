@@ -57,8 +57,9 @@ function collector() {
   return { results, check };
 }
 
-async function phone(engine, base, game, device, { fill, query = "", side = "a", out }) {
-  const context = await engine.newContext({ viewport: { width: Math.max(device.width * 2 + 72, 800), height: device.height + 40 }, screen: { width: device.width, height: device.height }, deviceScaleFactor: 2 });
+async function phone(engine, base, game, device, { fill, query = "", side = "a", out, hasTouch = false }) {
+  const context = await engine.newContext({ viewport: { width: Math.max(device.width * 2 + 72, 800), height: device.height + 40 }, screen: { width: device.width, height: device.height }, deviceScaleFactor: 2, hasTouch });
+  await context.addInitScript(reportErrors);
   const page = await context.newPage();
   const problems = [];
   page.on("pageerror", (error) => problems.push(error.message));
@@ -73,6 +74,15 @@ async function phone(engine, base, game, device, { fill, query = "", side = "a",
   }
   const inner = () => page.frames().find((one) => one.url().endsWith(`/${side}/frame.html`));
   return session({ context, page, problems, inner, side, device, fill, out });
+}
+
+export function reportErrors() {
+  addEventListener("error", (event) => console.error(event.message));
+}
+
+export function setHidden(hidden) {
+  Object.defineProperty(document, "hidden", { value: hidden, configurable: true });
+  document.dispatchEvent(new Event("visibilitychange"));
 }
 
 function session(s) {
@@ -98,6 +108,13 @@ function session(s) {
     await s.page.waitForTimeout(300);
     if (inside) s.outside.push(...(await s.misplaced()));
   };
+  s.touch = async (kind, value) => {
+    const found = (await s.targets()).find((one) => one.kind === kind && (value === undefined || one.value === value));
+    assert.ok(found, `no ${kind} to touch`);
+    await s.page.touchscreen.tap(...(await s.at(found.x + found.w / 2, found.y + found.h / 2)));
+    await s.page.waitForTimeout(300);
+  };
+  s.hide = (hidden) => s.evaluate(setHidden, hidden);
   s.misplaced = async () => {
     const { frame } = await s.measure();
     const out = (one) => one.x < 0 || one.y < 0 || one.x + one.w > frame.width + 1 || one.y + one.h > frame.height + 1;
@@ -139,7 +156,47 @@ async function standard(s, check, label) {
   await check(`${label}: every target inside the frame`, async () => assert.equal((await s.misplaced()).join("; "), ""));
 }
 
-export async function walkCanvasGame({ game, out, modes, steps, themes = [], devices = DEVICES, setup = async () => {} }) {
+const nameField = (s) =>
+  s.evaluate(() => {
+    const field = document.querySelector("input");
+    return { open: !field.hidden, focused: document.activeElement === field, name: document.querySelector("canvas").parentElement.game.state.pick?.choice.name ?? null };
+  });
+
+const DARK_PAGE_BRIGHT_MOST = 30;
+
+async function darkPage(s, check, name) {
+  await check(name, async () => {
+    const { bright } = toneShares(await s.samples());
+    assert.ok(bright < DARK_PAGE_BRIGHT_MOST, `${bright}% at L>=0.8`);
+  });
+}
+
+async function renameByTouch(s, check, label) {
+  await s.touch("avatar");
+  await s.shot("profiles");
+  await darkPage(s, check, `${label}: the profiles are on the app's dark page`);
+  await s.touch("profile", (await s.targets()).find((one) => one.kind === "profile").value);
+  await darkPage(s, check, `${label}: the hair and the name are on the app's dark page`);
+  await check(`${label}: a touch on the name opens its field, which stays open and focused`, async () => {
+    await s.touch("rename");
+    assert.deepEqual(await nameField(s), { open: true, focused: true, name: "" });
+  });
+  await check(`${label}: the name typed is kept on enter`, async () => {
+    await s.page.keyboard.type("Zed");
+    await s.page.keyboard.press("Enter");
+    assert.deepEqual(await nameField(s), { open: false, focused: false, name: "Zed" });
+  });
+  await check(`${label}: a later touch on the canvas closes the field and keeps the name`, async () => {
+    await s.touch("rename");
+    await s.page.keyboard.type("dy");
+    assert.equal((await nameField(s)).open, true);
+    await s.touch("hair", (await s.targets()).find((one) => one.kind === "hair").value);
+    assert.deepEqual(await nameField(s), { open: false, focused: false, name: "Zeddy" });
+  });
+  await s.shot("renamed");
+}
+
+export async function walkCanvasGame({ game, out, modes, steps, themes = [], devices = DEVICES, setup = async () => {}, rename = true }) {
   const { chromium, webkit } = await import("playwright");
   const server = await start(0);
   const base = `http://127.0.0.1:${server.address().port}`;
@@ -160,6 +217,14 @@ export async function walkCanvasGame({ game, out, modes, steps, themes = [], dev
         await check(`${label}: no errors`, async () => assert.deepEqual(s.problems, []));
         await s.context.close();
       }
+    }
+    if (engineName === "chromium" && rename) {
+      const label = `${engineName}-touch-${devices[1].name}`;
+      const s = await phone(engine, base, game, devices[1], { fill: true, query: `${modes[0].query}&theme=mono-dark`, out: join(out, label), hasTouch: true });
+      await setup(s);
+      await renameByTouch(s, check, label);
+      await check(`${label}: no errors`, async () => assert.deepEqual(s.problems, []));
+      await s.context.close();
     }
     for (const theme of engineName === "chromium" ? themes : []) {
       const label = `${engineName}-theme-${theme.name}`;

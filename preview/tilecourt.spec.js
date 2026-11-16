@@ -3,7 +3,6 @@ import { toneOf, toneShares, walkCanvasGame } from "./canvas-walk.js";
 
 const OUT = "/private/tmp/ftgames-tilecourt-shots";
 const APPROVED_BRIGHT_SHARE = 84.8;
-const PICK_SCREEN_OVERFLOWS_THE_SMALLEST_ROOM = { inside: false };
 
 const shapes = {
   single: [[0, 0]], "domino-h": [[0, 0], [1, 0]], "domino-v": [[0, 0], [0, 1]], "triple-h": [[0, 0], [1, 0], [2, 0]], "triple-v": [[0, 0], [0, 1], [0, 2]],
@@ -81,7 +80,7 @@ async function steps(s, { check, label }) {
   await s.tap("tab", "effect");
   await s.shot("9-effects");
   await s.tap("done");
-  await s.tap("avatar", undefined, PICK_SCREEN_OVERFLOWS_THE_SMALLEST_ROOM);
+  await s.tap("avatar");
   await s.shot("10-avatar");
 }
 

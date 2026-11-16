@@ -2,7 +2,6 @@ import assert from "node:assert/strict";
 import { toneShares, walkCanvasGame } from "./canvas-walk.js";
 
 const OUT = "/private/tmp/ftgames-balloonruler-shots";
-const PICK_SCREEN_OVERFLOWS_THE_SMALLEST_ROOM = { inside: false };
 
 const game = (s, run, arg) => s.evaluate(run, arg);
 
@@ -74,7 +73,7 @@ async function steps(s, { check, label }) {
   await s.tap("tab", "place");
   await s.shot("12-places");
   await s.tap("done");
-  await s.tap("avatar", undefined, PICK_SCREEN_OVERFLOWS_THE_SMALLEST_ROOM);
+  await s.tap("avatar");
   await s.shot("13-avatar");
 }
 

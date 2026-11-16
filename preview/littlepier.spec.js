@@ -2,7 +2,6 @@ import assert from "node:assert/strict";
 import { toneShares, walkCanvasGame } from "./canvas-walk.js";
 
 const OUT = "/private/tmp/ftgames-littlepier-shots";
-const PICK_SCREEN_OVERFLOWS_THE_SMALLEST_ROOM = { inside: false };
 const DEPTH = 0.3;
 
 const game = (s, run, arg) => s.evaluate(run, arg);
@@ -71,7 +70,7 @@ async function steps(s, { check, label }) {
   await s.tap("tab", "place");
   await s.shot("11-places");
   await s.tap("done");
-  await s.tap("avatar", undefined, PICK_SCREEN_OVERFLOWS_THE_SMALLEST_ROOM);
+  await s.tap("avatar");
   await s.shot("12-avatar");
 }
 

@@ -10,6 +10,6 @@ export function drawFrame(ctx, game, theme, time) {
   if (screen === "play") drawPlay(ctx, game, theme, time);
   else if (screen === "end") drawEnd(ctx, game, theme, time);
   else if (screen === "looks") drawLooks(ctx, state, theme, time);
-  else if (screen === "avatar" && state.pick) drawPick(ctx, pickLayout(state.pick, width, height, state.lang), state.pick, { time, lang: state.lang });
+  else if (screen === "avatar" && state.pick) drawPick(ctx, pickLayout(state.pick, width, height, state.lang), state.pick, { time, lang: state.lang, ui: theme.ui });
   else drawHome(ctx, game, theme, time);
 }

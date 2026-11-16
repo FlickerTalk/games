@@ -5,7 +5,6 @@ import { start } from "./serve.js";
 import { toneOf, toneShares, walkCanvasGame } from "./canvas-walk.js";
 
 const OUT = "/private/tmp/ftgames-skychase-shots";
-const PICK_SCREEN_OVERFLOWS_THE_SMALLEST_ROOM = { inside: false };
 const FULL_SKY = { clouds: [{ x: 0.72, y: 0.25, r: 0.15 }, { x: 0.2, y: 1.15, r: 0.14 }], wind: { y: 0.82, tall: 0.24, push: 0.11 }, ring: { x: 0.25, y: 0.45, r: 0.1 }, airship: { x: 0.78, y: 1.0, r: 0.12, drift: 0.035 } };
 
 const game = (s, run, arg) => s.evaluate(run, arg);
@@ -89,7 +88,7 @@ async function steps(s, { check, label }) {
   await s.shot("13-helicopter-recoloured");
   await s.tap("done");
   await s.shot("14-home-helicopter");
-  await s.tap("avatar", undefined, PICK_SCREEN_OVERFLOWS_THE_SMALLEST_ROOM);
+  await s.tap("avatar");
   await s.shot("15-avatar");
 }
 

@@ -2,7 +2,6 @@ import assert from "node:assert/strict";
 import { toneOf, toneShares, walkCanvasGame } from "./canvas-walk.js";
 
 const OUT = "/private/tmp/ftgames-beatwagons-shots";
-const PICK_SCREEN_OVERFLOWS_THE_SMALLEST_ROOM = { inside: false };
 
 const stateOf = (s) =>
   s.evaluate(() => {
@@ -119,7 +118,7 @@ async function steps(s, { check, label }) {
   await composeTrain(s, { check, label, flick: label.endsWith("-flick") });
   if ((await stateOf(s)).screen !== "end") await s.tap("pause");
   await s.tap("home");
-  await s.tap("avatar", undefined, PICK_SCREEN_OVERFLOWS_THE_SMALLEST_ROOM);
+  await s.tap("avatar");
   await s.shot("13-avatar");
 }
 

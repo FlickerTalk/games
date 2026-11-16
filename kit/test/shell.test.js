@@ -847,6 +847,47 @@ describe("Ionic's structure, lent by the app", () => {
     expect(fit).not.toHaveBeenCalled();
   });
 
+  it("follows a change of size on the next frame, never while the browser is still telling who changed size", async () => {
+    const watching = [];
+    const frames = [];
+    vi.stubGlobal("ResizeObserver", class {
+      constructor(changed) {
+        watching.push(changed);
+      }
+      observe() {}
+      disconnect() {}
+    });
+    vi.stubGlobal("requestAnimationFrame", (run) => frames.push(run));
+    vi.stubGlobal("cancelAnimationFrame", () => {});
+    let tall = 432;
+    const measured = HTMLElement.prototype.getBoundingClientRect;
+    const spy = vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockImplementation(function () {
+      const rect = measured.call(this);
+      return this.classList.contains("ftg-body") ? { ...rect, height: tall, bottom: rect.top + tall } : rect;
+    });
+    try {
+      const element = await phone(fakeCore());
+      const content = element.querySelector("ion-content");
+      expect(content.style.height).toBe("432px");
+      tall = 440;
+      frames.length = 0;
+      for (const changed of watching) changed([]);
+      for (const changed of watching) changed([]);
+      expect(content.style.height).toBe("432px");
+      expect(frames).toHaveLength(1);
+      frames.splice(0).forEach((run) => run(0));
+      expect(content.style.height).toBe("440px");
+      for (const changed of watching) changed([]);
+      element.remove();
+      const fit = vi.spyOn(element, "fitBoard");
+      frames.splice(0).forEach((run) => run(0));
+      expect(fit).not.toHaveBeenCalled();
+    } finally {
+      spy.mockRestore();
+      vi.unstubAllGlobals();
+    }
+  });
+
   it("gives the content the height of what it holds, so the frame still follows its content", async () => {
     const measured = HTMLElement.prototype.getBoundingClientRect;
     const spy = vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockImplementation(function () {

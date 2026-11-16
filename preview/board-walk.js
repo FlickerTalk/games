@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { existsSync, mkdirSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { ROOM_CHROME } from "../kit/src/stage.js";
-import { DEVICES, toneShares } from "./canvas-walk.js";
+import { DEVICES, reportErrors, toneShares } from "./canvas-walk.js";
 import { start } from "./serve.js";
 
 const BAR_AND_BAND = 120;
@@ -55,6 +55,7 @@ function canvasPixels() {
 async function phone(browser, base, game, run, out) {
   const { device, fill, theme } = run;
   const context = await browser.newContext({ viewport: { width: Math.max(device.width * 2 + 72, 800), height: device.height + 40 }, screen: { width: device.width, height: device.height }, deviceScaleFactor: 2 });
+  await context.addInitScript(reportErrors);
   const page = await context.newPage();
   const problems = [];
   page.on("pageerror", (error) => problems.push(error.message));

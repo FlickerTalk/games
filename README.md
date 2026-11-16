@@ -430,7 +430,10 @@ requestAnimationFrame(frame);
   (`down`, `move`, `up`, `cancel`: a tap presses, a drag scrolls a strip); `pickPress(state, target)`
   does what a target does; both answer `{ state, ask }`, where `ask` is `"rename"` (show a field
   labelled `avatarText(lang, "name")` and hand its text to `pickRename`) or `"done"` (save
-  `state.choice`). `drawPick(ctx, layout, state, { time, lang })` draws it on a canvas. A page lays
+  `state.choice`). `drawPick(ctx, layout, state, { time, lang, ui })` draws it on a canvas, in the
+  interface colours of `themeFromTokens` (`ui`; the faces, the hair and the hair colours keep their own).
+  Where the twelve profiles do not fit at 88 px (a 328×343 room), they are a strip that scrolls
+  sideways, opened on the player's own profile. A page lays
   buttons over the targets instead, with their `label` and `aria-pressed` from `selected`. The words,
   accessible labels included, are in `AVATAR_TEXTS` in the app's 21 languages.
 - **Portraits in a turn-based game.** `board: withPortraits(board)` in `defineGame` shows, while a
@@ -701,7 +704,10 @@ for the app's buttons; `ft.live` in a match against Flick, or any message when t
 
 **Its walk** checks, at 360×640, 384×853, 430×932 and 1280×800, in the room and full screen, that the
 frame is sized and does not scroll, that every target is inside the frame on every screen it reaches,
-and that nothing is written to the console; it saves a screenshot of each step. A game configures it
+and that nothing is written to the console and no error is raised in the frame; it saves a
+screenshot of each step. Once per game it also taps with a touch screen, on a dark page: the pick
+screen is dark, and the name field opens, stays open and focused, takes a name on enter, and closes
+on the next touch (`rename: false` for a game without the pick screen). A game configures it
 in a few lines:
 
 ```js
@@ -721,7 +727,12 @@ await walkCanvasGame({
 
 The room runs in Chromium only: its height comes from the screen's, which WebKit does not take from
 Playwright. `s` offers `tap(kind, value)`, `shot(name)`, `targets()`, `measure()`, `samples(area)` (the
-canvas's pixels, for `toneShares`) and `evaluate(fn, arg)` in the game's frame.
+canvas's pixels, for `toneShares`), `touch(kind, value)`, `hide(hidden)` (the page sent to the
+background and back) and `evaluate(fn, arg)` in the game's frame.
+
+**A round never goes on by itself.** When the page is hidden the element presses the game's own
+`pause` target, if the screen has one, and runs one frame, so a round between two phones tells the
+other phone at once; the game stays paused until the player presses `resume`.
 
 ## A board drawn on a canvas
 
@@ -1002,6 +1013,9 @@ package's contents. So:
   tracks for it; no other game imports that module, so no other package changes.
 - Checkers drawn on a canvas, with sound and the players' portraits, is its `1.2.0`. The other games'
   packages do not change.
+- The name field that stays open after a touch, the pick screen in the app's colours, the pause when
+  the page is hidden and the page's height set on the next frame are one more patch for every game
+  but Racer, whose package does not change.
 
 ## Preview
 

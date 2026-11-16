@@ -9,6 +9,7 @@ const ROOMY = 520;
 const WIDE = 700;
 const FLAG = 44;
 const SKY = 0.2;
+const SMALLEST_FIELD = 0.8;
 
 export function toScreen(view, x, y) {
   return [view.x + (view.mirror ? WORLD.width - x : x) * view.scale, view.y + y * view.scale];
@@ -50,10 +51,13 @@ function controlRow(width, height, start, fill) {
 }
 
 function underField(width, height, start, fill) {
-  const scale = width / WORLD.width;
+  const full = width / WORLD.width;
   const foot = height - (fill ? CORNER : PAD) - FIRE - PAD;
-  const top = foot - WORLD.height * scale;
-  return top + WORLD.height * scale * SKY >= start + DIAL ? { scale, foot } : null;
+  if (foot - WORLD.height * full * (1 - SKY) >= start + DIAL) return { scale: full, foot, fire: FIRE };
+  if (fill) return null;
+  const low = height - PAD - SMALL_FIRE - PAD;
+  const scale = (low - start - DIAL) / (WORLD.height * (1 - SKY));
+  return scale >= full * SMALLEST_FIELD ? { scale, foot: low, fire: SMALL_FIRE } : null;
 }
 
 export function playLayout(width, height, { fill = false, practice = false } = {}) {
@@ -62,8 +66,8 @@ export function playLayout(width, height, { fill = false, practice = false } = {
   const row = controlRow(width, height, start, fill);
   const under = width < WIDE ? underField(width, height, start, fill) : null;
   if (under) {
-    const fire = box((width - FIRE) / 2, under.foot + PAD, FIRE, FIRE);
-    const view = { x: 0, y: under.foot - WORLD.height * under.scale, scale: under.scale, mirror: false };
+    const fire = box((width - under.fire) / 2, under.foot + PAD, under.fire, under.fire);
+    const view = { x: (width - WORLD.width * under.scale) / 2, y: under.foot - WORLD.height * under.scale, scale: under.scale, mirror: false };
     const sub = { fire, dive: box((width - DIAL) / 2, start, DIAL, DIAL) };
     return { width, height, ...top, start, view, ...row, fire, sub, flag: { x: width * 0.34, y: start + DIAL + FLAG + 14, size: FLAG } };
   }

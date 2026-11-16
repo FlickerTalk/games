@@ -1,7 +1,7 @@
 {
   "id": "com.flickertalk.game.littlepier",
   "name": "Little Pier",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "minCoreVersion": "1.6.0",
   "kind": "game",
   "icon": "fish-outline",
