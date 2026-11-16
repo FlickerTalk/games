@@ -1,8 +1,8 @@
 # Third-party notices — Crazy Eights
 
 The game, its board and the FlickerTalk games kit compiled into `index.js` are FlickerTalk's own,
-under the MIT licence of the repository; its one third-party work is Ionicons, below, under its own
-licence, reproduced here in full.
+under the MIT licence of the repository; its third-party works are Ionicons and Adrian Kennard's playing cards,
+below, under their own licences.
 
 ## Ionicons 8.1.0
 
@@ -34,3 +34,15 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ```
+
+## Playing cards by Adrian Kennard (RevK)
+
+The cards' faces (`src/deck.js`): the twelve court figures, the four suit signs, the rank signs of the
+corners and the places of the pips, from the "Plain" deck of Adrian Kennard's SVG playing cards, the
+court cards based on Goodall & Son designs of the 19th century. The files used are in `vendor/revk/`,
+as the site gives them; `build.js` turns them into the paths the game draws, rounded to a coarser grid
+and written in a compact form. The backs of the cards are the game's own.
+Source: https://www.me.uk/cards/ (the "Plain" option, an ace of spades without a link).
+Credit, which the licence does not require: playing cards by Adrian Kennard (RevK), https://www.me.uk/cards/.
+Licence: CC0 1.0 Universal, a public domain dedication (https://creativecommons.org/publicdomain/zero/1.0/legalcode),
+as the author states on that page: "© Copyright 2018 Adrian Kennard. Released under CC0 Public Domain licence."
