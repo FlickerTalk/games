@@ -1,11 +1,11 @@
-import { defaultPlayer, loadPlayer, pickLayout } from "../../../kit/src/avatars/index.js";
+import { defaultPlayer, loadPlayer, pickLayout, pickPress, savePlayer } from "../../../kit/src/avatars/index.js";
 import { isChat } from "../../../kit/src/store.js";
 import { idleDrag } from "./drag.js";
 import { Duel } from "./duel.js";
 import { PROGRESS } from "./levels.js";
 import { playLayout, playTargets } from "./layout.js";
 import { endLayout, homeLayout, looksLayout, pauseLayout, promptLayout } from "./menu-layout.js";
-import { menuPointer, renamePlayer } from "./menus.js";
+import { act, menuPointer, renamePlayer } from "./menus.js";
 import { finishDue, roundKey } from "./rounds.js";
 import { playPointer } from "./touch.js";
 
@@ -38,7 +38,7 @@ function freshState() {
   };
 }
 
-export function createGame({ ft, sound, controls, now = () => performance.now(), random = Math.random, onAsk = () => {}, onChange = () => {} }) {
+export function createGame({ ft, sound, controls, app = "1.0.0", now = () => performance.now(), random = Math.random, onAsk = () => {}, onChange = () => {} }) {
   const state = freshState();
   const game = { ft, store: ft.store, sound, controls, now, random, onAsk, onChange, state, duel: null, pending: Promise.resolve() };
 
@@ -67,7 +67,7 @@ export function createGame({ ft, sound, controls, now = () => performance.now(),
       state.resume = null;
     }
     if (state.mode === "friend") {
-      game.duel = new Duel({ ft, opening: { ...opening, chat: state.chat }, app: "1.0.0", onChange: () => game.onChange() });
+      game.duel = new Duel({ ft, opening: { ...opening, chat: state.chat }, app, onChange: () => game.onChange() });
       await game.duel.ready();
     }
     game.syncSound();
@@ -92,6 +92,18 @@ export function createGame({ ft, sound, controls, now = () => performance.now(),
     if (state.endAt !== null && time >= state.endAt) finishDue(game);
   };
   game.rename = (text) => renamePlayer(game, text);
+  game.press = (target) => {
+    if (state.screen !== "avatar") return target.kind === "slot" || target.kind === "volume" ? undefined : act(game, target);
+    const { state: pick, ask } = pickPress(state.pick, target);
+    state.pick = pick;
+    if (ask === "rename") onAsk("rename");
+    if (ask === "done") {
+      state.player = pick.choice;
+      state.screen = "home";
+      game.run(() => savePlayer(game.store, pick.choice));
+    }
+    return undefined;
+  };
   game.close = () => game.duel?.leave();
   return game;
 }

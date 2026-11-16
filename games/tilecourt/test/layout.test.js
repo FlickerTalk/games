@@ -105,3 +105,13 @@ describe("the space a tall frame has to spare", () => {
     expect(layout.court.y - (layout.bar.y + layout.bar.h)).toBeGreaterThan(60);
   });
 });
+
+describe("a frame too small for the rules", () => {
+  it("still gets a court and a tray rather than nothing", () => {
+    for (const [width, height] of [[0, 0], [100, 120], [200, 900]]) {
+      const layout = playLayout(width, height, {});
+      expect(layout.court.cell).toBeGreaterThanOrEqual(0);
+      expect(layout.slots).toHaveLength(3);
+    }
+  });
+});

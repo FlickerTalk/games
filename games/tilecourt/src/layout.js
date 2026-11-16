@@ -34,9 +34,9 @@ function fitCell(limit, size) {
   return Math.floor(clamp(limit / size, 0, CELL_MOST));
 }
 
-function upright(width, height, { size, tray, fill }, top, gap) {
+function upright(width, height, { size, tray, fill, squeeze = false }, top, gap) {
   const zone = Math.min(SLOT_MOST, Math.floor(width / tray));
-  if (zone < SLOT_WIDE) return null;
+  if (zone < SLOT_WIDE && !squeeze) return null;
   const bottom = fill ? CORNER : PAD;
   const room = height - top - bottom - 2 * FRAME - gap;
   let cell = fitCell(Math.min(width - 2 * PAD - 2 * FRAME, room - 96), size);
@@ -85,7 +85,7 @@ export function playLayout(width, height, { size = 8, tray = 3, rival = false, f
   const start = top.bar.y + top.bar.h + top.gap;
   const options = { size, tray, fill };
   const found = [upright, besideColumn, besideRow].map((arrange) => arrange(width, height, options, start, top.gap)).filter(Boolean);
-  const best = found.reduce((one, two) => (two.court.cell > one.court.cell ? two : one));
+  const best = found.length ? found.reduce((one, two) => (two.court.cell > one.court.cell ? two : one)) : upright(width, height, { ...options, squeeze: true }, start, top.gap);
   const { speaker } = top.controls;
   const volume = box(Math.max(PAD, Math.min(width - PAD - 240, speaker.x + speaker.w / 2 - 120)), top.bar.y + top.bar.h + 6, 240, 64);
   return { width, height, fill, ...top, ...best, volume, lift: best.court.cell * 1.5 };
