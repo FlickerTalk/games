@@ -75,6 +75,11 @@ async function phone(engine, base, game, device, { fill, query = "", side = "a",
   return session({ context, page, problems, inner, side, device, fill, out });
 }
 
+export function setHidden(hidden) {
+  Object.defineProperty(document, "hidden", { value: hidden, configurable: true });
+  document.dispatchEvent(new Event("visibilitychange"));
+}
+
 function session(s) {
   s.evaluate = (run, arg) => s.inner().evaluate(run, arg);
   s.targets = () => s.evaluate(() => document.querySelector("canvas").parentElement.game.targets().map(({ kind, value, x, y, w, h, strip }) => ({ kind, value, x, y, w, h, strip })));
@@ -104,6 +109,7 @@ function session(s) {
     await s.page.touchscreen.tap(...(await s.at(found.x + found.w / 2, found.y + found.h / 2)));
     await s.page.waitForTimeout(300);
   };
+  s.hide = (hidden) => s.evaluate(setHidden, hidden);
   s.misplaced = async () => {
     const { frame } = await s.measure();
     const out = (one) => one.x < 0 || one.y < 0 || one.x + one.w > frame.width + 1 || one.y + one.h > frame.height + 1;

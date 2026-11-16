@@ -16,6 +16,8 @@ function fakeGame(env) {
     pointers: [],
     renamed: null,
     closed: false,
+    playing: false,
+    paused: false,
     rest: false,
     frames: 0,
     open: async (opening) => {
@@ -25,12 +27,19 @@ function fakeGame(env) {
     frame: () => {
       game.frames += 1;
     },
-    targets: () => [{ kind: "play", value: "play", x: 10, y: 20, w: 120, h: 120 }, { kind: "slot", value: 0, x: 0, y: 300, w: 100, h: 100 }],
+    targets: () => (game.paused ? [{ kind: "resume", value: "resume", x: 10, y: 20, w: 120, h: 120 }] : [
+      { kind: "play", value: "play", x: 10, y: 20, w: 120, h: 120 },
+      { kind: "slot", value: 0, x: 0, y: 300, w: 100, h: 100 },
+      ...(game.playing ? [{ kind: "pause", value: "pause", x: 300, y: 8, w: 48, h: 48 }] : []),
+    ]),
     pointer: (event) => {
       game.pointers.push(event);
       if (game.asksOnUp && event.type === "up") env.onAsk("rename");
     },
-    press: (target) => game.presses.push(target.kind),
+    press: (target) => {
+      game.presses.push(target.kind);
+      if (target.kind === "pause") game.paused = true;
+    },
     rename: (text) => {
       game.renamed = text;
     },
@@ -84,6 +93,11 @@ function tapName(element, order) {
 const TOUCH = [["pointerdown"], ["pointerup"], ["touchend", Event], ["mousedown", MouseEvent], ["mouseup", MouseEvent], ["click", MouseEvent]];
 const MOUSE = [["pointerdown"], ["mousedown", MouseEvent], ["pointerup"], ["mouseup", MouseEvent], ["click", MouseEvent]];
 
+function setHidden(hidden) {
+  Object.defineProperty(document, "hidden", { value: hidden, configurable: true });
+  document.dispatchEvent(new Event("visibilitychange"));
+}
+
 const buttons = (element) => [...element.querySelectorAll("button")];
 const settle = () => new Promise((resolve) => setTimeout(resolve, 0));
 
@@ -95,7 +109,10 @@ beforeEach(() => {
   document.documentElement.removeAttribute("data-fill");
   setHostTheme(document.documentElement, null);
 });
-afterEach(() => vi.unstubAllGlobals());
+afterEach(() => {
+  vi.unstubAllGlobals();
+  Object.defineProperty(document, "hidden", { value: false, configurable: true });
+});
 
 describe("a canvas game's element", () => {
   it("draws on one canvas named in the player's language, and makes the game with the sound and its controls", async () => {
@@ -216,6 +233,32 @@ describe("a canvas game's element", () => {
     Object.defineProperty(document, "hidden", { value: false, configurable: true });
     document.dispatchEvent(new Event("visibilitychange"));
     expect(frames).toHaveLength(1);
+  });
+
+  it("pauses a round when the page is hidden, runs one frame so the other phone hears it, and stays paused when the page is shown again", async () => {
+    const { element, game } = await mount();
+    frames.splice(0).forEach((frame) => frame(1000));
+    game.playing = true;
+    const before = game.frames;
+    setHidden(true);
+    expect(game.presses).toEqual(["pause"]);
+    expect(game.frames).toBe(before + 1);
+    expect(buttons(element).map((button) => button.getAttribute("aria-label"))).toEqual(["resume!"]);
+    setHidden(false);
+    frames.splice(0).forEach((frame) => frame(2000));
+    setHidden(true);
+    setHidden(false);
+    expect(game.presses).toEqual(["pause"]);
+    expect(game.paused).toBe(true);
+  });
+
+  it("leaves a game that is not in a round as it is when the page is hidden", async () => {
+    const { game } = await mount();
+    const before = game.frames;
+    setHidden(true);
+    setHidden(false);
+    expect(game.presses).toEqual([]);
+    expect(game.frames).toBe(before);
   });
 
   it("starts the game's music once open, and lets go of its loop, its sound and the game when it leaves the page", async () => {

@@ -80,7 +80,7 @@ class CanvasGameElement extends HTMLElement {
     this.watch.observe(this.ownerDocument.documentElement, { attributes: true, attributeFilter: ["data-fill", "data-dark", "style", "class"] });
     this.sizes = globalThis.ResizeObserver ? new ResizeObserver(() => this.measure()) : null;
     this.sizes?.observe(this);
-    this.shown = () => this.wake();
+    this.shown = () => (this.ownerDocument.hidden ? this.away() : this.wake());
     this.ownerDocument.addEventListener("visibilitychange", this.shown);
   }
 
@@ -123,6 +123,14 @@ class CanvasGameElement extends HTMLElement {
   changed() {
     this.labels();
     this.wake();
+  }
+
+  away() {
+    const pause = this.game.targets().find((target) => target.kind === "pause");
+    if (!pause) return;
+    this.game.press(pause);
+    this.labels();
+    this.game.frame(performance.now());
   }
 
   wake() {

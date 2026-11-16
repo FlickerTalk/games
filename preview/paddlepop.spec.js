@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { mkdirSync } from "node:fs";
 import { join } from "node:path";
 import { start } from "./serve.js";
-import { toneOf, toneShares, walkCanvasGame } from "./canvas-walk.js";
+import { setHidden, toneOf, toneShares, walkCanvasGame } from "./canvas-walk.js";
 
 const OUT = "/private/tmp/ftgames-paddlepop-shots";
 
@@ -46,6 +46,20 @@ async function steps(s, { check, label }) {
   });
   await s.page.waitForTimeout(1500);
   await s.shot("5-rally");
+  await check(`${label}: back from the background the round is paused until the player goes on`, async () => {
+    await s.hide(true);
+    await s.hide(false);
+    await s.page.waitForTimeout(300);
+    const seen = () => s.evaluate(() => {
+      const { paused, round } = document.getElementById("view").game.state;
+      return [paused, round.match.step];
+    });
+    const [paused, step] = await seen();
+    await s.page.waitForTimeout(500);
+    assert.deepEqual([paused, await seen()], [true, [true, step]]);
+  });
+  await s.shot("5-back-from-the-background");
+  await s.tap("resume");
   await s.tap("pause");
   await s.shot("6-pause");
   await s.tap("resume");
@@ -163,6 +177,17 @@ async function walkTwoPhones() {
   const frozen = (await state("b")).step;
   await t.page.waitForTimeout(800);
   await check("two phones: a pause on one phone freezes the other", async () => assert.equal((await state("b")).step, frozen));
+  await t.press("a", "resume");
+  await t.page.waitForTimeout(600);
+  await t.frame("a").evaluate(setHidden, true);
+  await t.page.waitForTimeout(600);
+  const held = (await state("b")).step;
+  await t.frame("a").evaluate(setHidden, false);
+  await t.page.waitForTimeout(800);
+  await check("two phones: a phone sent to the background pauses the round for both, also once it is back", async () => {
+    assert.equal(await t.frame("a").evaluate(() => document.getElementById("view").game.state.paused), true);
+    assert.equal((await state("b")).step, held);
+  });
   await t.press("a", "resume");
   await t.frame("a").evaluate(() => {
     const { round } = document.getElementById("view").game.state;
