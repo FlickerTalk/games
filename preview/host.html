@@ -89,6 +89,7 @@
   let dark = params.has("dark") || Boolean(theme?.dark);
   const tablet = params.get("layout") === "tablet";
   const solo = params.has("solo");
+  const alone = params.has("alone");
   function paintPage() {
     document.documentElement.classList.toggle("dark", dark);
     for (const [name, value] of [["--bg", theme?.vars["--ion-background-color"]], ["--text", theme?.vars["--ion-text-color"]]]) {
@@ -104,7 +105,7 @@
     document.documentElement.style.setProperty("--screen-w", `${screenW}px`);
     document.documentElement.style.setProperty("--screen-h", `${screenH}px`);
   }
-  const names = { tictactoe: "Tic-Tac-Toe", fourinarow: "Four in a Row", chess: "Chess" };
+  const names = { tictactoe: "Tic-Tac-Toe", fourinarow: "Four in a Row", chess: "Chess", tilecourt: "Tile Court" };
 
   const phones = { a: { records: new Map(), store: new Map(), frame: null, full: false }, b: { records: new Map(), store: new Map(), frame: null, full: false } };
   let connected = true;
@@ -121,7 +122,7 @@
     return node;
   }
   const devices = { a: device("a"), b: device("b") };
-  devices.b.hidden = solo;
+  devices.b.hidden = solo || alone;
 
   function open(side) {
     close(side);
@@ -162,7 +163,7 @@
     const done = (answer) => tell(side, { type: "ft.done", id: said.id, answer });
     switch (said.type) {
       case "ft.ready":
-        return tell(side, { type: "ft.open", text: "", dark, lang, file: null, ref: null, reminder: null, live: !solo, solo, chat: solo ? `${side}-with-flickertalk` : `${side}-with-${side === "a" ? "b" : "a"}`, theme: theme?.vars ?? null });
+        return tell(side, { type: "ft.open", text: "", dark, lang, file: null, ref: null, reminder: null, live: !solo && !alone, solo, chat: alone ? undefined : solo ? `${side}-with-flickertalk` : `${side}-with-${side === "a" ? "b" : "a"}`, theme: theme?.vars ?? null });
       case "ft.height":
         phone.frame.style.height = `${Math.min(Math.max(said.height, 160), 4000)}px`;
         return;
@@ -221,7 +222,7 @@
   window.harness = { open, close, connect: (yes) => (connected = yes), phones, setTheme, fill };
   if (!params.has("closed")) {
     open("a");
-    if (!solo) open("b");
+    if (!solo && !alone) open("b");
   }
 </script>
 </body>
