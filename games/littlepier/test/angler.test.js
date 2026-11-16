@@ -45,6 +45,6 @@ describe("an angler sitting on the pier", () => {
     const looks = POSES.map((pose) => shapes(draw((pen) => drawAngler(pen, 100, 300, 100, { player: ME, pose, time: 0 }, THEME))).join("\n"));
     expect(new Set(looks).size).toBe(POSES.length);
     expect(POSES).toEqual(["idle", "lowering", "pulling", "cheering", "laughing"]);
-    expect(POSES.map(faceFor)).toEqual(["happy", "focused", "determined", "cheering", "laughing"]);
+    expect(POSES.map(faceFor)).toEqual(["happy", "neutral", "confident", "cheering", "laughing"]);
   });
 });

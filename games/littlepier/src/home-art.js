@@ -11,7 +11,7 @@ import { LOOKS, PROGRESS } from "./levels.js";
 const SMALLEST_ANGLER = 30;
 
 export function drawScene(ctx, area, { day = "morning", place = "pier", anglers = [] }, theme, time) {
-  if (area.w < 80 || area.h < 50) return;
+  if (area.w < 40 || area.h < 30) return;
   const frame = sceneLayout(area);
   ctx.save();
   ctx.beginPath();

@@ -1,4 +1,4 @@
-import { SOUND_TEXTS } from "../../../kit/src/sound/texts.js";
+import { SOUND_TEXTS } from "../../../kit/src/sound/index.js";
 import { TEXTS } from "./texts.js";
 
 function pick(catalogue, lang, key) {

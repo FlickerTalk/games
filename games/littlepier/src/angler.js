@@ -3,7 +3,7 @@ import { circle, ellipse, line, paint, roundedRect } from "../../../kit/src/canv
 
 export const POSES = Object.freeze(["idle", "lowering", "pulling", "cheering", "laughing"]);
 
-const FACES = Object.freeze({ idle: "happy", lowering: "focused", pulling: "determined", cheering: "cheering", laughing: "laughing" });
+const FACES = Object.freeze({ idle: "happy", lowering: "neutral", pulling: "confident", cheering: "cheering", laughing: "laughing" });
 
 const HOLD = Object.freeze({
   idle: { near: [20, -18], far: [6, -16], tip: [52, -92], butt: [-2, -8] },
