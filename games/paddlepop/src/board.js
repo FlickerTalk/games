@@ -3,7 +3,7 @@ import { DIGITS, drawDigits, drawPause, drawRoundButton, formatNumber, pauseLayo
 import { circle, clamp, roundedRect } from "../../../kit/src/canvas/pen.js";
 import { drawDragHand, drawGoalSplash, drawHitBurst, drawWideEffect } from "./bursts.js";
 import { drawDragZone, drawPlayBar, drawScoreLights } from "./hud.js";
-import { LIGHTS, tableTransform } from "./layout.js";
+import { LIGHTS, tableTransform, toScreen } from "./layout.js";
 import { scoreOf } from "./match.js";
 import { drawPaddle } from "./paddles.js";
 import { leftOf } from "./rounds.js";
@@ -97,7 +97,29 @@ function zones(ctx, state, theme, time, s) {
     drawDragZone(ctx, 0, 0, s - 20, height, theme);
     ctx.restore();
   }
-  if (!state.taught) drawDragHand(ctx, near.x - s * 0.3, near.y - height * 0.15, Math.min(62, s * 0.17), (time % HINT_LOOP) / HINT_LOOP, theme);
+}
+
+const FINGER = 0.72;
+const CUFF = 0.86;
+
+function handAt(s, time) {
+  const size = Math.min(62, s * 0.17);
+  const progress = (time % HINT_LOOP) / HINT_LOOP;
+  const y = Math.min(centreOf(0) * s + FINGER * size, L * s + LIGHTS - 2 - CUFF * size);
+  return { x: s / 2 - size * 0.625, y, size, progress };
+}
+
+export function handTip({ layout }, time) {
+  const s = layout.table.s;
+  const { x, y, size, progress } = handAt(s, time);
+  const drag = (progress < 0.2 ? progress / 0.2 : progress > 0.8 ? (1 - progress) / 0.2 : 1) * size * 1.25;
+  return toScreen(layout, (x + drag) / s, (y - FINGER * size) / s);
+}
+
+function hint(ctx, state, theme, time, s) {
+  if (state.taught) return;
+  const { x, y, size, progress } = handAt(s, time);
+  drawDragHand(ctx, x, y, size, progress, theme);
 }
 
 function lights(ctx, state, theme, s) {
@@ -123,6 +145,7 @@ function field(ctx, state, theme, time) {
   balls(ctx, round, theme, time, s);
   moments(ctx, state, theme, time, s);
   ctx.restore();
+  hint(ctx, state, theme, time, s);
   ctx.restore();
 }
 

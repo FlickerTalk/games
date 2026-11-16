@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { bounds, draw, painted } from "../../../kit/test/canvas/recorder.js";
-import { drawPlay, ballsShown } from "../src/board.js";
+import { drawPlay, ballsShown, handTip } from "../src/board.js";
 import { toScreen } from "../src/layout.js";
 import { COUNTDOWN } from "../src/rounds.js";
 import { TABLE } from "../src/table.js";
 import { THEME } from "../src/theme.js";
-import { makeGame, press } from "./harness.js";
+import { fingerAt, makeGame, press } from "./harness.js";
 
 const texts = (ctx) => ctx.calls.filter((call) => call.op === "fillText").map((call) => call.text);
 
@@ -49,6 +49,27 @@ describe("the play screen", () => {
     const [flipped] = ballsShown(turned, game.now());
     expect(flipped.u).toBeCloseTo(1 - ball.x, 12);
     expect(flipped.v).toBeCloseTo(TABLE.length - ball.y, 12);
+  });
+
+  it("puts the teaching hand on top of the player's paddle, its fingertip on it, until the first drag", async () => {
+    for (const [width, height, fill] of [[384, 801, true], [360, 343, false]]) {
+      const { game, later } = await playing({ width, height, fill });
+      await later(COUNTDOWN + 200);
+      const { hand } = THEME.art.effects;
+      expect(game.state.round.looks[0]).toBe("cat");
+      const ear = THEME.art.paddles.cat.ear;
+      const ctx = draw((pen) => drawPlay(pen, game, THEME, 0.8));
+      const fills = ctx.calls.map((call, at) => (call.op === "set" && call.name === "fillStyle" ? [call.value, at] : null)).filter(Boolean);
+      const first = fills.find(([value]) => value === hand)[1];
+      const last = fills.findLast(([value]) => value === ear)[1];
+      expect(first, `${width}x${height}`).toBeGreaterThan(last);
+      const tip = handTip(game.state, 0.8);
+      const [x, y] = toScreen(game.state.layout, 0.5, TABLE.length - TABLE.inset);
+      expect(Math.hypot(tip[0] - x, tip[1] - y), `${width}x${height}`).toBeLessThan(game.state.layout.table.s * 0.12);
+      fingerAt(game, 0.4, { type: "down" });
+      const after = draw((pen) => drawPlay(pen, game, THEME, 0.8));
+      expect(after.calls.some((call) => call.op === "set" && call.value === hand)).toBe(false);
+    }
   });
 
   it("covers the table with the pause buttons while paused", async () => {
