@@ -16,7 +16,8 @@
     "bar": "node preview/bar.spec.js",
     "fill": "node preview/fill.spec.js",
     "tilecourt": "node preview/tilecourt.spec.js",
-    "checkers": "node preview/checkers.spec.js"
+    "checkers": "node preview/checkers.spec.js",
+    "wordgrid": "node preview/wordgrid.spec.js"
   },
   "devDependencies": {
     "@ionic/core": "9.0.4",
