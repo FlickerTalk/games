@@ -8,6 +8,8 @@ const tick = () => settle([...document.querySelectorAll("ft-tictactoe")].map((el
 const kinds = (core) => core.sent.map((data) => JSON.parse(new TextDecoder().decode(fromBase64(data))).k);
 const text = (element) => element.textContent.replace(/\s+/g, " ");
 const cell = (element, index) => element.querySelector(`[data-cell="${index}"]`);
+const marks = (element, name) => [...element.querySelectorAll("[data-cell]")].filter((node) => (node.dataset.mark ?? "").split(" ").includes(name)).map((node) => Number(node.dataset.cell));
+const held = (element, label) => [...element.querySelectorAll("[data-cell]")].filter((node) => node.getAttribute("aria-label").endsWith(`: ${label}`)).length;
 
 async function phone(core, opening = {}) {
   const element = document.createElement("ft-tictactoe");
@@ -52,8 +54,8 @@ describe("Tic-Tac-Toe between two phones", () => {
 
     for (const [who, index] of [[x, 0], [o, 3], [x, 1], [o, 4], [x, 2]]) await touch(who, index);
     for (const side of [x, o]) {
-      expect(side.querySelectorAll("svg.ftt-x")).toHaveLength(3 + 1);
-      expect(side.querySelector("svg.ftt-win line")).not.toBeNull();
+      expect(held(side, "X")).toBe(3);
+      expect(marks(side, "win")).toEqual([0, 1, 2]);
     }
     expect(text(x)).toContain("You won");
     expect(text(o)).toContain("You lost");
@@ -77,7 +79,7 @@ describe("Tic-Tac-Toe between two phones", () => {
     x.ft.live.send = vi.fn(async () => false);
     await touch(x, 4);
     expect(text(x)).toContain("The other phone cannot be reached right now.");
-    expect(cell(x, 4).querySelector(".ftt-clock")).not.toBeNull();
+    expect(marks(x, "pending")).toEqual([4]);
     expect(o.table.record.game.moves).toEqual([]);
     x.ft.live.send = send;
     await touch(x, '[data-kit="back"]');
@@ -85,7 +87,7 @@ describe("Tic-Tac-Toe between two phones", () => {
     await tick();
     expect(o.table.record.game.moves).toEqual([4]);
     expect(cell(o, 4).getAttribute("aria-label")).toBe("Row 2, column 2: X");
-    expect(cell(x, 4).querySelector(".ftt-clock")).toBeNull();
+    expect(marks(x, "pending")).toEqual([]);
     expect(text(o)).toContain("Your turn");
   });
 
@@ -99,7 +101,7 @@ describe("Tic-Tac-Toe between two phones", () => {
     await touch(x, 4);
     await vi.advanceTimersByTimeAsync(8_100);
     expect(text(x)).toContain("The other person does not have “Tic-Tac-Toe” open in this conversation.");
-    expect(cell(x, 4).querySelector(".ftt-clock")).not.toBeNull();
+    expect(marks(x, "pending")).toEqual([4]);
 
     const back = fakeCore({ records: oCore.records });
     xCore.wire = (data) => setTimeout(() => back.hear(data), 0);
@@ -112,7 +114,7 @@ describe("Tic-Tac-Toe between two phones", () => {
     expect(again.table.screen).toBe("match");
     expect(cell(again, 4).getAttribute("aria-label")).toBe("Row 2, column 2: X");
     expect(text(x)).not.toContain("does not have");
-    expect(cell(x, 4).querySelector(".ftt-clock")).toBeNull();
+    expect(marks(x, "pending")).toEqual([]);
     await touch(again, 0);
     expect(cell(x, 0).getAttribute("aria-label")).toBe("Row 1, column 1: O");
   });
@@ -124,13 +126,13 @@ describe("Tic-Tac-Toe between two phones", () => {
     await touch(one, '[data-kit="new"]');
     expect(one.table.record.solo).toBeTruthy();
     for (let turn = 0; one.table.view.phase === "play" && turn < 9; turn += 1) {
-      const free = [...one.querySelectorAll("[data-cell]")].find((node) => !node.disabled && !node.querySelector("svg"));
-      await touch(one, Number(free.dataset.cell));
+      if (one.table.view.myTurn) await touch(one, marks(one, "can")[0]);
       await vi.advanceTimersByTimeAsync(TIMING.think);
       await tick();
     }
     expect(one.table.view.phase).toBe("over");
     expect(one.table.view.result.winner).not.toBe(one.table.record.me);
+    expect(one.querySelector('.ftg-bar canvas[data-side="them"]').dataset.who).toBe("flick");
     expect(one.querySelector('[data-kit="send"]')).toBeNull();
     expect(core.ft.live.send).not.toHaveBeenCalled();
   });

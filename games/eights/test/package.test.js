@@ -12,7 +12,7 @@ const dir = join(import.meta.dirname, "..");
 describe("the Crazy Eights package", () => {
   it("says it is a game that needs the core 1.6.0, the live channel and sending, and nothing else", () => {
     const manifest = checkManifest(dir, { id: "com.flickertalk.game.eights", name: "Crazy Eights", component: "ft-eights" });
-    expect(manifest.version).toBe("1.1.1");
+    expect(manifest.version).toBe("1.2.0");
     for (const brand of BRANDS) expect(`${manifest.name} ${manifest.summary}`).not.toMatch(brand);
   });
 
@@ -28,10 +28,11 @@ describe("the Crazy Eights package", () => {
     expect(readFileSync(join(out, "THIRD_PARTY_NOTICES.md")).equals(readFileSync(join(dir, "dist", "THIRD_PARTY_NOTICES.md")))).toBe(true);
   });
 
-  it("stays under 160 KB, says its one third-party work is Ionicons, loads nothing from outside and names no brand", () => {
-    expect(checkDist(dir, { cap: 160 * 1024 })).toBeGreaterThan(20_000);
+  it("stays under 310 KB, names its third-party works, Ionicons and the deck of playing cards, loads nothing from outside and names no brand", () => {
+    expect(checkDist(dir, { cap: 310 * 1024 })).toBeGreaterThan(20_000);
     const notices = readFileSync(join(dir, "dist", "THIRD_PARTY_NOTICES.md"), "utf8");
-    expect(notices).toContain("its one third-party work is Ionicons");
+    expect(notices).toContain("its third-party works are Ionicons and Adrian Kennard's playing cards");
+    expect(notices).toMatch(/## Playing cards by Adrian Kennard[\s\S]*Licence: CC0 1\.0/);
     const code = readFileSync(join(dir, "dist", "index.js"), "utf8");
     for (const brand of BRANDS) expect(`${code}\n${notices}`).not.toMatch(brand);
   });

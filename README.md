@@ -20,6 +20,7 @@ kit/                      shared code, compiled INTO each game's dist/index.js (
   src/sound/              effects, music and the volume line, made by the game, for the games that ask for it
   src/avatars/            the players' faces: cast, drawing, the stored choice, the pick screen, portraits
   src/canvas/             what a game drawn on a canvas builds on (see "Building a canvas game")
+  src/tabletop/           a turn-based game's board drawn on a canvas inside the kit's page (see "A board drawn on a canvas")
   build.js                buildGame(): one game folder → its dist/
   test/                   the kit's tests, and helpers.js for every game's tests
 games/<name>/             one catalogue package per game (games/tilecourt/: a canvas game, see "A canvas game")
@@ -51,9 +52,11 @@ npm run room          # every game, in every state, in the app's game room on tw
 npm run theme         # the games in the app's colours in Chromium, and in their own palette without them
 npm run fill          # five games entering and leaving full screen mid-match at four frame sizes (npm run fill -- chess: just one)
 npm run tilecourt     # Tile Court's walk in Chromium: four sizes, in the room and full screen, and its play screen in three of the app's themes (-- --webkit: in WebKit)
+npm run checkers      # Checkers' walk in Chromium: four sizes, in the room and full screen, light and dark, a piece chosen and a few moves played
+npm run bar -- checkers  # the bar walk for another game than Tic-Tac-Toe
 ```
 
-`frame`, `room`, `bar`, `theme`, `fill` and `tilecourt` run the built packages (`frame` reads `games/chess/dist/`), so run
+`frame`, `room`, `bar`, `theme`, `fill`, `tilecourt` and `checkers` run the built packages (`frame` reads `games/chess/dist/`), so run
 `npm run build` before them.
 
 `dist/` is committed: after changing `src/` or the kit, run `npm run build` and commit what changed.
@@ -720,6 +723,66 @@ The room runs in Chromium only: its height comes from the screen's, which WebKit
 Playwright. `s` offers `tap(kind, value)`, `shot(name)`, `targets()`, `measure()`, `samples(area)` (the
 canvas's pixels, for `toneShares`) and `evaluate(fn, arg)` in the game's frame.
 
+## A board drawn on a canvas
+
+Checkers is the first turn-based game whose board is drawn on a canvas. Only the board changes: the
+kit's page stays as it is (the list of matches, the coin, the bar with the score and the portraits,
+the band under it, the players, the result's actions, the questions, the texts in 21 languages), and
+the board square the shell gives the game holds a canvas with the drawing and, over it, one
+transparent button per square, labelled as before, so taps, the keyboard and screen readers work as
+they did. What every board game shares lives in `kit/src/tabletop/`, imported from
+`kit/src/tabletop/index.js`; a game that does not import it carries none of it (a test checks every
+package). It is about 8 KB minified, and takes the canvas kit's pen and colours with it.
+
+```js
+// games/checkers/src/board.js
+import { TABLETOP_STYLE, canvasBoard } from "../../../kit/src/tabletop/board.js";
+
+export const STYLE = TABLETOP_STYLE;
+export const board = canvasBoard({ theme: themeFor, scene: createScene });
+```
+
+| Piece | What it does |
+| --- | --- |
+| `canvasBoard({ theme, scene })` | The `board` for `defineGame`. On `mount` it puts a canvas and the buttons' layer in the board square, sizes the canvas to it at the screen's pixel ratio and follows it, reads the app's colours from the frame's root and follows a theme change, draws only when the scene asks for a frame, stops while the page is hidden, and lets go of everything on `destroy`. `theme(tokens, { dark })` gives what the drawing is handed; `scene(context, { wake })` gives the scene below. |
+| `TABLETOP_STYLE` | The canvas and its buttons, and the kit's drag look. Add it to the game's `style`. |
+| `tabletopTheme(tokens, { dark }, { board, ...art })` | `{ ui, dark, rim, board, ...art }`: `ui` is the canvas kit's interface palette from the app's colours; `board` is the approved board at dusk on a dark page (`duskBoard`: lowered as one until its lightest colour is under the bright line, every step between its colours kept, its hues kept); the rest of the art (pieces, marks) keeps its full colour; `rim` is the app's quiet grey on a dark page, `null` on a light one. |
+| `gridIn(box, { columns, rows })`, `cellBox`, `cellCentre`, `cellAt`, `fractionOf` | A board's cells in a box, turned for the side that plays from the top (`{ flipped }`), and a box as shares of the canvas, for the buttons. |
+| `boardFrame(size, options)`, `drawBoardFrame(ctx, frame, { wood, ink, rim })` | The frame of a classic board: its base under it, the wood, the ink outline and, on a dark page, one rim around the whole outline, all inside the canvas at any size. |
+| `drawPieceShadow(ctx, x, y, radius, { colour, lift })` | A piece's flat shadow on the board, further and fainter as it is lifted (a hop, a finger). |
+| `along(points, progress, { hop })`, `progressOf(start, duration, now)`, `easeInOut` | A piece moving through the squares of its move, rising over the legs that hop. |
+| `syncButtons(layer, buttons)` | The buttons over the board, patched in place so focus and a finger on one are kept. |
+
+**The scene** is the game's: an object made from the board's context, with no DOM of its own.
+
+| Method | |
+| --- | --- |
+| `update(context)` | Every change the kit hands the board. Compare positions, not objects: the kit rebuilds the state on every change. |
+| `buttons({ size })` | One `{ key, box, label, disabled, data }` per square, in reading order from the user's side; `box` in shares of the board, `data` written as `data-*` attributes (`data-cell` for the preview's walks, `data-drag` for a piece a finger may carry, `data-mark` for what the canvas shows on that square, which the tests read). |
+| `label()` | The board's name for a screen reader, with what is on it. |
+| `press(key)` | A tap on an open square. |
+| `draw(ctx, { size, theme, now, still })` | Clear and draw the board. Answer `0` for the next frame (something moves), a number of milliseconds for a slow one (a pulse), or `null` to rest. `still` is the system's reduced motion: nothing travels or pulses. |
+| `canDrag(key)`, `dropTargets(key)`, `dragAt(key, point)`, `drop(key, target)` | Optional: a piece carried by a finger, with the kit's drag (`point` in the canvas's coordinates, `null` when it is let go). |
+
+**The files of a board game** (Checkers): `theme.js` (the only file that names a colour, a test checks it),
+`pieces.js` and `marks.js` (the approved art, drawn from the theme), `paint.js` (`layoutFor(size)` and
+`drawBoard(ctx, theme, view)`), `picking.js` (choosing a move, pure), `moves.js` (how a move is shown:
+its path, the pieces it takes, the crown, as pure functions of time), `scene.js`, and `board.js`. The rules,
+the robot, the texts and the match record do not change, so a phone with the old package and one with
+the new play together. The sides' marks beside the players' names are small drawings of the pieces, and
+the game sets `--hue-side-0` and `--hue-side-1` to its pieces' colours, so the turn outline matches them.
+`withSound` and `withPortraits` wrap the board as in Tic-Tac-Toe.
+
+**Rules**: no words on the canvas, the labels are the buttons'; the board at dusk on a dark page and the
+pieces in their full colour; nothing pulses faster than three times a second; a move by the other side
+travels so it can be followed, a move dropped by a finger lands where it was dropped; a move still on its
+way to the other phone is shown faded with a clock. `walkBoardGame` (`preview/board-walk.js`) runs a board
+game in Chromium at four sizes, in the room and full screen, in mono light and dark and in ember dark:
+the canvas sharp, the board inside the frame, nothing scrolling in full screen, the game in a phone's room
+when the room can hold its smallest board, at most 10 % of the board bright on a dark page (the light side's pieces, in their full colour; the approved board's light squares alone were nearly half of it), no errors, and
+a screenshot of each step. A 360×640 phone's room (343 px) cannot hold Checkers' smallest board under the
+bar: there the room scrolls, as it always has.
+
 ## Sound
 
 `kit/src/sound/` gives a game sound effects and background music that the game makes itself with Web
@@ -937,6 +1000,8 @@ package's contents. So:
 - Sound is `1.2.0` for Tic-Tac-Toe, the first game that has it. The other games' packages do not change.
 - Tile Court is first published at `1.0.0`. The kit's progress module learnt looks of several kinds and
   tracks for it; no other game imports that module, so no other package changes.
+- Checkers drawn on a canvas, with sound and the players' portraits, is its `1.2.0`. The other games'
+  packages do not change.
 
 ## Preview
 

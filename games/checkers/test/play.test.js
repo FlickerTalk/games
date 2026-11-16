@@ -8,8 +8,9 @@ import "../src/index.js";
 const tick = () => settle([...document.querySelectorAll("ft-checkers")].map((element) => element.table));
 const kinds = (core) => core.sent.map((data) => JSON.parse(new TextDecoder().decode(fromBase64(data))).k);
 const text = (element) => element.textContent.replace(/\s+/g, " ");
-const square = (element, index) => element.querySelector(`[data-cell="${index}"]`);
-const pieces = (element, side) => element.querySelectorAll(`.fck-sq svg.fck-s${side}`).length;
+const square = (element, index) => element.querySelector(`button[data-cell="${index}"]`);
+const pieces = (element, side) => [...element.querySelectorAll("button[data-cell]")].filter((one) => (side ? /: light (piece|king)$/ : /: dark (piece|king)$/).test(one.getAttribute("aria-label"))).length;
+const marked = (element, name) => [...element.querySelectorAll("button[data-mark]")].filter((one) => one.dataset.mark.split(" ").includes(name)).map((one) => one.dataset.cell);
 
 async function phone(core, opening = {}) {
   const element = document.createElement("ft-checkers");
@@ -65,6 +66,23 @@ describe("checkers against the phone", () => {
     expect(one.table.view.myTurn).toBe(true);
     expect(core.ft.live.send).not.toHaveBeenCalled();
   });
+
+  it("plays a whole round against the phone to its end, the phone always Flick and never a word on the live channel", async () => {
+    const core = fakeCore();
+    const one = await phone(core, { live: false, solo: true });
+    one.table.random = () => new Uint8Array(32).fill(1);
+    await touch(one, '[data-kit="new"]');
+    for (let turn = 0; one.table.view.phase === "play" && turn < 200; turn += 1) {
+      if (one.table.view.myTurn) await move(one, ...legalMoves(one.table.view.state, one.table.view.mySide)[0].split("-").map(Number));
+      await vi.advanceTimersByTimeAsync(TIMING.think);
+      await tick();
+    }
+    expect(one.table.view.phase).toBe("over");
+    expect(text(one)).toMatch(/You (won|lost)|Draw/);
+    expect(one.querySelector('.ftg-bar canvas[data-side="them"]').dataset.who).toBe("flick");
+    expect(one.querySelector('[data-kit="send"]')).toBeNull();
+    expect(core.ft.live.send).not.toHaveBeenCalled();
+  }, 60_000);
 });
 
 describe("checkers between two phones", () => {
@@ -79,7 +97,7 @@ describe("checkers between two phones", () => {
     await move(d, 17, 24);
     expect(text(l)).toContain("Your turn");
     await move(l, 42, 33);
-    expect([...d.querySelectorAll(".fck-sq.can")].map((one) => one.dataset.cell)).toEqual(["24"]);
+    expect(marked(d, "can")).toEqual(["24"]);
     await move(d, 24, 42);
     for (const side of [d, l]) {
       expect(pieces(side, 0)).toBe(12);
@@ -102,7 +120,7 @@ describe("checkers between two phones", () => {
     d.ft.live.send = vi.fn(async () => false);
     await move(d, 21, 30);
     expect(text(d)).toContain("The other phone cannot be reached right now.");
-    expect(square(d, 30).querySelector(".fck-clock")).not.toBeNull();
+    expect(marked(d, "pending")).toEqual(["30"]);
     expect(l.table.record.game.moves).toEqual([]);
     d.ft.live.send = send;
     await touch(d, '[data-kit="back"]');
@@ -110,7 +128,7 @@ describe("checkers between two phones", () => {
     await tick();
     expect(l.table.record.game.moves).toEqual(["21-30"]);
     expect(square(l, 30).getAttribute("aria-label")).toBe("Row 4, column 7: dark piece");
-    expect(square(d, 30).querySelector(".fck-clock")).toBeNull();
+    expect(marked(d, "pending")).toEqual([]);
     expect(text(l)).toContain("Your turn");
   });
 });

@@ -53,30 +53,32 @@ async function newMatch(page, frames) {
   await frames.a.locator('[data-kit="new"]').first().click();
   await frames.a.waitForSelector(".ftg-player.turn", { timeout: 10_000 });
   await frames.b.waitForSelector(".ftg-player.turn", { timeout: 10_000 });
-  for (const frame of [frames.a, frames.b]) await frame.waitForFunction(() => document.querySelectorAll(".cm-chessboard .pieces > g[data-piece]").length === 32);
+  for (const frame of [frames.a, frames.b]) await frame.waitForFunction(() => document.querySelectorAll(".ftg-board button[data-piece]").length === 32);
   await page.waitForTimeout(300);
   const aStarts = await frames.a.locator(".ftg-player.me.turn").count();
   return aStarts ? { white: frames.a, black: frames.b } : { white: frames.b, black: frames.a };
 }
 
-const fen = (frame) => frame.evaluate(() => document.querySelector(".ftg-board").dataset.fen);
-const pieceOn = (frame, square) => frame.evaluate((name) => document.querySelector(`.pieces > g[data-square="${name}"]`)?.dataset.piece ?? null, square);
-const marked = (frame, kind) => frame.evaluate((name) => [...document.querySelectorAll(`.markers g[data-square]`)].filter((g) => g.querySelector(`use.${name}`)).map((g) => g.dataset.square).sort(), kind);
+const square = (name) => `.ftg-board button[data-square="${name}"]`;
+const fen = (frame) => frame.evaluate(() => document.querySelector("#view").table.view.state.fen);
+const pieceOn = (frame, name) => frame.evaluate((selector) => document.querySelector(selector)?.dataset.piece ?? null, square(name));
+const marked = (frame, kind) =>
+  frame.evaluate((name) => [...document.querySelectorAll(".ftg-board button[data-mark]")].filter((one) => one.dataset.mark.split(" ").includes(name)).map((one) => one.dataset.square).sort(), kind);
 
-async function centre(frame, square) {
-  const box = await frame.locator(`rect.square[data-square="${square}"]`).boundingBox();
+async function centre(frame, name) {
+  const box = await frame.locator(square(name)).boundingBox();
   return { x: box.x + box.width / 2, y: box.y + box.height / 2 };
 }
 
 async function landed(page, frames, expected) {
-  for (const frame of frames) await frame.waitForFunction((want) => document.querySelector(".ftg-board").dataset.fen.startsWith(want), expected, { timeout: 5_000 });
+  for (const frame of frames) await frame.waitForFunction((want) => document.querySelector("#view").table.view.state.fen.startsWith(want), expected, { timeout: 5_000 });
   await page.waitForTimeout(300);
 }
 
 async function tapMove(page, frame, uci) {
-  await frame.locator(`rect.square[data-square="${uci.slice(0, 2)}"]`).click();
+  await frame.locator(square(uci.slice(0, 2))).click();
   await page.waitForTimeout(60);
-  await frame.locator(`rect.square[data-square="${uci.slice(2, 4)}"]`).click();
+  await frame.locator(square(uci.slice(2, 4))).click({ force: true, timeout: 2_000 });
 }
 
 async function mouseDrag(page, frame, uci) {
@@ -98,17 +100,25 @@ function cleanNetwork(log) {
   const { context, page, frames, log } = await open({});
   const { white, black } = await newMatch(page, frames);
 
-  await check("each board draws 32 pieces from the sprite, every one with a real box", async () => {
+  await check("each board draws its 32 pieces on the canvas, under a named square a finger can hit", async () => {
     for (const frame of [white, black]) {
-      const boxes = await frame.evaluate(() =>
-        [...document.querySelectorAll(".cm-chessboard .pieces > g[data-piece] use")].map((use) => {
-          const box = use.getBBox();
-          const rect = use.getBoundingClientRect();
-          return { href: use.getAttribute("href"), w: box.width, h: box.height, cw: rect.width, ch: rect.height };
-        }),
-      );
-      assert.equal(boxes.length, 32);
-      for (const box of boxes) assert.ok(box.w > 0 && box.h > 0 && box.cw > 10 && box.ch > 10, JSON.stringify(box));
+      const seen = await frame.evaluate(() => {
+        const canvas = document.querySelector(".ftg-board canvas");
+        const area = canvas.getBoundingClientRect();
+        const pixels = canvas.getContext("2d").getImageData(0, 0, canvas.width, canvas.height).data;
+        const ink = (box) => {
+          const [x, y] = [Math.round(((box.x + box.width / 2 - area.x) / area.width) * canvas.width), Math.round(((box.y + box.height * 0.3 - area.y) / area.height) * canvas.height)];
+          return [...pixels.slice((y * canvas.width + x) * 4, (y * canvas.width + x) * 4 + 3)];
+        };
+        return [...document.querySelectorAll(".ftg-board button[data-square]")].map((one) => {
+          const box = one.getBoundingClientRect();
+          return { piece: one.dataset.piece ?? null, w: box.width, h: box.height, colour: ink(box), label: one.getAttribute("aria-label") };
+        });
+      });
+      assert.equal(seen.filter((one) => one.piece).length, 32);
+      for (const one of seen) assert.ok(one.w >= 38 && one.h >= 38 && one.label, JSON.stringify(one));
+      const kept = new Set(seen.filter((one) => !one.piece).map((one) => one.colour.join()));
+      assert.ok(seen.filter((one) => one.piece).some((one) => !kept.has(one.colour.join())), "no piece drawn over its square");
     }
   });
 
@@ -119,13 +129,13 @@ function cleanNetwork(log) {
   });
 
   await check("a move by tapping (e2, then e4), with its legal squares marked, reaches the other phone", async () => {
-    await white.locator('rect.square[data-square="e2"]').click();
+    await white.locator(square("e2")).click();
     await page.waitForTimeout(100);
-    assert.deepEqual(await marked(white, "ftc-move"), ["e3", "e4"]);
-    await white.locator('rect.square[data-square="e4"]').click();
+    assert.deepEqual(await marked(white, "to"), ["e3", "e4"]);
+    await white.locator(square("e4")).click();
     await landed(page, [white, black], "rnbqkbnr/pppppppp/8/8/4P3/");
     assert.equal(await pieceOn(black, "e4"), "wp");
-    assert.deepEqual(await marked(black, "ftc-last"), ["e2", "e4"]);
+    assert.deepEqual(await marked(black, "last"), ["e2", "e4"]);
   });
 
   await check("a move by dragging with a mouse (e7 to e5) on the board seen from black", async () => {
@@ -139,7 +149,7 @@ function cleanNetwork(log) {
     await page.waitForTimeout(400);
     assert.match(await fen(white), /^rnbqkbnr\/pppp1ppp\/8\/4p3\/4P3\/8\/PPPP1PPP\/RNBQKBNR w /);
     assert.equal(await pieceOn(white, "e4"), "wp");
-    await white.locator('rect.square[data-square="e4"]').click();
+    await white.locator(square("e4")).click();
   });
 
   await check("zero policy violations, zero network attempts, zero console errors", async () => assert.deepEqual(log.errors, []));
@@ -197,9 +207,9 @@ function cleanNetwork(log) {
     await touch("touchEnd", []);
   };
   const tapTouch = async (frame, uci) => {
-    await frame.locator(`rect.square[data-square="${uci.slice(0, 2)}"]`).tap();
+    await frame.locator(square(uci.slice(0, 2))).tap();
     await page.waitForTimeout(60);
-    await frame.locator(`rect.square[data-square="${uci.slice(2, 4)}"]`).tap();
+    await frame.locator(square(uci.slice(2, 4))).tap();
   };
   const { white, black } = await newMatch(page, frames);
 
@@ -222,16 +232,16 @@ function cleanNetwork(log) {
 
   await check("phone: promotion asks which piece, and the knight picked lands on both phones", async () => {
     await tapTouch(white, "b7a8");
-    await white.waitForSelector(".promotion-dialog-button-group[data-piece='wn']", { timeout: 3_000 });
-    const names = await white.evaluate(() => [...document.querySelectorAll(".promotion-dialog-button-group")].map((g) => g.getAttribute("aria-label")));
+    await white.waitForSelector(".ftg-board button[data-promote='n']", { timeout: 3_000 });
+    const names = await white.evaluate(() => [...document.querySelectorAll(".ftg-board button[data-promote]")].map((one) => one.getAttribute("aria-label")));
     assert.deepEqual(names, ["Queen", "Rook", "Bishop", "Knight"]);
-    await white.locator(".promotion-dialog-button-group[data-piece='wn'] rect").tap();
+    await white.locator(".ftg-board button[data-promote='n']").tap();
     await landed(page, [white, black], "N2qkbnr/");
     assert.equal(await pieceOn(black, "a8"), "wn");
   });
 
   await check("phone: the board takes the sheet's width, with squares a finger can hit", async () => {
-    const box = await white.locator(".cm-chessboard").boundingBox();
+    const box = await white.locator(".ftg-board canvas").boundingBox();
     assert.ok(box.width >= 320 && box.width <= 360, `board ${box.width}px`);
     assert.ok(box.width / 8 >= 40, `square ${box.width / 8}px`);
   });

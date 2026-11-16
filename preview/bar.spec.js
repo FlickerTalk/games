@@ -78,6 +78,8 @@ function common(seen, mode) {
   assert.equal(seen.sizing, SIZING, `the title's box sizing is ${seen.sizing}, Ionic's own is ${SIZING}`);
 }
 
+const GAME = process.argv[2] ?? "tictactoe";
+
 for (const [engine, launcher] of Object.entries(ENGINES)) {
   const browser = await launcher.launch();
   for (const { mode, userAgent } of MODES) {
@@ -91,12 +93,12 @@ for (const [engine, launcher] of Object.entries(ENGINES)) {
       const page = await context.newPage();
       const errors = [];
       page.on("pageerror", (error) => /^ResizeObserver loop/.test(error.message) || errors.push(error.message));
-      await page.goto(`${base}/?game=tictactoe&lang=${lang}&bare&closed&screen=${PHONE.width}x${PHONE.height}`);
+      await page.goto(`${base}/?game=${GAME}&lang=${lang}&bare&closed&screen=${PHONE.width}x${PHONE.height}`);
       await page.evaluate(() => globalThis.harness.open("a"));
       const frame = page.frameLocator("#frame-a");
       await frame.locator(".ftg-bar ion-title.hydrated").waitFor();
       await page.waitForTimeout(300);
-      const inFrame = page.frames().find((one) => one.url().endsWith("/frame/tictactoe/a/frame.html"));
+      const inFrame = page.frames().find((one) => one.url().endsWith(`/frame/${GAME}/a/frame.html`));
       const rtl = lang === "ar";
 
       await check(label("the list: the title"), async () => {

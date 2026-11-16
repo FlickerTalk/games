@@ -2,7 +2,7 @@ import manifest from "../module.json";
 import { defineGame } from "../../../kit/src/index.js";
 import { withSound } from "../../../kit/src/sound/index.js";
 import { withPortraits } from "../../../kit/src/avatars/portraits.js";
-import { board, MARKS, STYLE } from "./board.js";
+import { board, PIECES, STYLE } from "./board.js";
 import { TEXTS } from "./texts.js";
 import { initial, play, result, turn } from "./rules.js";
 import { robot } from "./robot.js";
@@ -21,7 +21,7 @@ export const game = defineGame(
       result,
       robot,
       board: withPortraits(board),
-      sides: MARKS,
+      sides: PIECES,
       style: STYLE,
       texts: TEXTS,
     },

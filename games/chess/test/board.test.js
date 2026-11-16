@@ -1,9 +1,11 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { KIT_TEXTS, joinTexts, translator } from "../../../kit/src/i18n.js";
-import { Chessboard } from "cm-chessboard/src/Chessboard.js";
+import { DRAG_STYLE } from "../../../kit/src/drag.js";
+import { TABLETOP_STYLE } from "../../../kit/src/tabletop/board.js";
 import { SIDES, STYLE, board } from "../src/board.js";
 import { initial, play, turn } from "../src/rules.js";
 import { TEXTS } from "../src/texts.js";
+import { ART } from "../src/theme.js";
 
 const translate = translator(joinTexts(KIT_TEXTS, TEXTS));
 const TO_PROMOTE = "a2a4 b7b5 a4b5 a7a6 b5a6 c8b7 a6b7 b8c6".split(" ");
@@ -36,146 +38,129 @@ function context(moves = [], extra = {}) {
 function mount(ctx) {
   const host = document.createElement("div");
   host.setAttribute("dir", "ltr");
+  host.getBoundingClientRect = () => ({ left: 0, top: 0, width: 320, height: 320, right: 320, bottom: 320 });
   document.body.append(host);
   return { host, shown: board.mount(host, ctx) };
 }
 
-const square = (host, name) => host.querySelector(`rect.square[data-square="${name}"]`);
-const marks = (host, kind) => [...host.querySelectorAll(`.markers g[data-square]`)].filter((g) => g.querySelector(`use.${kind}`)).map((g) => g.dataset.square).sort();
-const files = (host) => [...host.querySelectorAll(".coordinates .file")].map((text) => text.textContent).join("");
+const pointer = (node, type, x, y) => node.dispatchEvent(new PointerEvent(type, { bubbles: true, cancelable: true, clientX: x, clientY: y, pointerId: 1, isPrimary: true, button: 0, pointerType: "touch" }));
+const square = (host, name) => host.querySelector(`button[data-square="${name}"]`);
+const marked = (host, name) => [...host.querySelectorAll("button[data-mark]")].filter((one) => one.dataset.mark.split(" ").includes(name)).map((one) => one.dataset.square).sort();
+const layer = (host) => host.querySelector('[role="group"]');
 
-function tap(host, name) {
-  const target = square(host, name);
-  target.dispatchEvent(new MouseEvent("mousedown", { bubbles: true, button: 0 }));
-  target.dispatchEvent(new MouseEvent("mouseup", { bubbles: true, button: 0 }));
+function drag(host, from, to) {
+  const piece = square(host, from);
+  pointer(piece, "pointerdown", 10, 10);
+  pointer(piece, "pointermove", 40, 40);
+  const lit = [...host.querySelectorAll("[data-drop-ok]")].map((one) => one.dataset.square).sort();
+  document.elementFromPoint = () => (to === null ? null : square(host, to));
+  pointer(layer(host), "pointerup", 40, 40);
+  return lit;
 }
 
-const later = (ms = 50) => new Promise((resolve) => setTimeout(resolve, ms));
-
+const realFromPoint = document.elementFromPoint;
 afterEach(() => {
+  document.elementFromPoint = realFromPoint;
   document.body.innerHTML = "";
 });
 
 describe("the chess board", () => {
-  it("puts the pieces and the marks in the document first, then draws 32 pieces from them", () => {
+  it("is drawn on a canvas, with a named button over each square, seen from the user's side", () => {
     const { host } = mount(context());
-    const sprite = document.getElementById("cm-chessboard-sprite");
-    expect(sprite.parentElement).toBe(document.body);
-    expect([...sprite.querySelectorAll("svg > g[id]")].map((g) => g.id).sort()).toEqual(["bb", "bk", "bn", "bp", "bq", "br", "wb", "wk", "wn", "wp", "wq", "wr"]);
-    expect(document.getElementById("cm-chessboard-markers").querySelector("#ftcDot")).not.toBeNull();
-    const pieces = host.querySelectorAll(".cm-chessboard .pieces > g[data-piece]");
-    expect(pieces).toHaveLength(32);
-    for (const piece of pieces) expect(piece.querySelector("use").getAttribute("href")).toMatch(/^#[wb][kqrbnp]$/);
-    expect(host.querySelectorAll("rect.square")).toHaveLength(64);
-    expect(host.querySelector(".ftc").getAttribute("aria-label")).toBe("Chessboard");
-    expect(host.dataset.fen).toBe("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
-    mount(context());
-    expect(document.querySelectorAll("#cm-chessboard-sprite")).toHaveLength(1);
-  });
-
-  it("shows the board from the user's side, with its coordinates, and turns it for a new colour", async () => {
-    expect(files(mount(context([], { mySide: 0 })).host)).toBe("abcdefgh");
-    const { host, shown } = mount(context([], { mySide: 1 }));
-    expect(files(host)).toBe("hgfedcba");
-    shown.update(context([], { mySide: 0 }));
-    await later();
-    expect(files(host)).toBe("abcdefgh");
+    expect(host.querySelector("canvas").getAttribute("aria-hidden")).toBe("true");
+    expect(host.querySelectorAll("button[data-square]")).toHaveLength(64);
+    expect(layer(host).getAttribute("aria-label")).toBe("Chessboard");
+    expect(host.querySelector("button[data-square]").dataset.square).toBe("a8");
+    expect(square(host, "e1").getAttribute("aria-label")).toBe("e1: King (white)");
+    expect(square(host, "d8").getAttribute("aria-label")).toBe("d8: Queen (black)");
+    expect(square(host, "e4").getAttribute("aria-label")).toBe("e4: empty");
+    expect(square(host, "g8").dataset.piece).toBe("bn");
+    const black = mount(context([], { mySide: 1 })).host;
+    expect(black.querySelector("button[data-square]").dataset.square).toBe("h1");
   });
 
   it("moves by tapping a piece and then where it goes, showing where it may go", () => {
     const ctx = context();
     const { host } = mount(ctx);
-    tap(host, "e2");
-    expect(marks(host, "ftc-move")).toEqual(["e3", "e4"]);
-    expect(marks(host, "ftc-pick")).toEqual(["e2"]);
-    tap(host, "e4");
+    square(host, "e2").click();
+    expect(marked(host, "from")).toEqual(["e2"]);
+    expect(marked(host, "to")).toEqual(["e3", "e4"]);
+    square(host, "e4").click();
     expect(ctx.play).toHaveBeenCalledWith("e2e4");
-    expect(marks(host, "ftc-move")).toEqual([]);
   });
 
-  it("refuses a move the rules refuse, and rings a piece it can take", () => {
+  it("opens only the squares a move can use, and rings a piece it can take", () => {
     const ctx = context(["e2e4", "d7d5"]);
     const { host } = mount(ctx);
-    tap(host, "e4");
-    expect(marks(host, "ftc-move")).toEqual(["e5"]);
-    expect(marks(host, "ftc-capture")).toEqual(["d5"]);
-    tap(host, "e6");
-    expect(ctx.play).not.toHaveBeenCalled();
-    tap(host, "e4");
-    tap(host, "d5");
+    square(host, "e4").click();
+    expect(marked(host, "to")).toEqual(["d5", "e5"]);
+    expect(marked(host, "take")).toEqual(["d5"]);
+    expect(square(host, "e6").disabled).toBe(true);
+    square(host, "d5").click();
     expect(ctx.play).toHaveBeenCalledWith("e4d5");
   });
 
-  it("takes nothing when it is not the user's turn, nor after the end", () => {
+  it("opens nothing when it is not the user's turn, nor after the end", () => {
     const waiting = context(["e2e4"], { mySide: 0 });
     const { host } = mount(waiting);
-    expect(waiting.canPlay).toBe(false);
-    tap(host, "d2");
-    tap(host, "d4");
-    expect(waiting.play).not.toHaveBeenCalled();
-    expect(marks(host, "ftc-move")).toEqual([]);
-    const over = context(["f2f3", "e7e5", "g2g4", "d8h4"], { mySide: 0, canPlay: true });
-    const ended = mount(over).host;
-    tap(ended, "a2");
-    tap(ended, "a3");
-    expect(over.play).not.toHaveBeenCalled();
+    expect([...host.querySelectorAll("button[data-square]")].every((one) => one.disabled)).toBe(true);
+    const over = mount(context(["f2f3", "e7e5", "g2g4", "d8h4"], { mySide: 0, canPlay: true })).host;
+    expect([...over.querySelectorAll("button[data-square]")].filter((one) => !one.disabled)).toEqual([]);
   });
 
-  it("asks which piece to promote to, in the user's language, and plays the one chosen", async () => {
+  it("asks which piece to promote to, in the user's language, and plays the one chosen", () => {
     const ctx = context(TO_PROMOTE, { lang: "es" });
     const { host } = mount(ctx);
-    tap(host, "b7");
-    tap(host, "a8");
-    await later(400);
-    const buttons = [...host.querySelectorAll(".promotion-dialog-button-group")];
-    expect(buttons.map((button) => button.getAttribute("aria-label"))).toEqual(["Dama", "Torre", "Alfil", "Caballo"]);
-    expect(host.querySelector(".promotion-dialog-group").getAttribute("aria-label")).toBe("Coronar el peón como");
-    const knight = host.querySelector('.promotion-dialog-button-group[data-piece="wn"] rect');
-    knight.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true, button: 0 }));
+    square(host, "b7").click();
+    square(host, "a8").click();
+    expect(layer(host).getAttribute("aria-label")).toBe("Coronar el peón como");
+    const choices = [...host.querySelectorAll("button[data-promote]")];
+    expect(choices.map((one) => one.getAttribute("aria-label"))).toEqual(["Dama", "Torre", "Alfil", "Caballo"]);
+    expect(host.querySelector('button[data-key="cancel"]').getAttribute("aria-label")).toBe("Cancelar");
+    host.querySelector('button[data-promote="n"]').click();
     expect(ctx.play).toHaveBeenCalledWith("b7a8n");
-    await later(150);
-    expect(host.querySelector(".cm-chessboard-promotion-live-region").textContent).toBe("Caballo");
   });
 
-  it("marks the last move, a move still pending and the king in check, and leaves how the game ended to the kit", () => {
+  it("marks the last move, a move still pending and the king in check", () => {
     const { host, shown } = mount(context(["e2e4", "f7f6", "d1h5"], { mySide: 1 }));
-    expect(marks(host, "ftc-last")).toEqual(["d1", "h5"]);
-    expect(marks(host, "ftc-check")).toEqual(["e8"]);
-    expect(host.querySelector(".ftc").getAttribute("aria-label")).toBe("Chessboard · Check");
+    expect(marked(host, "last")).toEqual(["d1", "h5"]);
+    expect(marked(host, "check")).toEqual(["e8"]);
+    expect(layer(host).getAttribute("aria-label")).toBe("Chessboard · Check");
     shown.update(context(["e2e4", "f7f6", "d1h5", "g7g6"], { mySide: 1, pending: true }));
-    expect(marks(host, "ftc-last")).toEqual([]);
-    expect(marks(host, "ftc-pending")).toEqual(["g6", "g7"]);
-    expect(marks(host, "ftc-check")).toEqual([]);
-    shown.update(context(["f2f3", "e7e5", "g2g4", "d8h4"], { lang: "es" }));
-    expect(marks(host, "ftc-check")).toEqual(["e1"]);
-    expect(host.querySelector(".ftc-end")).toBeNull();
-    expect(host.textContent).not.toContain("Jaque mate");
+    expect(marked(host, "last")).toEqual(["g6", "g7"]);
+    expect(marked(host, "pending")).toEqual(["g6"]);
+    expect(marked(host, "check")).toEqual([]);
   });
 
-  it("lets cm-chessboard go when it leaves the screen, once", () => {
-    const destroy = vi.spyOn(Chessboard.prototype, "destroy");
+  it("plays a move by dragging the piece to a legal square, lighting where it may go", () => {
+    const ctx = context();
+    const { host } = mount(ctx);
+    expect([...host.querySelectorAll("[data-drag]")].map((one) => one.dataset.square).sort()).toEqual(["a2", "b1", "b2", "c2", "d2", "e2", "f2", "g1", "g2", "h2"]);
+    expect(drag(host, "g1", "f3")).toEqual(["f3", "h3"]);
+    expect(ctx.play).toHaveBeenCalledWith("g1f3");
+  });
+
+  it("plays nothing when a piece is let go on a square it may not reach, or off the board", () => {
+    const ctx = context();
+    const { host } = mount(ctx);
+    drag(host, "e2", "e5");
+    drag(host, "e2", null);
+    expect(ctx.play).not.toHaveBeenCalled();
+  });
+
+  it("lets go of everything when it leaves the screen", () => {
     const { host, shown } = mount(context(["e2e4"]));
-    expect(host.querySelector(".cm-chessboard")).not.toBeNull();
     shown.destroy();
-    expect(destroy).toHaveBeenCalledTimes(1);
-    expect(host.querySelector(".cm-chessboard")).toBeNull();
-    shown.destroy();
-    expect(destroy).toHaveBeenCalledTimes(1);
-    destroy.mockRestore();
+    expect(host.children).toHaveLength(0);
   });
 
-  it("follows the moves it is told of", async () => {
-    const { host, shown } = mount(context());
-    shown.update(context(["e2e4"]));
-    expect(host.dataset.fen).toBe("rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1");
-    await later(400);
-    expect(host.querySelector('.pieces > g[data-square="e4"]')?.dataset.piece).toBe("wp");
-    expect(host.querySelector('.pieces > g[data-square="e2"]')).toBeNull();
-  });
-
-  it("lends a king of each colour to the players' chips, and keeps the sheet from taking a drag", () => {
-    expect(SIDES[0]).toContain('href="#wk"');
-    expect(SIDES[1]).toContain('href="#bk"');
-    expect(STYLE.replace(/\s/g, "")).toContain("touch-action:none");
+  it("lends a king of each colour to the players' chips, outlines the turn in each side's tone, and carries the kit's look for a canvas board and a drag", () => {
+    expect(SIDES).toHaveLength(2);
+    expect(SIDES[0]).toContain(ART.pieces[0].fill);
+    expect(SIDES[1]).toContain(ART.pieces[1].fill);
+    expect(STYLE).toContain(TABLETOP_STYLE);
+    expect(STYLE).toContain(DRAG_STYLE);
+    expect(STYLE).toContain(`--hue-side-0:${ART.sides[0]};--hue-side-1:${ART.sides[1]}`);
+    expect(STYLE.replace(/\s/g, "")).toContain(".ftc-rim{stroke:var(--muted)}");
   });
 });

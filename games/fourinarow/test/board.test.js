@@ -1,7 +1,9 @@
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { KIT_TEXTS, joinTexts, translator } from "../../../kit/src/i18n.js";
-import { board, DISCS } from "../src/board.js";
+import { TABLETOP_STYLE } from "../../../kit/src/tabletop/board.js";
+import { board, DISCS, STYLE } from "../src/board.js";
 import { TEXTS } from "../src/texts.js";
+import { ART } from "../src/theme.js";
 import { initial, play, result, turn } from "../src/rules.js";
 
 const translate = translator(joinTexts(KIT_TEXTS, TEXTS));
@@ -24,88 +26,84 @@ function context(columns, extra = {}) {
   };
 }
 
-const columns = (host) => [...host.querySelectorAll("button.ffr-col")];
-const slot = (host, cell) => host.querySelector(`[data-cell="${cell}"]`);
+function mount(ctx) {
+  const host = document.createElement("div");
+  host.getBoundingClientRect = () => ({ left: 0, top: 0, width: 352, height: 352, right: 352, bottom: 352 });
+  document.body.append(host);
+  return { host, mounted: board.mount(host, ctx) };
+}
+
+afterEach(() => {
+  document.body.innerHTML = "";
+});
+
+const columns = (host) => [...host.querySelectorAll("button[data-col]")];
+const column = (host, index) => host.querySelector(`button[data-col="${index}"]`);
+const marked = (host, name) => columns(host).filter((one) => (one.dataset.mark ?? "").split(" ").includes(name)).map((one) => Number(one.dataset.col));
 
 describe("the board", () => {
-  it("has seven columns of six cells, each column named with its discs from the bottom", () => {
-    const host = document.createElement("div");
-    board.mount(host, context([3, 3, 0]));
-    expect(columns(host)).toHaveLength(7);
-    expect(host.querySelectorAll("[data-cell]")).toHaveLength(42);
+  it("is drawn on a canvas, with the seven columns as named buttons over it, each named with its discs from the bottom", () => {
+    const { host } = mount(context([3, 3, 0]));
+    expect(host.querySelector("canvas").getAttribute("aria-hidden")).toBe("true");
+    expect(columns(host).map((one) => Number(one.dataset.col))).toEqual([0, 1, 2, 3, 4, 5, 6]);
     expect(host.querySelector('[role="group"]').getAttribute("aria-label")).toBe("Board");
-    expect(columns(host)[0].getAttribute("aria-label")).toBe("Column 1: X");
-    expect(columns(host)[1].getAttribute("aria-label")).toBe("Column 2: empty");
-    expect(columns(host)[3].getAttribute("aria-label")).toBe("Column 4: X, O");
-    expect(slot(host, 38).querySelector("svg.ffr-s0")).not.toBeNull();
-    expect(slot(host, 31).querySelector("svg.ffr-s1")).not.toBeNull();
-    expect(slot(host, 24).querySelector("svg")).toBeNull();
-    expect(host.querySelectorAll(".last")).toHaveLength(1);
-    expect(slot(host, 35).classList.contains("last")).toBe(true);
+    expect(column(host, 0).getAttribute("aria-label")).toBe("Column 1: X");
+    expect(column(host, 1).getAttribute("aria-label")).toBe("Column 2: empty");
+    expect(column(host, 3).getAttribute("aria-label")).toBe("Column 4: X, O");
+    expect(marked(host, "last")).toEqual([0]);
   });
 
   it("names the columns in the user's language", () => {
-    const host = document.createElement("div");
-    board.mount(host, context([3], { lang: "es", t: (key, vars) => translate("es", key, vars) }));
-    expect(columns(host)[3].getAttribute("aria-label")).toBe("Columna 4: X");
-    expect(columns(host)[0].getAttribute("aria-label")).toBe("Columna 1: vacía");
+    const { host } = mount(context([3], { lang: "es", t: (key, vars) => translate("es", key, vars) }));
+    expect(column(host, 3).getAttribute("aria-label")).toBe("Columna 4: X");
+    expect(column(host, 0).getAttribute("aria-label")).toBe("Columna 1: vacía");
   });
 
   it("drops into a column when it is the user's turn, and not into a full one", () => {
-    const host = document.createElement("div");
     const ctx = context([0, 0, 0, 0, 0, 0]);
-    board.mount(host, ctx);
-    expect(columns(host)[0].disabled).toBe(true);
-    columns(host)[0].click();
+    const { host } = mount(ctx);
+    expect(column(host, 0).disabled).toBe(true);
+    column(host, 0).click();
     expect(ctx.play).not.toHaveBeenCalled();
-    slot(host, 4).click();
+    column(host, 4).click();
     expect(ctx.play).toHaveBeenCalledWith(4);
   });
 
-  it("takes no touch while it is not the user's turn, and draws what it is told", () => {
-    const host = document.createElement("div");
+  it("takes no touch while it is not the user's turn, and follows what it is told", () => {
     const waiting = context([3], { canPlay: false });
-    const shown = board.mount(host, waiting);
-    expect(columns(host).every((column) => column.disabled)).toBe(true);
-    columns(host)[2].click();
+    const { host, mounted } = mount(waiting);
+    expect(columns(host).every((one) => one.disabled)).toBe(true);
+    column(host, 2).click();
     expect(waiting.play).not.toHaveBeenCalled();
-    shown.update(context([3, 2]));
-    expect(slot(host, 37).querySelector("svg.ffr-s1")).not.toBeNull();
-    expect(columns(host).some((column) => column.disabled)).toBe(false);
+    mounted.update(context([3, 2]));
+    expect(column(host, 2).getAttribute("aria-label")).toBe("Column 3: O");
+    expect(columns(host).some((one) => one.disabled)).toBe(false);
+    expect(marked(host, "can")).toEqual([0, 1, 2, 3, 4, 5, 6]);
   });
 
-  it("drops in only a disc that has just arrived", () => {
-    const host = document.createElement("div");
-    const shown = board.mount(host, context([3, 3]));
-    expect(host.querySelector(".drop")).toBeNull();
-    shown.update(context([3, 3, 4]));
-    expect(host.querySelectorAll(".drop")).toHaveLength(1);
-    expect(slot(host, 39).classList.contains("drop")).toBe(true);
-    expect(slot(host, 39).style.getPropertyValue("--f")).toBe("6");
-    const disc = slot(host, 39).querySelector("svg");
-    shown.update(context([3, 3, 4], { canPlay: false }));
-    expect(slot(host, 39).querySelector("svg")).toBe(disc);
-    expect(slot(host, 39).classList.contains("drop")).toBe(true);
-    shown.update(context([3, 3, 4, 4]));
-    expect([...host.querySelectorAll(".drop")].map((one) => Number(one.dataset.cell))).toEqual([32]);
-  });
-
-  it("marks a move that has not reached the other phone, and the winning four", () => {
-    const host = document.createElement("div");
-    const shown = board.mount(host, context([0, 0, 1, 1, 2, 2], { pending: true, canPlay: false }));
-    expect(slot(host, 30).querySelector(".ffr-clock")).not.toBeNull();
-    expect(slot(host, 30).classList.contains("pending")).toBe(true);
-    shown.update(context([0, 0, 1, 1, 2, 2, 3], { canPlay: false }));
-    expect(host.querySelector(".ffr-clock")).toBeNull();
-    expect([...host.querySelectorAll(".win")].map((one) => Number(one.dataset.cell))).toEqual([35, 36, 37, 38]);
-    expect(host.querySelector(".ffr").classList.contains("won")).toBe(true);
-    expect(columns(host).every((column) => column.disabled)).toBe(true);
+  it("marks a move that has not reached the other phone, and the column of the winning four", () => {
+    const { host, mounted } = mount(context([0, 0, 1, 1, 2, 2], { pending: true, canPlay: false }));
+    expect(marked(host, "pending")).toEqual([2]);
+    mounted.update(context([0, 0, 1, 1, 2, 2, 3], { canPlay: false }));
+    expect(marked(host, "pending")).toEqual([]);
+    expect(marked(host, "win")).toEqual([0, 1, 2, 3]);
+    expect(columns(host).every((one) => one.disabled)).toBe(true);
   });
 
   it("lends its discs, each with its mark, to the players' chips", () => {
-    expect(DISCS[0]).toContain("ffr-s0");
-    expect(DISCS[1]).toContain("ffr-s1");
-    expect(DISCS[0]).toContain("<path");
+    expect(DISCS).toHaveLength(2);
+    expect(DISCS[0]).toMatch(/stroke-linecap="round"/);
     expect(DISCS[1].match(/<circle/g)).toHaveLength(2);
+  });
+
+  it("carries the kit's look for a canvas board, and outlines the player whose turn it is in the colour of that side's discs", () => {
+    expect(STYLE).toContain(TABLETOP_STYLE);
+    expect(STYLE).toContain(`.ftg{--hue-side-0:${ART.pieces[0].body};--hue-side-1:${ART.pieces[1].body}}`);
+  });
+
+  it("lets go of its canvas and buttons when it leaves", () => {
+    const { host, mounted } = mount(context([3]));
+    mounted.destroy();
+    expect(host.children).toHaveLength(0);
   });
 });

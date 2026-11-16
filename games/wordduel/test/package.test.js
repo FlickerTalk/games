@@ -12,7 +12,7 @@ const dir = join(import.meta.dirname, "..");
 describe("the Word Duel package", () => {
   it("says it is a game that needs the core 1.6.0, the live channel and sending, and nothing else", () => {
     const manifest = checkManifest(dir, { id: "com.flickertalk.game.wordduel", name: "Word Duel", component: "ft-wordduel" });
-    expect(manifest.version).toBe("1.1.1");
+    expect(manifest.version).toBe("1.2.0");
     for (const brand of BRANDS) expect(`${manifest.name} ${manifest.summary}`).not.toMatch(brand);
   });
 
@@ -28,8 +28,8 @@ describe("the Word Duel package", () => {
     expect(readFileSync(join(out, "THIRD_PARTY_NOTICES.md")).equals(readFileSync(join(dir, "dist", "THIRD_PARTY_NOTICES.md")))).toBe(true);
   });
 
-  it("stays under 320 KB (the two word lists are most of it), names its three third-party works, loads nothing from outside and names no brand", () => {
-    expect(checkDist(dir, { cap: 320 * 1024 })).toBeGreaterThan(20_000);
+  it("stays under 336 KB (the two word lists are most of it), names its three third-party works, loads nothing from outside and names no brand", () => {
+    expect(checkDist(dir, { cap: 336 * 1024 })).toBeGreaterThan(20_000);
     const notices = readFileSync(join(dir, "dist", "THIRD_PARTY_NOTICES.md"), "utf8");
     for (const work of ["Ionicons", "an-array-of-english-words", "FrequencyWords"]) expect(notices).toContain(work);
     expect(notices).toMatch(/## FrequencyWords[\s\S]*Licence: CC BY-SA 4\.0/);

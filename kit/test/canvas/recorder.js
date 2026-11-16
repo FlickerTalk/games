@@ -7,7 +7,7 @@ const multiply = ([a, b, c, d, e, f], [g, h, i, j, k, l]) => [a * g + c * h, b *
 export function recorder() {
   const calls = [];
   const stack = [];
-  const style = {};
+  const style = { globalAlpha: 1 };
   let matrix = IDENTITY;
   let depth = 0;
   const apply = (x, y) => [matrix[0] * x + matrix[2] * y + matrix[4], matrix[1] * x + matrix[3] * y + matrix[5]];
@@ -66,6 +66,7 @@ export function recorder() {
     fill: () => add("fill"),
     stroke: () => add("stroke"),
     clip: () => add("clip"),
+    setLineDash: (segments) => add("setLineDash", [], { segments: [...segments] }),
     fillRect: (x, y, w, h) => add("fillRect", [[x, y], [x + w, y + h]]),
     strokeRect: (x, y, w, h) => add("strokeRect", [[x, y], [x + w, y + h]]),
     clearRect: (x, y, w, h) => add("clearRect", [[x, y], [x + w, y + h]]),

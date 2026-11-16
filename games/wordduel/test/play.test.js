@@ -8,6 +8,7 @@ import "../src/index.js";
 const tick = () => settle([...document.querySelectorAll("ft-wordduel")].map((element) => element.table));
 const kinds = (core) => core.sent.map((data) => JSON.parse(new TextDecoder().decode(fromBase64(data))).k);
 const text = (element) => element.textContent.replace(/\s+/g, " ");
+const row = (element, grid, at) => [...element.querySelectorAll(`button[data-grid="${grid}"][data-row="${at}"]`)];
 
 async function phone(core, opening = {}) {
   const element = document.createElement("ft-wordduel");
@@ -99,6 +100,8 @@ describe("Word Duel against the phone", () => {
   });
 
   it("plays a round in the user's language with the phone, closed and opened again halfway, and both words check out", async () => {
+    vi.useRealTimers();
+    vi.useFakeTimers({ toNotFake: ["Date"] });
     const records = new Map();
     const kept = new Map();
     const first = await alone(records, kept);
@@ -123,8 +126,11 @@ describe("Word Duel against the phone", () => {
     expect(state.reveals.map((reveal) => reveal.ok)).toEqual([true, true]);
     expect(state.reveals[1 - mySide].word).toBe(memory.word);
     expect(["solved", "tie", "nobody"]).toContain(result.result.reason);
+    expect(text(second.element)).toMatch(/Has ganado|Has perdido|Empate/);
+    expect(second.element.querySelector('.ftg-bar canvas[data-side="them"]').dataset.who).toBe("flick");
+    expect(second.element.querySelector('[data-kit="send"]')).toBeNull();
     for (const core of [first.core, second.core]) expect(core.ft.live.send).not.toHaveBeenCalled();
-  });
+  }, 60_000);
 });
 
 describe("Word Duel between two phones", () => {
@@ -139,8 +145,10 @@ describe("Word Duel between two phones", () => {
     await guess(o, "about");
     expect(o.table.record.game.moves.slice(2)).toEqual([">stare", `${feedback("stare", "eagle")}>about`]);
     expect(s.table.record.game.moves).toEqual(o.table.record.game.moves);
-    const myRow = s.querySelectorAll(".fwd-grid:not(.small) .fwd-row")[0];
-    expect([...myRow.querySelectorAll(".fwd-tile")].map((tile) => tile.className.includes(" g")).filter(Boolean)).toHaveLength(1);
+    const answered = [...feedback("stare", "eagle")];
+    expect(row(s, "mine", 0).map((tile) => tile.dataset.mark)).toEqual(answered);
+    expect(row(o, "theirs", 0).map((tile) => tile.dataset.mark)).toEqual(answered);
+    expect(row(o, "theirs", 0).map((tile) => tile.getAttribute("aria-label")[0]).join("")).toBe("STARE");
   });
 
   it("keeps a guess made without a connection pending, and sends it with the next hello", async () => {

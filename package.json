@@ -15,7 +15,20 @@
     "room": "node preview/room.spec.js",
     "bar": "node preview/bar.spec.js",
     "fill": "node preview/fill.spec.js",
-    "tilecourt": "node preview/tilecourt.spec.js"
+    "tilecourt": "node preview/tilecourt.spec.js",
+    "checkers": "node preview/checkers.spec.js",
+    "seabattle": "node preview/seabattle.spec.js",
+    "eights": "node preview/eights.spec.js",
+    "wordgrid": "node preview/wordgrid.spec.js",
+    "wordduel": "node preview/wordduel.spec.js",
+    "backgammon": "node preview/backgammon.spec.js",
+    "mancala": "node preview/mancala.spec.js",
+    "dotsandboxes": "node preview/dotsandboxes.spec.js",
+    "gomoku": "node preview/gomoku.spec.js",
+    "chess": "node preview/chess.spec.js",
+    "tictactoe": "node preview/tictactoe.spec.js",
+    "fourinarow": "node preview/fourinarow.spec.js",
+    "reversi": "node preview/reversi.spec.js"
   },
   "devDependencies": {
     "@ionic/core": "9.0.4",
@@ -27,7 +40,6 @@
     "vitest": "^5.0.3"
   },
   "dependencies": {
-    "chess.js": "1.4.0",
-    "cm-chessboard": "8.15.3"
+    "chess.js": "1.4.0"
   }
 }

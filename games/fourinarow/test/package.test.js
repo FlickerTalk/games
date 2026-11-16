@@ -12,7 +12,7 @@ const dir = join(import.meta.dirname, "..");
 describe("the Four in a Row package", () => {
   it("says it is a game that needs the core 1.6.0, the live channel and sending, and nothing else", () => {
     const manifest = checkManifest(dir, { id: "com.flickertalk.game.fourinarow", name: "Four in a Row", component: "ft-fourinarow" });
-    expect(manifest.version).toBe("1.1.1");
+    expect(manifest.version).toBe("1.2.0");
     for (const brand of BRANDS) expect(`${manifest.name} ${manifest.summary}`).not.toMatch(brand);
   });
 
@@ -28,8 +28,8 @@ describe("the Four in a Row package", () => {
     expect(readFileSync(join(out, "THIRD_PARTY_NOTICES.md")).equals(readFileSync(join(dir, "dist", "THIRD_PARTY_NOTICES.md")))).toBe(true);
   });
 
-  it("stays under 132 KB, says its one third-party work is Ionicons, loads nothing from outside and names no brand", () => {
-    expect(checkDist(dir, { cap: 132 * 1024 })).toBeGreaterThan(20_000);
+  it("stays under 196 KB, says its one third-party work is Ionicons, loads nothing from outside and names no brand", () => {
+    expect(checkDist(dir, { cap: 196 * 1024 })).toBeGreaterThan(20_000);
     const notices = readFileSync(join(dir, "dist", "THIRD_PARTY_NOTICES.md"), "utf8");
     expect(notices).toContain("its one third-party work is Ionicons");
     const code = readFileSync(join(dir, "dist", "index.js"), "utf8");
