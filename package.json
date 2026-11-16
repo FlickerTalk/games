@@ -17,6 +17,8 @@
     "fill": "node preview/fill.spec.js",
     "tilecourt": "node preview/tilecourt.spec.js",
     "checkers": "node preview/checkers.spec.js",
+    "seabattle": "node preview/seabattle.spec.js",
+    "wordgrid": "node preview/wordgrid.spec.js",
     "wordduel": "node preview/wordduel.spec.js",
     "backgammon": "node preview/backgammon.spec.js",
     "mancala": "node preview/mancala.spec.js",
@@ -25,8 +27,7 @@
     "chess": "node preview/chess.spec.js",
     "tictactoe": "node preview/tictactoe.spec.js",
     "fourinarow": "node preview/fourinarow.spec.js",
-    "reversi": "node preview/reversi.spec.js",
-    "seabattle": "node preview/seabattle.spec.js"
+    "reversi": "node preview/reversi.spec.js"
   },
   "devDependencies": {
     "@ionic/core": "9.0.4",
