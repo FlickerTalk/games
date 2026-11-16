@@ -31,7 +31,21 @@
     "chess": "node preview/chess.spec.js",
     "tictactoe": "node preview/tictactoe.spec.js",
     "fourinarow": "node preview/fourinarow.spec.js",
-    "reversi": "node preview/reversi.spec.js"
+    "reversi": "node preview/reversi.spec.js",
+    "balloonfair": "node preview/balloonfair.spec.js",
+    "balloonruler": "node preview/balloonruler.spec.js",
+    "beatwagons": "node preview/beatwagons.spec.js",
+    "bumperring": "node preview/bumperring.spec.js",
+    "cardcorner": "node preview/cardcorner.spec.js",
+    "colourcorner": "node preview/colourcorner.spec.js",
+    "duosquad": "node preview/duosquad.spec.js",
+    "foamduel": "node preview/foamduel.spec.js",
+    "goalswipe": "node preview/goalswipe.spec.js",
+    "painttanks": "node preview/painttanks.spec.js",
+    "robotrumble": "node preview/robotrumble.spec.js",
+    "shardsplitter": "node preview/shardsplitter.spec.js",
+    "skychase": "node preview/skychase.spec.js",
+    "squarehop": "node preview/squarehop.spec.js"
   },
   "devDependencies": {
     "@ionic/core": "9.0.4",
