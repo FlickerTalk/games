@@ -18,6 +18,7 @@
     "tilecourt": "node preview/tilecourt.spec.js",
     "paddlepop": "node preview/paddlepop.spec.js",
     "littlepier": "node preview/littlepier.spec.js",
+    "beeproute": "node preview/beeproute.spec.js",
     "checkers": "node preview/checkers.spec.js",
     "seabattle": "node preview/seabattle.spec.js",
     "eights": "node preview/eights.spec.js",
