@@ -19,10 +19,31 @@ export function roundedRect(ctx, x, y, width, height, radius) {
   ctx.closePath();
 }
 
+const RIMS = new WeakMap();
+const RIM = 3;
+
+export function withRim(ctx, { ink, colour }, draw) {
+  if (!colour) return draw();
+  const before = RIMS.get(ctx);
+  RIMS.set(ctx, { ink, colour });
+  try {
+    return draw();
+  } finally {
+    if (before) RIMS.set(ctx, before);
+    else RIMS.delete(ctx);
+  }
+}
+
 export function paint(ctx, fill, stroke, width) {
   if (fill) {
     ctx.fillStyle = fill;
     ctx.fill();
+  }
+  const rim = RIMS.get(ctx);
+  if (rim && stroke === rim.ink && width > 0) {
+    ctx.strokeStyle = rim.colour;
+    ctx.lineWidth = width + RIM;
+    ctx.stroke();
   }
   if (stroke && width > 0) {
     ctx.strokeStyle = stroke;
@@ -71,6 +92,18 @@ export function starPath(ctx, x, y, outer, inner = outer * 0.46) {
     else ctx.moveTo(px, py);
   }
   ctx.closePath();
+}
+
+export function fadeEdges(ctx, width, height, colour) {
+  const step = Math.max(20, Math.min(38, height * 0.055)) / 3;
+  ctx.save();
+  ctx.fillStyle = colour;
+  [1, 0.72, 0.36].forEach((alpha, at) => {
+    if (at) ctx.globalAlpha = alpha;
+    ctx.fillRect(0, at * step, width, step);
+    ctx.fillRect(0, height - (at + 1) * step, width, step);
+  });
+  ctx.restore();
 }
 
 export function hash(value) {
