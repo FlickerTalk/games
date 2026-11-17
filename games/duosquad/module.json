@@ -1,7 +1,7 @@
 {
   "id": "com.flickertalk.game.duosquad",
   "name": "Duo Squad",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "minCoreVersion": "1.6.0",
   "kind": "game",
   "icon": "rocket-outline",
