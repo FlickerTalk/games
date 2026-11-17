@@ -16,10 +16,9 @@ function solo({ now = 1000 } = {}) {
   return { core, clock, changes, session };
 }
 
-function phones({ latency = 40 } = {}) {
+function phones({ latency = 40, ids = { a: ["doca", "aaaa"], b: ["docb", "bbbb"] } } = {}) {
   const clock = { now: 1000 };
   const queue = [];
-  const ids = { a: ["doca", "aaaa"], b: ["docb", "bbbb"] };
   const make = (name) => {
     const core = fakeCore();
     const states = [];
@@ -327,6 +326,24 @@ describe("a race between two phones", () => {
     await world.pass(400);
     expect(world.a.session.id).toBe(world.b.session.id);
     expect([world.a.session.phase, world.b.session.phase]).toEqual(["countdown", "countdown"]);
+  });
+
+  it("starts the next race on both phones when the go overtakes the hello that introduced the phone giving it", async () => {
+    const world = withClock(phones({ ids: { a: ["doca", "aaaa", "docc", "cccc"], b: ["bbbb", "bbbc"] } }));
+    const { a, b } = world;
+    await lobby(world);
+    await world.pass(LIVE_TIMING.countdown + 100);
+    await world.pass(30_000, drive({ a: 4, b: 3 }));
+    expect([a.session.phase, b.session.phase]).toEqual(["over", "over"]);
+    a.session.start();
+    await world.pass(50);
+    b.session.start();
+    expect(world.queue.map((one) => decode(one.data).k)).toEqual(["hello", "ready", "go"]);
+    world.queue.unshift(...world.queue.splice(2, 1));
+    await world.pass(LIVE_TIMING.countdown + LIVE_TIMING.silence + 500, drive({ a: 1, b: 1 }));
+    expect([a.session.phase, b.session.phase]).toEqual(["running", "running"]);
+    expect([a.session.notice, b.session.notice]).toEqual([null, null]);
+    expect(a.session.id).toBe(b.session.id);
   });
 
   it("ignores garbage, other games, strangers and anything out of turn, and never stalls on it", async () => {

@@ -125,6 +125,7 @@ export class Session {
     }
     const message = opened.message;
     if (message.k === "hello") return this.hello(message);
+    if (this.introduces(message)) this.met({ ...message, ready: true, re: true });
     if (!this.peer || message.doc !== this.id || message.who !== this.peer) return;
     if (this.phase === "left" && this.notice !== "left" && message.k === "tick") return this.send("bye");
     this.heardAt = this.clock();
@@ -133,6 +134,11 @@ export class Session {
     if (message.k === "tick") return this.ticked(message);
     if (message.k === "done") return this.done(message);
     return this.gone("left");
+  }
+
+  // the core may deliver the other phone's ready or go before the hello it sent first
+  introduces(message) {
+    return !this.peer && this.phase === "waiting" && message.doc === this.id && (message.k === "ready" || message.k === "go");
   }
 
   hello(message) {
