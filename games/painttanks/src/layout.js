@@ -26,28 +26,16 @@ export function visibleWorld(view, width, height) {
   return { left: Math.min(one, two), right: Math.max(one, two), top: -view.y / view.scale, bottom: (height - view.y) / view.scale };
 }
 
-function controlRow(width, height, start, fill) {
-  const tall = height >= ROOMY;
+function dials(width, y) {
   const pad = Math.max(0, Math.min(PAD, (width - 4 * DIAL) / 5));
-  const big = tall ? FIRE : SMALL_FIRE;
-  const wide = width >= WIDE;
-  const angle = box(pad, start, DIAL, DIAL);
-  const power = box(width - pad - DIAL, start, DIAL, DIAL);
-  if (wide) {
-    const fire = box(power.x - pad - big, start, big, big);
-    return { angle, power, fire, sub: { fire, dive: box(angle.x + DIAL + pad, start, DIAL, DIAL) } };
-  }
-  const fire = box((width - big) / 2, start, big, big);
-  if (width < 4 * DIAL) {
-    const low = box((width - DIAL) / 2, height - (fill ? CORNER : PAD) - DIAL, DIAL, DIAL);
-    return { angle, power, fire, sub: { fire: low, dive: box((width - DIAL) / 2, start, DIAL, DIAL) } };
-  }
-  return {
-    angle,
-    power,
-    fire,
-    sub: { fire: box(width / 2 + pad / 2, start, DIAL, DIAL), dive: box(width / 2 - pad / 2 - DIAL, start, DIAL, DIAL) },
-  };
+  return { pad, angle: box(pad, y, DIAL, DIAL), power: box(width - pad - DIAL, y, DIAL, DIAL) };
+}
+
+function wideRow(width, height, start) {
+  const { pad, angle, power } = dials(width, start);
+  const big = height >= ROOMY ? FIRE : SMALL_FIRE;
+  const fire = box(power.x - pad - big, start, big, big);
+  return { angle, power, fire, sub: { fire, dive: box(angle.x + DIAL + pad, start, DIAL, DIAL) } };
 }
 
 function underField(width, height, start, fill) {
@@ -60,21 +48,32 @@ function underField(width, height, start, fill) {
   return scale >= full * SMALLEST_FIELD ? { scale, foot: low, fire: SMALL_FIRE } : null;
 }
 
+function belowField(width, height, start, fill) {
+  const y = height - (fill ? CORNER : PAD) - DIAL;
+  const { pad, angle, power } = dials(width, y);
+  const scale = Math.min(width / WORLD.width, (y - PAD - start) / WORLD.height);
+  const view = { x: (width - WORLD.width * scale) / 2, y: y - PAD - WORLD.height * scale, scale, mirror: false };
+  const fire = box((width - DIAL) / 2, y, DIAL, DIAL);
+  const sub = width < 4 * DIAL ? { fire, dive: box((width - DIAL) / 2, start, DIAL, DIAL) } : { fire: box(width / 2 + pad / 2, y, DIAL, DIAL), dive: box(width / 2 - pad / 2 - DIAL, y, DIAL, DIAL) };
+  return { view, angle, power, fire, sub };
+}
+
 export function playLayout(width, height, { fill = false, practice = false } = {}) {
   const top = barLayout(width, height, { rival: !practice });
   const start = top.bar.y + top.bar.h + top.gap;
-  const row = controlRow(width, height, start, fill);
-  const under = width < WIDE ? underField(width, height, start, fill) : null;
-  if (under) {
-    const fire = box((width - under.fire) / 2, under.foot + PAD, under.fire, under.fire);
-    const view = { x: (width - WORLD.width * under.scale) / 2, y: under.foot - WORLD.height * under.scale, scale: under.scale, mirror: false };
-    const sub = { fire, dive: box((width - DIAL) / 2, start, DIAL, DIAL) };
-    return { width, height, ...top, start, view, ...row, fire, sub, flag: { x: width * 0.34, y: start + DIAL + FLAG + 14, size: FLAG } };
+  if (width >= WIDE) {
+    const row = wideRow(width, height, start);
+    const scale = Math.min(width / WORLD.width, (height - start) / WORLD.height);
+    const view = { x: (width - WORLD.width * scale) / 2, y: height - WORLD.height * scale, scale, mirror: false };
+    return { width, height, ...top, start, view, ...row, flag: { x: row.fire.x + row.fire.w / 2, y: Math.max(row.fire.y + row.fire.h, start + DIAL) + FLAG + 14, size: FLAG } };
   }
-  const scale = Math.min(width / WORLD.width, (height - start) / WORLD.height);
-  const view = { x: (width - WORLD.width * scale) / 2, y: height - WORLD.height * scale, scale, mirror: false };
-  const flag = { x: row.fire.x + row.fire.w / 2, y: Math.max(row.fire.y + row.fire.h, start + DIAL) + FLAG + 14, size: FLAG };
-  return { width, height, ...top, start, view, ...row, flag };
+  const flag = { x: width * 0.34, y: start + DIAL + FLAG + 14, size: FLAG };
+  const under = underField(width, height, start, fill);
+  if (!under) return { width, height, ...top, start, ...belowField(width, height, start, fill), flag };
+  const fire = box((width - under.fire) / 2, under.foot + PAD, under.fire, under.fire);
+  const view = { x: (width - WORLD.width * under.scale) / 2, y: under.foot - WORLD.height * under.scale, scale: under.scale, mirror: false };
+  const { angle, power } = dials(width, start);
+  return { width, height, ...top, start, view, angle, power, fire, sub: { fire, dive: box((width - DIAL) / 2, start, DIAL, DIAL) }, flag };
 }
 
 export const controlsOf = (layout, sub) => (sub ? { angle: layout.angle, power: layout.power, ...layout.sub } : { angle: layout.angle, power: layout.power, fire: layout.fire, dive: null });
