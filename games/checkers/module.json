@@ -1,7 +1,7 @@
 {
   "id": "com.flickertalk.game.checkers",
   "name": "Checkers",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "minCoreVersion": "1.6.0",
   "kind": "game",
   "icon": "radio-button-on-outline",

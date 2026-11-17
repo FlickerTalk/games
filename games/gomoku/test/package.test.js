@@ -12,7 +12,7 @@ const dir = join(import.meta.dirname, "..");
 describe("the Five in a Row package", () => {
   it("says it is a game that needs the core 1.6.0, the live channel and sending, and nothing else", () => {
     const manifest = checkManifest(dir, { id: "com.flickertalk.game.gomoku", name: "Five in a Row", component: "ft-gomoku" });
-    expect(manifest.version).toBe("1.2.1");
+    expect(manifest.version).toBe("1.2.2");
     for (const brand of BRANDS) expect(`${manifest.name} ${manifest.summary}`).not.toMatch(brand);
   });
 

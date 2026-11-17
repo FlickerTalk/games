@@ -1067,6 +1067,13 @@ package's contents. So:
   that held it, is one more patch for the games that bundle the live session: `1.0.6` for Paddle
   Pop, Sky Chase, Bumper Ring, Foam Duel, Robot Rumble, Balloon Fair and Duo Squad, and Racer's
   `0.7.7`. The other games' packages do not change.
+- The player chosen once for every game, kept by the app in `ft.player`, is one more patch for every
+  game that bundles the avatars: `1.2.2` for Backgammon, Checkers, Chess, Dots and Boxes, Crazy Eights,
+  Four in a Row, Five in a Row, Mancala, Reversi, Sea Battle and Letter Grid; `1.2.3` for Word Duel;
+  `1.3.2` for Tic-Tac-Toe; `1.0.7` for Paddle Pop, Sky Chase, Bumper Ring, Foam Duel, Robot Rumble,
+  Balloon Fair and Duo Squad; `1.0.5` for Beep Route and Beat Wagons; `1.0.4` for Paint Tanks; `1.0.3`
+  for Balloon Ruler, Colour Corner, Goal Swipe, Little Pier, Shard Splitter, Square Hop Rally and Tile
+  Court; and `1.0.2` for Card Corner. Racer has no avatar and its package does not change.
 
 ## Preview
 

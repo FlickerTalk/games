@@ -1,7 +1,7 @@
 {
   "id": "com.flickertalk.game.cardcorner",
   "name": "Card Corner",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "minCoreVersion": "1.6.0",
   "kind": "game",
   "icon": "copy-outline",

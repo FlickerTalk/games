@@ -13,7 +13,7 @@ const SAY = { id: "com.flickertalk.game.skychase", name: "Sky Chase", component:
 
 describe("the Sky Chase package", () => {
   it("says it is a game that needs the core 1.6.0, the live channel and sending, and nothing else", () => {
-    expect(checkManifest(dir, SAY).version).toBe("1.0.6");
+    expect(checkManifest(dir, SAY).version).toBe("1.0.7");
   });
 
   it("names and describes itself in the app's other 20 languages, for the whole family and without anyone else's game names", () => {
@@ -38,7 +38,7 @@ describe("the Sky Chase package", () => {
   it("brings the kit's live bridge but not the live page nor the turn-based shell", () => {
     const code = readFileSync(join(dir, "dist", "index.js"), "utf8");
     expect(code).toContain("ft-skychase");
-    expect(code).toContain('"1.0.6"');
+    expect(code).toContain('"1.0.7"');
     expect(code).not.toContain("ftl-main");
     expect(code).not.toContain("ftg-bar");
   });

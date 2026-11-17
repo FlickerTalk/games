@@ -1,7 +1,7 @@
 {
   "id": "com.flickertalk.game.robotrumble",
   "name": "Robot Rumble",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "minCoreVersion": "1.6.0",
   "kind": "game",
   "icon": "hardware-chip-outline",

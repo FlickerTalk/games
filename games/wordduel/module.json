@@ -1,7 +1,7 @@
 {
   "id": "com.flickertalk.game.wordduel",
   "name": "Word Duel",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "minCoreVersion": "1.6.0",
   "kind": "game",
   "icon": "text-outline",
