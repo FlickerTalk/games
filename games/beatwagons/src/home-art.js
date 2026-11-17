@@ -1,6 +1,7 @@
 import { drawAvatar, standIn } from "../../../kit/src/avatars/index.js";
 import { centreOf, drawHome as drawHomeScreen, drawLooks as drawLooksScreen, drawPresent, homeLayout, looksLayout } from "../../../kit/src/canvas/index.js";
 import { circle, fadeEdges, roundedRect } from "../../../kit/src/canvas/pen.js";
+import { drawLobby } from "../../../kit/src/duel/lobby.js";
 import { rimmed } from "./board.js";
 import { drawEngine } from "./engine-art.js";
 import { LOOKS, PROGRESS } from "./levels.js";
@@ -10,7 +11,7 @@ import { drawGap, drawWagon } from "./wagon-art.js";
 
 const VARIANTS = ["levels", "make"];
 const TABS = ["engine", "scenery"];
-const WAITING = ["solve", "watch"];
+const YOURS = ["build", "solve", "watch"];
 
 function miniTrain(ctx, area, theme, time) {
   const size = Math.min(area.w / 3.4, area.h * 0.5);
@@ -26,7 +27,7 @@ function miniPalette(ctx, area, theme, time) {
   [1, 2, 5, 6].forEach((kind, at) => drawWagon(ctx, x + (at % 2 ? 0.55 : -0.55) * size, y + (at < 2 ? -0.62 : 0.5) * size, size, wagonOf(kind), { time }, theme));
 }
 
-function waitingMark(ctx, area, player, theme, time) {
+function friendMark(ctx, area, player, theme, time) {
   const size = Math.min(area.w, area.h) * 0.3;
   const x = area.x + area.w - size * 0.55;
   const y = area.y + size * 0.55;
@@ -55,6 +56,7 @@ function homeStage(ctx, band, state, theme, time) {
 
 export function drawHome(ctx, state, seat, theme, time, duty = null) {
   const layout = homeLayout(state.width, state.height, { variants: VARIANTS, rival: Boolean(seat), fill: state.fill });
+  const yours = YOURS.includes(duty);
   drawHomeScreen(ctx, state, theme.ui, time, {
     layout,
     seat,
@@ -64,9 +66,11 @@ export function drawHome(ctx, state, seat, theme, time, duty = null) {
       rimmed(pen, theme, () => {
         if (target.value === "levels") miniTrain(pen, target, theme, time);
         else miniPalette(pen, target, theme, time);
-        if (target.value === "make" && WAITING.includes(duty)) waitingMark(pen, target, state.player, theme, time);
+        if (target.value === "make" && yours) friendMark(pen, target, state.player, theme, time);
       }),
   });
+  const play = layout.targets.find((one) => one.kind === "play");
+  if (state.wanting && seat && !seat.away && !yours) drawLobby(ctx, { play }, { waiting: true, invited: false }, theme.ui, time);
 }
 
 export function drawLookArt(ctx, area, kind, look, state, theme, time) {

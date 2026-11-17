@@ -1,7 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { drawLobby } from "../../../kit/src/duel/lobby.js";
+import { contains, shapes } from "../../../kit/test/canvas/recorder.js";
 import { phones, settle } from "../../../kit/test/helpers.js";
+import { drawFrame } from "../src/frame.js";
 import { encodeTrain } from "../src/train.js";
 import { completeTrain, makeGame, tap, targetOf, until, wrongIndex } from "./harness.js";
+import { LIGHT, paint } from "./screens.js";
 
 const coin = vi.hoisted(() => ({ first: null }));
 
@@ -23,6 +27,12 @@ async function friends() {
   for (const side of [one, two]) await tap(side.game, targetOf(side.game, "variant", "make"));
   return { one, two, a, b };
 }
+
+const screenOf = (side) => paint((pen) => drawFrame(pen, side.game, LIGHT, 1));
+const inside = ({ x, y, w, h }) => ({ points }) => points.length > 0 && points.every(([px, py]) => px >= x && px <= x + w && py >= y && py <= y + h);
+const drawnOnMakeCard = (side) => screenOf(side).calls.filter(inside(targetOf(side.game, "variant", "make"))).length;
+const waitingDots = (side) => shapes(paint((pen) => drawLobby(pen, { play: targetOf(side.game, "play") }, { waiting: true, invited: false }, LIGHT.ui, 1)));
+const showsWaiting = (side) => contains(shapes(screenOf(side)), waitingDots(side));
 
 async function compose(side, kinds = [0, 1, 0, 1], gap = 3) {
   expect(side.game.state.screen).toBe("build");
@@ -67,6 +77,21 @@ describe("with a friend", () => {
     expect(one.game.state.screen).toBe("play");
     expect(one.game.state.round).toMatchObject({ kind: "friend", maker: "friend", driver: "me" });
     expect(encodeTrain(one.game.state.round.trains[0])).toBe("TadaD");
+  });
+
+  it("tells the friend the coin gave them the first train to compose, and shows the player who pressed play waiting for it", async () => {
+    coin.first = "joiner";
+    const { one, two } = await friends();
+    const [creatorCard, friendCard] = [drawnOnMakeCard(one), drawnOnMakeCard(two)];
+    await tap(one.game, targetOf(one.game, "play"));
+    await both(one, two);
+    expect(two.game.relay.duty()).toBe("build");
+    expect(two.game.state.screen).toBe("home");
+    expect(drawnOnMakeCard(two)).toBeGreaterThan(friendCard);
+    expect(showsWaiting(two)).toBe(false);
+    expect(one.game.state.screen).toBe("home");
+    expect(showsWaiting(one)).toBe(true);
+    expect(drawnOnMakeCard(one)).toBe(creatorCard);
   });
 
   it("one composes a train, the other completes it, and the maker watches how it went", async () => {
