@@ -1049,6 +1049,10 @@ package's contents. So:
   Robot Rumble, Balloon Fair and Duo Squad; `1.0.4` for Beep Route and Beat Wagons; `1.0.3` for Paint
   Tanks; `1.0.2` for Balloon Ruler, Colour Corner, Goal Swipe, Little Pier, Shard Splitter, Square Hop
   Rally and Tile Court; and Racer's `0.7.6`. The other games' packages do not change.
+- A round between two phones that ends for both when one player's page is hidden, instead of a pause
+  that held it, is one more patch for the games that bundle the live session: `1.0.6` for Paddle
+  Pop, Sky Chase, Bumper Ring, Foam Duel, Robot Rumble, Balloon Fair and Duo Squad, and Racer's
+  `0.7.7`. The other games' packages do not change.
 
 ## Preview
 

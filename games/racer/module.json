@@ -1,7 +1,7 @@
 {
   "id": "com.flickertalk.game.racer",
   "name": "Racer",
-  "version": "0.7.6",
+  "version": "0.7.7",
   "minCoreVersion": "1.6.0",
   "kind": "game",
   "icon": "car-sport-outline",
