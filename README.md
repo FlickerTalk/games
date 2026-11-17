@@ -740,9 +740,14 @@ other phone at once; the game stays paused until the player presses `resume`.
 
 **A pause between two phones** (`CanvasDuel`) is the `p: 1` in the state a game sends. A state that
 changes it goes at once, without waiting for the core to take the last one. While either player has
-the pause open, the other phone may stay silent for 60 s instead of 6 s, since a hidden page cannot
-talk; once this player resumes, the 6 s count again from that moment. After the 60 s both phones end
-the round, the one that comes back later too.
+the pause open, neither phone sends its state: each only says when its own pause opens or closes, and
+answers once when the other's pause closes, so a pause the other missed is not lost. The paused phone
+may be in the background, where nothing reaches it, so a message that fails while a pause is open, or
+that was on its way when one opened or closed, does not end the round. Either phone may stay silent
+for 60 s instead of 6 s; once this player resumes, the 6 s count again from that moment, and a failed
+message ends the round again. After the 60 s both phones end the round, the one that comes back later
+too, so a pause lasts 60 s at most; a player who comes back to the pause screen learns that the other
+left when they resume.
 
 ## A board drawn on a canvas
 
