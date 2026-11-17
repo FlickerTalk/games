@@ -515,7 +515,11 @@ defineLiveGame({
   user starts again (a send without a connection wakes the other phone by push). No answer to a
   `hello` in 8 s says the other person does not have the game open; nothing from the other phone in
   6 s of a race says it stopped answering. Neither is retried by itself. A phone that has left a race
-  or given up on it answers the other's next state with `bye`, so the other ends it too.
+  or given up on it answers the other's next state with `bye`, so the other ends it too. A start the
+  core refused still counts for 8 s: a `hello` from the other phone in that time is joined ready, so
+  two players who start a moment apart while a link is coming back (a phone back from the
+  background) both count down. The core can answer long after a message: a refusal of a message sent
+  for a race this phone has since left changes nothing.
 - **Drawing the other phone** (`follow.js`): `Follow` keeps the last three states, shows them 100 ms
   behind the other phone's clock (estimated from the fastest arrival), between the two around that
   moment, carries the last movement on for at most 250 ms when nothing new comes, and after a stall

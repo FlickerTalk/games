@@ -33,6 +33,7 @@ export class Session {
     this.newer = "";
     this.cut = false;
     this.heardAt = 0;
+    this.askedAt = -Infinity;
     this.answering = null;
     this.reset();
   }
@@ -69,6 +70,7 @@ export class Session {
       this.me = this.newId();
       return this.begin(this.clock() + this.timing.countdown);
     }
+    this.askedAt = this.clock();
     if (this.phase === "lobby") {
       if (this.ready.me) return;
       this.ready.me = true;
@@ -151,7 +153,7 @@ export class Session {
       if (message.re) return;
       this.id = message.doc;
       this.me = this.newId();
-      this.ready = { me: false, them: false };
+      this.ready = { me: this.asking(), them: false };
       this.cut = false;
       this.notice = null;
       this.reset();
@@ -164,6 +166,11 @@ export class Session {
       return this.met(message);
     }
     if (!message.re) this.send("hello", { ready: this.ready.me, app: this.app });
+  }
+
+  // the player started a moment ago and only the core's refusal stopped it reaching the other phone
+  asking() {
+    return this.notice === "unreachable" && this.clock() - this.askedAt < this.timing.answer;
   }
 
   met(message) {
@@ -268,6 +275,7 @@ export class Session {
   // a send without a connection wakes the other phone by push: after a refusal, nothing until start()
   send(kind, fields = {}, after = () => {}) {
     if (this.solo || this.cut) return after();
+    const doc = this.id;
     let data;
     try {
       data = sealLive({ g: this.g, gv: this.gv, k: kind, doc: this.id, who: this.me, ...fields });
@@ -283,17 +291,18 @@ export class Session {
     sent.then(
       (ok) => {
         after();
-        if (!ok) this.refused();
+        if (!ok) this.refused(doc);
       },
       () => {
         after();
-        this.refused();
+        this.refused(doc);
       },
     );
   }
 
-  refused() {
-    if (this.cut) return;
+  // the core may answer long after a message of a race this phone has since left
+  refused(doc = this.id) {
+    if (this.cut || doc !== this.id) return;
     this.cut = true;
     if (!OPEN.includes(this.phase)) return;
     this.gone("unreachable");

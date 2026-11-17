@@ -288,6 +288,33 @@ describe("a round where one player's page is hidden", () => {
     expect(a.phase).toBe("left");
   });
 
+  it("starts the next round on both phones when the one that left taps play first, while its link is coming back", async () => {
+    const w = world();
+    const [a, b] = [duelOf(w, "a"), duelOf(w, "b")];
+    const core = w.phones.a.core;
+    await playing(w);
+    let late;
+    core.ft.live.send.mockImplementationOnce((data) => {
+      core.sent.push(data);
+      return new Promise((resolve) => (late = resolve));
+    });
+    w.phones.a.closed = true;
+    w.hide("a");
+    await w.pass(15_000, frames(w));
+    expect(b.status).toMatchObject({ phase: "left", notice: "silent" });
+    w.phones.a.closed = false;
+    w.hide("a", false);
+    core.reachable = false;
+    a.start();
+    late(false);
+    await w.pass(100, frames(w));
+    core.reachable = true;
+    await w.pass(1600, frames(w));
+    b.start();
+    await w.pass(400, frames(w));
+    expect([a.phase, b.phase]).toEqual(["countdown", "countdown"]);
+  });
+
   it("keeps talking to the other phone when the core never answers one of its messages", async () => {
     const w = world();
     const [a, b] = [duelOf(w, "a"), duelOf(w, "b")];

@@ -2,7 +2,10 @@
 import { test } from 'vitest';
 import assert from 'node:assert/strict';
 import { channel, pair, idle, driver } from './duel-channel.js';
-import { kindOf, openAbout } from '../src/duel-wire.js';
+import { sealLive } from '../../../kit/src/live/wire.js';
+import { createDuel } from '../src/duel.js';
+import { DUEL, kindOf, openAbout } from '../src/duel-wire.js';
+import { normalizeProfile } from '../src/profile.js';
 
 const phase = (duel) => duel.session.phase;
 const road = (duel) => JSON.stringify([duel.game.level, duel.game.track.hazards.map(({ x, distance }) => [x, distance])]);
@@ -126,6 +129,30 @@ test('a phone that was hidden cannot win the race it left, even when its goodbye
   assert.deepEqual(race.won, { a: 0, b: 0 });
 });
 
+test('both start the next race when the one that left presses go first, while its link is coming back', async () => {
+  const net = channel({ delay: 30 });
+  const race = pair(net, { timing: { answer: 8000 } });
+  const { a, b } = race.duels;
+  await meet(race);
+  await race.play(5000);
+  net.ends.a.open = false;
+  net.lose('a');
+  race.hide('a');
+  await race.play(8000);
+  assert.deepEqual([phase(b), b.session.notice], ['left', 'silent']);
+  net.ends.a.open = true;
+  net.lose('a', false);
+  race.hide('a', false);
+  net.refuse('a');
+  a.start();
+  await race.play(100);
+  net.refuse('a', false);
+  await race.play(1600);
+  b.start();
+  await race.play(1000, { until: () => phase(a) === 'countdown' && phase(b) === 'countdown' });
+  assert.deepEqual([phase(a), phase(b)], ['countdown', 'countdown']);
+});
+
 test('a race that starts while the page is hidden is left at once', async () => {
   const net = channel({ delay: 30 });
   const race = pair(net);
@@ -220,4 +247,19 @@ test('the two vehicles start side by side, one on each side of the road', async 
   await meet(race);
   assert.ok(Math.abs(a.game.player.x) > 0.5);
   assert.equal(a.game.player.x, -b.game.player.x);
+});
+
+test('the core refusing the vehicle sent with an earlier start, long after, does not end the race that came after', async () => {
+  const pending = [];
+  const ft = { live: { send: (data) => new Promise((resolve) => pending.push({ kind: kindOf(data), resolve })) } };
+  let made = 0;
+  const duel = createDuel({ ft, profile: normalizeProfile({}), clock: () => 0, newId: () => `m${(made += 1).toString().padStart(12, '0')}` });
+  duel.start();
+  const [earlier] = pending;
+  duel.heard(sealLive({ g: DUEL.g, gv: DUEL.gv, k: 'hello', doc: '0'.repeat(13), who: 'z'.repeat(13), ready: true, app: '0.7.7' }));
+  assert.equal(phase(duel), 'countdown');
+  assert.equal(earlier.kind, 'about');
+  earlier.resolve(false);
+  for (let turn = 0; turn < 4; turn += 1) await null;
+  assert.equal(phase(duel), 'countdown');
 });

@@ -27,8 +27,8 @@ export function channel({ delay = 30, holdFrom = Infinity, holdTo = Infinity, ba
     sent,
     ends,
     ft: { a: side('a', 'b'), b: side('b', 'a') },
-    refuse: (from) => {
-      refuse = { ...refuse, [from]: true };
+    refuse: (from, refusing = true) => {
+      refuse = { ...refuse, [from]: refusing };
     },
     lose: (from, gone = true) => {
       lost = { ...lost, [from]: gone };

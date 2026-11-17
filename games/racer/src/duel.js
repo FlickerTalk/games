@@ -53,14 +53,15 @@ export function createDuel({ ft, profile, clock = () => performance.now(), timin
 function tell(duel) {
   const { session, profile, ft } = duel;
   if (session.cut || !session.id || !session.me) return;
-  const data = sealAbout({ doc: session.id, who: session.me, best: profile.topLevel, kind: profile.kind, color: profile.color });
+  const doc = session.id;
+  const data = sealAbout({ doc, who: session.me, best: profile.topLevel, kind: profile.kind, color: profile.color });
   let sent;
   try {
     sent = Promise.resolve(ft.live.send(data));
   } catch {
     sent = Promise.resolve(false);
   }
-  sent.then((ok) => ok || session.refused(), () => session.refused());
+  sent.then((ok) => ok || session.refused(doc), () => session.refused(doc));
 }
 
 function heard(duel, data) {
