@@ -14,7 +14,7 @@ const SAY = { id: "com.flickertalk.game.duosquad", name: "Duo Squad", component:
 
 describe("the Duo Squad package", () => {
   it("says it is a game that needs the core 1.6.0, the live channel and sending, and nothing else", () => {
-    expect(checkManifest(dir, SAY).version).toBe("1.0.3");
+    expect(checkManifest(dir, SAY).version).toBe("1.0.4");
   });
 
   it("names and describes itself in the app's other 20 languages, for the whole family, as a team and without anyone else's game names", () => {
@@ -55,7 +55,7 @@ describe("the Duo Squad package", () => {
   it("brings the kit's live bridge but not the live page nor the turn-based shell", () => {
     const code = readFileSync(join(dir, "dist", "index.js"), "utf8");
     expect(code).toContain("ft-duosquad");
-    expect(code).toContain('"1.0.3"');
+    expect(code).toContain('"1.0.4"');
     expect(code).not.toContain("ftl-main");
     expect(code).not.toContain("ftg-bar");
   });
