@@ -1,5 +1,5 @@
 import { standIn } from "../../../kit/src/avatars/index.js";
-import { DIGITS, drawDigits, drawHintHand, drawPause, drawPortrait, drawRoundButton, formatNumber, pauseLayout } from "../../../kit/src/canvas/index.js";
+import { DIGITS, drawDigits, drawHintHand, drawPause, drawPortrait, formatNumber, pauseLayout } from "../../../kit/src/canvas/index.js";
 import { circle, clamp, ease, fadeEdges, mix, paint, roundedRect } from "../../../kit/src/canvas/pen.js";
 import { CRAFT_V } from "./crafts.js";
 import { drawPlayBar, orbTarget } from "./hud.js";
@@ -19,7 +19,7 @@ const progressOf = (moment, time) => clamp((time * 1000 - moment.start) / moment
 
 export const mateOf = (state) => ((state.round?.kind ?? state.outcome?.kind) === "friend" ? standIn(state.player) : FLICK);
 
-const frozen = (state) => state.paused || state.round.heard?.p === 1 || state.round.sent || state.screen !== "play";
+const frozen = (state) => state.paused || state.round.sent || state.screen !== "play";
 
 function stepNow(state) {
   const { round } = state;
@@ -194,7 +194,6 @@ export function drawPlay(ctx, game, theme, time) {
   pips(ctx, state, theme.ui);
   if (running(state, now)) hint(ctx, state, theme, time);
   countdown(ctx, state, theme, now);
-  if (round.heard?.p === 1 && !state.paused) drawRoundButton(ctx, "pause", field.x + field.w / 2, field.y + field.h / 2, 88, theme.ui);
   drawPlayBar(ctx, layout, barOf(state, art, look), theme, time);
   orbs(ctx, state, art, look, time);
   if (state.paused) drawPause(ctx, state, theme.ui, { layout: pauseLayout(state.width, state.height, { fill: state.fill }) });

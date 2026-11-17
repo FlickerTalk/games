@@ -1,6 +1,7 @@
 import { standIn } from "../../../kit/src/avatars/index.js";
 import { centreOf, drawHome as drawHomeScreen, drawLooks as drawLooksScreen, drawPresent } from "../../../kit/src/canvas/index.js";
 import { clamp, fadeEdges } from "../../../kit/src/canvas/pen.js";
+import { drawFriendLeft } from "../../../kit/src/duel/left.js";
 import { drawLobby, lobbyOf } from "../../../kit/src/duel/lobby.js";
 import { drawPilot } from "./board.js";
 import { homeOf, looksOf } from "./game.js";
@@ -65,6 +66,7 @@ export function drawHome(ctx, game, theme, time) {
   });
   const at = (kind) => layout.targets.find((one) => one.kind === kind);
   drawLobby(ctx, { play: at("play"), rival: at("rival") }, lobbyOf(game.duel?.status), theme.ui, time);
+  drawFriendLeft(ctx, at("rival"), game.duel?.status, theme.ui);
 }
 
 export function drawLookArt(ctx, area, look, theme, time) {

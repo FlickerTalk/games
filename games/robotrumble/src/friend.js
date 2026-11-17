@@ -10,7 +10,7 @@ const LAST_LOOK = 500;
 const LIVE = ["running", "finished"];
 
 export function joinFriend(game) {
-  game.duel = new CanvasDuel({ ft: game.ft, g: DUEL.g, gv: DUEL.gv, app: game.app, check: checkState, clock: game.now, onChange: () => changed(game) });
+  game.duel = new CanvasDuel({ ft: game.ft, g: DUEL.g, gv: DUEL.gv, app: game.app, check: checkState, clock: game.now, page: game.page, onChange: () => changed(game) });
 }
 
 export function startFriend(game) {
@@ -52,13 +52,13 @@ function tell(game, round, now) {
   const finished = round.mine.length >= round.settings.exchanges && timeOf(round) >= round.settings.exchanges * round.settings.period;
   if (finished || round.bout.over || round.heard?.e === 1) {
     round.sent = true;
-    duel.end(duel.raceTime(now), stateOf(round.mine, { look, paused: false, ended: true }));
+    duel.end(duel.raceTime(now), stateOf(round.mine, { look, ended: true }));
     return;
   }
   const told = toldOf(round);
   const soon = told.length > round.told;
   round.told = told.length;
-  duel.send(duel.raceTime(now), stateOf(told, { look, paused: state.paused, ended: false }), now, { soon });
+  duel.send(duel.raceTime(now), stateOf(told, { look, ended: false }), now, { soon });
 }
 
 // Both phones read the score from the two final lists of moves, so they always agree.
@@ -80,7 +80,7 @@ export function advanceFriend(game, now) {
     return;
   }
   listen(game, round);
-  if (round.sent || state.paused || round.heard?.p === 1) round.steps.reset();
+  if (round.sent) round.steps.reset();
   else stepRound(game, round);
   reveal(game, round);
   if (LIVE.includes(duel.phase) && !round.sent) tell(game, round, now);

@@ -23,7 +23,7 @@ export function fakeSound() {
   };
 }
 
-export function gameOn(ft, { clock, seed = 7, store = memoryStore() } = {}) {
+export function gameOn(ft, { clock, seed = 7, store = memoryStore(), page } = {}) {
   const sound = fakeSound();
   let draws = seed;
   const asked = [];
@@ -35,6 +35,7 @@ export function gameOn(ft, { clock, seed = 7, store = memoryStore() } = {}) {
     now: clock,
     random: () => ((draws = (draws * 9301 + 49297) % 233280) / 233280),
     onAsk: (what) => asked.push(what),
+    page,
   });
   return { game, sound, store, asked };
 }

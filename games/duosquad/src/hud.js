@@ -20,7 +20,7 @@ function scores(ctx, layout, { score, best, lang, drawOrb }, ui, time) {
   const width = drawDigits(ctx, formatNumber(score, lang), start, middle, DIGITS.score, ui.text);
   if (!layout.best || best === null || best === undefined) return;
   const starX = start + width + 22;
-  if (starX + 60 > layout.controls.pause.x) return;
+  if (starX + 60 > (layout.controls.pause ?? layout.controls.speaker).x) return;
   drawStar(ctx, starX, middle, 22, true, ui);
   drawDigits(ctx, formatNumber(best, lang), starX + 15, middle, DIGITS.best, ui.text);
 }
@@ -41,7 +41,7 @@ export function drawPlayBar(ctx, layout, state, theme, time) {
     drawDigits(ctx, formatNumber(state.me.score, state.lang), me.x + me.size / 2 + 6, me.y, DIGITS.best, ui.text);
   }
   if (layout.rival) drawPortrait(ctx, layout.rival.x, layout.rival.y, layout.rival.size, state.mate, ui, { time, lang: state.lang });
-  drawRoundButton(ctx, "pause", ...centreOf(controls.pause), button, ui, { pressed: state.press?.kind === "pause" });
+  if (controls.pause) drawRoundButton(ctx, "pause", ...centreOf(controls.pause), button, ui, { pressed: state.press?.kind === "pause" });
   drawSoundButtons(ctx, controls, state.sound, ui, { size: button, press: state.press });
   if (state.sound.open) drawVolumeLine(ctx, layout.volume, state.sound.volume, ui, { pressed: state.press?.kind === "volume" });
   ctx.restore();

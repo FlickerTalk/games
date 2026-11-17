@@ -1,14 +1,18 @@
 import { describe, expect, it } from "vitest";
+import { draw } from "../../../kit/test/canvas/recorder.js";
+import { drawFriendLeft, friendLeft } from "../../../kit/src/duel/left.js";
+import { drawFrame } from "../src/frame.js";
+import { THEME } from "../src/theme.js";
 import { liveWorld } from "../../../kit/test/duel/world.js";
 import { fromBase64 } from "../../../kit/src/envelope.js";
 import { TICK_LIMIT } from "../../../kit/src/live/wire.js";
 import { COUNTDOWN } from "../src/rounds.js";
-import { gameOn, phaseOf, press, reacting, strikeNow } from "./harness.js";
+import { gameOn, phaseOf, press, reacting, strikeNow, targetOf } from "./harness.js";
 
 const decode = (data) => JSON.parse(new TextDecoder().decode(fromBase64(data)));
 
 async function twoPhones({ latency = 40 } = {}) {
-  const w = liveWorld({ latency, make: (phone, { clock }) => gameOn(phone.core.ft, { clock, seed: phone.name === "a" ? 3 : 11 }) });
+  const w = liveWorld({ latency, make: (phone, { clock }) => gameOn(phone.core.ft, { clock, seed: phone.name === "a" ? 3 : 11, page: phone.page }) });
   for (const name of ["a", "b"]) {
     const { game } = w.phones[name].made;
     await game.open({ lang: "en", live: true, chat: w.phones[name].core.chat });
@@ -167,30 +171,59 @@ describe("a duel with the other person in the chat", () => {
     expect(Math.max(...ticks)).toBeLessThanOrEqual(TICK_LIMIT);
   });
 
-  it("freezes both phones while either player has the pause open", async () => {
+  it("has no pause in a round with a friend", async () => {
+    const t = await twoPhones();
+    await bothPlaying(t);
+    for (const name of ["a", "b"]) {
+      const game = t.game(name);
+      expect(targetOf(game, "pause")).toBeUndefined();
+      expect(game.state.layout.controls.pause).toBeNull();
+      expect(() => draw((pen) => drawFrame(pen, game, THEME, 1))).not.toThrow();
+    }
+  });
+
+  it("leaves the round when the page is hidden, and the friend goes home with their seat marked as gone", async () => {
     const t = await twoPhones();
     await bothPlaying(t);
     await t.w.pass(1000, t.frames());
-    await press(t.game("a"), "pause");
+    t.w.hide("a");
+    expect(t.game("a").state).toMatchObject({ screen: "home", round: null, paused: false });
+    await t.w.pass(400, t.frames());
+    const b = t.game("b");
+    expect(b.state).toMatchObject({ screen: "home", round: null });
+    expect(friendLeft(b.duel.status)).toBe(true);
+    const mark = JSON.stringify(draw((pen) => drawFriendLeft(pen, targetOf(b, "rival"), b.duel.status, THEME.ui)).calls).slice(1, -1);
+    expect(JSON.stringify(draw((pen) => drawFrame(pen, b, THEME, 1)).calls)).toContain(mark);
+    t.w.hide("a", false);
+    await t.w.pass(400, t.frames());
+    expect(t.game("a").state.screen).toBe("home");
+    expect(friendLeft(t.game("a").duel.status)).toBe(false);
+    await press(b, "play");
     await t.w.pass(300, t.frames());
-    const steps = [t.game("a").state.round.step, t.game("b").state.round.step];
-    await t.w.pass(2000, t.frames());
-    expect([t.game("a").state.round.step, t.game("b").state.round.step]).toEqual(steps);
-    strikeNow(t.game("b"));
-    expect(t.game("b").state.round.claims.flat()).toEqual([]);
-    await press(t.game("a"), "resume");
-    await t.w.pass(600, t.frames());
-    expect(t.game("b").state.round.step).toBeGreaterThan(steps[1]);
+    await press(t.game("a"), "play");
+    await t.w.pass(COUNTDOWN + 400, t.frames());
+    expect([t.game("a").state.screen, b.state.screen]).toEqual(["play", "play"]);
   });
 
-  it("goes back home, the other's seat empty, when the other leaves in the middle of a round", async () => {
+  it("goes back home, the other's seat marked as gone, when the other closes the game in the middle of a round", async () => {
     const t = await twoPhones();
     await bothPlaying(t);
-    await press(t.game("b"), "pause");
-    await press(t.game("b"), "home");
+    t.game("b").close();
     await t.w.pass(400, t.frames());
     expect(t.game("a").state).toMatchObject({ screen: "home", round: null });
     expect(t.game("a").duel.status.away).toBe(true);
+    expect(friendLeft(t.game("a").duel.status)).toBe(true);
+  });
+
+  it("goes back home when the other phone, on an older version, pauses its round", async () => {
+    const t = await twoPhones();
+    await bothPlaying(t);
+    const { duel } = t.game("b");
+    const send = duel.send.bind(duel);
+    duel.send = (time, state, now, options) => send(time, { ...state, p: 1 }, now, options);
+    await t.w.pass(400, t.frames());
+    expect(t.game("a").state).toMatchObject({ screen: "home", round: null });
+    expect(friendLeft(t.game("a").duel.status)).toBe(true);
   });
 
   it("gets through a stall on the wire and still agrees on the score", { timeout: 60_000 }, async () => {

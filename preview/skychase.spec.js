@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { mkdirSync } from "node:fs";
 import { join } from "node:path";
 import { start } from "./serve.js";
-import { toneOf, toneShares, walkCanvasGame } from "./canvas-walk.js";
+import { setHidden, toneOf, toneShares, walkCanvasGame } from "./canvas-walk.js";
 
 const OUT = "/private/tmp/ftgames-skychase-shots";
 const FULL_SKY = { clouds: [{ x: 0.72, y: 0.25, r: 0.15 }, { x: 0.2, y: 1.15, r: 0.14 }], wind: { y: 0.82, tall: 0.24, push: 0.11 }, ring: { x: 0.25, y: 0.45, r: 0.1 }, airship: { x: 0.78, y: 1.0, r: 0.12, drift: 0.035 } };
@@ -209,13 +209,9 @@ async function walkTwoPhones() {
     assert.equal(hitA.crafts[hitB.seat].lost, hitB.crafts[hitB.seat].lost);
     assert.equal(hitA.crafts[hitA.seat].lost, 0);
   });
-  await t.press("a", "pause");
-  await t.page.waitForTimeout(600);
-  await t.shot("6-a-paused-b-frozen");
-  const frozen = (await stateOf(t, "b")).step;
-  await t.page.waitForTimeout(800);
-  await check("two phones: a pause on one phone freezes the other", async () => assert.equal((await stateOf(t, "b")).step, frozen));
-  await t.press("a", "resume");
+  await check("two phones: a round with a friend has no pause button", async () => {
+    for (const side of ["a", "b"]) assert.equal(await t.frame(side).evaluate(() => document.getElementById("view").game.targets().some((one) => one.kind === "pause")), false);
+  });
   await t.frame("a").evaluate(() => {
     const { match } = document.getElementById("view").game.state.round;
     match.roundSteps = match.step + 120;
@@ -228,6 +224,23 @@ async function walkTwoPhones() {
     assert.equal(endA.outcome.mine, endB.outcome.theirs);
     assert.equal(endA.outcome.theirs, endB.outcome.mine);
     assert.ok(endA.outcome.mine >= 1, `a popped ${endA.outcome.mine}`);
+  });
+  for (const side of ["a", "b"]) await t.press(side, "again");
+  await t.page.waitForTimeout(4500);
+  await t.frame("a").evaluate(setHidden, true);
+  await t.page.waitForTimeout(800);
+  await t.shot("9-a-left-b-home");
+  const seen = (side) => t.frame(side).evaluate(() => {
+    const { duel, state } = document.getElementById("view").game;
+    return { screen: state.screen, phase: duel.phase, notice: duel.notice };
+  });
+  const [leftA, leftB] = [await seen("a"), await seen("b")];
+  await t.frame("a").evaluate(setHidden, false);
+  await t.page.waitForTimeout(400);
+  await check("two phones: a phone sent to the background leaves the round, and the friend goes home told why", async () => {
+    assert.deepEqual(leftA, { screen: "home", phase: "left", notice: null });
+    assert.deepEqual(leftB, { screen: "home", phase: "left", notice: "left" });
+    assert.equal((await seen("a")).screen, "home");
   });
   await check("two phones: no errors", async () => assert.deepEqual(t.problems, []));
   await t.browser.close();

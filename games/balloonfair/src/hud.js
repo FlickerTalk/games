@@ -37,7 +37,7 @@ export function drawPlayBar(ctx, layout, state, theme, time) {
   scores(ctx, layout, state, theme);
   ribbon(ctx, layout.ribbon, state.left, ui);
   if (layout.rival && state.rival) drawPortrait(ctx, layout.rival.x, layout.rival.y, layout.rival.size, { ...state.rival, face: "happy" }, ui, { time, lang: state.lang });
-  drawRoundButton(ctx, "pause", ...centreOf(controls.pause), button, ui, { pressed: state.press?.kind === "pause" });
+  if (controls.pause) drawRoundButton(ctx, "pause", ...centreOf(controls.pause), button, ui, { pressed: state.press?.kind === "pause" });
   drawSoundButtons(ctx, controls, state.sound, ui, { size: button, press: state.press });
   if (state.sound.open) drawVolumeLine(ctx, layout.volume, state.sound.volume, ui, { pressed: state.press?.kind === "volume" });
   ctx.restore();

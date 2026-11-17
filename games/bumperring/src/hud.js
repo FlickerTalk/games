@@ -65,7 +65,7 @@ export function drawPlayBar(ctx, layout, state, theme, time) {
   const face = row - 12;
   const middle = bar.y + bar.h / 2;
   const start = bar.x + 8;
-  const end = controls.pause.x - 6;
+  const end = (controls.pause ?? controls.speaker).x - 6;
   ctx.save();
   roundedRect(ctx, bar.x, bar.y, bar.w, bar.h, ui.radius);
   paint(ctx, ui.surface, ui.border, ui.line);
@@ -73,7 +73,7 @@ export function drawPlayBar(ctx, layout, state, theme, time) {
   if (state.rival) drawPortrait(ctx, end - face / 2, middle, face, { player: state.rival, face: "happy" }, ui, { time });
   const track = { x: start + face + 10, y: middle - 5, w: end - start - 2 * face - 20, h: 10 };
   if (track.w >= 24) timeLine(ctx, track, state.left, ui);
-  drawRoundButton(ctx, "pause", ...centreOf(controls.pause), Math.min(row - 12, 44), ui, { pressed: state.press?.kind === "pause" });
+  if (controls.pause) drawRoundButton(ctx, "pause", ...centreOf(controls.pause), Math.min(row - 12, 44), ui, { pressed: state.press?.kind === "pause" });
   drawSoundButtons(ctx, controls, state.sound, ui, { size: Math.min(row - 12, 44), press: state.press });
   if (state.sound.open) drawVolumeLine(ctx, layout.volume, state.sound.volume, ui, { pressed: state.press?.kind === "volume" });
   ctx.restore();

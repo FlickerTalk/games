@@ -1,5 +1,5 @@
 import { standIn } from "../../../kit/src/avatars/index.js";
-import { DIGITS, drawDigits, drawHintHand, drawPause, drawRoundButton, formatNumber, pauseLayout } from "../../../kit/src/canvas/index.js";
+import { DIGITS, drawDigits, drawHintHand, drawPause, formatNumber, pauseLayout } from "../../../kit/src/canvas/index.js";
 import { circle, clamp, fadeEdges } from "../../../kit/src/canvas/pen.js";
 import { STEP_MS } from "./duel.js";
 import { drawDust, drawPop, drawSwoosh } from "./effects.js";
@@ -26,7 +26,7 @@ export function rivalOf(state) {
   return kind === "flick" ? FLICK : standIn(state.player);
 }
 
-const frozen = (state) => state.paused || state.round.heard?.p === 1 || state.round.sent || state.screen !== "play";
+const frozen = (state) => state.paused || state.round.sent || state.screen !== "play";
 
 function stepNow(state) {
   const { round } = state;
@@ -151,7 +151,6 @@ export function drawPlay(ctx, game, theme, time) {
   const hand = handAt(state, now, time);
   if (hand) drawHintHand(ctx, hand.x, hand.y, HAND, hand.press, theme.ui);
   countdown(ctx, state, theme, now);
-  if (round.heard?.p === 1 && !state.paused) drawRoundButton(ctx, "pause", layout.signal.x, layout.signal.y, 88, theme.ui);
   drawPlayBar(ctx, layout, barOf(state), theme, time);
   if (state.paused) drawPause(ctx, state, theme.ui, { layout: pauseLayout(state.width, state.height, { fill: state.fill }) });
 }

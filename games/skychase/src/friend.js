@@ -7,7 +7,7 @@ import { END_PAUSE, addMoments, closeRound, lookOf, newRound, rivalLook, showRou
 import { DUEL, checkState, stateOf } from "./wire.js";
 
 export function joinFriend(game) {
-  game.duel = new CanvasDuel({ ft: game.ft, g: DUEL.g, gv: DUEL.gv, app: game.app, check: checkState, clock: game.now, onChange: () => changed(game) });
+  game.duel = new CanvasDuel({ ft: game.ft, g: DUEL.g, gv: DUEL.gv, app: game.app, check: checkState, clock: game.now, page: game.page, onChange: () => changed(game) });
 }
 
 export function startFriend(game) {
@@ -64,7 +64,7 @@ function apply(game, round, now) {
 
 function tell(game, round, now) {
   const { duel, state } = game;
-  const said = { ...lookOf(state), paused: state.paused, ended: false };
+  const said = { ...lookOf(state), ended: false };
   if (round.match.over || round.theirs?.e === 1) {
     round.sent = true;
     duel.end(duel.raceTime(now), stateOf(round.match, round.seat, { ...said, ended: true }));
@@ -83,7 +83,7 @@ export function rewindOf(duel) {
 function play(game, round, now) {
   apply(game, round, now);
   round.rewind = rewindOf(game.duel);
-  if (round.sent || game.state.paused || round.theirs?.p === 1) round.steps.reset();
+  if (round.sent) round.steps.reset();
   else if (stepRound(game, round).some((event) => event.kind === "pop")) round.urgent = true;
   if (!round.sent) tell(game, round, now);
 }

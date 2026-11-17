@@ -58,6 +58,15 @@ describe("the play screen's layout", () => {
     }
   });
 
+  it("leaves the pause out of the bar of a round with a friend, sound and music where they were", () => {
+    for (const [width, height, fill] of SIZES) {
+      const layout = playLayout(width, height, { fill, pause: false });
+      expect(layout.controls.pause).toBeNull();
+      expect(playTargets(layout, { volume: true }).map((one) => one.kind).sort()).toEqual(["music", "speaker", "volume"]);
+      expect(layout.controls.speaker).toEqual(playLayout(width, height, { fill }).controls.speaker);
+    }
+  });
+
   it("offers pause, sound and music in the bar, big enough and apart, nothing in the bottom corners of a full screen", () => {
     for (const [width, height, fill] of SIZES) {
       const layout = playLayout(width, height, { fill });
