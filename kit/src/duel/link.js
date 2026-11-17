@@ -5,6 +5,8 @@ import { ScoredSession } from "./session.js";
 const AWAY = ["notOpen", "left", "unreachable", "silent", "update"];
 const PLAYING = ["countdown", "running", "finished", "over"];
 
+const saysPaused = (s) => s?.g?.p === 1;
+
 function wrap(check) {
   return (s) => {
     if (!s || typeof s !== "object") return null;
@@ -27,6 +29,7 @@ export class CanvasDuel {
     this.session = new ScoredSession({
       ft, g, gv, app, clock, timing,
       check: wrap(check),
+      paused: saysPaused,
       onChange: () => this.changed(),
       onState: (s, t, at) => this.heard(s, t, at),
       ...(newId ? { newId } : {}),

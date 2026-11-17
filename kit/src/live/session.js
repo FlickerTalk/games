@@ -126,6 +126,7 @@ export class Session {
     const message = opened.message;
     if (message.k === "hello") return this.hello(message);
     if (!this.peer || message.doc !== this.id || message.who !== this.peer) return;
+    if (this.phase === "left" && this.notice !== "left" && message.k === "tick") return this.send("bye");
     this.heardAt = this.clock();
     if (message.k === "ready") return this.readied();
     if (message.k === "go") return this.went(message);
@@ -211,7 +212,11 @@ export class Session {
 
   tick(now) {
     if (this.phase === "countdown" && now >= this.startAt) this.set("running");
-    if (!this.solo && this.running && this.theirs === undefined && now - this.heardAt > this.timing.silence) this.gone("silent");
+    if (!this.solo && this.running && this.theirs === undefined && now - this.heardAt > this.silence()) this.gone("silent");
+  }
+
+  silence() {
+    return this.timing.silence;
   }
 
   run(t, state, now = this.clock()) {

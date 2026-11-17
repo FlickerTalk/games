@@ -1,7 +1,8 @@
 export class Pacer {
-  // ms between two messages
-  constructor({ every = 83 } = {}) {
+  // both in ms
+  constructor({ every = 83, patience = 1000 } = {}) {
     this.every = every;
+    this.patience = patience;
     this.reset();
   }
 
@@ -11,7 +12,9 @@ export class Pacer {
   }
 
   due(now) {
-    return !this.waiting && (this.last === null || now - this.last >= this.every);
+    if (this.last === null) return true;
+    const since = now - this.last;
+    return since >= (this.waiting ? this.patience : this.every);
   }
 
   sent(now) {

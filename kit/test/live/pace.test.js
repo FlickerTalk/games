@@ -20,6 +20,15 @@ describe("the pace of sending", () => {
     expect(pacer.due(500)).toBe(true);
   });
 
+  it("stops waiting for an answer the core has not given in a second, so one lost answer cannot silence the phone", () => {
+    const pacer = new Pacer({ every: 100 });
+    pacer.sent(0);
+    expect(pacer.due(999)).toBe(false);
+    expect(pacer.due(1000)).toBe(true);
+    pacer.sent(1000);
+    expect(pacer.due(1500)).toBe(false);
+  });
+
   it("starts over for a new race", () => {
     const pacer = new Pacer({ every: 100 });
     pacer.sent(1000);

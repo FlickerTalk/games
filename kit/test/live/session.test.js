@@ -303,6 +303,23 @@ describe("a race between two phones", () => {
     expect(quiet.a.session.notice).toBe("silent");
   });
 
+  it("answers a tick of a race it has given up on with bye, so the other phone stops too", async () => {
+    const world = withClock(phones());
+    const { a, b } = world;
+    await lobby(world);
+    await world.pass(LIVE_TIMING.countdown + 50);
+    b.closed = true;
+    await world.pass(LIVE_TIMING.silence + 200, drive({ a: 1, b: 1 }));
+    expect([a.session.phase, b.session.phase, b.session.notice]).toEqual(["running", "left", "silent"]);
+    b.closed = false;
+    await world.pass(300, drive({ a: 1, b: 1 }));
+    expect(decode(b.core.sent.at(-1)).k).toBe("bye");
+    expect([a.session.phase, a.session.notice]).toEqual(["left", "left"]);
+    const sent = b.core.sent.length;
+    await world.pass(300, drive({ a: 1, b: 1 }));
+    expect(b.core.sent.length).toBe(sent);
+  });
+
   it("finds one race when both start at the same moment", async () => {
     const world = phones();
     world.a.session.start();
