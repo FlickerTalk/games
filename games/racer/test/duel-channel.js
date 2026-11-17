@@ -9,12 +9,13 @@ export function channel({ delay = 30, holdFrom = Infinity, holdTo = Infinity, ba
   const sent = { a: [], b: [] };
   const ends = {};
   let refuse = { a: false, b: false };
+  let lost = { a: false, b: false };
   const side = (from, to) => ({
     live: {
       send(data) {
         sent[from].push(data);
         if (refuse[from]) return Promise.resolve(false);
-        if (ends[to].open) queue.push({ to, data, at: ends.now + delay });
+        if (ends[to].open && !lost[from]) queue.push({ to, data, at: ends.now + delay });
         return Promise.resolve(true);
       },
     },
@@ -28,6 +29,9 @@ export function channel({ delay = 30, holdFrom = Infinity, holdTo = Infinity, ba
     ft: { a: side('a', 'b'), b: side('b', 'a') },
     refuse: (from) => {
       refuse = { ...refuse, [from]: true };
+    },
+    lose: (from, gone = true) => {
+      lost = { ...lost, [from]: gone };
     },
     deliver(now, duels) {
       ends.now = now;
@@ -56,12 +60,14 @@ export function pair(net, { a = {}, b = {}, timing = {} } = {}) {
   let now = 0;
   const clock = () => now;
   const won = { a: 0, b: 0 };
+  const hidden = { a: false, b: false };
   const make = (name, fields) => createDuel({
     ft: net.ft[name],
     profile: normalizeProfile(fields),
     clock,
     timing: { answer: 400, silence: 6000, ...timing },
     newId: nextId(name),
+    hidden: () => hidden[name],
     onWin: () => {
       won[name] += 1;
     },
@@ -73,6 +79,10 @@ export function pair(net, { a = {}, b = {}, timing = {} } = {}) {
   return {
     duels,
     won,
+    hide(name, away = true) {
+      hidden[name] = away;
+      if (away) duels[name].away();
+    },
     get now() {
       return now;
     },
@@ -82,7 +92,7 @@ export function pair(net, { a = {}, b = {}, timing = {} } = {}) {
         now += FRAME_MS;
         net.deliver(now, duels);
         for (const name of ['a', 'b']) {
-          if (!net.ends[name].open) continue;
+          if (!net.ends[name].open || hidden[name]) continue;
           const game = duels[name].game;
           duels[name].frame(now, game ? (drive[name] ?? idle)(game) : idle());
         }

@@ -8,14 +8,13 @@ const STEP = 1 / 60;
 const MOST_STEPS = 8;
 const STOPPED = 0.5;
 const CARD_AFTER = { crossed: RACE.finishPauseSeconds * 1000, decided: 15000 };
-const BEFORE_RACE = ['idle', 'waiting', 'lobby'];
-const DECIDED = ['over', 'left'];
+const OFF_TRACK = ['idle', 'waiting', 'lobby', 'left'];
 
 const round = (value, places) => Math.round(value * 10 ** places) / 10 ** places;
 
-export function createDuel({ ft, profile, clock = () => performance.now(), timing = {}, newId, app = '0', onWin = () => {} }) {
+export function createDuel({ ft, profile, clock = () => performance.now(), timing = {}, newId, app = '0', hidden = () => false, onWin = () => {} }) {
   const duel = {
-    ft, profile, clock, onWin, about: new Map(), rival: createRival(), game: null, raceId: null,
+    ft, profile, clock, hidden, onWin, about: new Map(), rival: createRival(), game: null, raceId: null,
     carry: 0, lastNow: null, crossedAt: null, decidedAt: null, rewarded: null,
   };
   const live = {
@@ -42,6 +41,7 @@ export function createDuel({ ft, profile, clock = () => performance.now(), timin
     heard: (data) => heard(duel, data),
     start: () => duel.session.start(),
     stop: () => duel.session.stop(),
+    away: () => leaveRace(duel),
     frame: (now, input) => frame(duel, now, input),
     view: (now) => view(duel, now),
     vehicleChanged() {
@@ -69,10 +69,16 @@ function heard(duel, data) {
   else duel.session.heard(data);
 }
 
+// the race ends for both rather than wait for a phone that cannot drive it
+function leaveRace(duel) {
+  if (duel.session.running) duel.session.stop();
+}
+
 function changed(duel) {
   const { session } = duel;
+  if (session.running && duel.hidden()) return leaveRace(duel);
   if (session.phase === 'countdown' && session.id !== duel.raceId) newRace(duel);
-  if (DECIDED.includes(session.phase) && duel.game && duel.decidedAt === null) duel.decidedAt = duel.clock();
+  if (session.phase === 'over' && duel.game && duel.decidedAt === null) duel.decidedAt = duel.clock();
   if (session.phase === 'over' && session.result?.won && duel.rewarded !== session.id) {
     duel.rewarded = session.id;
     duel.onWin();
@@ -141,9 +147,9 @@ function report(duel, now) {
 
 function onTrack(duel, now) {
   const { session, game } = duel;
-  if (!game || BEFORE_RACE.includes(session.phase)) return false;
+  if (!game || OFF_TRACK.includes(session.phase)) return false;
   if (game.state !== 'finished') return duel.decidedAt === null || now - duel.decidedAt < CARD_AFTER.decided || game.player.speed > STOPPED;
-  return !DECIDED.includes(session.phase) || now - duel.crossedAt < CARD_AFTER.crossed;
+  return session.phase !== 'over' || now - duel.crossedAt < CARD_AFTER.crossed;
 }
 
 function view(duel, now) {
@@ -166,7 +172,7 @@ function card(duel) {
     case 'over':
       return { ...base, result: session.result.won ? 'won' : 'second', rival: { vehicle, status: 'here' } };
     case 'left':
-      return { ...base, rival: { vehicle, status: 'gone' }, offerRobot: true };
+      return session.notice ? { ...base, rival: { vehicle, status: 'gone' }, offerRobot: true } : base;
     default:
       return base;
   }

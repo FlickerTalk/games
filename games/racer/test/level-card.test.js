@@ -136,6 +136,19 @@ test('coming second gets its own happy card, with confetti, never a sad one', ()
   assert.ok(Math.abs(second.fills.length - won.fills.length) <= 3);
 });
 
+test('when the friend left their empty place carries a red cross, as a friend who is ready carries a green tick', () => {
+  const card = (status) => {
+    const tracked = pointTracker();
+    drawLevelCard(tracked.ctx, { width: 384, height: 760, level: 2, result: 'start', time: 0.4, offerRobot: true, rival: { vehicle: null, status } });
+    return tracked.fills;
+  };
+  const reds = (fills) => fills.filter((fill) => fill === PALETTE.trafficRed).length;
+  const gone = card('gone');
+  const asleep = card('asleep');
+  assert.equal(reds(gone), reds(asleep) + 1);
+  assert.equal(gone.length, asleep.length + 1);
+});
+
 test('when the friend is gone the card offers the robot with a button of its own, clear of the others', () => {
   for (const [width, height] of STAGES) {
     vi.clearAllMocks();

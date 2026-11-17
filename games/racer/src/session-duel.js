@@ -8,7 +8,7 @@ import { createRandom } from './random.js';
 
 export function joinDuel(run, app) {
   if (!playsTogether(run.opened) || typeof app?.live?.send !== 'function') return;
-  run.duel = createDuel({ ft: app, profile: run.profile, app: version, clock: () => run.nowMs, onWin: () => rewardDuel(run) });
+  run.duel = createDuel({ ft: app, profile: run.profile, app: version, clock: () => run.nowMs, hidden: () => run.hidden, onWin: () => rewardDuel(run) });
   app.live.onMessage?.((data) => run.duel?.heard(data));
   app.onClose?.(() => run.duel?.stop());
 }

@@ -117,7 +117,10 @@ function wire(run, keyTarget) {
   };
   const onVisibility = () => {
     run.hidden = run.page.visibilityState === 'hidden';
-    if (run.hidden) pause(run);
+    if (run.hidden) {
+      pause(run);
+      run.duel?.away();
+    }
     run.clock.reset();
   };
   const onTap = (event) => tapScreen(run, { x: event.offsetX, y: event.offsetY });

@@ -106,6 +106,19 @@ function drawReadyMark(ctx, x, y, radius) {
   ctx.stroke();
 }
 
+function drawGoneMark(ctx, x, y, radius) {
+  ellipse(ctx, x, y, radius, radius, PALETTE.trafficRed, PALETTE.ink, 2.5);
+  ctx.beginPath();
+  for (const side of [-1, 1]) {
+    ctx.moveTo(x - radius * 0.38, y - side * radius * 0.38);
+    ctx.lineTo(x + radius * 0.38, y + side * radius * 0.38);
+  }
+  ctx.strokeStyle = PALETTE.ink;
+  ctx.lineWidth = Math.max(2.5, radius * 0.22);
+  ctx.lineCap = 'round';
+  ctx.stroke();
+}
+
 function drawEmptySeat(ctx, x, y, size, status, time) {
   const width = size * 0.42;
   const height = size * 0.68;
@@ -129,6 +142,7 @@ function drawRival(ctx, x, y, size, time, rival) {
   }
   if (!rival.vehicle || !['here', 'ready'].includes(rival.status)) {
     drawEmptySeat(ctx, x, y, size, rival.status, time);
+    if (rival.status === 'gone') drawGoneMark(ctx, x + size * 0.2, y - size * 0.3, size * 0.11);
     return;
   }
   drawPlayerVehicle(ctx, x, y, size * 0.42, size * 0.68, { ...rival.vehicle, steer: -0.15, time });
