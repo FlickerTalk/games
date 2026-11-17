@@ -88,6 +88,20 @@ describe("the play screen's layout", () => {
     }
   });
 
+  it("on a 375 × 812 phone puts the shoot button under the battlefield in its 343 × 515 room and in full screen, with or without the safe areas", () => {
+    for (const [width, height, fill] of [[343, 515, false], [375, 678, true], [375, 812, true]]) {
+      const layout = playLayout(width, height, { fill });
+      const foot = layout.view.y + WORLD.height * layout.view.scale;
+      for (const sub of [false, true]) {
+        const where = `${width}x${height} ${fill ? "full screen" : "room"} sub ${sub}`;
+        const { fire } = controlsOf(layout, sub);
+        expect(fire.y, where).toBeGreaterThanOrEqual(foot - 0.5);
+        expect(fire.y + fire.h, where).toBeLessThanOrEqual(height);
+        checkTargets(playTargets(layout, { sub }), { width, height, fill, least, name: where });
+      }
+    }
+  });
+
   it("stands the wind flag in the sky under the controls, inside the frame", () => {
     eachSize(({ width, height, fill }) => {
       const { flag, start } = playLayout(width, height, { fill });

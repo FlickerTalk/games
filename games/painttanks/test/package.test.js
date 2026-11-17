@@ -13,7 +13,7 @@ const ID = { id: "com.flickertalk.game.painttanks", name: "Paint Tanks", compone
 
 describe("the Paint Tanks package", () => {
   it("says it is a game that needs the core 1.6.0, the live channel and sending, and nothing else", () => {
-    expect(checkManifest(dir, ID).version).toBe("1.0.1");
+    expect(checkManifest(dir, ID).version).toBe("1.0.2");
   });
 
   it("names and describes itself in the app's other 20 languages, for the whole family and without anyone else's game names", () => {
@@ -38,6 +38,6 @@ describe("the Paint Tanks package", () => {
   it("defines its element when loaded, with the version of its manifest", () => {
     const code = readFileSync(join(dir, "dist", "index.js"), "utf8");
     expect(code).toContain("ft-painttanks");
-    expect(code).toContain('"1.0.1"');
+    expect(code).toContain('"1.0.2"');
   });
 });
