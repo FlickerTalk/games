@@ -507,11 +507,13 @@ defineLiveGame({
 - **Talking**: nothing is sent when the game opens. The user's start sends `hello`; a phone with the
   game open answers it (`re`), which is how the first one learns the other is there. Both start →
   the phone with the smaller id sends `go` and both count down 3 s. While running, a phone sends its
-  state at most every 83 ms (about 12 a second) and only once the core took the last one. The first
+  state at most every 83 ms (about 12 a second) and only once the core took the last one, or a second
+  later if the core never answers. The first
   message the core refuses ends it: `left` with `unreachable`, and nothing more is sent until the
   user starts again (a send without a connection wakes the other phone by push). No answer to a
   `hello` in 8 s says the other person does not have the game open; nothing from the other phone in
-  6 s of a race says it stopped answering. Neither is retried by itself.
+  6 s of a race says it stopped answering. Neither is retried by itself. A phone that has left a race
+  or given up on it answers the other's next state with `bye`, so the other ends it too.
 - **Drawing the other phone** (`follow.js`): `Follow` keeps the last three states, shows them 100 ms
   behind the other phone's clock (estimated from the fastest arrival), between the two around that
   moment, carries the last movement on for at most 250 ms when nothing new comes, and after a stall
@@ -733,6 +735,12 @@ background and back) and `evaluate(fn, arg)` in the game's frame.
 **A round never goes on by itself.** When the page is hidden the element presses the game's own
 `pause` target, if the screen has one, and runs one frame, so a round between two phones tells the
 other phone at once; the game stays paused until the player presses `resume`.
+
+**A pause between two phones** (`CanvasDuel`) is the `p: 1` in the state a game sends. A state that
+changes it goes at once, without waiting for the core to take the last one. While either player has
+the pause open, the other phone may stay silent for 60 s instead of 6 s, since a hidden page cannot
+talk; once this player resumes, the 6 s count again from that moment. After the 60 s both phones end
+the round, the one that comes back later too.
 
 ## A board drawn on a canvas
 
@@ -1019,6 +1027,11 @@ package's contents. So:
 - Racer as tall as the canvas games in a phone's room, racing on when the frame loses the focus to the
   app's full screen button, and drawn in the app's theme is its `0.7.3`. It now bundles the kit's
   `ROOM_CHROME` and canvas theme; the other games' packages do not change.
+- A pause that may last 60 s, a pause that reaches the other phone while the core is still busy with
+  the last message, a message the core never answers that no longer silences a phone, and the `bye`
+  that answers a state after giving up on a round are one more patch for the games that bundle the
+  live session: `1.0.2` for Paddle Pop, Sky Chase, Bumper Ring, Foam Duel, Robot Rumble, Balloon Fair
+  and Duo Squad, and Racer's `0.7.4`. The other games' packages do not change.
 
 ## Preview
 

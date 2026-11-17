@@ -14,6 +14,6 @@ describe("the kit's part for real-time canvas games", () => {
     const code = made.outputFiles[0].text;
     expect(code).not.toContain("ftl-");
     expect(code).not.toContain("Try again");
-    expect(code.length).toBeLessThan(14 * 1024);
+    expect(code.length).toBeLessThan(15 * 1024);
   });
 });
