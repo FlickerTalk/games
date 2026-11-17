@@ -1,6 +1,7 @@
 import { drawAvatar, standIn } from "../../../kit/src/avatars/index.js";
 import { centreOf, drawHome as drawHomeScreen, drawLooks as drawLooksScreen, homeLayout, looksLayout } from "../../../kit/src/canvas/index.js";
 import { circle, roundedRect } from "../../../kit/src/canvas/pen.js";
+import { drawLobby } from "../../../kit/src/duel/lobby.js";
 import { drawStage, rimmed } from "./board.js";
 import { LOOKS, PROGRESS } from "./levels.js";
 import { drawGiftBox, drawRobot } from "./robot-art.js";
@@ -9,7 +10,7 @@ import { drawWorld } from "./world-art.js";
 
 const VARIANTS = ["levels", "make"];
 const TABS = ["robot", "world"];
-const WAITING = ["solve", "watch"];
+const YOURS = ["build", "solve", "watch"];
 
 function miniLevel(ctx, area, state, theme, time) {
   const span = Math.min(area.w, area.h) * 0.66;
@@ -29,7 +30,7 @@ function miniTools(ctx, area, state, theme, time) {
   ["#", "~", "B", "G"].forEach((kind, at) => drawTile(ctx, kind, left + (at % 2) * cell, top + Math.floor(at / 2) * cell, cell, theme, { world: state.progress.chosen.world, time }));
 }
 
-function waitingMark(ctx, area, player, theme, time) {
+function friendMark(ctx, area, player, theme, time) {
   const size = Math.min(area.w, area.h) * 0.3;
   const x = area.x + area.w - size * 0.55;
   const y = area.y + size * 0.55;
@@ -46,6 +47,7 @@ function bandRobot(ctx, band, state, theme, time) {
 
 export function drawHome(ctx, state, seat, theme, time, duty = null) {
   const layout = homeLayout(state.width, state.height, { variants: VARIANTS, rival: Boolean(seat), fill: state.fill });
+  const yours = YOURS.includes(duty);
   drawHomeScreen(ctx, state, theme.ui, time, {
     layout,
     seat,
@@ -58,9 +60,11 @@ export function drawHome(ctx, state, seat, theme, time, duty = null) {
       rimmed(pen, theme, () => {
         if (target.value === "levels") miniLevel(pen, target, state, theme, time);
         else miniTools(pen, target, state, theme, time);
-        if (target.value === "make" && WAITING.includes(duty)) waitingMark(pen, target, state.player, theme, time);
+        if (target.value === "make" && yours) friendMark(pen, target, state.player, theme, time);
       }),
   });
+  const play = layout.targets.find((one) => one.kind === "play");
+  if (state.wanting && seat && !seat.away && !yours) drawLobby(ctx, { play }, { waiting: true, invited: false }, theme.ui, time);
 }
 
 export function drawLookArt(ctx, area, kind, look, state, theme, time) {

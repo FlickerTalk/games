@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { shapes } from "../../../kit/test/canvas/recorder.js";
+import { standIn } from "../../../kit/src/avatars/index.js";
+import { drawLobby } from "../../../kit/src/duel/lobby.js";
+import { contains, shapes } from "../../../kit/test/canvas/recorder.js";
 import { drawHome, drawLooks } from "../src/home-art.js";
 import { LOOKS } from "../src/levels.js";
 import { DARK, LIGHT, SIZES, gameAt, paint, texts } from "./screens.js";
@@ -32,6 +34,24 @@ describe("the home screen", () => {
     const seat = { player: { who: "flick" }, here: true, calling: false, away: false };
     const plain = paint((pen) => drawHome(pen, game.state, seat, LIGHT, 1)).calls.length;
     expect(paint((pen) => drawHome(pen, game.state, seat, LIGHT, 1, "solve")).calls.length).toBeGreaterThan(plain);
+  });
+
+  it("marks the compose card the same way when it is this player's turn to compose a train", async () => {
+    const { game } = await gameAt("home");
+    const solve = shapes(paint((pen) => drawHome(pen, game.state, null, LIGHT, 1, "solve")));
+    expect(shapes(paint((pen) => drawHome(pen, game.state, null, LIGHT, 1, "build")))).toEqual(solve);
+  });
+
+  it("turns dots in the play button while the player who pressed play waits for the friend, and not once the friend is gone or the next step is theirs", async () => {
+    const { game } = await gameAt("home", { opening: { live: true } });
+    const seat = { player: standIn(game.state.player), here: true, calling: false, away: false };
+    const dots = shapes(paint((pen) => drawLobby(pen, { play: targetOf(game, "play") }, { waiting: true, invited: false }, LIGHT.ui, 1)));
+    const shows = (duty, at = seat) => contains(shapes(paint((pen) => drawHome(pen, game.state, at, LIGHT, 1, duty))), dots);
+    expect(shows("wait")).toBe(false);
+    game.state.wanting = true;
+    expect(shows("wait")).toBe(true);
+    expect(shows("wait", { ...seat, here: false, away: true })).toBe(false);
+    for (const duty of ["build", "solve", "watch"]) expect(shows(duty), duty).toBe(false);
   });
 });
 
