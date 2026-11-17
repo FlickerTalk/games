@@ -106,3 +106,129 @@ describe("the stored choice", () => {
     expect(await savePlayer(undefined, defaultPlayer())).toBe(false);
   });
 });
+
+const JUNO = { who: "juno", hair: "curly-puff", hairColour: "copper", name: "Ana" };
+const MILO = { who: "milo", hair: "quiff", hairColour: "copper", name: "Lia" };
+
+function appPlayer(start = null) {
+  const shared = { kept: start };
+  shared.get = vi.fn(async () => shared.kept);
+  shared.set = vi.fn(async (player) => {
+    shared.kept = { ...player };
+    return true;
+  });
+  return shared;
+}
+
+const refusing = (now) => ({ get: vi.fn(async () => now), set: vi.fn(async () => false) });
+
+const failing = () => ({
+  get: vi.fn(async () => Promise.reject(new Error("gone"))),
+  set: vi.fn(() => {
+    throw new Error("gone");
+  }),
+});
+
+describe("the player the app shares with every game", () => {
+  it("is what a game loads when the app offers it, whatever the game kept for itself", async () => {
+    const shared = appPlayer(JUNO);
+    expect(await loadPlayer(memoryStore({ player: JSON.stringify(MILO) }), shared)).toEqual(JUNO);
+    expect(shared.set).not.toHaveBeenCalled();
+  });
+
+  it("is checked like the game's own choice", async () => {
+    expect(await loadPlayer(memoryStore(), appPlayer({ who: "zed", hair: "afro", hairColour: "blue", name: "Lia" }))).toEqual({ who: "ari", hair: "none", hairColour: "ink", name: "Lia" });
+  });
+
+  it("takes the game's own choice once while the app has none, so a choice made before shows in every game", async () => {
+    const store = memoryStore({ player: JSON.stringify(MILO) });
+    const shared = appPlayer();
+    expect(await loadPlayer(store, shared)).toEqual(MILO);
+    expect(shared.kept).toEqual(MILO);
+    expect(await loadPlayer(store, shared)).toEqual(MILO);
+    expect(await loadPlayer(memoryStore(), shared)).toEqual(MILO);
+    expect(shared.set).toHaveBeenCalledTimes(1);
+  });
+
+  it("is nothing while neither the app nor the game has a choice", async () => {
+    const shared = appPlayer();
+    expect(await loadPlayer(memoryStore(), shared)).toBeNull();
+    expect(shared.set).not.toHaveBeenCalled();
+  });
+
+  it("is chosen in one game and shown in another", async () => {
+    const shared = appPlayer();
+    expect(await savePlayer(memoryStore(), JUNO, shared)).toBe(true);
+    expect(await loadPlayer(memoryStore(), shared)).toEqual(JUNO);
+  });
+
+  it("is saved clean in the app and in the game's own store, which an older app still reads", async () => {
+    const store = memoryStore();
+    const shared = appPlayer();
+    expect(await savePlayer(store, { ...JUNO, name: " Ana ", extra: 1 }, shared)).toBe(true);
+    expect(shared.set).toHaveBeenCalledWith(JUNO);
+    expect(JSON.parse(store.kept.get("player"))).toEqual(JUNO);
+    expect(await loadPlayer(store)).toEqual(JUNO);
+  });
+
+  it("is saved when the app keeps it, even if the game's own store does not", async () => {
+    expect(await savePlayer({ get: async () => null, set: async () => false }, JUNO, appPlayer())).toBe(true);
+  });
+
+  it("falls back on the game's own store when the app refuses or fails, and is saved only if the next load finds it", async () => {
+    expect(await savePlayer(memoryStore(), JUNO, refusing(null))).toBe(true);
+    expect(await savePlayer(memoryStore(), JUNO, refusing(JUNO))).toBe(true);
+    expect(await savePlayer(memoryStore(), JUNO, refusing(MILO))).toBe(false);
+    expect(await savePlayer({ get: async () => null, set: async () => false }, JUNO, refusing(null))).toBe(false);
+    const store = memoryStore();
+    expect(await savePlayer(store, JUNO, failing())).toBe(true);
+    expect(await loadPlayer(store, failing())).toEqual(JUNO);
+  });
+
+  it("is not handed the game's own choice when the app cannot say whether it has one", async () => {
+    const store = memoryStore({ player: JSON.stringify(MILO) });
+    for (const answer of [false, undefined, "juno", [1, 2]]) {
+      const shared = { get: vi.fn(async () => answer), set: vi.fn(async () => true) };
+      expect(await loadPlayer(store, shared), String(answer)).toEqual(MILO);
+      expect(shared.set).not.toHaveBeenCalled();
+    }
+    const shared = failing();
+    expect(await loadPlayer(store, shared)).toEqual(MILO);
+    expect(shared.set).not.toHaveBeenCalled();
+  });
+
+  it("never keeps a game waiting on an app that does not answer", async () => {
+    vi.useFakeTimers();
+    try {
+      const silent = { get: vi.fn(() => new Promise(() => {})), set: vi.fn(() => new Promise(() => {})) };
+      const loaded = loadPlayer(memoryStore({ player: JSON.stringify(MILO) }), silent);
+      const store = memoryStore();
+      const saved = savePlayer(store, JUNO, silent);
+      await vi.advanceTimersByTimeAsync(5000);
+      expect(await loaded).toEqual(MILO);
+      expect(await saved).toBe(true);
+      expect(JSON.parse(store.kept.get("player"))).toEqual(JUNO);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("is left alone on an app without it, where the game keeps its own store as before", async () => {
+    const store = memoryStore({ player: JSON.stringify(MILO) });
+    for (const players of [undefined, null, {}, { get: "juno", set: "juno" }, { get: async () => JUNO }]) {
+      expect(await loadPlayer(store, players)).toEqual(MILO);
+      expect(await savePlayer(store, MILO, players)).toBe(true);
+    }
+  });
+
+  it("is the frame's own when a game hands over only its store", async () => {
+    globalThis.ft = { store: memoryStore(), player: appPlayer(JUNO) };
+    try {
+      expect(await loadPlayer(memoryStore())).toEqual(JUNO);
+      expect(await savePlayer(memoryStore(), MILO)).toBe(true);
+      expect(globalThis.ft.player.kept).toEqual(MILO);
+    } finally {
+      delete globalThis.ft;
+    }
+  });
+});

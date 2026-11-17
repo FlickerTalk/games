@@ -188,6 +188,14 @@
         return done(true);
       case "ft.forget":
         return done(phone.store.delete(said.key));
+      case "ft.playerGet":
+        return done(JSON.parse(sessionStorage.getItem(`player-${side}`) ?? "null"));
+      case "ft.playerSet": {
+        const fields = Object.keys(said.player ?? {});
+        const kept = fields.length === 4 && ["who", "hair", "hairColour", "name"].every((field) => typeof said.player[field] === "string");
+        if (kept) sessionStorage.setItem(`player-${side}`, JSON.stringify(said.player));
+        return done(kept);
+      }
       case "ft.liveSend": {
         if (solo) console.error("a match against the phone sent over the live channel");
         const other = side === "a" ? "b" : "a";

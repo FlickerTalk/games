@@ -57,6 +57,10 @@ globalThis.ft = {
     set: (key, value) => ask("ft.write", { key: String(key), value: String(value) }),
     forget: (key) => ask("ft.forget", { key: String(key) }),
   },
+  player: {
+    get: () => ask("ft.playerGet"),
+    set: (player) => ask("ft.playerSet", { player }).then((kept) => kept === true),
+  },
   records: {
     get: (key) => ask("ft.recordGet", { key: String(key) }),
     set: (key, value) => ask("ft.recordSet", { key: String(key), value: String(value) }),

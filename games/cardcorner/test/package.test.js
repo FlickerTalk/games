@@ -12,7 +12,7 @@ const identity = { id: "com.flickertalk.game.cardcorner", name: "Card Corner", c
 describe("the Card Corner package", () => {
   it("says it is a game that needs the core 1.6.0, the live channel and sending, and nothing else", () => {
     const manifest = checkManifest(dir, identity);
-    expect(manifest.version).toBe("1.0.1");
+    expect(manifest.version).toBe("1.0.2");
     expect(manifest.summary).toMatch(/Pairs, War, Rummy and Go Fish/);
     expect(manifest.summary).not.toMatch(/child|kid/i);
   });

@@ -13,7 +13,7 @@ const AUDIENCE = [/\bchild/i, /\bkids?\b/i, /niñ/i, /enfant/i, /kinder/i, /bamb
 
 describe("the Little Pier package", () => {
   it("says it is a game that needs the core 1.6.0, the live channel and sending, and nothing else", () => {
-    expect(checkManifest(dir, SHAPE).version).toBe("1.0.2");
+    expect(checkManifest(dir, SHAPE).version).toBe("1.0.3");
   });
 
   it("names and describes itself in the app's other 20 languages, without anyone else's game names or an age", () => {
@@ -41,6 +41,6 @@ describe("the Little Pier package", () => {
   it("defines its element when loaded, with the version of its manifest", () => {
     const code = readFileSync(join(dir, "dist", "index.js"), "utf8");
     expect(code).toContain("ft-littlepier");
-    expect(code).toContain('"1.0.2"');
+    expect(code).toContain('"1.0.3"');
   });
 });

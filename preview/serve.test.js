@@ -62,6 +62,16 @@ describe("the review harness", () => {
     expect(rules).toMatch(/\*\s*\{[^}]*box-sizing:\s*border-box/);
   });
 
+  it("lends the frame the player the app shares with every game, kept per phone across the games opened in one tab", async () => {
+    const bridge = await (await fetch(`${base}/frame/tictactoe/a/frame.js`)).text();
+    expect(bridge).toMatch(/player: \{\s*get: \(\) => ask\("ft\.playerGet"\)/);
+    expect(bridge).toContain('ask("ft.playerSet", { player })');
+    const host = await (await fetch(`${base}/?game=tictactoe`)).text();
+    expect(host).toContain('case "ft.playerGet":');
+    expect(host).toContain('case "ft.playerSet":');
+    expect(host).toContain("sessionStorage.setItem(`player-${side}`");
+  });
+
   it("opens one phone alone in a match against itself with &solo, as the app opens the FlickerTalk conversation", async () => {
     const bridge = await (await fetch(`${base}/frame/tictactoe/a/frame.js`)).text();
     expect(bridge).toContain("solo: said.solo === true");
