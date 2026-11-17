@@ -135,7 +135,7 @@ function portraits(host, first, options) {
     pending = frame(tick);
   };
 
-  wait(loadPlayer(found.ft?.store), WAIT_MS).then((choice) => {
+  wait(loadPlayer(found.ft?.store, found.ft?.player ?? null), WAIT_MS).then((choice) => {
     if (gone) return;
     people.me = choice ?? defaultPlayer();
     people.them ??= standIn(people.me);

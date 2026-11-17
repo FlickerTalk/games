@@ -40,16 +40,39 @@ export function playerName(choice) {
   return cleanName(choice?.name) || profileOf(choice?.who).name;
 }
 
-export async function loadPlayer(store) {
+const SHARED_WAIT = 1000; // ms
+
+const isChoice = (record) => isRecord(record) && "who" in record;
+
+const sameChoice = (one, other) => ["who", "hair", "hairColour", "name"].every((field) => one[field] === other[field]);
+
+// an app without the shared player has no ft.player, and its frame would never answer the call
+const offered = (players) => (typeof players?.get === "function" && typeof players?.set === "function" ? players : null);
+
+async function ask(call) {
+  let timer;
+  const late = new Promise((resolve) => {
+    timer = setTimeout(resolve, SHARED_WAIT);
+  });
+  try {
+    return await Promise.race([Promise.resolve().then(call), late]);
+  } catch {
+    return undefined;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+async function loadOwn(store) {
   try {
     const record = JSON.parse(await store.get(PLAYER_KEY));
-    return isRecord(record) && "who" in record ? normalizePlayer(record) : null;
+    return isChoice(record) ? normalizePlayer(record) : null;
   } catch {
     return null;
   }
 }
 
-export async function savePlayer(store, choice) {
+async function saveOwn(store, player) {
   try {
     let kept = null;
     try {
@@ -57,9 +80,29 @@ export async function savePlayer(store, choice) {
     } catch (error) {
       if (!(error instanceof SyntaxError)) throw error;
     }
-    const record = { ...(isRecord(kept) ? kept : {}), ...normalizePlayer(choice) };
+    const record = { ...(isRecord(kept) ? kept : {}), ...player };
     return (await store.set(PLAYER_KEY, JSON.stringify(record))) === true;
   } catch {
     return false;
   }
+}
+
+export async function loadPlayer(store, players = globalThis.ft?.player) {
+  const shared = offered(players);
+  const kept = shared ? await ask(() => shared.get()) : undefined;
+  if (isChoice(kept)) return normalizePlayer(kept);
+  const own = await loadOwn(store);
+  if (own && kept === null) await ask(() => shared.set(own));
+  return own;
+}
+
+export async function savePlayer(store, choice, players = globalThis.ft?.player) {
+  const player = normalizePlayer(choice);
+  const kept = await saveOwn(store, player);
+  const shared = offered(players);
+  if (!shared) return kept;
+  if ((await ask(() => shared.set(player))) === true) return true;
+  if (!kept) return false;
+  const now = await ask(() => shared.get());
+  return !isChoice(now) || sameChoice(normalizePlayer(now), player);
 }

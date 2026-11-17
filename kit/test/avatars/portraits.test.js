@@ -128,6 +128,22 @@ describe("the portraits beside the score", () => {
     shown.destroy();
   });
 
+  it("show the avatar the app shares with every game rather than the one this game kept, from the game's own ft", async () => {
+    const { element, host, store } = page({ solo: true, stored: JSON.stringify({ who: "milo", hair: "quiff" }) });
+    const shared = { get: vi.fn(async () => ({ who: "juno", hair: "bun", hairColour: "copper", name: "Ana" })), set: vi.fn(async () => true) };
+    element.ft = { store, player: shared };
+    globalThis.ft = { store, player: { get: vi.fn(async () => null), set: vi.fn(async () => true) } };
+    try {
+      const shown = withPortraits(board(), harness().options).mount(host, { view: playing(true) });
+      await vi.advanceTimersByTimeAsync(0);
+      expect(shared.get).toHaveBeenCalled();
+      expect(document.querySelector('[data-side="me"]').dataset.who).toBe("juno");
+      shown.destroy();
+    } finally {
+      delete globalThis.ft;
+    }
+  });
+
   it("give the score back to the bar when the match leaves, and let the board go too", async () => {
     const { host, title } = page();
     const inner = board();

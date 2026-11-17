@@ -414,14 +414,20 @@ requestAnimationFrame(frame);
 - **The cast.** `PROFILES`, `HAIRS` (nine long looks, nine short ones and `none`), `HAIR_COLOURS`,
   `FLICK`: frozen, under ids that phones keep, so an id is never renamed or reused. Any hairstyle and
   any colour go on any profile.
-- **The player's choice** is `{ who, hair, hairColour, name }`, kept as JSON under the key `player`
-  of the plugin's `ft.store`, the same key and shape in every game. `loadPlayer(store)` gives it back
-  checked (an id this version does not know becomes the default, Flick is never a player) or `null`
-  before the player has chosen; `savePlayer(store, choice)` writes it and keeps any other field already
-  in that record (the car game, for one, keeps its vehicles under the same key). A name is trimmed, loses control and direction
-  characters, is at most 12 letters (`NAME_LENGTH`), and is only ever drawn as text; `playerName`
-  falls back on the profile's own name. The core keeps `ft.store` per plugin, so each game holds its
-  own copy of the choice.
+- **The player's choice** is `{ who, hair, hairColour, name }`, chosen once for every game: the app
+  keeps one player for all the games on the phone (`ft.player`), and each game also keeps a copy as
+  JSON under the key `player` of its own `ft.store`, for an app without `ft.player`.
+  `loadPlayer(store)` gives back the app's player; while the app has none, the game's own copy, which
+  it hands to the app once, so a choice made before shows in every game; on an app without
+  `ft.player`, the game's own copy alone, as before. It comes back checked (an id this version does
+  not know becomes the default, Flick is never a player), or `null` before the player has chosen.
+  `savePlayer(store, choice)` writes it to the app and to the game's own copy, keeping any other field
+  already in that record (the car game, for one, keeps its vehicles under the same key), and says
+  `true` when the next `loadPlayer` will find it. Neither waits more than a second for the app, and an
+  app that refuses or fails leaves the game on its own copy. Both take the frame's `ft.player` unless
+  given another as their last argument. A name is trimmed, loses control and direction characters, is
+  at most 12 letters (`NAME_LENGTH`), and is only ever drawn as text; `playerName` falls back on the
+  profile's own name.
 - **The pick screen**, in two steps: the twelve profiles, then the hair, the hair colour and the name,
   with the avatar large. It is pure logic a canvas game or a page can drive. `startPick(choice)` gives
   a state; `pickLayout(state, width, height, lang)` lays it out for any frame, from the game room to a
@@ -1068,7 +1074,9 @@ package's contents. So:
 in the FlickerTalk conversation; with `&alone`, one phone with the game opened outside a conversation); each runs the game in an iframe built like the app's
 plugin sheet (`sandbox="allow-scripts"`, the Content-Security-Policy the core gives a plugin without
 network, and Ionic lent as the app lends it), and the page between them plays the core: records in memory, the live channel (with a switch
-for the connection), “close” and “open” for each phone, and `say` into a mock composer.
+for the connection), “close” and “open” for each phone, and `say` into a mock composer. Each phone's
+shared player (`ft.player`) lives in the tab's `sessionStorage`, so another game opened in the same
+tab shows the avatar chosen in the first.
 `npm run shots` plays each game there in Chromium (Playwright) and saves the screens for review: a phone
 (360×740) light and dark, Arabic, and a tablet in landscape (2560×1600).
 
