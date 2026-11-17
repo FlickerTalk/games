@@ -79,8 +79,8 @@ export function onShow(game, wanted = (kind) => kind !== "cloud") {
   return game.onShow().filter((one) => wanted(one.balloon.kind) && one.y > layout.field.y + one.r && one.y < layout.field.y + layout.field.h - one.r);
 }
 
-export function pop(game) {
-  const found = onShow(game)[0];
+export function pop(game, wanted = () => true) {
+  const found = onShow(game).find(wanted);
   if (found && game.state.screen === "play" && !game.state.paused) tapAt(game, found.x, found.y, 9);
 }
 
