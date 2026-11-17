@@ -97,9 +97,10 @@ describe("a round with the other person in the chat", () => {
 
   it("plays a whole round to the same score on both phones and gives both their stars, every tick within the limit", { timeout: 60_000 }, async () => {
     const t = await twoPhones();
-    const lazy = (game) => (game === t.game("b") && game.state.round?.step % 200 > 60 ? undefined : pop(game));
-    await bothPlaying(t, lazy);
-    await t.w.pass(60_000, t.frames(lazy));
+    const bTakes = (one) => one.balloon.id % 4 === 0;
+    const split = (game) => pop(game, game === t.game("b") ? bTakes : (one) => !bTakes(one));
+    await bothPlaying(t, split);
+    await t.w.pass(60_000, t.frames(split));
     const [a, b] = [t.game("a"), t.game("b")];
     expect([a.state.screen, b.state.screen]).toEqual(["end", "end"]);
     expect(a.state.outcome.mine).toBe(b.state.outcome.theirs);

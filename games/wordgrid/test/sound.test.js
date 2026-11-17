@@ -4,11 +4,12 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { TIMING } from "../../../kit/src/table.js";
 import { fakeCore, settle, within } from "../../../kit/test/helpers.js";
 import { game } from "../src/index.js";
-import { wordOf } from "../src/picking.js";
+import { nextCells, wordOf } from "../src/picking.js";
 import { accepted, pathOf, wordsOn } from "../src/rules.js";
 
 const tick = () => settle([...document.querySelectorAll("ft-wordgrid")].map((element) => element.table));
 const names = (spy) => spy.mock.calls.map(([name]) => name);
+const threeCellPaths = (path = []) => (path.length === 3 ? [path] : nextCells(path, true).flatMap((cell) => threeCellPaths([...path, cell])));
 
 async function solo() {
   const core = fakeCore();
@@ -63,7 +64,7 @@ describe("the sound of Letter Grid", () => {
     await touch(element, '[data-kit="new"]');
     await myTurn(element);
     const { grid, lang, said } = element.table.view.state;
-    const nonsense = [[0, 1, 2], [2, 1, 0], [0, 4, 8], [8, 4, 0]].find((path) => !accepted(lang, wordOf(grid, path)));
+    const nonsense = threeCellPaths().find((path) => !accepted(lang, wordOf(grid, path)));
     played.mockClear();
     for (const cell of nonsense) await tap(element, cell);
     expect(names(played)).toEqual(["tap", "tap", "tap"]);
