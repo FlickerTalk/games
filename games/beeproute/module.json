@@ -1,7 +1,7 @@
 {
   "id": "com.flickertalk.game.beeproute",
   "name": "Beep Route",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "minCoreVersion": "1.6.0",
   "kind": "game",
   "icon": "navigate-outline",
