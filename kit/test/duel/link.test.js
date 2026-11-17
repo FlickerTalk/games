@@ -15,7 +15,7 @@ function world(options = {}) {
     make: (phone, { clock }) => {
       const changes = vi.fn();
       const newId = () => `${phone.name}${(made += 1)}`;
-      const duel = new CanvasDuel({ ft: phone.core.ft, g: "toy", gv: 1, app: "1.0.0", check, clock, onChange: changes, newId });
+      const duel = new CanvasDuel({ ft: phone.core.ft, g: "toy", gv: 1, app: "1.0.0", check, clock, onChange: changes, newId, page: phone.page });
       return { duel, changes };
     },
   });
@@ -33,61 +33,6 @@ async function playing(w, each = frames(w)) {
   await w.pass(200, each);
   duelOf(w, "b").start();
   await w.pass(3300, each);
-}
-
-function pausing(w) {
-  const paused = { a: false, b: false };
-  let hidden = false;
-  const each = (phone, now) => {
-    if (phone.name === "a" && hidden) return;
-    const { duel } = phone.made;
-    duel.frame(now);
-    if (duel.phase === "running") duel.send(duel.raceTime(now), { x: 0.5, goals: 0, ...(paused[phone.name] ? { p: 1 } : {}) }, now);
-  };
-  const hide = async ({ hearing = false } = {}) => {
-    paused.a = true;
-    await w.pass(16, each);
-    hidden = true;
-    w.phones.a.closed = !hearing;
-  };
-  const show = () => {
-    hidden = false;
-    w.phones.a.closed = false;
-  };
-  return { paused, each, hide, show };
-}
-
-function suspending(w, { stuck = 12_000 } = {}) {
-  const p = pausing(w);
-  const core = w.phones.b.core;
-  const normal = core.ft.live.send.getMockImplementation();
-  const link = { down: false, stuck: [], failed: 0 };
-  core.ft.live.send.mockImplementation((data) => {
-    if (!link.down) return normal(data);
-    core.sent.push(data);
-    return new Promise((resolve) => link.stuck.push({ due: w.clock.now + stuck, resolve }));
-  });
-  const each = (phone, now) => {
-    for (const one of link.stuck.filter((it) => it.due <= now)) {
-      link.stuck.splice(link.stuck.indexOf(one), 1);
-      link.failed += 1;
-      one.resolve(false);
-    }
-    p.each(phone, now);
-  };
-  const away = async () => {
-    link.down = true;
-    w.held.b = true;
-    await p.hide();
-    await w.pass(300, each);
-    w.held.b = false;
-    await w.pass(100, each);
-  };
-  const back = () => {
-    p.show();
-    link.down = false;
-  };
-  return { paused: p.paused, each, away, back, link };
 }
 
 function neverAnswered(core) {
@@ -227,219 +172,130 @@ describe("the live bridge of a canvas game", () => {
   });
 });
 
-describe("a round where one player pauses and leaves the game's page", () => {
-  const PAUSED_WAIT = 60_000;
 
-  it("waits for that player, who cannot talk while away, and both go on when it comes back and resumes", async () => {
+describe("a round where one player's page is hidden", () => {
+  const sent = (w, name) => w.phones[name].core.sent.map(decode);
+
+  it("leaves the round with a goodbye, and the other phone ends it at once, its friend gone", async () => {
     const w = world();
-    const p = pausing(w);
     const [a, b] = [duelOf(w, "a"), duelOf(w, "b")];
-    await playing(w, p.each);
-    await w.pass(500, p.each);
-    await p.hide();
-    await w.pass(10_000, p.each);
-    expect(b.status).toMatchObject({ phase: "running", away: false });
-    expect(b.latest.p).toBe(1);
-    p.show();
-    await w.pass(1000, p.each);
-    expect(a.status).toMatchObject({ phase: "running", away: false });
-    p.paused.a = false;
-    await w.pass(LIVE_TIMING.silence + 1000, p.each);
-    expect([a.phase, b.phase]).toEqual(["running", "running"]);
-    expect(b.latest).toEqual({ x: 0.5, goals: 0 });
+    await playing(w);
+    await w.pass(500, frames(w));
+    w.hide("a");
+    expect(a.status).toMatchObject({ phase: "left", notice: null, away: true });
+    expect(sent(w, "a").at(-1).k).toBe("bye");
+    await w.pass(200, frames(w));
+    expect(b.status).toMatchObject({ phase: "left", notice: "left", away: true });
+    w.hide("a", false);
+    await w.pass(500, frames(w));
+    expect(a.status).toMatchObject({ phase: "left", notice: null });
   });
 
-  it("lets the other player go once the long wait is over, and the one who comes back later finds the round over too", async () => {
+  it("is ended by the other phone once the silence allowance is over when its goodbye cannot leave", async () => {
     const w = world();
-    const p = pausing(w);
     const [a, b] = [duelOf(w, "a"), duelOf(w, "b")];
-    await playing(w, p.each);
-    await p.hide({ hearing: true });
-    await w.pass(PAUSED_WAIT - 1000, p.each);
-    expect(b.phase).toBe("running");
-    await w.pass(2000, p.each);
-    expect(b.status).toMatchObject({ phase: "left", notice: "silent", away: true });
-    p.show();
-    await w.pass(500, p.each);
-    expect(a.status).toMatchObject({ phase: "left", away: true });
-
-    const late = world();
-    const q = pausing(late);
-    await playing(late, q.each);
-    await q.hide();
-    await late.pass(PAUSED_WAIT + 1000, q.each);
-    q.show();
-    await late.pass(100, q.each);
-    expect(duelOf(late, "a").status).toMatchObject({ phase: "left", notice: "silent" });
-    expect(duelOf(late, "b").status).toMatchObject({ phase: "left", notice: "silent" });
-  });
-
-  it("ends the round for the player who comes back and resumes when the other left meanwhile and the goodbye was lost", async () => {
-    const w = world();
-    const p = pausing(w);
-    const [a, b] = [duelOf(w, "a"), duelOf(w, "b")];
-    await playing(w, p.each);
-    await p.hide();
-    await w.pass(2000, p.each);
-    b.leave();
-    await w.pass(2000, p.each);
-    p.show();
-    await w.pass(500, p.each);
-    p.paused.a = false;
-    await w.pass(500, p.each);
-    expect(a.status).toMatchObject({ phase: "left", away: true });
-    expect(b.phase).toBe("left");
-  });
-
-  it("goes on when both players paused, each coming back in turn", async () => {
-    const w = world();
-    const p = pausing(w);
-    const [a, b] = [duelOf(w, "a"), duelOf(w, "b")];
-    await playing(w, p.each);
-    await p.hide();
-    await w.pass(1000, p.each);
-    p.paused.b = true;
-    await w.pass(20_000, p.each);
-    p.show();
-    await w.pass(1000, p.each);
-    p.paused.a = false;
-    await w.pass(LIVE_TIMING.silence + 1000, p.each);
-    expect([a.phase, b.phase]).toEqual(["running", "running"]);
-    p.paused.b = false;
-    await w.pass(1000, p.each);
-    expect([a.phase, b.phase]).toEqual(["running", "running"]);
-    expect([a.latest, b.latest]).toEqual([{ x: 0.5, goals: 0 }, { x: 0.5, goals: 0 }]);
-  });
-
-  it("sends nothing while either player holds the pause, except to say its own pause opened or closed", async () => {
-    const w = world();
-    const p = pausing(w);
-    await playing(w, p.each);
-    await w.pass(500, p.each);
-    const ticks = (name) => w.phones[name].core.sent.map(decode).filter((one) => one.k === "tick");
-    const before = { a: ticks("a").length, b: ticks("b").length };
-    p.paused.a = true;
-    await w.pass(500, p.each);
-    const held = { a: ticks("a").length, b: ticks("b").length };
-    expect(ticks("a").slice(before.a).map((one) => one.s.g.p)).toEqual([1]);
-    await w.pass(10_000, p.each);
-    expect({ a: ticks("a").length, b: ticks("b").length }).toEqual(held);
-    p.paused.a = false;
-    await w.pass(500, p.each);
-    expect(ticks("a")[held.a].s.g.p).toBeUndefined();
-    expect(ticks("b").length).toBeGreaterThan(held.b);
-  });
-
-  it("keeps the round while the paused phone is suspended and the messages sent into its dead link fail, until the long wait is over", async () => {
-    const w = world();
-    const s = suspending(w);
-    const b = duelOf(w, "b");
-    await playing(w, s.each);
-    await w.pass(500, s.each);
-    const from = w.clock.now;
-    await s.away();
-    expect(b.latest.p).toBe(1);
-    expect(s.link.stuck.length).toBeGreaterThan(0);
-    const sent = w.phones.b.core.sent.length;
-    await w.pass(from + 12_500 - w.clock.now, s.each);
-    expect(s.link.failed).toBeGreaterThan(0);
-    expect(b.status).toMatchObject({ phase: "running", away: false });
-    await w.pass(from + 30_000 - w.clock.now, s.each);
-    expect(b.status).toMatchObject({ phase: "running", away: false });
-    await w.pass(from + PAUSED_WAIT - 1000 - w.clock.now, s.each);
-    expect(b.status).toMatchObject({ phase: "running", away: false });
-    expect(w.phones.b.core.sent.length).toBe(sent);
-    await w.pass(2000, s.each);
-    expect(b.status).toMatchObject({ phase: "left", notice: "silent", away: true });
-  });
-
-  it("goes on when the suspended player comes back and resumes, even when messages sent into the pause fail afterwards", async () => {
-    const w = world();
-    const s = suspending(w);
-    const [a, b] = [duelOf(w, "a"), duelOf(w, "b")];
-    await playing(w, s.each);
-    await w.pass(500, s.each);
-    const from = w.clock.now;
-    await s.away();
-    await w.pass(5000, s.each);
-    s.back();
-    await w.pass(1000, s.each);
-    expect(a.status).toMatchObject({ phase: "running", away: false });
-    const sent = w.phones.b.core.sent.length;
-    s.paused.a = false;
-    await w.pass(500, s.each);
-    expect(w.phones.b.core.sent.length).toBeGreaterThan(sent);
-    expect(b.latest).toEqual({ x: 0.5, goals: 0 });
-    await w.pass(from + 13_000 - w.clock.now, s.each);
-    expect(s.link.failed).toBeGreaterThan(0);
-    await w.pass(LIVE_TIMING.silence + 1000, s.each);
-    expect([a.phase, b.phase]).toEqual(["running", "running"]);
-    expect(a.raceTime(w.clock.now) - a.latestT).toBeLessThan(500);
-    expect(b.raceTime(w.clock.now) - b.latestT).toBeLessThan(500);
-  });
-
-  it("keeps the round when its own pause message cannot be delivered, and goes on once it resumes", async () => {
-    const w = world();
-    const p = pausing(w);
-    const [a, b] = [duelOf(w, "a"), duelOf(w, "b")];
-    await playing(w, p.each);
-    await w.pass(500, p.each);
+    await playing(w);
     w.phones.a.core.reachable = false;
-    p.paused.a = true;
-    await w.pass(2000, p.each);
-    expect(a.status).toMatchObject({ phase: "running", away: false });
+    w.phones.a.closed = true;
+    w.hide("a");
+    await w.pass(LIVE_TIMING.silence - 1000, frames(w));
+    expect(b.phase).toBe("running");
+    await w.pass(2000, frames(w));
+    expect(b.status).toMatchObject({ phase: "left", notice: "silent", away: true });
     w.phones.a.core.reachable = true;
-    p.paused.a = false;
-    await w.pass(LIVE_TIMING.silence + 1000, p.each);
-    expect([a.phase, b.phase]).toEqual(["running", "running"]);
-    expect(b.latest).toEqual({ x: 0.5, goals: 0 });
+    w.phones.a.closed = false;
+    w.hide("a", false);
+    await w.pass(500, frames(w));
+    expect(a.status).toMatchObject({ phase: "left", notice: null });
   });
 
-  it("ends the round as before when a message fails once both players are back from the pause", async () => {
+  it("answers the other's next state with a goodbye when it comes back and its first one was lost", async () => {
     const w = world();
-    const s = suspending(w);
-    const b = duelOf(w, "b");
-    await playing(w, s.each);
-    await s.away();
-    await w.pass(2000, s.each);
-    s.back();
-    s.paused.a = false;
-    await w.pass(14_000, s.each);
+    const [a, b] = [duelOf(w, "a"), duelOf(w, "b")];
+    await playing(w);
+    w.phones.a.closed = true;
+    w.hide("a");
+    w.queue.length = 0;
+    await w.pass(2000, frames(w));
     expect(b.phase).toBe("running");
-    w.phones.b.core.reachable = false;
-    await w.pass(300, s.each);
-    expect(b.status).toMatchObject({ phase: "left", notice: "unreachable", away: true });
+    w.phones.a.closed = false;
+    w.hide("a", false);
+    await w.pass(300, frames(w));
+    expect(b.status).toMatchObject({ phase: "left", notice: "left" });
+    expect(a.status).toMatchObject({ phase: "left", notice: null });
+  });
+
+  it("does nothing when the page is hidden before a round starts or once it is over", async () => {
+    const w = world();
+    const [a, b] = [duelOf(w, "a"), duelOf(w, "b")];
+    w.hide("a");
+    w.hide("a", false);
+    expect(a.phase).toBe("idle");
+    a.start();
+    await w.pass(200, frames(w));
+    w.hide("a");
+    w.hide("a", false);
+    expect([a.phase, b.phase]).toEqual(["lobby", "lobby"]);
+    b.start();
+    await w.pass(LIVE_TIMING.countdown + 300, frames(w));
+    a.end(a.raceTime(w.clock.now), { x: 0.5, goals: 1 });
+    b.end(b.raceTime(w.clock.now), { x: 0.5, goals: 2 });
+    await w.pass(200, frames(w));
+    const told = sent(w, "a").length;
+    w.hide("a");
+    expect(a.phase).toBe("over");
+    expect(sent(w, "a").length).toBe(told);
+  });
+
+  it("leaves at once a round that starts while its page is hidden", async () => {
+    const w = world();
+    const [a, b] = [duelOf(w, "a"), duelOf(w, "b")];
+    a.start();
+    await w.pass(200, frames(w));
+    w.hide("a");
+    b.start();
+    await w.pass(300, frames(w));
+    expect(a.status).toMatchObject({ phase: "left", notice: null });
+    expect(b.status).toMatchObject({ phase: "left", notice: "left" });
+  });
+
+  it("takes a state saying its player paused, as an older version sends, for the other leaving", async () => {
+    const w = world();
+    const [a, b] = [duelOf(w, "a"), duelOf(w, "b")];
+    const states = [];
+    a.onState = (s) => states.push(s);
+    await playing(w);
+    await w.pass(300, frames(w));
+    await w.pass(200, (phone, now) => {
+      const { duel } = phone.made;
+      duel.frame(now);
+      if (duel.phase === "running") duel.send(duel.raceTime(now), { x: 0.5, goals: 0, ...(phone.name === "b" ? { p: 1 } : {}) }, now);
+    });
+    expect(a.status).toMatchObject({ phase: "left", notice: "left", away: true });
+    expect(states.some((s) => s.p === 1)).toBe(false);
+    expect(b.phase).toBe("running");
+  });
+
+  it("stops listening to the page and leaves when the game closes", async () => {
+    const w = world();
+    const a = duelOf(w, "a");
+    const { page } = w.phones.a;
+    const listening = vi.spyOn(page, "removeEventListener");
+    await playing(w);
+    a.close();
+    expect(listening).toHaveBeenCalledWith("visibilitychange", expect.any(Function));
+    expect(sent(w, "a").at(-1).k).toBe("bye");
+    expect(a.phase).toBe("left");
   });
 
   it("keeps talking to the other phone when the core never answers one of its messages", async () => {
     const w = world();
-    const p = pausing(w);
     const [a, b] = [duelOf(w, "a"), duelOf(w, "b")];
-    await playing(w, p.each);
-    await w.pass(500, p.each);
+    await playing(w);
+    await w.pass(500, frames(w));
     neverAnswered(w.phones.a.core);
-    await w.pass(LIVE_TIMING.silence + 1000, p.each);
+    await w.pass(LIVE_TIMING.silence + 1000, frames(w));
     expect([a.phase, b.phase]).toEqual(["running", "running"]);
     expect(b.raceTime(w.clock.now) - b.latestT).toBeLessThan(500);
-  });
-
-  it("tells the other phone at once about a pause made before the core answered the last message", async () => {
-    const w = world();
-    const p = pausing(w);
-    const [a, b] = [duelOf(w, "a"), duelOf(w, "b")];
-    await playing(w, p.each);
-    await w.pass(500, p.each);
-    neverAnswered(w.phones.a.core);
-    await w.pass(100, p.each);
-    await p.hide();
-    await w.pass(1800, p.each);
-    expect(b.latest.p).toBe(1);
-    await w.pass(1200, p.each);
-    p.show();
-    await w.pass(2000, p.each);
-    p.paused.a = false;
-    await w.pass(LIVE_TIMING.silence + 1000, p.each);
-    expect([a.phase, b.phase]).toEqual(["running", "running"]);
-    expect(b.latest).toEqual({ x: 0.5, goals: 0 });
   });
 });

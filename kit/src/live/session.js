@@ -218,11 +218,7 @@ export class Session {
 
   tick(now) {
     if (this.phase === "countdown" && now >= this.startAt) this.set("running");
-    if (!this.solo && this.running && this.theirs === undefined && now - this.heardAt > this.silence()) this.gone("silent");
-  }
-
-  silence() {
-    return this.timing.silence;
+    if (!this.solo && this.running && this.theirs === undefined && now - this.heardAt > this.timing.silence) this.gone("silent");
   }
 
   run(t, state, now = this.clock()) {

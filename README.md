@@ -735,19 +735,21 @@ canvas's pixels, for `toneShares`), `touch(kind, value)`, `hide(hidden)` (the pa
 background and back) and `evaluate(fn, arg)` in the game's frame.
 
 **A round never goes on by itself.** When the page is hidden the element presses the game's own
-`pause` target, if the screen has one, and runs one frame, so a round between two phones tells the
-other phone at once; the game stays paused until the player presses `resume`.
+`pause` target, if the screen has one, and runs one frame; the game stays paused until the player
+presses `resume`.
 
-**A pause between two phones** (`CanvasDuel`) is the `p: 1` in the state a game sends. A state that
-changes it goes at once, without waiting for the core to take the last one. While either player has
-the pause open, neither phone sends its state: each only says when its own pause opens or closes, and
-answers once when the other's pause closes, so a pause the other missed is not lost. The paused phone
-may be in the background, where nothing reaches it, so a message that fails while a pause is open, or
-that was on its way when one opened or closed, does not end the round. Either phone may stay silent
-for 60 s instead of 6 s; once this player resumes, the 6 s count again from that moment, and a failed
-message ends the round again. After the 60 s both phones end the round, the one that comes back later
-too, so a pause lasts 60 s at most; a player who comes back to the pause screen learns that the other
-left when they resume.
+**A round between two phones is never held** (`CanvasDuel`, `kit/src/duel/`). It has no pause: the
+play layout leaves the pause button out (`pause: false`). When this phone's page is hidden in the
+middle of a round (counting down, running, or ended and waiting for the other's end), it leaves:
+it says `bye` if the core takes it and ends the round on its own, so the player comes back to the
+home screen. A round that starts while the page is hidden is left at once; before a round and after
+it nothing changes. The other phone ends the round as soon as the `bye` arrives, or once it has
+heard nothing for 6 s (`LIVE_TIMING.silence`), and goes home, where the friend's seat carries a mark
+(`friendLeft(status)`, `drawFriendLeft`) until either player starts again. A state with `p: 1`,
+which an older version sends when its player pauses, counts as the other leaving. Racer does the
+same in a race with a friend: the phone whose page is hidden leaves, the other ends the race with no
+winner on the card where the rival's empty place carries a red cross, and the one that left comes
+back to the start card.
 
 ## A board drawn on a canvas
 
