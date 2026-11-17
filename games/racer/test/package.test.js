@@ -16,7 +16,7 @@ const same = (a, b, name) => readFileSync(join(a, name)).equals(readFileSync(joi
 describe("the Racer package", () => {
   it("is a game that asks only for the live channel, to race a friend, like the other games", () => {
     const { version, icon } = manifest();
-    expect(version).toBe("0.7.5");
+    expect(version).toBe("0.7.6");
     expect(icon).toBe("car-sport-outline");
   });
 
@@ -76,7 +76,7 @@ describe("the Racer package", () => {
     const code = readFileSync(join(dist, "index.js"), "utf8");
     expect(code).toContain('"ft-racer"');
     expect(code.replace(/\s+/g, "")).toContain("touch-action:none");
-    expect(code).toContain('"0.7.5"');
+    expect(code).toContain('"0.7.6"');
   });
 
   it("never writes in the chat, and talks to the other phone only over the live channel", () => {

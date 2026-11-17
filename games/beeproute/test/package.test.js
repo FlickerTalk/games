@@ -13,7 +13,7 @@ const ME = { id: "com.flickertalk.game.beeproute", name: "Beep Route", component
 
 describe("the Beep Route package", () => {
   it("says it is a game that needs the core 1.6.0, the live channel and sending, and nothing else", () => {
-    expect(checkManifest(dir, ME).version).toBe("1.0.3");
+    expect(checkManifest(dir, ME).version).toBe("1.0.4");
   });
 
   it("names and describes itself in the app's other 20 languages, for the whole family and without anyone else's game names", () => {
@@ -38,6 +38,6 @@ describe("the Beep Route package", () => {
   it("defines its element when loaded, with the version of its manifest", () => {
     const code = readFileSync(join(dir, "dist", "index.js"), "utf8");
     expect(code).toContain("ft-beeproute");
-    expect(code).toContain('"1.0.3"');
+    expect(code).toContain('"1.0.4"');
   });
 });

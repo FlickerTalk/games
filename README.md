@@ -1042,6 +1042,11 @@ package's contents. So:
 - A next round that starts on both phones when the `go` overtakes the `hello` is one more patch for
   the games that bundle the live session: `1.0.3` for Paddle Pop, Sky Chase, Bumper Ring, Foam Duel,
   Robot Rumble, Balloon Fair and Duo Squad, and Racer's `0.7.5`. The other games' packages do not change.
+- Each game's own name in the app's other 20 languages, instead of the English one, is one more patch
+  for the eighteen games that kept it: `1.0.5` for Paddle Pop, Sky Chase, Bumper Ring, Foam Duel,
+  Robot Rumble, Balloon Fair and Duo Squad; `1.0.4` for Beep Route and Beat Wagons; `1.0.3` for Paint
+  Tanks; `1.0.2` for Balloon Ruler, Colour Corner, Goal Swipe, Little Pier, Shard Splitter, Square Hop
+  Rally and Tile Court; and Racer's `0.7.6`. The other games' packages do not change.
 
 ## Preview
 
