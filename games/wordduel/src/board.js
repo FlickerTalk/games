@@ -147,6 +147,8 @@ class Desk {
     this.form.addEventListener("keydown", (event) => {
       if (event.key === "Enter") this.form.querySelector('[data-act="commit"], [data-act="guess"]')?.click();
     });
+    // WebKit takes the focus from the field when a button is pressed, so the form would leave the typing row and the click miss the button.
+    this.form.addEventListener("mousedown", (event) => event.target.closest?.("button") && event.preventDefault());
     this.form.addEventListener("click", (event) => this.click(event.target.closest?.("button")));
   }
 
@@ -162,6 +164,7 @@ class Desk {
 
   async click(button) {
     if (!button || button.disabled) return;
+    this.form.querySelector("input")?.blur();
     const { ctx, local } = this;
     const { act } = button.dataset;
     if (act === "suggest") {

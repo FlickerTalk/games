@@ -109,6 +109,105 @@ describe("typing with the phone's keyboard open", () => {
   });
 });
 
+function press(button) {
+  for (const kind of ["pointerdown", "touchstart", "pointerup", "touchend"]) button.dispatchEvent(new Event(kind, { bubbles: true, cancelable: true }));
+  const down = new MouseEvent("mousedown", { bubbles: true, cancelable: true });
+  button.dispatchEvent(down);
+  return down.defaultPrevented;
+}
+
+function release(target) {
+  target.dispatchEvent(new MouseEvent("mouseup", { bubbles: true, cancelable: true }));
+  target.dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true }));
+}
+
+function tapInWebKit(host, act) {
+  const button = host.querySelector(`[data-act="${act}"]`);
+  if (!press(button)) document.activeElement?.blur();
+  const typing = host.querySelector(".fwd").contains(document.activeElement);
+  release(typing ? button : button.parentElement);
+}
+
+function tapInChromium(host, act) {
+  const button = host.querySelector(`[data-act="${act}"]`);
+  if (!press(button)) button.focus();
+  release(button);
+}
+
+function typeWithKeyboard(host, name, word) {
+  const field = host.querySelector(`[name="${name}"]`);
+  field.focus();
+  type(host, name, word);
+  return field;
+}
+
+const settled = async () => {
+  await tick();
+  await tick();
+};
+
+const fieldFocused = (host) => host.querySelector(".fwd-form input") === document.activeElement;
+
+describe("a tap while the phone's keyboard is open", () => {
+  it("sets the word on the first tap in WebKit, and the keyboard closes", async () => {
+    const ctx = context([]);
+    const { host } = mount(ctx);
+    await tick();
+    typeWithKeyboard(host, "secret", "crane");
+    tapInWebKit(host, "commit");
+    await settled();
+    expect(ctx.play).toHaveBeenCalledTimes(1);
+    expect(ctx.play.mock.calls[0][0]).toMatch(/^cen[A-Za-z0-9_-]{43}$/);
+    expect(fieldFocused(host)).toBe(false);
+  });
+
+  it("sends a guess on the first tap in WebKit, and the keyboard closes", async () => {
+    const { host, ctx } = await kept([...PLACED, ">stare"], 1, "eagle");
+    typeWithKeyboard(host, "guess", "about");
+    tapInWebKit(host, "guess");
+    await settled();
+    expect(ctx.play).toHaveBeenCalledTimes(1);
+    expect(ctx.play).toHaveBeenCalledWith(`${feedback("stare", "eagle")}>about`);
+    expect(fieldFocused(host)).toBe(false);
+  });
+
+  it("rolls a suggestion on the first tap in WebKit, and the keyboard closes", async () => {
+    const ctx = context([]);
+    const { host } = mount(ctx);
+    await tick();
+    typeWithKeyboard(host, "secret", "cr");
+    tapInWebKit(host, "suggest");
+    expect(host.querySelector('[name="secret"]').value).toMatch(/^[a-z]{5}$/);
+    expect(fieldFocused(host)).toBe(false);
+  });
+
+  it("acts once when the tap also ends in a click on the button, as on Android", async () => {
+    const ctx = context([]);
+    const { host } = mount(ctx);
+    await tick();
+    typeWithKeyboard(host, "secret", "crane");
+    tapInChromium(host, "commit");
+    await settled();
+    expect(ctx.play).toHaveBeenCalledTimes(1);
+    const guessing = await kept([...PLACED, ">stare"], 1, "eagle");
+    typeWithKeyboard(guessing.host, "guess", "about");
+    tapInChromium(guessing.host, "guess");
+    await settled();
+    expect(guessing.ctx.play).toHaveBeenCalledTimes(1);
+  });
+
+  it("still sets the word once with Enter, and leaves a press on the field itself alone", async () => {
+    const ctx = context([]);
+    const { host } = mount(ctx);
+    await tick();
+    const field = typeWithKeyboard(host, "secret", "crane");
+    expect(press(field)).toBe(false);
+    field.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", bubbles: true, cancelable: true }));
+    await settled();
+    expect(ctx.play).toHaveBeenCalledTimes(1);
+  });
+});
+
 describe("the secret word", () => {
   it("is typed or suggested, checked against the word list, and set with a commitment the kit gets", async () => {
     const ctx = context([]);
