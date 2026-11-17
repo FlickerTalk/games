@@ -94,13 +94,13 @@ describe("a round with the other person in the chat", () => {
     await bothPlaying(t, only);
     await t.w.pass(4000, t.frames(only));
     const [a, b] = [t.game("a"), t.game("b")];
+    await press(a, "pause");
     await t.w.pass(400, t.frames());
     const popped = [...a.state.round.tally.pops].filter(([, pop]) => pop.seat === a.state.round.seat);
     expect(popped.length).toBeGreaterThan(0);
-    for (const [id, pop] of popped.slice(0, -1)) expect(b.state.round.tally.pops.get(id)).toEqual(pop);
+    for (const [id, pop] of popped) expect(b.state.round.tally.pops.get(id)).toEqual(pop);
     expect(b.onShow().enemies.some((one) => one.enemy.id === popped[0][0])).toBe(false);
     expect(b.state.moments.some((one) => one.kind === "pop" && one.by === a.state.round.seat) || b.state.round.tally.pops.size > 0).toBe(true);
-    await t.w.pass(600, t.frames());
     expect(totals(t)[0]).toBe(totals(t)[1]);
   });
 
