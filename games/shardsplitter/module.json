@@ -1,7 +1,7 @@
 {
   "id": "com.flickertalk.game.shardsplitter",
   "name": "Shard Splitter",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "minCoreVersion": "1.6.0",
   "kind": "game",
   "icon": "diamond-outline",
@@ -15,83 +15,83 @@
   "summary": "Split crystal golems by tapping the divisors of their numbers, down to primes: a times-table puzzle for the whole family, alone, with FlickerTalk or as a team with the other person in the chat.",
   "locales": {
     "es": {
-      "name": "Shard Splitter",
+      "name": "Rompecristales",
       "summary": "Parte gólems de cristal tocando los divisores de sus números, hasta los primos: un puzle de tablas de multiplicar para toda la familia, solo, con FlickerTalk o en equipo con la otra persona del chat."
     },
     "pt": {
-      "name": "Shard Splitter",
+      "name": "Quebra-cristais",
       "summary": "Parta golens de cristal tocando nos divisores dos seus números, até chegar aos primos: um quebra-cabeça de tabuada para toda a família, sozinho, com o FlickerTalk ou em equipe com a outra pessoa."
     },
     "fr": {
-      "name": "Shard Splitter",
+      "name": "Brise-cristaux",
       "summary": "Partage des golems de cristal en touchant les diviseurs de leurs nombres, jusqu’aux nombres premiers : un puzzle de tables pour toute la famille, seul, avec FlickerTalk ou en équipe à deux."
     },
     "de": {
-      "name": "Shard Splitter",
+      "name": "Kristallspalter",
       "summary": "Teile Kristallgolems, indem du die Teiler ihrer Zahlen antippst, bis nur Primzahlen bleiben: ein Einmaleins-Rätsel für die ganze Familie, allein, mit FlickerTalk oder im Team zu zweit."
     },
     "it": {
-      "name": "Shard Splitter",
+      "name": "Spaccacristalli",
       "summary": "Dividi i golem di cristallo toccando i divisori dei loro numeri, fino ai numeri primi: un rompicapo di tabelline per tutta la famiglia, da solo, con FlickerTalk o in squadra con l’altra persona."
     },
     "ro": {
-      "name": "Shard Splitter",
+      "name": "Spărgătorul de cristale",
       "summary": "Împarte golemi de cristal atingând divizorii numerelor lor, până la numere prime: un puzzle cu tabla înmulțirii pentru toată familia, singur, cu FlickerTalk sau în echipă cu cealaltă persoană."
     },
     "pl": {
-      "name": "Shard Splitter",
+      "name": "Łamacz kryształów",
       "summary": "Dziel kryształowe golemy, dotykając dzielników ich liczb, aż do liczb pierwszych: łamigłówka z tabliczką mnożenia dla całej rodziny, samemu, z FlickerTalk albo w drużynie z drugą osobą."
     },
     "ru": {
-      "name": "Shard Splitter",
+      "name": "Раскол кристаллов",
       "summary": "Дели хрустальных големов, нажимая на делители их чисел, до простых чисел: головоломка с таблицей умножения для всей семьи — в одиночку, с FlickerTalk или в команде с собеседником."
     },
     "uk": {
-      "name": "Shard Splitter",
+      "name": "Розкол кристалів",
       "summary": "Діли кришталевих големів, торкаючись дільників їхніх чисел, аж до простих чисел: головоломка з таблицею множення для всієї родини — наодинці, з FlickerTalk або в команді зі співрозмовником."
     },
     "tr": {
-      "name": "Shard Splitter",
+      "name": "Kristal Bölücü",
       "summary": "Kristal golemleri, sayılarının bölenlerine dokunarak asal sayılara kadar böl: tüm aile için bir çarpım tablosu bulmacası; tek başına, FlickerTalk ile ya da sohbetteki diğer kişiyle takım olarak."
     },
     "ar": {
-      "name": "Shard Splitter",
+      "name": "مقسّم البلّور",
       "summary": "اقسم غولمات البلّور بالضغط على قواسم أعدادها حتى تصل إلى الأعداد الأولية: لغز جدول الضرب لكل العائلة، وحدك أو مع FlickerTalk أو كفريق مع الشخص الآخر في المحادثة."
     },
     "hi": {
-      "name": "Shard Splitter",
+      "name": "क्रिस्टल बाँटो",
       "summary": "क्रिस्टल गोलेम को उनकी संख्याओं के भाजक छूकर अभाज्य संख्याओं तक बाँटो: पूरे परिवार के लिए पहाड़ों की पहेली — अकेले, FlickerTalk के साथ या चैट के दूसरे व्यक्ति के साथ टीम बनाकर।"
     },
     "bn": {
-      "name": "Shard Splitter",
+      "name": "স্ফটিক ভাগ",
       "summary": "স্ফটিক গোলেমদের সংখ্যার ভাজকে চাপ দিয়ে মৌলিক সংখ্যা পর্যন্ত ভাগ করো: পুরো পরিবারের জন্য নামতার ধাঁধা — একা, FlickerTalk-এর সঙ্গে বা চ্যাটের অন্য মানুষটির সঙ্গে দল বেঁধে।"
     },
     "id": {
-      "name": "Shard Splitter",
+      "name": "Pembelah Kristal",
       "summary": "Belah golem kristal dengan mengetuk pembagi angkanya sampai tinggal bilangan prima: teka-teki perkalian untuk seluruh keluarga, sendirian, bersama FlickerTalk, atau satu tim dengan lawan bicaramu."
     },
     "vi": {
-      "name": "Shard Splitter",
+      "name": "Tách pha lê",
       "summary": "Tách người đá pha lê bằng cách chạm vào ước số của con số trên mình chúng, đến khi còn số nguyên tố: câu đố bảng cửu chương cho cả gia đình, chơi một mình, với FlickerTalk hoặc cùng đội với người kia."
     },
     "th": {
-      "name": "Shard Splitter",
+      "name": "แบ่งคริสตัล",
       "summary": "แบ่งโกเลมคริสตัลด้วยการแตะตัวหารของตัวเลขจนเหลือจำนวนเฉพาะ: ปริศนาสูตรคูณสำหรับทั้งครอบครัว เล่นคนเดียว เล่นกับ FlickerTalk หรือเป็นทีมกับอีกคนในแชต"
     },
     "ja": {
-      "name": "Shard Splitter",
+      "name": "クリスタル割り",
       "summary": "数の約数をタップしてクリスタルゴーレムを素数になるまで分けよう。家族みんなで楽しめる九九のパズルです。ひとりで、FlickerTalk と、またはチャットの相手とチームで遊べます。"
     },
     "ko": {
-      "name": "Shard Splitter",
+      "name": "크리스털 쪼개기",
       "summary": "수의 약수를 눌러 크리스털 골렘을 소수가 될 때까지 나누세요. 온 가족이 즐기는 구구단 퍼즐입니다. 혼자서, FlickerTalk와 함께, 또는 채팅 상대와 한 팀으로 즐길 수 있어요."
     },
     "zh-CN": {
-      "name": "Shard Splitter",
+      "name": "水晶切分",
       "summary": "点击数的除数，把水晶魔像一直分到只剩质数：适合全家的乘法表益智游戏，可以独自玩、和 FlickerTalk 一起玩，或与聊天中的对方组队。"
     },
     "zh-TW": {
-      "name": "Shard Splitter",
+      "name": "水晶切分",
       "summary": "點擊數的除數，把水晶魔像一直分到只剩質數：適合全家的乘法表益智遊戲，可以獨自玩、和 FlickerTalk 一起玩，或與聊天中的對方組隊。"
     }
   }

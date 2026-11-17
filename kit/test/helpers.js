@@ -151,11 +151,20 @@ export function checkManifest(dir, { id, name, component }) {
 }
 
 export const LOCALES = ["es", "pt", "fr", "de", "it", "ro", "ru", "uk", "pl", "tr", "ar", "hi", "bn", "id", "vi", "th", "ja", "ko", "zh-CN", "zh-TW"];
+export const OTHER_SCRIPTS = ["ru", "uk", "ar", "hi", "bn", "th", "ja", "ko", "zh-CN", "zh-TW"];
+const LATIN_ONLY = /^[\p{Script=Latin}\P{L}]+$/u;
+
+export function checkNamesTranslated(manifest) {
+  for (const lang of OTHER_SCRIPTS) {
+    expect(manifest.locales[lang].name, `${lang}.name is still in Latin letters`).not.toMatch(LATIN_ONLY);
+  }
+}
 
 export function checkLocales(manifest, texts, { brands = [] } = {}) {
   const locales = manifest.locales;
   expect(locales, "module.json has no locales").toBeTypeOf("object");
   expect(Object.keys(locales).sort()).toEqual([...LOCALES].sort());
+  checkNamesTranslated(manifest);
   const length = (text) => [...text].length;
   for (const lang of LOCALES) {
     const { name, summary, ...rest } = locales[lang];

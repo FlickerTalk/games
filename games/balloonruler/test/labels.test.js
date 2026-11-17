@@ -6,7 +6,7 @@ import { TEXTS } from "../src/texts.js";
 describe("the words outside the canvas", () => {
   it("are in the app's 21 languages, English the source, with the same keys and gaps", () => {
     checkTexts(TEXTS);
-    for (const lang of Object.keys(TEXTS)) expect(TEXTS[lang].name, lang).toBe("Balloon Ruler");
+    for (const lang of Object.keys(TEXTS)) expect(TEXTS[lang].canvas.startsWith(TEXTS[lang].name), lang).toBe(true);
     for (const lang of Object.keys(TEXTS).filter((one) => one !== "en")) {
       for (const key of ["canvas", "ruler", "short", "medium", "long", "tip", "place"]) expect(TEXTS[lang][key], `${lang}.${key}`).not.toBe(TEXTS.en[key]);
     }

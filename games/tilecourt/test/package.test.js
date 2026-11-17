@@ -13,7 +13,7 @@ const FALLING = [/tetr/i, /block\s*blast/i, /1010/];
 describe("the Tile Court package", () => {
   it("says it is a game that needs the core 1.6.0, the live channel and sending, and nothing else", () => {
     const manifest = checkManifest(dir, { id: "com.flickertalk.game.tilecourt", name: "Tile Court", component: "ft-tilecourt" });
-    expect(manifest.version).toBe("1.0.1");
+    expect(manifest.version).toBe("1.0.2");
   });
 
   it("names and describes itself in the app's other 20 languages, without anyone else's game names", () => {
@@ -36,6 +36,6 @@ describe("the Tile Court package", () => {
   it("defines its element when loaded, with the version of its manifest", () => {
     const code = readFileSync(join(dir, "dist", "index.js"), "utf8");
     expect(code).toContain("ft-tilecourt");
-    expect(code).toContain('"1.0.1"');
+    expect(code).toContain('"1.0.2"');
   });
 });

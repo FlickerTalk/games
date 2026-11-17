@@ -31,7 +31,7 @@ describe("the Tile Court element", () => {
     const canvas = element.querySelector("canvas");
     expect(canvas).not.toBeNull();
     expect(canvas.getAttribute("role")).toBe("img");
-    expect(canvas.getAttribute("aria-label")).toMatch(/^Tile Court: arrastra/);
+    expect(canvas.getAttribute("aria-label")).toMatch(/^Patio de piezas: arrastra/);
   });
 
   it("lays a named button over everything the canvas lets the player touch, for the keyboard and screen readers", async () => {

@@ -36,7 +36,7 @@ describe("the Square Hop Rally element", () => {
     const { element } = await mount();
     const canvas = element.querySelector("canvas");
     expect(canvas.getAttribute("role")).toBe("img");
-    expect(canvas.getAttribute("aria-label")).toMatch(/^Square Hop Rally: en tu turno/);
+    expect(canvas.getAttribute("aria-label")).toMatch(/^Rally de casillas: en tu turno/);
   });
 
   it("lays a named button over everything the canvas lets the player touch, the dice by what they show", async () => {

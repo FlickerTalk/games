@@ -10,7 +10,7 @@ export const TEXTS = {
     pair: "Two players on this device", wrapped: "A surprise, still wrapped", accept: "Join", dismiss: "Not now",
   },
   es: {
-    name: "Goal Swipe", canvas: "Goal Swipe: desliza hacia arriba desde el balón para chutar, y toca la portería para lanzarte cuando chuta el otro lado",
+    name: "Desliza y marca", canvas: "Desliza y marca: desliza hacia arriba desde el balón para chutar, y toca la portería para lanzarte cuando chuta el otro lado",
     looks: "Balones y campos", tabBall: "Balones", tabField: "Campos", classic: "Balón clásico", beachball: "Balón de playa", star: "Balón de estrella",
     school: "Patio del colegio", beach: "Playa", stadium: "Estadio de noche", shootLeft: "Chutar a la izquierda", shootMiddle: "Chutar al centro",
     shootRight: "Chutar a la derecha", diveLeft: "Lanzarte a la izquierda", diveMiddle: "Quedarte en el centro", diveRight: "Lanzarte a la derecha",
@@ -20,7 +20,7 @@ export const TEXTS = {
     pair: "Dos jugadores en este dispositivo", wrapped: "Una sorpresa, todavía envuelta", accept: "Unirme", dismiss: "Ahora no",
   },
   pt: {
-    name: "Goal Swipe", canvas: "Goal Swipe: deslize para cima a partir da bola para chutar, e toque no gol para se atirar quando o outro lado chuta",
+    name: "Deslize e marque", canvas: "Deslize e marque: deslize para cima a partir da bola para chutar, e toque no gol para se atirar quando o outro lado chuta",
     looks: "Bolas e campos", tabBall: "Bolas", tabField: "Campos", classic: "Bola clássica", beachball: "Bola de praia", star: "Bola de estrela",
     school: "Pátio da escola", beach: "Praia", stadium: "Estádio à noite", shootLeft: "Chutar para a esquerda", shootMiddle: "Chutar no meio",
     shootRight: "Chutar para a direita", diveLeft: "Atirar-se para a esquerda", diveMiddle: "Ficar no meio", diveRight: "Atirar-se para a direita",
@@ -30,7 +30,7 @@ export const TEXTS = {
     pair: "Dois jogadores neste aparelho", wrapped: "Uma surpresa ainda embrulhada", accept: "Entrar", dismiss: "Agora não",
   },
   fr: {
-    name: "Goal Swipe", canvas: "Goal Swipe : glisse vers le haut depuis le ballon pour tirer, et touche le but pour plonger quand l’autre côté tire",
+    name: "Glisse et marque", canvas: "Glisse et marque : glisse vers le haut depuis le ballon pour tirer, et touche le but pour plonger quand l’autre côté tire",
     looks: "Ballons et terrains", tabBall: "Ballons", tabField: "Terrains", classic: "Ballon classique", beachball: "Ballon de plage",
     star: "Ballon étoile", school: "Cour d’école", beach: "Plage", stadium: "Stade de nuit", shootLeft: "Tirer à gauche", shootMiddle: "Tirer au milieu",
     shootRight: "Tirer à droite", diveLeft: "Plonger à gauche", diveMiddle: "Rester au milieu", diveRight: "Plonger à droite", play: "Jouer",
@@ -40,7 +40,7 @@ export const TEXTS = {
     wrapped: "Une surprise encore emballée", accept: "Rejoindre", dismiss: "Pas maintenant",
   },
   de: {
-    name: "Goal Swipe", canvas: "Goal Swipe: Wisch vom Ball nach oben, um zu schießen, und tipp auf das Tor, um zu hechten, wenn die andere Seite schießt",
+    name: "Wisch zum Tor", canvas: "Wisch zum Tor: Wisch vom Ball nach oben, um zu schießen, und tipp auf das Tor, um zu hechten, wenn die andere Seite schießt",
     looks: "Bälle und Plätze", tabBall: "Bälle", tabField: "Plätze", classic: "Klassischer Ball", beachball: "Strandball", star: "Sternball",
     school: "Schulhof", beach: "Strand", stadium: "Stadion bei Nacht", shootLeft: "Nach links schießen", shootMiddle: "In die Mitte schießen",
     shootRight: "Nach rechts schießen", diveLeft: "Nach links hechten", diveMiddle: "In der Mitte bleiben", diveRight: "Nach rechts hechten",
@@ -51,7 +51,7 @@ export const TEXTS = {
     dismiss: "Nicht jetzt",
   },
   it: {
-    name: "Goal Swipe", canvas: "Goal Swipe: scorri verso l’alto dal pallone per tirare, e tocca la porta per tuffarti quando tira l’altra parte",
+    name: "Scorri e segna", canvas: "Scorri e segna: scorri verso l’alto dal pallone per tirare, e tocca la porta per tuffarti quando tira l’altra parte",
     looks: "Palloni e campi", tabBall: "Palloni", tabField: "Campi", classic: "Pallone classico", beachball: "Pallone da spiaggia",
     star: "Pallone con la stella", school: "Cortile della scuola", beach: "Spiaggia", stadium: "Stadio di notte", shootLeft: "Tirare a sinistra",
     shootMiddle: "Tirare al centro", shootRight: "Tirare a destra", diveLeft: "Tuffarsi a sinistra", diveMiddle: "Restare al centro",
@@ -62,7 +62,7 @@ export const TEXTS = {
     wrapped: "Una sorpresa ancora incartata", accept: "Partecipa", dismiss: "Non ora",
   },
   ro: {
-    name: "Goal Swipe", canvas: "Goal Swipe: glisează în sus de la minge ca să șutezi și atinge poarta ca să plonjezi când șutează cealaltă parte",
+    name: "Glisează și marchează", canvas: "Glisează și marchează: glisează în sus de la minge ca să șutezi și atinge poarta ca să plonjezi când șutează cealaltă parte",
     looks: "Mingi și terenuri", tabBall: "Mingi", tabField: "Terenuri", classic: "Minge clasică", beachball: "Minge de plajă", star: "Minge cu stea",
     school: "Curtea școlii", beach: "Plajă", stadium: "Stadion noaptea", shootLeft: "Șutează în stânga", shootMiddle: "Șutează pe mijloc",
     shootRight: "Șutează în dreapta", diveLeft: "Plonjează în stânga", diveMiddle: "Rămâi pe mijloc", diveRight: "Plonjează în dreapta", play: "Joacă",
@@ -72,7 +72,7 @@ export const TEXTS = {
     pair: "Doi jucători pe acest dispozitiv", wrapped: "O surpriză încă împachetată", accept: "Intră în joc", dismiss: "Nu acum",
   },
   pl: {
-    name: "Goal Swipe", canvas: "Goal Swipe: przesuń palcem w górę od piłki, by strzelić, i dotknij bramki, by się rzucić, gdy strzela druga strona",
+    name: "Przesuń i strzel", canvas: "Przesuń i strzel: przesuń palcem w górę od piłki, by strzelić, i dotknij bramki, by się rzucić, gdy strzela druga strona",
     looks: "Piłki i boiska", tabBall: "Piłki", tabField: "Boiska", classic: "Klasyczna piłka", beachball: "Piłka plażowa", star: "Piłka z gwiazdą",
     school: "Szkolne boisko", beach: "Plaża", stadium: "Stadion nocą", shootLeft: "Strzel w lewo", shootMiddle: "Strzel w środek",
     shootRight: "Strzel w prawo", diveLeft: "Rzuć się w lewo", diveMiddle: "Zostań na środku", diveRight: "Rzuć się w prawo", play: "Graj",
@@ -82,7 +82,7 @@ export const TEXTS = {
     pair: "Dwóch graczy na tym urządzeniu", wrapped: "Niespodzianka, jeszcze zapakowana", accept: "Dołącz", dismiss: "Nie teraz",
   },
   ru: {
-    name: "Goal Swipe", canvas: "Goal Swipe: проведи пальцем вверх от мяча, чтобы ударить, и коснись ворот, чтобы прыгнуть, когда бьёт другая сторона",
+    name: "Свайп и гол", canvas: "Свайп и гол: проведи пальцем вверх от мяча, чтобы ударить, и коснись ворот, чтобы прыгнуть, когда бьёт другая сторона",
     looks: "Мячи и поля", tabBall: "Мячи", tabField: "Поля", classic: "Классический мяч", beachball: "Пляжный мяч", star: "Мяч со звездой",
     school: "Школьный двор", beach: "Пляж", stadium: "Ночной стадион", shootLeft: "Ударить влево", shootMiddle: "Ударить по центру",
     shootRight: "Ударить вправо", diveLeft: "Прыгнуть влево", diveMiddle: "Остаться по центру", diveRight: "Прыгнуть вправо", play: "Играть",
@@ -92,7 +92,7 @@ export const TEXTS = {
     wrapped: "Сюрприз, ещё в упаковке", accept: "Присоединиться", dismiss: "Не сейчас",
   },
   uk: {
-    name: "Goal Swipe", canvas: "Goal Swipe: проведи пальцем угору від м’яча, щоб ударити, і торкнися воріт, щоб стрибнути, коли б’є інша сторона",
+    name: "Свайп і гол", canvas: "Свайп і гол: проведи пальцем угору від м’яча, щоб ударити, і торкнися воріт, щоб стрибнути, коли б’є інша сторона",
     looks: "М’ячі та поля", tabBall: "М’ячі", tabField: "Поля", classic: "Класичний м’яч", beachball: "Пляжний м’яч", star: "М’яч із зіркою",
     school: "Шкільне подвір’я", beach: "Пляж", stadium: "Нічний стадіон", shootLeft: "Ударити ліворуч", shootMiddle: "Ударити по центру",
     shootRight: "Ударити праворуч", diveLeft: "Стрибнути ліворуч", diveMiddle: "Залишитися по центру", diveRight: "Стрибнути праворуч", play: "Грати",
@@ -102,7 +102,7 @@ export const TEXTS = {
     accept: "Приєднатися", dismiss: "Не зараз",
   },
   tr: {
-    name: "Goal Swipe", canvas: "Goal Swipe: şut çekmek için toptan yukarı kaydır, karşı taraf şut çekince uçmak için kaleye dokun",
+    name: "Kaydır, Gol At", canvas: "Kaydır, Gol At: şut çekmek için toptan yukarı kaydır, karşı taraf şut çekince uçmak için kaleye dokun",
     looks: "Toplar ve sahalar", tabBall: "Toplar", tabField: "Sahalar", classic: "Klasik top", beachball: "Plaj topu", star: "Yıldızlı top",
     school: "Okul bahçesi", beach: "Plaj", stadium: "Gece stadyumu", shootLeft: "Sola şut çek", shootMiddle: "Ortaya şut çek", shootRight: "Sağa şut çek",
     diveLeft: "Sola uç", diveMiddle: "Ortada kal", diveRight: "Sağa uç", play: "Oyna", again: "Yeniden oyna", home: "Ana sayfa", pause: "Duraklat",
@@ -111,7 +111,7 @@ export const TEXTS = {
     vsFlick: "FlickerTalk’a karşı oyna", pair: "Bu cihazda iki oyuncu", wrapped: "Henüz açılmamış bir sürpriz", accept: "Katıl", dismiss: "Şimdi değil",
   },
   ar: {
-    name: "Goal Swipe", canvas: "Goal Swipe: اسحب إلى الأعلى من الكرة لتسدّد، والمس المرمى لتقفز حين يسدّد الطرف الآخر", looks: "الكرات والملاعب",
+    name: "اسحب وسجّل", canvas: "اسحب وسجّل: اسحب إلى الأعلى من الكرة لتسدّد، والمس المرمى لتقفز حين يسدّد الطرف الآخر", looks: "الكرات والملاعب",
     tabBall: "الكرات", tabField: "الملاعب", classic: "كرة كلاسيكية", beachball: "كرة شاطئ", star: "كرة النجمة", school: "ساحة المدرسة", beach: "الشاطئ",
     stadium: "الملعب ليلًا", shootLeft: "سدّد إلى اليسار", shootMiddle: "سدّد في الوسط", shootRight: "سدّد إلى اليمين", diveLeft: "اقفز إلى اليسار",
     diveMiddle: "ابقَ في الوسط", diveRight: "اقفز إلى اليمين", play: "العب", again: "العب مرة أخرى", home: "الرئيسية", pause: "إيقاف مؤقت", resume: "تابع",
@@ -120,8 +120,8 @@ export const TEXTS = {
     wrapped: "مفاجأة ما زالت مغلّفة", accept: "انضم", dismiss: "ليس الآن",
   },
   hi: {
-    name: "Goal Swipe",
-    canvas: "Goal Swipe: शॉट मारने के लिए गेंद से ऊपर की ओर स्वाइप करें, और जब दूसरी तरफ़ से शॉट आए तो छलाँग लगाने के लिए गोल पर टैप करें",
+    name: "स्वाइप और गोल",
+    canvas: "स्वाइप और गोल: शॉट मारने के लिए गेंद से ऊपर की ओर स्वाइप करें, और जब दूसरी तरफ़ से शॉट आए तो छलाँग लगाने के लिए गोल पर टैप करें",
     looks: "गेंदें और मैदान", tabBall: "गेंदें", tabField: "मैदान", classic: "क्लासिक गेंद", beachball: "बीच बॉल", star: "सितारे वाली गेंद",
     school: "स्कूल का मैदान", beach: "समुद्र तट", stadium: "रात का स्टेडियम", shootLeft: "बाईं ओर शॉट मारें", shootMiddle: "बीच में शॉट मारें",
     shootRight: "दाईं ओर शॉट मारें", diveLeft: "बाईं ओर छलाँग लगाएँ", diveMiddle: "बीच में रहें", diveRight: "दाईं ओर छलाँग लगाएँ", play: "खेलें",
@@ -131,7 +131,7 @@ export const TEXTS = {
     pair: "इस डिवाइस पर दो खिलाड़ी", wrapped: "एक सरप्राइज़, अभी भी लिपटा हुआ", accept: "शामिल हों", dismiss: "अभी नहीं",
   },
   bn: {
-    name: "Goal Swipe", canvas: "Goal Swipe: শট নিতে বল থেকে উপরের দিকে সোয়াইপ করুন, আর অন্য পক্ষ শট নিলে ঝাঁপ দিতে গোলে ট্যাপ করুন", looks: "বল ও মাঠ",
+    name: "সোয়াইপে গোল", canvas: "সোয়াইপে গোল: শট নিতে বল থেকে উপরের দিকে সোয়াইপ করুন, আর অন্য পক্ষ শট নিলে ঝাঁপ দিতে গোলে ট্যাপ করুন", looks: "বল ও মাঠ",
     tabBall: "বল", tabField: "মাঠ", classic: "ক্লাসিক বল", beachball: "বিচ বল", star: "তারা বল", school: "স্কুলের মাঠ", beach: "সৈকত",
     stadium: "রাতের স্টেডিয়াম", shootLeft: "বাঁ দিকে শট নিন", shootMiddle: "মাঝখানে শট নিন", shootRight: "ডান দিকে শট নিন", diveLeft: "বাঁ দিকে ঝাঁপ দিন",
     diveMiddle: "মাঝখানে থাকুন", diveRight: "ডান দিকে ঝাঁপ দিন", play: "খেলুন", again: "আবার খেলুন", home: "হোম", pause: "বিরতি", resume: "চালিয়ে যান",
@@ -140,7 +140,7 @@ export const TEXTS = {
     vsFlick: "FlickerTalk-এর বিরুদ্ধে খেলুন", pair: "এই ডিভাইসে দুজন খেলোয়াড়", wrapped: "একটি চমক, এখনও মোড়ানো", accept: "যোগ দিন", dismiss: "এখন নয়",
   },
   id: {
-    name: "Goal Swipe", canvas: "Goal Swipe: usap ke atas dari bola untuk menendang, dan ketuk gawang untuk melompat saat pihak lain menendang",
+    name: "Usap Jadi Gol", canvas: "Usap Jadi Gol: usap ke atas dari bola untuk menendang, dan ketuk gawang untuk melompat saat pihak lain menendang",
     looks: "Bola dan lapangan", tabBall: "Bola", tabField: "Lapangan", classic: "Bola klasik", beachball: "Bola pantai", star: "Bola bintang",
     school: "Halaman sekolah", beach: "Pantai", stadium: "Stadion malam hari", shootLeft: "Tendang ke kiri", shootMiddle: "Tendang ke tengah",
     shootRight: "Tendang ke kanan", diveLeft: "Lompat ke kiri", diveMiddle: "Tetap di tengah", diveRight: "Lompat ke kanan", play: "Main",
@@ -150,7 +150,7 @@ export const TEXTS = {
     pair: "Dua pemain di perangkat ini", wrapped: "Kejutan yang masih terbungkus", accept: "Ikut", dismiss: "Nanti saja",
   },
   vi: {
-    name: "Goal Swipe", canvas: "Goal Swipe: vuốt lên từ quả bóng để sút, và chạm vào khung thành để bay người khi bên kia sút", looks: "Bóng và sân",
+    name: "Vuốt ghi bàn", canvas: "Vuốt ghi bàn: vuốt lên từ quả bóng để sút, và chạm vào khung thành để bay người khi bên kia sút", looks: "Bóng và sân",
     tabBall: "Bóng", tabField: "Sân", classic: "Bóng cổ điển", beachball: "Bóng bãi biển", star: "Bóng ngôi sao", school: "Sân trường", beach: "Bãi biển",
     stadium: "Sân vận động ban đêm", shootLeft: "Sút sang trái", shootMiddle: "Sút vào giữa", shootRight: "Sút sang phải", diveLeft: "Bay sang trái",
     diveMiddle: "Đứng giữa", diveRight: "Bay sang phải", play: "Chơi", again: "Chơi lại", home: "Trang chính", pause: "Tạm dừng", resume: "Tiếp tục",
@@ -159,7 +159,7 @@ export const TEXTS = {
     pair: "Hai người chơi trên thiết bị này", wrapped: "Một bất ngờ vẫn còn gói", accept: "Tham gia", dismiss: "Để sau",
   },
   th: {
-    name: "Goal Swipe", canvas: "Goal Swipe: ปัดขึ้นจากลูกบอลเพื่อยิง และแตะที่ประตูเพื่อพุ่งตัวเมื่ออีกฝ่ายยิง", looks: "ลูกบอลและสนาม",
+    name: "ปัดยิงประตู", canvas: "ปัดยิงประตู: ปัดขึ้นจากลูกบอลเพื่อยิง และแตะที่ประตูเพื่อพุ่งตัวเมื่ออีกฝ่ายยิง", looks: "ลูกบอลและสนาม",
     tabBall: "ลูกบอล", tabField: "สนาม", classic: "ลูกบอลคลาสสิก", beachball: "ลูกบอลชายหาด", star: "ลูกบอลดาว", school: "สนามโรงเรียน", beach: "ชายหาด",
     stadium: "สนามกีฬายามค่ำ", shootLeft: "ยิงไปทางซ้าย", shootMiddle: "ยิงตรงกลาง", shootRight: "ยิงไปทางขวา", diveLeft: "พุ่งไปทางซ้าย",
     diveMiddle: "อยู่ตรงกลาง", diveRight: "พุ่งไปทางขวา", play: "เล่น", again: "เล่นอีกครั้ง", home: "หน้าแรก", pause: "หยุดชั่วคราว", resume: "เล่นต่อ",
@@ -168,7 +168,7 @@ export const TEXTS = {
     pair: "เล่นสองคนบนเครื่องนี้", wrapped: "เซอร์ไพรส์ที่ยังห่ออยู่", accept: "เข้าร่วม", dismiss: "ไว้ทีหลัง",
   },
   ja: {
-    name: "Goal Swipe", canvas: "Goal Swipe：ボールから上へスワイプしてシュート、相手がけるときはゴールをタップして飛びつこう", looks: "ボールとグラウンド", tabBall: "ボール", tabField: "グラウンド",
+    name: "スワイプゴール", canvas: "スワイプゴール：ボールから上へスワイプしてシュート、相手がけるときはゴールをタップして飛びつこう", looks: "ボールとグラウンド", tabBall: "ボール", tabField: "グラウンド",
     classic: "クラシックボール", beachball: "ビーチボール", star: "スターボール", school: "校庭", beach: "ビーチ", stadium: "夜のスタジアム", shootLeft: "左へシュート", shootMiddle: "まん中へシュート",
     shootRight: "右へシュート", diveLeft: "左へ飛ぶ", diveMiddle: "まん中に立つ", diveRight: "右へ飛ぶ", play: "あそぶ", again: "もう一度", home: "ホーム", pause: "一時停止",
     resume: "つづける", avatar: "プレイヤーをえらぶ", done: "完了", gift: "プレゼントをあける", flick: "FlickerTalk", call: "友だちをもう一度よぶ", waiting: "友だちを待っています", here: "友だちが来ました",
@@ -176,7 +176,7 @@ export const TEXTS = {
     accept: "参加する", dismiss: "あとで",
   },
   ko: {
-    name: "Goal Swipe", canvas: "Goal Swipe: 공에서 위로 밀어 슛하고, 상대가 찰 때는 골대를 눌러 몸을 날리세요", looks: "공과 경기장", tabBall: "공", tabField: "경기장", classic: "클래식 공",
+    name: "스와이프 골", canvas: "스와이프 골: 공에서 위로 밀어 슛하고, 상대가 찰 때는 골대를 눌러 몸을 날리세요", looks: "공과 경기장", tabBall: "공", tabField: "경기장", classic: "클래식 공",
     beachball: "비치볼", star: "별 공", school: "학교 운동장", beach: "해변", stadium: "밤의 경기장", shootLeft: "왼쪽으로 슛", shootMiddle: "가운데로 슛", shootRight: "오른쪽으로 슛",
     diveLeft: "왼쪽으로 몸 날리기", diveMiddle: "가운데에 서 있기", diveRight: "오른쪽으로 몸 날리기", play: "플레이", again: "다시 하기", home: "홈", pause: "일시정지", resume: "계속",
     avatar: "플레이어 고르기", done: "완료", gift: "선물 열기", flick: "FlickerTalk", call: "친구를 다시 부르기", waiting: "친구를 기다리는 중", here: "친구가 왔어요",
@@ -184,14 +184,14 @@ export const TEXTS = {
     accept: "참여", dismiss: "나중에",
   },
   "zh-CN": {
-    name: "Goal Swipe", canvas: "Goal Swipe：从球向上滑动来射门，对方射门时点按球门来扑救", looks: "足球和球场", tabBall: "足球", tabField: "球场", classic: "经典足球", beachball: "沙滩球",
+    name: "滑动射门", canvas: "滑动射门：从球向上滑动来射门，对方射门时点按球门来扑救", looks: "足球和球场", tabBall: "足球", tabField: "球场", classic: "经典足球", beachball: "沙滩球",
     star: "星星球", school: "学校操场", beach: "沙滩", stadium: "夜晚的体育场", shootLeft: "射向左边", shootMiddle: "射向中间", shootRight: "射向右边", diveLeft: "扑向左边",
     diveMiddle: "守在中间", diveRight: "扑向右边", play: "开始", again: "再玩一次", home: "主页", pause: "暂停", resume: "继续", avatar: "选择你的玩家", done: "完成", gift: "打开礼物",
     flick: "FlickerTalk", call: "再叫一次朋友", waiting: "正在等你的朋友", here: "你的朋友来了", away: "你的朋友没有打开游戏", update: "更新游戏才能和朋友一起玩", vsFlick: "和 FlickerTalk 对战",
     pair: "在这台设备上双人对战", wrapped: "还没拆开的惊喜", accept: "加入", dismiss: "以后再说",
   },
   "zh-TW": {
-    name: "Goal Swipe", canvas: "Goal Swipe：從球向上滑動來射門，對方射門時點按球門來撲救", looks: "足球和球場", tabBall: "足球", tabField: "球場", classic: "經典足球", beachball: "沙灘球",
+    name: "滑動射門", canvas: "滑動射門：從球向上滑動來射門，對方射門時點按球門來撲救", looks: "足球和球場", tabBall: "足球", tabField: "球場", classic: "經典足球", beachball: "沙灘球",
     star: "星星球", school: "學校操場", beach: "沙灘", stadium: "夜晚的體育場", shootLeft: "射向左邊", shootMiddle: "射向中間", shootRight: "射向右邊", diveLeft: "撲向左邊",
     diveMiddle: "守在中間", diveRight: "撲向右邊", play: "開始", again: "再玩一次", home: "首頁", pause: "暫停", resume: "繼續", avatar: "選擇你的玩家", done: "完成", gift: "打開禮物",
     flick: "FlickerTalk", call: "再叫一次朋友", waiting: "正在等你的朋友", here: "你的朋友來了", away: "你的朋友沒有開啟遊戲", update: "更新遊戲才能和朋友一起玩", vsFlick: "和 FlickerTalk 對戰",

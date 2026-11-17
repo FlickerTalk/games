@@ -30,7 +30,7 @@ describe("the Goal Swipe element", () => {
     const { element } = await mount();
     const canvas = element.querySelector("canvas");
     expect(canvas.getAttribute("role")).toBe("img");
-    expect(canvas.getAttribute("aria-label")).toMatch(/^Goal Swipe: desliza/);
+    expect(canvas.getAttribute("aria-label")).toMatch(/^Desliza y marca: desliza/);
   });
 
   it("lays a named button over everything the canvas lets the player touch, the three ways to shoot included", async () => {

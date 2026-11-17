@@ -8,7 +8,7 @@ export const TEXTS = {
     wrapped: "A surprise, still wrapped",
   },
   es: {
-    name: "Balloon Fair", canvas: "Balloon Fair: toca los globos para explotarlos con tu juguete; con el arco, tira hacia atrás y suelta",
+    name: "Feria de globos", canvas: "Feria de globos: toca los globos para explotarlos con tu juguete; con el arco, tira hacia atrás y suelta",
     play: "Jugar", again: "Jugar otra vez", home: "Inicio", pause: "Pausa", resume: "Seguir", avatar: "Elige tu jugador", looks: "Ferias",
     done: "Hecho", gift: "Abrir el regalo", flick: "FlickerTalk", call: "Volver a llamar a tu amigo", waiting: "Esperando a tu amigo",
     here: "Tu amigo ya está aquí", ready: "Tu amigo está listo para jugar", away: "Tu amigo no tiene el juego abierto",
@@ -16,7 +16,7 @@ export const TEXTS = {
     day: "Feria de día", beach: "Muelle de la playa", evening: "Feria al anochecer", wrapped: "Una sorpresa, todavía envuelta",
   },
   fr: {
-    name: "Balloon Fair", canvas: "Balloon Fair : touche les ballons pour les éclater avec ton jouet ; avec l’arc, tire en arrière et lâche",
+    name: "Foire aux ballons", canvas: "Foire aux ballons : touche les ballons pour les éclater avec ton jouet ; avec l’arc, tire en arrière et lâche",
     play: "Jouer", again: "Rejouer", home: "Accueil", pause: "Pause", resume: "Continuer", avatar: "Choisis ton joueur", looks: "Fêtes foraines",
     done: "Terminé", gift: "Ouvrir le cadeau", flick: "FlickerTalk", call: "Rappeler ton ami", waiting: "En attente de ton ami",
     here: "Ton ami est là", ready: "Ton ami est prêt à jouer", away: "Ton ami n’a pas le jeu ouvert",
@@ -24,8 +24,8 @@ export const TEXTS = {
     day: "Fête foraine de jour", beach: "Jetée de la plage", evening: "Fête foraine du soir", wrapped: "Une surprise encore emballée",
   },
   de: {
-    name: "Balloon Fair",
-    canvas: "Balloon Fair: Tippe auf die Ballons, um sie mit deinem Spielzeug platzen zu lassen; den Bogen ziehst du nach hinten und lässt los",
+    name: "Ballonjahrmarkt",
+    canvas: "Ballonjahrmarkt: Tippe auf die Ballons, um sie mit deinem Spielzeug platzen zu lassen; den Bogen ziehst du nach hinten und lässt los",
     play: "Spielen", again: "Noch einmal", home: "Start", pause: "Pause", resume: "Weiter", avatar: "Wähle deine Figur", looks: "Jahrmärkte",
     done: "Fertig", gift: "Geschenk öffnen", flick: "FlickerTalk", call: "Deinen Freund noch einmal rufen", waiting: "Warten auf deinen Freund",
     here: "Dein Freund ist da", ready: "Dein Freund ist bereit zum Spielen", away: "Dein Freund hat das Spiel nicht geöffnet",
@@ -33,7 +33,7 @@ export const TEXTS = {
     day: "Jahrmarkt am Tag", beach: "Strandpier", evening: "Jahrmarkt am Abend", wrapped: "Eine Überraschung, noch verpackt",
   },
   it: {
-    name: "Balloon Fair", canvas: "Balloon Fair: tocca i palloncini per farli scoppiare con il tuo giocattolo; con l’arco, tira indietro e lascia",
+    name: "Fiera dei palloncini", canvas: "Fiera dei palloncini: tocca i palloncini per farli scoppiare con il tuo giocattolo; con l’arco, tira indietro e lascia",
     play: "Gioca", again: "Gioca ancora", home: "Inizio", pause: "Pausa", resume: "Continua", avatar: "Scegli il tuo giocatore", looks: "Fiere",
     done: "Fatto", gift: "Apri il regalo", flick: "FlickerTalk", call: "Richiama il tuo amico", waiting: "In attesa del tuo amico",
     here: "Il tuo amico è qui", ready: "Il tuo amico è pronto a giocare", away: "Il tuo amico non ha il gioco aperto",
@@ -41,7 +41,7 @@ export const TEXTS = {
     day: "Fiera di giorno", beach: "Molo sulla spiaggia", evening: "Fiera di sera", wrapped: "Una sorpresa ancora incartata",
   },
   pt: {
-    name: "Balloon Fair", canvas: "Balloon Fair: toque nos balões para estourá-los com seu brinquedo; com o arco, puxe para trás e solte",
+    name: "Feira dos balões", canvas: "Feira dos balões: toque nos balões para estourá-los com seu brinquedo; com o arco, puxe para trás e solte",
     play: "Jogar", again: "Jogar de novo", home: "Início", pause: "Pausa", resume: "Continuar", avatar: "Escolha seu jogador", looks: "Feiras",
     done: "Pronto", gift: "Abrir o presente", flick: "FlickerTalk", call: "Chamar seu amigo de novo", waiting: "Esperando seu amigo",
     here: "Seu amigo chegou", ready: "Seu amigo está pronto para jogar", away: "Seu amigo não está com o jogo aberto",
@@ -49,7 +49,7 @@ export const TEXTS = {
     day: "Feira de dia", beach: "Píer da praia", evening: "Feira ao anoitecer", wrapped: "Uma surpresa ainda embrulhada",
   },
   ro: {
-    name: "Balloon Fair", canvas: "Balloon Fair: atinge baloanele ca să le spargi cu jucăria ta; cu arcul, trage înapoi și dă drumul", play: "Joacă",
+    name: "Bâlciul baloanelor", canvas: "Bâlciul baloanelor: atinge baloanele ca să le spargi cu jucăria ta; cu arcul, trage înapoi și dă drumul", play: "Joacă",
     again: "Joacă din nou", home: "Acasă", pause: "Pauză", resume: "Continuă", avatar: "Alege-ți jucătorul", looks: "Bâlciuri", done: "Gata",
     gift: "Deschide cadoul", flick: "FlickerTalk", call: "Cheamă-ți din nou prietenul", waiting: "În așteptarea prietenului tău",
     here: "Prietenul tău a venit", ready: "Prietenul tău e gata de joc", away: "Prietenul tău nu are jocul deschis",
@@ -57,7 +57,7 @@ export const TEXTS = {
     day: "Bâlci de zi", beach: "Pontonul de la plajă", evening: "Bâlci de seară", wrapped: "O surpriză încă împachetată",
   },
   pl: {
-    name: "Balloon Fair", canvas: "Balloon Fair: dotykaj balonów, by przebijać je swoją zabawką; łuk odciągnij do tyłu i puść", play: "Graj",
+    name: "Balonowy jarmark", canvas: "Balonowy jarmark: dotykaj balonów, by przebijać je swoją zabawką; łuk odciągnij do tyłu i puść", play: "Graj",
     again: "Zagraj jeszcze raz", home: "Start", pause: "Pauza", resume: "Dalej", avatar: "Wybierz gracza", looks: "Wesołe miasteczka", done: "Gotowe",
     gift: "Otwórz prezent", flick: "FlickerTalk", call: "Zawołaj znowu znajomego", waiting: "Oczekiwanie na znajomego", here: "Twój znajomy już jest",
     ready: "Twój znajomy jest gotowy do gry", away: "Twój znajomy nie ma otwartej gry", update: "Zaktualizuj grę, by zagrać ze znajomym",
@@ -65,7 +65,7 @@ export const TEXTS = {
     evening: "Wesołe miasteczko wieczorem", wrapped: "Niespodzianka, jeszcze zapakowana",
   },
   ru: {
-    name: "Balloon Fair", canvas: "Balloon Fair: касайся шариков, чтобы лопать их своей игрушкой; лук оттяни назад и отпусти", play: "Играть",
+    name: "Ярмарка шариков", canvas: "Ярмарка шариков: касайся шариков, чтобы лопать их своей игрушкой; лук оттяни назад и отпусти", play: "Играть",
     again: "Ещё раз", home: "Главная", pause: "Пауза", resume: "Продолжить", avatar: "Выбери игрока", looks: "Ярмарки", done: "Готово",
     gift: "Открыть подарок", flick: "FlickerTalk", call: "Позвать друга ещё раз", waiting: "Ждём друга", here: "Друг уже здесь",
     ready: "Друг готов играть", away: "У друга не открыта игра", update: "Обнови игру, чтобы играть с другом", popgun: "Пробковая хлопушка",
@@ -73,7 +73,7 @@ export const TEXTS = {
     wrapped: "Сюрприз, ещё в упаковке",
   },
   uk: {
-    name: "Balloon Fair", canvas: "Balloon Fair: торкайся кульок, щоб лускати їх своєю іграшкою; лук відтягни назад і відпусти", play: "Грати",
+    name: "Ярмарок кульок", canvas: "Ярмарок кульок: торкайся кульок, щоб лускати їх своєю іграшкою; лук відтягни назад і відпусти", play: "Грати",
     again: "Ще раз", home: "Головна", pause: "Пауза", resume: "Продовжити", avatar: "Обери гравця", looks: "Ярмарки", done: "Готово",
     gift: "Відкрити подарунок", flick: "FlickerTalk", call: "Покликати друга ще раз", waiting: "Чекаємо на друга", here: "Друг уже тут",
     ready: "Друг готовий грати", away: "У друга не відкрита гра", update: "Онови гру, щоб грати з другом", popgun: "Коркова хлопавка",
@@ -81,7 +81,7 @@ export const TEXTS = {
     wrapped: "Сюрприз, ще запакований",
   },
   tr: {
-    name: "Balloon Fair", canvas: "Balloon Fair: balonları oyuncağınla patlatmak için onlara dokun; yayı geriye çek ve bırak", play: "Oyna",
+    name: "Balon Panayırı", canvas: "Balon Panayırı: balonları oyuncağınla patlatmak için onlara dokun; yayı geriye çek ve bırak", play: "Oyna",
     again: "Yeniden oyna", home: "Ana sayfa", pause: "Duraklat", resume: "Devam et", avatar: "Oyuncunu seç", looks: "Panayırlar", done: "Tamam",
     gift: "Hediyeyi aç", flick: "FlickerTalk", call: "Arkadaşını yeniden çağır", waiting: "Arkadaşın bekleniyor", here: "Arkadaşın geldi",
     ready: "Arkadaşın oynamaya hazır", away: "Arkadaşında oyun açık değil", update: "Arkadaşınla oynamak için oyunu güncelle",
@@ -89,14 +89,14 @@ export const TEXTS = {
     evening: "Akşam panayırı", wrapped: "Henüz açılmamış bir sürpriz",
   },
   ar: {
-    name: "Balloon Fair", canvas: "Balloon Fair: المس البالونات لتفرقعها بلعبتك؛ ومع القوس اسحب إلى الخلف ثم أفلت", play: "العب",
+    name: "مهرجان البالونات", canvas: "مهرجان البالونات: المس البالونات لتفرقعها بلعبتك؛ ومع القوس اسحب إلى الخلف ثم أفلت", play: "العب",
     again: "العب مرة أخرى", home: "الرئيسية", pause: "إيقاف مؤقت", resume: "تابع", avatar: "اختر لاعبك", looks: "الملاهي", done: "تم",
     gift: "افتح الهدية", flick: "FlickerTalk", call: "ادعُ صديقك مرة أخرى", waiting: "بانتظار صديقك", here: "وصل صديقك", ready: "صديقك جاهز للعب",
     away: "اللعبة غير مفتوحة لدى صديقك", update: "حدّث اللعبة لتلعب مع صديقك", popgun: "قاذف الفلين", blaster: "رشّاش الماء", bow: "قوس بسهام لاصقة",
     day: "ملاهي النهار", beach: "رصيف الشاطئ", evening: "ملاهي المساء", wrapped: "مفاجأة ما زالت مغلّفة",
   },
   hi: {
-    name: "Balloon Fair", canvas: "Balloon Fair: अपने खिलौने से गुब्बारे फोड़ने के लिए उन्हें छुएँ; धनुष को पीछे खींचें और छोड़ दें", play: "खेलें",
+    name: "गुब्बारों का मेला", canvas: "गुब्बारों का मेला: अपने खिलौने से गुब्बारे फोड़ने के लिए उन्हें छुएँ; धनुष को पीछे खींचें और छोड़ दें", play: "खेलें",
     again: "फिर से खेलें", home: "होम", pause: "रोकें", resume: "जारी रखें", avatar: "अपना खिलाड़ी चुनें", looks: "मेले", done: "हो गया",
     gift: "उपहार खोलें", flick: "FlickerTalk", call: "अपने दोस्त को फिर बुलाएँ", waiting: "आपके दोस्त का इंतज़ार है", here: "आपका दोस्त आ गया है",
     ready: "आपका दोस्त खेलने के लिए तैयार है", away: "आपके दोस्त ने गेम नहीं खोला है", update: "अपने दोस्त के साथ खेलने के लिए गेम अपडेट करें",
@@ -104,7 +104,7 @@ export const TEXTS = {
     evening: "शाम का मेला", wrapped: "एक सरप्राइज़, अभी भी लिपटा हुआ",
   },
   bn: {
-    name: "Balloon Fair", canvas: "Balloon Fair: আপনার খেলনা দিয়ে বেলুন ফাটাতে সেগুলো ছুঁয়ে দিন; ধনুক হলে পেছনে টেনে ছেড়ে দিন", play: "খেলুন",
+    name: "বেলুনের মেলা", canvas: "বেলুনের মেলা: আপনার খেলনা দিয়ে বেলুন ফাটাতে সেগুলো ছুঁয়ে দিন; ধনুক হলে পেছনে টেনে ছেড়ে দিন", play: "খেলুন",
     again: "আবার খেলুন", home: "হোম", pause: "বিরতি", resume: "চালিয়ে যান", avatar: "আপনার খেলোয়াড় বেছে নিন", looks: "মেলা", done: "হয়ে গেছে",
     gift: "উপহার খুলুন", flick: "FlickerTalk", call: "বন্ধুকে আবার ডাকুন", waiting: "আপনার বন্ধুর অপেক্ষায়", here: "আপনার বন্ধু এসে গেছে",
     ready: "আপনার বন্ধু খেলতে তৈরি", away: "আপনার বন্ধুর গেমটি খোলা নেই", update: "বন্ধুর সঙ্গে খেলতে গেমটি আপডেট করুন", popgun: "কর্ক ছোড়ার খেলনা",
@@ -112,7 +112,7 @@ export const TEXTS = {
     wrapped: "একটি চমক, এখনও মোড়ানো",
   },
   id: {
-    name: "Balloon Fair", canvas: "Balloon Fair: sentuh balon untuk meletuskannya dengan mainanmu; untuk busur, tarik ke belakang lalu lepaskan",
+    name: "Pekan Raya Balon", canvas: "Pekan Raya Balon: sentuh balon untuk meletuskannya dengan mainanmu; untuk busur, tarik ke belakang lalu lepaskan",
     play: "Main", again: "Main lagi", home: "Beranda", pause: "Jeda", resume: "Lanjut", avatar: "Pilih pemainmu", looks: "Pekan raya",
     done: "Selesai", gift: "Buka hadiah", flick: "FlickerTalk", call: "Panggil temanmu lagi", waiting: "Menunggu temanmu",
     here: "Temanmu sudah datang", ready: "Temanmu siap bermain", away: "Temanmu tidak sedang membuka game ini",
@@ -120,7 +120,7 @@ export const TEXTS = {
     day: "Pekan raya siang", beach: "Dermaga pantai", evening: "Pekan raya malam", wrapped: "Kejutan yang masih terbungkus",
   },
   vi: {
-    name: "Balloon Fair", canvas: "Balloon Fair: chạm vào bóng bay để làm nổ chúng bằng đồ chơi của bạn; với cây cung, kéo về sau rồi thả",
+    name: "Hội chợ bóng bay", canvas: "Hội chợ bóng bay: chạm vào bóng bay để làm nổ chúng bằng đồ chơi của bạn; với cây cung, kéo về sau rồi thả",
     play: "Chơi", again: "Chơi lại", home: "Trang chính", pause: "Tạm dừng", resume: "Tiếp tục", avatar: "Chọn người chơi", looks: "Hội chợ",
     done: "Xong", gift: "Mở quà", flick: "FlickerTalk", call: "Gọi lại bạn của bạn", waiting: "Đang chờ bạn của bạn", here: "Bạn của bạn đã đến",
     ready: "Bạn của bạn đã sẵn sàng chơi", away: "Bạn của bạn chưa mở trò chơi", update: "Cập nhật trò chơi để chơi cùng bạn của bạn",
@@ -128,7 +128,7 @@ export const TEXTS = {
     evening: "Hội chợ buổi tối", wrapped: "Một bất ngờ vẫn còn gói",
   },
   th: {
-    name: "Balloon Fair", canvas: "Balloon Fair: แตะลูกโป่งเพื่อทำให้แตกด้วยของเล่นของคุณ ถ้าเป็นคันธนู ให้ดึงไปข้างหลังแล้วปล่อย", play: "เล่น",
+    name: "งานวัดลูกโป่ง", canvas: "งานวัดลูกโป่ง: แตะลูกโป่งเพื่อทำให้แตกด้วยของเล่นของคุณ ถ้าเป็นคันธนู ให้ดึงไปข้างหลังแล้วปล่อย", play: "เล่น",
     again: "เล่นอีกครั้ง", home: "หน้าแรก", pause: "หยุดชั่วคราว", resume: "เล่นต่อ", avatar: "เลือกผู้เล่นของคุณ", looks: "งานวัด", done: "เสร็จ",
     gift: "เปิดของขวัญ", flick: "FlickerTalk", call: "เรียกเพื่อนอีกครั้ง", waiting: "กำลังรอเพื่อนของคุณ", here: "เพื่อนของคุณมาแล้ว",
     ready: "เพื่อนของคุณพร้อมเล่นแล้ว", away: "เพื่อนของคุณไม่ได้เปิดเกมอยู่", update: "อัปเดตเกมเพื่อเล่นกับเพื่อนของคุณ",
@@ -136,25 +136,25 @@ export const TEXTS = {
     evening: "งานวัดตอนค่ำ", wrapped: "เซอร์ไพรส์ที่ยังห่ออยู่",
   },
   ja: {
-    name: "Balloon Fair", canvas: "Balloon Fair：おもちゃで風船をタップして割ろう。弓は後ろに引いて、はなそう", play: "あそぶ", again: "もう一度", home: "ホーム", pause: "一時停止",
+    name: "風船まつり", canvas: "風船まつり：おもちゃで風船をタップして割ろう。弓は後ろに引いて、はなそう", play: "あそぶ", again: "もう一度", home: "ホーム", pause: "一時停止",
     resume: "つづける", avatar: "プレイヤーをえらぶ", looks: "おまつり会場", done: "完了", gift: "プレゼントをあける", flick: "FlickerTalk", call: "友だちをもう一度よぶ",
     waiting: "友だちを待っています", here: "友だちが来ました", ready: "友だちの準備ができました", away: "友だちはゲームを開いていません", update: "友だちとあそぶにはゲームを更新してください", popgun: "コルクでっぽう",
     blaster: "水でっぽう", bow: "吸盤の弓矢", day: "昼のおまつり", beach: "ビーチの桟橋", evening: "夕方のおまつり", wrapped: "まだ包まれたままのサプライズ",
   },
   ko: {
-    name: "Balloon Fair", canvas: "Balloon Fair: 장난감으로 풍선을 톡 눌러 터뜨리세요. 활은 뒤로 당겼다가 놓으세요", play: "플레이", again: "다시 하기", home: "홈", pause: "일시정지",
+    name: "풍선 축제", canvas: "풍선 축제: 장난감으로 풍선을 톡 눌러 터뜨리세요. 활은 뒤로 당겼다가 놓으세요", play: "플레이", again: "다시 하기", home: "홈", pause: "일시정지",
     resume: "계속", avatar: "플레이어 고르기", looks: "축제 마당", done: "완료", gift: "선물 열기", flick: "FlickerTalk", call: "친구를 다시 부르기", waiting: "친구를 기다리는 중",
     here: "친구가 왔어요", ready: "친구가 플레이할 준비가 됐어요", away: "친구가 게임을 열어 두지 않았어요", update: "친구와 플레이하려면 게임을 업데이트하세요", popgun: "코르크 딱총", blaster: "물총",
     bow: "흡착 화살 활", day: "낮의 축제", beach: "해변 부두", evening: "저녁 축제", wrapped: "아직 포장된 깜짝 선물",
   },
   "zh-CN": {
-    name: "Balloon Fair", canvas: "Balloon Fair：点气球，用你的玩具把它们打破；用弓时，向后拉再松手", play: "开始", again: "再玩一次", home: "主页", pause: "暂停", resume: "继续",
+    name: "气球嘉年华", canvas: "气球嘉年华：点气球，用你的玩具把它们打破；用弓时，向后拉再松手", play: "开始", again: "再玩一次", home: "主页", pause: "暂停", resume: "继续",
     avatar: "选择你的玩家", looks: "游乐场", done: "完成", gift: "打开礼物", flick: "FlickerTalk", call: "再叫一次朋友", waiting: "正在等你的朋友", here: "你的朋友来了",
     ready: "你的朋友准备好了", away: "你的朋友没有打开游戏", update: "更新游戏才能和朋友一起玩", popgun: "软木塞发射器", blaster: "喷水器", bow: "吸盘弓", day: "白天的游乐场", beach: "海边栈桥",
     evening: "傍晚的游乐场", wrapped: "还没拆开的惊喜",
   },
   "zh-TW": {
-    name: "Balloon Fair", canvas: "Balloon Fair：點氣球，用你的玩具把它們打破；用弓時，向後拉再放開", play: "開始", again: "再玩一次", home: "首頁", pause: "暫停", resume: "繼續",
+    name: "氣球嘉年華", canvas: "氣球嘉年華：點氣球，用你的玩具把它們打破；用弓時，向後拉再放開", play: "開始", again: "再玩一次", home: "首頁", pause: "暫停", resume: "繼續",
     avatar: "選擇你的玩家", looks: "遊樂場", done: "完成", gift: "打開禮物", flick: "FlickerTalk", call: "再叫一次朋友", waiting: "正在等你的朋友", here: "你的朋友來了",
     ready: "你的朋友準備好了", away: "你的朋友沒有開啟遊戲", update: "更新遊戲才能和朋友一起玩", popgun: "軟木塞發射器", blaster: "噴水器", bow: "吸盤弓", day: "白天的遊樂場", beach: "海邊棧橋",
     evening: "傍晚的遊樂場", wrapped: "還沒拆開的驚喜",

@@ -11,7 +11,7 @@ export const TEXTS = {
     cell: "Square {n}", robotLook: "Robot {n}", worldLook: "World {n}", tabRobot: "Robots", tabWorld: "Worlds",
   },
   es: {
-    name: "Beep Route", canvas: "Beep Route: pon flechas en la tira, pulsa jugar y el robot las sigue hasta la meta",
+    name: "Ruta bip", canvas: "Ruta bip: pon flechas en la tira, pulsa jugar y el robot las sigue hasta la meta",
     play: "Jugar", run: "Poner en marcha el programa", stop: "Parar el robot", again: "Jugar otra vez", home: "Inicio", pause: "Pausa", resume: "Seguir",
     avatar: "Elige tu jugador", looks: "Robots y mundos", done: "Hecho", gift: "Abrir el regalo", accept: "Unirme", dismiss: "Ahora no",
     call: "Volver a llamar a tu amigo", flick: "FlickerTalk", levels: "Niveles", make: "Crear un nivel",
@@ -22,7 +22,7 @@ export const TEXTS = {
     cell: "Casilla {n}", robotLook: "Robot {n}", worldLook: "Mundo {n}", tabRobot: "Robots", tabWorld: "Mundos",
   },
   fr: {
-    name: "Beep Route", canvas: "Beep Route : pose des flèches sur la bande, appuie sur jouer et le robot les suit jusqu’au but",
+    name: "Parcours bip", canvas: "Parcours bip : pose des flèches sur la bande, appuie sur jouer et le robot les suit jusqu’au but",
     play: "Jouer", run: "Lancer le programme", stop: "Arrêter le robot", again: "Rejouer", home: "Accueil", pause: "Pause", resume: "Continuer",
     avatar: "Choisis ton joueur", looks: "Robots et mondes", done: "Terminé", gift: "Ouvrir le cadeau", accept: "Rejoindre", dismiss: "Pas maintenant",
     call: "Rappeler ton ami", flick: "FlickerTalk", levels: "Niveaux", make: "Créer un niveau",
@@ -33,7 +33,7 @@ export const TEXTS = {
     cell: "Case {n}", robotLook: "Robot {n}", worldLook: "Monde {n}", tabRobot: "Robots", tabWorld: "Mondes",
   },
   de: {
-    name: "Beep Route", canvas: "Beep Route: Leg Pfeile auf den Streifen, drück auf Spielen, und der Roboter folgt ihnen bis zum Ziel",
+    name: "Piep-Route", canvas: "Piep-Route: Leg Pfeile auf den Streifen, drück auf Spielen, und der Roboter folgt ihnen bis zum Ziel",
     play: "Spielen", run: "Programm starten", stop: "Roboter anhalten", again: "Noch einmal", home: "Start", pause: "Pause", resume: "Weiter",
     avatar: "Wähle deine Figur", looks: "Roboter und Welten", done: "Fertig", gift: "Geschenk öffnen", accept: "Mitspielen", dismiss: "Jetzt nicht",
     call: "Deinen Freund noch einmal rufen", flick: "FlickerTalk", levels: "Level", make: "Ein Level bauen",
@@ -44,7 +44,7 @@ export const TEXTS = {
     cell: "Feld {n}", robotLook: "Roboter {n}", worldLook: "Welt {n}", tabRobot: "Roboter", tabWorld: "Welten",
   },
   it: {
-    name: "Beep Route", canvas: "Beep Route: metti le frecce sulla striscia, premi gioca e il robot le segue fino al traguardo",
+    name: "Percorso bip", canvas: "Percorso bip: metti le frecce sulla striscia, premi gioca e il robot le segue fino al traguardo",
     play: "Gioca", run: "Avvia il programma", stop: "Ferma il robot", again: "Gioca ancora", home: "Inizio", pause: "Pausa", resume: "Continua",
     avatar: "Scegli il tuo giocatore", looks: "Robot e mondi", done: "Fatto", gift: "Apri il regalo", accept: "Partecipa", dismiss: "Non ora",
     call: "Richiama il tuo amico", flick: "FlickerTalk", levels: "Livelli", make: "Crea un livello",
@@ -55,7 +55,7 @@ export const TEXTS = {
     cell: "Casella {n}", robotLook: "Robot {n}", worldLook: "Mondo {n}", tabRobot: "Robot", tabWorld: "Mondi",
   },
   pt: {
-    name: "Beep Route", canvas: "Beep Route: coloque setas na faixa, toque em jogar e o robô as segue até a meta",
+    name: "Rota bip", canvas: "Rota bip: coloque setas na faixa, toque em jogar e o robô as segue até a meta",
     play: "Jogar", run: "Executar o programa", stop: "Parar o robô", again: "Jogar de novo", home: "Início", pause: "Pausa", resume: "Continuar",
     avatar: "Escolha seu jogador", looks: "Robôs e mundos", done: "Pronto", gift: "Abrir o presente", accept: "Entrar", dismiss: "Agora não",
     call: "Chamar seu amigo de novo", flick: "FlickerTalk", levels: "Níveis", make: "Criar um nível",
@@ -66,7 +66,7 @@ export const TEXTS = {
     cell: "Casa {n}", robotLook: "Robô {n}", worldLook: "Mundo {n}", tabRobot: "Robôs", tabWorld: "Mundos",
   },
   ro: {
-    name: "Beep Route", canvas: "Beep Route: pune săgeți pe bandă, apasă pe joacă și robotul le urmează până la țintă",
+    name: "Traseu bip", canvas: "Traseu bip: pune săgeți pe bandă, apasă pe joacă și robotul le urmează până la țintă",
     play: "Joacă", run: "Pornește programul", stop: "Oprește robotul", again: "Joacă din nou", home: "Acasă", pause: "Pauză", resume: "Continuă",
     avatar: "Alege-ți jucătorul", looks: "Roboți și lumi", done: "Gata", gift: "Deschide cadoul", accept: "Intră", dismiss: "Nu acum",
     call: "Cheamă-ți din nou prietenul", flick: "FlickerTalk", levels: "Niveluri", make: "Construiește un nivel",
@@ -77,7 +77,7 @@ export const TEXTS = {
     cell: "Pătratul {n}", robotLook: "Robotul {n}", worldLook: "Lumea {n}", tabRobot: "Roboți", tabWorld: "Lumi",
   },
   pl: {
-    name: "Beep Route", canvas: "Beep Route: ułóż strzałki na pasku, naciśnij graj, a robot pójdzie za nimi do celu",
+    name: "Trasa bip", canvas: "Trasa bip: ułóż strzałki na pasku, naciśnij graj, a robot pójdzie za nimi do celu",
     play: "Graj", run: "Uruchom program", stop: "Zatrzymaj robota", again: "Zagraj jeszcze raz", home: "Start", pause: "Pauza", resume: "Dalej",
     avatar: "Wybierz gracza", looks: "Roboty i światy", done: "Gotowe", gift: "Otwórz prezent", accept: "Dołącz", dismiss: "Nie teraz",
     call: "Zawołaj znajomego jeszcze raz", flick: "FlickerTalk", levels: "Poziomy", make: "Zbuduj poziom",
@@ -88,7 +88,7 @@ export const TEXTS = {
     cell: "Pole {n}", robotLook: "Robot {n}", worldLook: "Świat {n}", tabRobot: "Roboty", tabWorld: "Światy",
   },
   ru: {
-    name: "Beep Route", canvas: "Beep Route: выложи стрелки на ленту, нажми «играть», и робот пройдёт по ним до цели",
+    name: "Бип-маршрут", canvas: "Бип-маршрут: выложи стрелки на ленту, нажми «играть», и робот пройдёт по ним до цели",
     play: "Играть", run: "Запустить программу", stop: "Остановить робота", again: "Ещё раз", home: "Главная", pause: "Пауза", resume: "Дальше",
     avatar: "Выбери игрока", looks: "Роботы и миры", done: "Готово", gift: "Открыть подарок", accept: "Присоединиться", dismiss: "Не сейчас",
     call: "Позвать друга ещё раз", flick: "FlickerTalk", levels: "Уровни", make: "Создать уровень",
@@ -99,7 +99,7 @@ export const TEXTS = {
     cell: "Клетка {n}", robotLook: "Робот {n}", worldLook: "Мир {n}", tabRobot: "Роботы", tabWorld: "Миры",
   },
   uk: {
-    name: "Beep Route", canvas: "Beep Route: виклади стрілки на стрічку, натисни «грати», і робот пройде ними до цілі",
+    name: "Біп-маршрут", canvas: "Біп-маршрут: виклади стрілки на стрічку, натисни «грати», і робот пройде ними до цілі",
     play: "Грати", run: "Запустити програму", stop: "Зупинити робота", again: "Ще раз", home: "Головна", pause: "Пауза", resume: "Далі",
     avatar: "Обери гравця", looks: "Роботи й світи", done: "Готово", gift: "Відкрити подарунок", accept: "Приєднатися", dismiss: "Не зараз",
     call: "Покликати друга ще раз", flick: "FlickerTalk", levels: "Рівні", make: "Створити рівень",
@@ -110,7 +110,7 @@ export const TEXTS = {
     cell: "Клітинка {n}", robotLook: "Робот {n}", worldLook: "Світ {n}", tabRobot: "Роботи", tabWorld: "Світи",
   },
   tr: {
-    name: "Beep Route", canvas: "Beep Route: şeride oklar diz, oyna düğmesine bas; robot onları izleyerek hedefe gider",
+    name: "Bip Rotası", canvas: "Bip Rotası: şeride oklar diz, oyna düğmesine bas; robot onları izleyerek hedefe gider",
     play: "Oyna", run: "Programı çalıştır", stop: "Robotu durdur", again: "Tekrar oyna", home: "Ana sayfa", pause: "Duraklat", resume: "Devam et",
     avatar: "Oyuncunu seç", looks: "Robotlar ve dünyalar", done: "Tamam", gift: "Hediyeyi aç", accept: "Katıl", dismiss: "Şimdi değil",
     call: "Arkadaşını yeniden çağır", flick: "FlickerTalk", levels: "Seviyeler", make: "Seviye yap",
@@ -121,7 +121,7 @@ export const TEXTS = {
     cell: "Kare {n}", robotLook: "Robot {n}", worldLook: "Dünya {n}", tabRobot: "Robotlar", tabWorld: "Dünyalar",
   },
   ar: {
-    name: "Beep Route", canvas: "Beep Route: ضع الأسهم على الشريط ثم اضغط تشغيل، فيتبعها الروبوت حتى الهدف",
+    name: "مسار بيب", canvas: "مسار بيب: ضع الأسهم على الشريط ثم اضغط تشغيل، فيتبعها الروبوت حتى الهدف",
     play: "العب", run: "شغّل البرنامج", stop: "أوقف الروبوت", again: "العب مرة أخرى", home: "الرئيسية", pause: "إيقاف مؤقت", resume: "تابع",
     avatar: "اختر لاعبك", looks: "الروبوتات والعوالم", done: "تم", gift: "افتح الهدية", accept: "انضم", dismiss: "ليس الآن",
     call: "اتصل بصديقك مرة أخرى", flick: "FlickerTalk", levels: "المستويات", make: "اصنع مستوى",
@@ -132,7 +132,7 @@ export const TEXTS = {
     cell: "المربع {n}", robotLook: "الروبوت {n}", worldLook: "العالم {n}", tabRobot: "الروبوتات", tabWorld: "العوالم",
   },
   hi: {
-    name: "Beep Route", canvas: "Beep Route: पट्टी पर तीर रखें, फिर चलाएँ दबाएँ और रोबोट उनके पीछे-पीछे लक्ष्य तक जाएगा",
+    name: "बीप रास्ता", canvas: "बीप रास्ता: पट्टी पर तीर रखें, फिर चलाएँ दबाएँ और रोबोट उनके पीछे-पीछे लक्ष्य तक जाएगा",
     play: "खेलें", run: "प्रोग्राम चलाएँ", stop: "रोबोट रोकें", again: "फिर से खेलें", home: "होम", pause: "विराम", resume: "जारी रखें",
     avatar: "अपना खिलाड़ी चुनें", looks: "रोबोट और दुनियाएँ", done: "हो गया", gift: "उपहार खोलें", accept: "शामिल हों", dismiss: "अभी नहीं",
     call: "अपने दोस्त को फिर से बुलाएँ", flick: "FlickerTalk", levels: "स्तर", make: "स्तर बनाएँ",
@@ -143,7 +143,7 @@ export const TEXTS = {
     cell: "खाना {n}", robotLook: "रोबोट {n}", worldLook: "दुनिया {n}", tabRobot: "रोबोट", tabWorld: "दुनियाएँ",
   },
   bn: {
-    name: "Beep Route", canvas: "Beep Route: ফিতের ওপর তীর বসান, তারপর চালান টিপুন, রোবট সেগুলো মেনে লক্ষ্যে পৌঁছাবে",
+    name: "বিপ-পথ", canvas: "বিপ-পথ: ফিতের ওপর তীর বসান, তারপর চালান টিপুন, রোবট সেগুলো মেনে লক্ষ্যে পৌঁছাবে",
     play: "খেলুন", run: "প্রোগ্রাম চালান", stop: "রোবট থামান", again: "আবার খেলুন", home: "হোম", pause: "বিরতি", resume: "চালিয়ে যান",
     avatar: "আপনার খেলোয়াড় বেছে নিন", looks: "রোবট আর জগৎ", done: "হয়ে গেছে", gift: "উপহার খুলুন", accept: "যোগ দিন", dismiss: "এখন নয়",
     call: "বন্ধুকে আবার ডাকুন", flick: "FlickerTalk", levels: "লেভেল", make: "লেভেল বানান",
@@ -154,7 +154,7 @@ export const TEXTS = {
     cell: "ঘর {n}", robotLook: "রোবট {n}", worldLook: "জগৎ {n}", tabRobot: "রোবটগুলো", tabWorld: "জগৎগুলো",
   },
   id: {
-    name: "Beep Route", canvas: "Beep Route: taruh panah di pita, tekan main, lalu robot mengikutinya sampai ke tujuan",
+    name: "Rute Bip", canvas: "Rute Bip: taruh panah di pita, tekan main, lalu robot mengikutinya sampai ke tujuan",
     play: "Main", run: "Jalankan program", stop: "Hentikan robot", again: "Main lagi", home: "Beranda", pause: "Jeda", resume: "Lanjut",
     avatar: "Pilih pemainmu", looks: "Robot dan dunia", done: "Selesai", gift: "Buka hadiah", accept: "Ikut", dismiss: "Nanti saja",
     call: "Panggil temanmu lagi", flick: "FlickerTalk", levels: "Level", make: "Buat level",
@@ -165,7 +165,7 @@ export const TEXTS = {
     cell: "Kotak {n}", robotLook: "Robot {n}", worldLook: "Dunia {n}", tabRobot: "Para robot", tabWorld: "Dunia-dunia",
   },
   vi: {
-    name: "Beep Route", canvas: "Beep Route: đặt mũi tên lên dải lệnh, bấm chơi và rô-bốt sẽ đi theo đến đích",
+    name: "Lộ trình bíp", canvas: "Lộ trình bíp: đặt mũi tên lên dải lệnh, bấm chơi và rô-bốt sẽ đi theo đến đích",
     play: "Chơi", run: "Chạy chương trình", stop: "Dừng rô-bốt", again: "Chơi lại", home: "Trang chính", pause: "Tạm dừng", resume: "Tiếp tục",
     avatar: "Chọn người chơi", looks: "Rô-bốt và thế giới", done: "Xong", gift: "Mở quà", accept: "Tham gia", dismiss: "Để sau",
     call: "Gọi lại bạn của bạn", flick: "FlickerTalk", levels: "Màn chơi", make: "Tạo màn chơi",
@@ -176,7 +176,7 @@ export const TEXTS = {
     cell: "Ô {n}", robotLook: "Rô-bốt {n}", worldLook: "Thế giới {n}", tabRobot: "Các rô-bốt", tabWorld: "Các thế giới",
   },
   th: {
-    name: "Beep Route", canvas: "Beep Route: วางลูกศรบนแถบ แล้วกดเล่น หุ่นยนต์จะเดินตามไปจนถึงเส้นชัย",
+    name: "เส้นทางบี๊บ", canvas: "เส้นทางบี๊บ: วางลูกศรบนแถบ แล้วกดเล่น หุ่นยนต์จะเดินตามไปจนถึงเส้นชัย",
     play: "เล่น", run: "เริ่มโปรแกรม", stop: "หยุดหุ่นยนต์", again: "เล่นอีกครั้ง", home: "หน้าแรก", pause: "หยุดชั่วคราว", resume: "เล่นต่อ",
     avatar: "เลือกผู้เล่นของคุณ", looks: "หุ่นยนต์และโลก", done: "เสร็จ", gift: "เปิดของขวัญ", accept: "เข้าร่วม", dismiss: "ไว้ทีหลัง",
     call: "เรียกเพื่อนอีกครั้ง", flick: "FlickerTalk", levels: "ด่าน", make: "สร้างด่าน",
@@ -187,7 +187,7 @@ export const TEXTS = {
     cell: "ช่อง {n}", robotLook: "หุ่นยนต์ {n}", worldLook: "โลก {n}", tabRobot: "หุ่นยนต์ทั้งหมด", tabWorld: "โลกทั้งหมด",
   },
   ja: {
-    name: "Beep Route", canvas: "Beep Route：帯に矢印をならべてプレイを押すと、ロボットが矢印どおりにゴールへ進みます",
+    name: "ビープルート", canvas: "ビープルート：帯に矢印をならべてプレイを押すと、ロボットが矢印どおりにゴールへ進みます",
     play: "プレイ", run: "プログラムを動かす", stop: "ロボットを止める", again: "もう一度", home: "ホーム", pause: "一時停止", resume: "つづける",
     avatar: "プレイヤーをえらぶ", looks: "ロボットと世界", done: "完了", gift: "プレゼントを開ける", accept: "参加する", dismiss: "あとで",
     call: "友だちをもう一度よぶ", flick: "FlickerTalk", levels: "レベル", make: "レベルをつくる",
@@ -198,7 +198,7 @@ export const TEXTS = {
     cell: "マス {n}", robotLook: "ロボット {n}", worldLook: "世界 {n}", tabRobot: "ロボット", tabWorld: "世界",
   },
   ko: {
-    name: "Beep Route", canvas: "Beep Route: 띠에 화살표를 놓고 재생을 누르면 로봇이 화살표대로 목표까지 갑니다",
+    name: "삐빅 루트", canvas: "삐빅 루트: 띠에 화살표를 놓고 재생을 누르면 로봇이 화살표대로 목표까지 갑니다",
     play: "플레이", run: "프로그램 실행", stop: "로봇 멈추기", again: "다시 하기", home: "홈", pause: "일시 정지", resume: "계속",
     avatar: "플레이어 고르기", looks: "로봇과 세계", done: "완료", gift: "선물 열기", accept: "참여", dismiss: "나중에",
     call: "친구를 다시 부르기", flick: "FlickerTalk", levels: "레벨", make: "레벨 만들기",
@@ -209,7 +209,7 @@ export const TEXTS = {
     cell: "칸 {n}", robotLook: "로봇 {n}", worldLook: "세계 {n}", tabRobot: "로봇들", tabWorld: "세계들",
   },
   "zh-CN": {
-    name: "Beep Route", canvas: "Beep Route：把箭头放到指令条上，按下开始，机器人就会照着走到终点",
+    name: "哔哔路线", canvas: "哔哔路线：把箭头放到指令条上，按下开始，机器人就会照着走到终点",
     play: "开始", run: "运行程序", stop: "让机器人停下", again: "再玩一次", home: "主页", pause: "暂停", resume: "继续",
     avatar: "选择你的角色", looks: "机器人和世界", done: "完成", gift: "打开礼物", accept: "加入", dismiss: "以后再说",
     call: "再叫一次你的朋友", flick: "FlickerTalk", levels: "关卡", make: "做一个关卡",
@@ -220,7 +220,7 @@ export const TEXTS = {
     cell: "第 {n} 格", robotLook: "机器人 {n}", worldLook: "世界 {n}", tabRobot: "机器人们", tabWorld: "各个世界",
   },
   "zh-TW": {
-    name: "Beep Route", canvas: "Beep Route：把箭頭放到指令條上，按下開始，機器人就會照著走到終點",
+    name: "嗶嗶路線", canvas: "嗶嗶路線：把箭頭放到指令條上，按下開始，機器人就會照著走到終點",
     play: "開始", run: "執行程式", stop: "讓機器人停下", again: "再玩一次", home: "主頁", pause: "暫停", resume: "繼續",
     avatar: "選擇你的角色", looks: "機器人和世界", done: "完成", gift: "打開禮物", accept: "加入", dismiss: "以後再說",
     call: "再叫一次你的朋友", flick: "FlickerTalk", levels: "關卡", make: "做一個關卡",

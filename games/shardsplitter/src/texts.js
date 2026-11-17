@@ -8,7 +8,7 @@ export const TEXTS = {
     malletLook: "Mallet {n}", placeLook: "Place {n}", tabMallet: "Mallets", tabPlace: "Places",
   },
   es: {
-    name: "Shard Splitter", canvas: "Shard Splitter: toca un divisor para partir el número del gólem de cristal en partes iguales, hasta que solo queden primos o unos",
+    name: "Rompecristales", canvas: "Rompecristales: toca un divisor para partir el número del gólem de cristal en partes iguales, hasta que solo queden primos o unos",
     play: "Jugar", again: "Jugar otra vez", home: "Inicio", pause: "Pausa", resume: "Seguir",
     avatar: "Elige tu jugador", looks: "Mazos y lugares", done: "Hecho", gift: "Abrir el regalo", accept: "Unirme", dismiss: "Ahora no",
     call: "Volver a llamar a tu amigo", flick: "FlickerTalk",
@@ -16,7 +16,7 @@ export const TEXTS = {
     malletLook: "Mazo {n}", placeLook: "Lugar {n}", tabMallet: "Mazos", tabPlace: "Lugares",
   },
   fr: {
-    name: "Shard Splitter", canvas: "Shard Splitter : touche un diviseur pour partager le nombre du golem de cristal en parts égales, jusqu’à n’avoir que des nombres premiers ou des uns",
+    name: "Brise-cristaux", canvas: "Brise-cristaux : touche un diviseur pour partager le nombre du golem de cristal en parts égales, jusqu’à n’avoir que des nombres premiers ou des uns",
     play: "Jouer", again: "Rejouer", home: "Accueil", pause: "Pause", resume: "Continuer",
     avatar: "Choisis ton joueur", looks: "Maillets et lieux", done: "Terminé", gift: "Ouvrir le cadeau", accept: "Rejoindre", dismiss: "Pas maintenant",
     call: "Rappeler ton ami", flick: "FlickerTalk",
@@ -24,7 +24,7 @@ export const TEXTS = {
     malletLook: "Maillet {n}", placeLook: "Lieu {n}", tabMallet: "Maillets", tabPlace: "Lieux",
   },
   de: {
-    name: "Shard Splitter", canvas: "Shard Splitter: Tippe auf einen Teiler, um die Zahl des Kristallgolems in gleiche Teile zu teilen, bis nur noch Primzahlen oder Einsen übrig sind",
+    name: "Kristallspalter", canvas: "Kristallspalter: Tippe auf einen Teiler, um die Zahl des Kristallgolems in gleiche Teile zu teilen, bis nur noch Primzahlen oder Einsen übrig sind",
     play: "Spielen", again: "Noch einmal", home: "Start", pause: "Pause", resume: "Weiter",
     avatar: "Wähle deine Figur", looks: "Hämmer und Orte", done: "Fertig", gift: "Geschenk öffnen", accept: "Mitspielen", dismiss: "Jetzt nicht",
     call: "Deinen Freund noch einmal rufen", flick: "FlickerTalk",
@@ -32,7 +32,7 @@ export const TEXTS = {
     malletLook: "Hammer {n}", placeLook: "Ort {n}", tabMallet: "Hämmer", tabPlace: "Orte",
   },
   it: {
-    name: "Shard Splitter", canvas: "Shard Splitter: tocca un divisore per dividere il numero del golem di cristallo in parti uguali, finché restano solo numeri primi o uno",
+    name: "Spaccacristalli", canvas: "Spaccacristalli: tocca un divisore per dividere il numero del golem di cristallo in parti uguali, finché restano solo numeri primi o uno",
     play: "Gioca", again: "Gioca ancora", home: "Inizio", pause: "Pausa", resume: "Continua",
     avatar: "Scegli il tuo giocatore", looks: "Mazzuoli e luoghi", done: "Fatto", gift: "Apri il regalo", accept: "Partecipa", dismiss: "Non ora",
     call: "Richiama il tuo amico", flick: "FlickerTalk",
@@ -40,7 +40,7 @@ export const TEXTS = {
     malletLook: "Mazzuolo {n}", placeLook: "Luogo {n}", tabMallet: "Mazzuoli", tabPlace: "Luoghi",
   },
   pt: {
-    name: "Shard Splitter", canvas: "Shard Splitter: toque num divisor para partir o número do golem de cristal em partes iguais, até sobrarem apenas primos ou uns",
+    name: "Quebra-cristais", canvas: "Quebra-cristais: toque num divisor para partir o número do golem de cristal em partes iguais, até sobrarem apenas primos ou uns",
     play: "Jogar", again: "Jogar de novo", home: "Início", pause: "Pausa", resume: "Continuar",
     avatar: "Escolha seu jogador", looks: "Marretas e lugares", done: "Pronto", gift: "Abrir o presente", accept: "Entrar", dismiss: "Agora não",
     call: "Chamar seu amigo de novo", flick: "FlickerTalk",
@@ -48,7 +48,7 @@ export const TEXTS = {
     malletLook: "Marreta {n}", placeLook: "Lugar {n}", tabMallet: "Marretas", tabPlace: "Lugares",
   },
   ro: {
-    name: "Shard Splitter", canvas: "Shard Splitter: atinge un divizor ca să împarți numărul golemului de cristal în părți egale, până rămân doar numere prime sau unu",
+    name: "Spărgătorul de cristale", canvas: "Spărgătorul de cristale: atinge un divizor ca să împarți numărul golemului de cristal în părți egale, până rămân doar numere prime sau unu",
     play: "Joacă", again: "Joacă din nou", home: "Acasă", pause: "Pauză", resume: "Continuă",
     avatar: "Alege-ți jucătorul", looks: "Ciocane și locuri", done: "Gata", gift: "Deschide cadoul", accept: "Intră", dismiss: "Nu acum",
     call: "Sună-ți din nou prietenul", flick: "FlickerTalk",
@@ -56,7 +56,7 @@ export const TEXTS = {
     malletLook: "Ciocanul {n}", placeLook: "Locul {n}", tabMallet: "Ciocane", tabPlace: "Locuri",
   },
   pl: {
-    name: "Shard Splitter", canvas: "Shard Splitter: dotknij dzielnika, aby podzielić liczbę kryształowego golema na równe części, aż zostaną tylko liczby pierwsze albo jedynki",
+    name: "Łamacz kryształów", canvas: "Łamacz kryształów: dotknij dzielnika, aby podzielić liczbę kryształowego golema na równe części, aż zostaną tylko liczby pierwsze albo jedynki",
     play: "Graj", again: "Zagraj jeszcze raz", home: "Start", pause: "Pauza", resume: "Dalej",
     avatar: "Wybierz swojego gracza", looks: "Młotki i miejsca", done: "Gotowe", gift: "Otwórz prezent", accept: "Dołącz", dismiss: "Nie teraz",
     call: "Zadzwoń ponownie do przyjaciela", flick: "FlickerTalk",
@@ -64,7 +64,7 @@ export const TEXTS = {
     malletLook: "Młotek {n}", placeLook: "Miejsce {n}", tabMallet: "Młotki", tabPlace: "Miejsca",
   },
   ru: {
-    name: "Shard Splitter", canvas: "Shard Splitter: нажми на делитель, чтобы разделить число хрустального голема на равные части, пока не останутся только простые числа или единицы",
+    name: "Раскол кристаллов", canvas: "Раскол кристаллов: нажми на делитель, чтобы разделить число хрустального голема на равные части, пока не останутся только простые числа или единицы",
     play: "Играть", again: "Сыграть ещё раз", home: "Главная", pause: "Пауза", resume: "Продолжить",
     avatar: "Выбери своего игрока", looks: "Молотки и места", done: "Готово", gift: "Открыть подарок", accept: "Присоединиться", dismiss: "Не сейчас",
     call: "Позвать друга ещё раз", flick: "FlickerTalk",
@@ -72,7 +72,7 @@ export const TEXTS = {
     malletLook: "Молоток {n}", placeLook: "Место {n}", tabMallet: "Молотки", tabPlace: "Места",
   },
   uk: {
-    name: "Shard Splitter", canvas: "Shard Splitter: торкнися дільника, щоб поділити число кришталевого голема на рівні частини, доки не залишаться лише прості числа або одиниці",
+    name: "Розкол кристалів", canvas: "Розкол кристалів: торкнися дільника, щоб поділити число кришталевого голема на рівні частини, доки не залишаться лише прості числа або одиниці",
     play: "Грати", again: "Зіграти ще раз", home: "Головна", pause: "Пауза", resume: "Продовжити",
     avatar: "Обери свого гравця", looks: "Молотки й місця", done: "Готово", gift: "Відкрити подарунок", accept: "Приєднатися", dismiss: "Не зараз",
     call: "Покликати друга ще раз", flick: "FlickerTalk",
@@ -80,7 +80,7 @@ export const TEXTS = {
     malletLook: "Молоток {n}", placeLook: "Місце {n}", tabMallet: "Молотки", tabPlace: "Місця",
   },
   tr: {
-    name: "Shard Splitter", canvas: "Shard Splitter: kristal golemin sayısını eşit parçalara bölmek için bir bölene dokun, geriye yalnızca asal sayılar ya da birler kalana kadar",
+    name: "Kristal Bölücü", canvas: "Kristal Bölücü: kristal golemin sayısını eşit parçalara bölmek için bir bölene dokun, geriye yalnızca asal sayılar ya da birler kalana kadar",
     play: "Oyna", again: "Tekrar oyna", home: "Ana ekran", pause: "Duraklat", resume: "Devam et",
     avatar: "Oyuncunu seç", looks: "Tokmaklar ve yerler", done: "Tamam", gift: "Hediyeyi aç", accept: "Katıl", dismiss: "Şimdi değil",
     call: "Arkadaşını yeniden çağır", flick: "FlickerTalk",
@@ -88,7 +88,7 @@ export const TEXTS = {
     malletLook: "Tokmak {n}", placeLook: "Yer {n}", tabMallet: "Tokmaklar", tabPlace: "Yerler",
   },
   ar: {
-    name: "Shard Splitter", canvas: "Shard Splitter: اضغط على قاسم لتقسيم عدد الغولم البلّوري إلى أجزاء متساوية، حتى لا يبقى إلا أعداد أولية أو آحاد",
+    name: "مقسّم البلّور", canvas: "مقسّم البلّور: اضغط على قاسم لتقسيم عدد الغولم البلّوري إلى أجزاء متساوية، حتى لا يبقى إلا أعداد أولية أو آحاد",
     play: "العب", again: "العب مرة أخرى", home: "الرئيسية", pause: "إيقاف مؤقت", resume: "تابع",
     avatar: "اختر لاعبك", looks: "المطارق والأماكن", done: "تم", gift: "افتح الهدية", accept: "انضم", dismiss: "ليس الآن",
     call: "اتصل بصديقك مرة أخرى", flick: "FlickerTalk",
@@ -96,7 +96,7 @@ export const TEXTS = {
     malletLook: "المطرقة {n}", placeLook: "المكان {n}", tabMallet: "المطارق", tabPlace: "الأماكن",
   },
   hi: {
-    name: "Shard Splitter", canvas: "Shard Splitter: क्रिस्टल गोलेम की संख्या को बराबर हिस्सों में बाँटने के लिए किसी भाजक को छुओ, जब तक केवल अभाज्य संख्याएँ या एक न बचें",
+    name: "क्रिस्टल बाँटो", canvas: "क्रिस्टल बाँटो: क्रिस्टल गोलेम की संख्या को बराबर हिस्सों में बाँटने के लिए किसी भाजक को छुओ, जब तक केवल अभाज्य संख्याएँ या एक न बचें",
     play: "खेलो", again: "फिर से खेलो", home: "होम", pause: "रोको", resume: "जारी रखो",
     avatar: "अपना खिलाड़ी चुनो", looks: "हथौड़े और जगहें", done: "हो गया", gift: "उपहार खोलो", accept: "शामिल हो", dismiss: "अभी नहीं",
     call: "अपने दोस्त को फिर बुलाओ", flick: "FlickerTalk",
@@ -104,7 +104,7 @@ export const TEXTS = {
     malletLook: "हथौड़ा {n}", placeLook: "जगह {n}", tabMallet: "हथौड़े", tabPlace: "जगहें",
   },
   bn: {
-    name: "Shard Splitter", canvas: "Shard Splitter: স্ফটিক গোলেমের সংখ্যাটিকে সমান ভাগে ভাগ করতে একটি ভাজকে চাপ দাও, যতক্ষণ না শুধু মৌলিক সংখ্যা বা এক বাকি থাকে",
+    name: "স্ফটিক ভাগ", canvas: "স্ফটিক ভাগ: স্ফটিক গোলেমের সংখ্যাটিকে সমান ভাগে ভাগ করতে একটি ভাজকে চাপ দাও, যতক্ষণ না শুধু মৌলিক সংখ্যা বা এক বাকি থাকে",
     play: "খেলো", again: "আবার খেলো", home: "হোম", pause: "থামাও", resume: "চালিয়ে যাও",
     avatar: "তোমার খেলোয়াড় বেছে নাও", looks: "হাতুড়ি ও জায়গা", done: "হয়ে গেছে", gift: "উপহার খোলো", accept: "যোগ দাও", dismiss: "এখন নয়",
     call: "বন্ধুকে আবার ডাকো", flick: "FlickerTalk",
@@ -112,7 +112,7 @@ export const TEXTS = {
     malletLook: "হাতুড়ি {n}", placeLook: "জায়গা {n}", tabMallet: "হাতুড়ি", tabPlace: "জায়গা",
   },
   id: {
-    name: "Shard Splitter", canvas: "Shard Splitter: ketuk sebuah pembagi untuk membelah angka golem kristal menjadi bagian yang sama, sampai tinggal bilangan prima atau satu",
+    name: "Pembelah Kristal", canvas: "Pembelah Kristal: ketuk sebuah pembagi untuk membelah angka golem kristal menjadi bagian yang sama, sampai tinggal bilangan prima atau satu",
     play: "Main", again: "Main lagi", home: "Beranda", pause: "Jeda", resume: "Lanjut",
     avatar: "Pilih pemainmu", looks: "Palu dan tempat", done: "Selesai", gift: "Buka hadiah", accept: "Ikut", dismiss: "Nanti saja",
     call: "Panggil temanmu lagi", flick: "FlickerTalk",
@@ -120,7 +120,7 @@ export const TEXTS = {
     malletLook: "Palu {n}", placeLook: "Tempat {n}", tabMallet: "Palu", tabPlace: "Tempat",
   },
   vi: {
-    name: "Shard Splitter", canvas: "Shard Splitter: chạm vào một ước số để tách con số của người đá pha lê thành các phần bằng nhau, đến khi chỉ còn số nguyên tố hoặc số một",
+    name: "Tách pha lê", canvas: "Tách pha lê: chạm vào một ước số để tách con số của người đá pha lê thành các phần bằng nhau, đến khi chỉ còn số nguyên tố hoặc số một",
     play: "Chơi", again: "Chơi lại", home: "Trang chính", pause: "Tạm dừng", resume: "Tiếp tục",
     avatar: "Chọn người chơi của bạn", looks: "Búa và địa điểm", done: "Xong", gift: "Mở quà", accept: "Tham gia", dismiss: "Để sau",
     call: "Gọi lại bạn của bạn", flick: "FlickerTalk",
@@ -128,7 +128,7 @@ export const TEXTS = {
     malletLook: "Búa {n}", placeLook: "Địa điểm {n}", tabMallet: "Búa", tabPlace: "Địa điểm",
   },
   th: {
-    name: "Shard Splitter", canvas: "Shard Splitter: แตะตัวหารเพื่อแบ่งตัวเลขของโกเลมคริสตัลออกเป็นส่วนเท่า ๆ กัน จนเหลือแต่จำนวนเฉพาะหรือเลขหนึ่ง",
+    name: "แบ่งคริสตัล", canvas: "แบ่งคริสตัล: แตะตัวหารเพื่อแบ่งตัวเลขของโกเลมคริสตัลออกเป็นส่วนเท่า ๆ กัน จนเหลือแต่จำนวนเฉพาะหรือเลขหนึ่ง",
     play: "เล่น", again: "เล่นอีกครั้ง", home: "หน้าหลัก", pause: "หยุดชั่วคราว", resume: "เล่นต่อ",
     avatar: "เลือกผู้เล่นของคุณ", looks: "ค้อนและสถานที่", done: "เสร็จแล้ว", gift: "เปิดของขวัญ", accept: "เข้าร่วม", dismiss: "ไว้ก่อน",
     call: "เรียกเพื่อนอีกครั้ง", flick: "FlickerTalk",
@@ -136,7 +136,7 @@ export const TEXTS = {
     malletLook: "ค้อน {n}", placeLook: "สถานที่ {n}", tabMallet: "ค้อน", tabPlace: "สถานที่",
   },
   ja: {
-    name: "Shard Splitter", canvas: "Shard Splitter：約数をタップして、クリスタルゴーレムの数を同じ大きさに分けよう。素数か1だけになるまで続けます",
+    name: "クリスタル割り", canvas: "クリスタル割り：約数をタップして、クリスタルゴーレムの数を同じ大きさに分けよう。素数か1だけになるまで続けます",
     play: "あそぶ", again: "もう一度あそぶ", home: "ホーム", pause: "一時停止", resume: "つづける",
     avatar: "プレイヤーをえらぶ", looks: "ハンマーと場所", done: "完了", gift: "プレゼントを開ける", accept: "参加する", dismiss: "あとで",
     call: "友だちをもう一度よぶ", flick: "FlickerTalk",
@@ -144,7 +144,7 @@ export const TEXTS = {
     malletLook: "ハンマー {n}", placeLook: "場所 {n}", tabMallet: "ハンマー", tabPlace: "場所",
   },
   ko: {
-    name: "Shard Splitter", canvas: "Shard Splitter: 약수를 눌러 크리스털 골렘의 수를 똑같은 조각으로 나누세요. 소수나 1만 남을 때까지 이어집니다",
+    name: "크리스털 쪼개기", canvas: "크리스털 쪼개기: 약수를 눌러 크리스털 골렘의 수를 똑같은 조각으로 나누세요. 소수나 1만 남을 때까지 이어집니다",
     play: "플레이", again: "다시 하기", home: "홈", pause: "일시정지", resume: "계속하기",
     avatar: "플레이어 고르기", looks: "망치와 장소", done: "완료", gift: "선물 열기", accept: "참여하기", dismiss: "나중에",
     call: "친구 다시 부르기", flick: "FlickerTalk",
@@ -152,7 +152,7 @@ export const TEXTS = {
     malletLook: "망치 {n}", placeLook: "장소 {n}", tabMallet: "망치", tabPlace: "장소",
   },
   "zh-CN": {
-    name: "Shard Splitter", canvas: "Shard Splitter：点一个除数，把水晶魔像身上的数平均分开，直到只剩下质数或 1",
+    name: "水晶切分", canvas: "水晶切分：点一个除数，把水晶魔像身上的数平均分开，直到只剩下质数或 1",
     play: "开始", again: "再玩一次", home: "主页", pause: "暂停", resume: "继续",
     avatar: "选择你的玩家", looks: "木槌和场景", done: "完成", gift: "打开礼物", accept: "加入", dismiss: "以后再说",
     call: "再次呼叫你的朋友", flick: "FlickerTalk",
@@ -160,7 +160,7 @@ export const TEXTS = {
     malletLook: "木槌 {n}", placeLook: "场景 {n}", tabMallet: "木槌", tabPlace: "场景",
   },
   "zh-TW": {
-    name: "Shard Splitter", canvas: "Shard Splitter：點一個除數，把水晶魔像身上的數平均分開，直到只剩下質數或 1",
+    name: "水晶切分", canvas: "水晶切分：點一個除數，把水晶魔像身上的數平均分開，直到只剩下質數或 1",
     play: "開始", again: "再玩一次", home: "主頁", pause: "暫停", resume: "繼續",
     avatar: "選擇你的玩家", looks: "木槌和場景", done: "完成", gift: "打開禮物", accept: "加入", dismiss: "以後再說",
     call: "再次呼叫你的朋友", flick: "FlickerTalk",

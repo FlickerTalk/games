@@ -32,7 +32,7 @@ describe("the Balloon Ruler element", () => {
     const { element } = await mount();
     const canvas = element.querySelector("canvas");
     expect(canvas.getAttribute("role")).toBe("img");
-    expect(canvas.getAttribute("aria-label")).toMatch(/^Balloon Ruler: /);
+    expect(canvas.getAttribute("aria-label")).toMatch(/^Regla de globos: /);
     expect(canvas.getAttribute("aria-label")).toMatch(/regla/);
   });
 

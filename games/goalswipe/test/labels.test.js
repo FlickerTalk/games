@@ -7,9 +7,9 @@ import { TEXTS } from "../src/texts.js";
 const state = { lang: "es", mode: "friend", looks: "ball", progress: PROGRESS.fresh() };
 
 describe("the words outside the canvas", () => {
-  it("are in the app's 21 languages, English the source, with the same keys, the name kept", () => {
+  it("are in the app's 21 languages, English the source, with the same keys, the canvas label opening with the game's name", () => {
     checkTexts(TEXTS);
-    for (const lang of Object.keys(TEXTS)) expect(TEXTS[lang].name, lang).toBe("Goal Swipe");
+    for (const lang of Object.keys(TEXTS)) expect(TEXTS[lang].canvas.startsWith(TEXTS[lang].name), lang).toBe(true);
   });
 
   it("are real translations: what the game itself says is in no language the English text", () => {

@@ -35,7 +35,7 @@ describe("the Beep Route element", () => {
     const { element } = await mount();
     const canvas = element.querySelector("canvas");
     expect(canvas.getAttribute("role")).toBe("img");
-    expect(canvas.getAttribute("aria-label")).toMatch(/^Beep Route: pon flechas/);
+    expect(canvas.getAttribute("aria-label")).toMatch(/^Ruta bip: pon flechas/);
   });
 
   it("lays a named button over everything the canvas lets the player touch, the strip's slots excepted", async () => {

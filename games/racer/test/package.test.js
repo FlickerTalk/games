@@ -3,7 +3,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { buildGame } from "../../../kit/build.js";
-import { LOCALES, checkDist, checkManifest } from "../../../kit/test/helpers.js";
+import { LOCALES, checkDist, checkManifest, checkNamesTranslated } from "../../../kit/test/helpers.js";
 
 const dir = join(import.meta.dirname, "..");
 const dist = join(dir, "dist");
@@ -16,7 +16,7 @@ const same = (a, b, name) => readFileSync(join(a, name)).equals(readFileSync(joi
 describe("the Racer package", () => {
   it("is a game that asks only for the live channel, to race a friend, like the other games", () => {
     const { version, icon } = manifest();
-    expect(version).toBe("0.7.5");
+    expect(version).toBe("0.7.6");
     expect(icon).toBe("car-sport-outline");
   });
 
@@ -31,10 +31,12 @@ describe("the Racer package", () => {
   it("names and describes itself in the app's other 20 languages", () => {
     const { locales, summary: english } = manifest();
     expect(Object.keys(locales).sort()).toEqual([...LOCALES].sort());
+    checkNamesTranslated(manifest());
     for (const lang of LOCALES) {
       const { name, summary, ...rest } = locales[lang];
       expect(rest, lang).toEqual({});
-      expect(name, lang).toBe("Racer");
+      expect(name.trim(), lang).not.toBe("");
+      expect([...name].length, lang).toBeLessThanOrEqual(64);
       expect(summary.trim().length, lang).toBeGreaterThan(10);
       expect([...summary].length, lang).toBeLessThanOrEqual(200);
       expect(summary, lang).not.toBe(english);
@@ -74,7 +76,7 @@ describe("the Racer package", () => {
     const code = readFileSync(join(dist, "index.js"), "utf8");
     expect(code).toContain('"ft-racer"');
     expect(code.replace(/\s+/g, "")).toContain("touch-action:none");
-    expect(code).toContain('"0.7.5"');
+    expect(code).toContain('"0.7.6"');
   });
 
   it("never writes in the chat, and talks to the other phone only over the live channel", () => {

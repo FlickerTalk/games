@@ -36,7 +36,7 @@ describe("the Beat Wagons element", () => {
     const { element } = await mount();
     const canvas = element.querySelector("canvas");
     expect(canvas.getAttribute("role")).toBe("img");
-    expect(canvas.getAttribute("aria-label")).toMatch(/^Beat Wagons: los vagones/);
+    expect(canvas.getAttribute("aria-label")).toMatch(/^Vagones con ritmo: los vagones/);
   });
 
   it("lays a named button over everything the canvas lets the player touch, the wagons of the siding by their names", async () => {

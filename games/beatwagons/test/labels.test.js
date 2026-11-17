@@ -10,7 +10,7 @@ describe("the words outside the canvas", () => {
   it("are in the app's 21 languages, English the source, with the same keys and gaps, translated rather than copied", () => {
     checkTexts(TEXTS);
     expect(Object.keys(TEXTS)).toEqual(LANGS);
-    for (const lang of LANGS) expect(TEXTS[lang].name, lang).toBe("Beat Wagons");
+    for (const lang of LANGS) expect(TEXTS[lang].canvas.startsWith(TEXTS[lang].name), lang).toBe(true);
     for (const lang of LANGS.slice(1)) {
       const same = Object.keys(TEXTS.en).filter((key) => !["name", "flick"].includes(key) && TEXTS[lang][key] === TEXTS.en[key]);
       expect(same.length, `${lang}: ${same.join(", ")}`).toBeLessThanOrEqual(3);
