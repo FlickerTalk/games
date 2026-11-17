@@ -505,7 +505,9 @@ defineLiveGame({
 - **Against the phone** (`solo` in `onOpen`): the session never touches `ft.live`, and the game
   drives the rival itself and reports it with `rival(t, finish)`.
 - **Talking**: nothing is sent when the game opens. The user's start sends `hello`; a phone with the
-  game open answers it (`re`), which is how the first one learns the other is there. Both start →
+  game open answers it (`re`), which is how the first one learns the other is there (a `ready` or
+  `go` that overtakes the `hello` of the phone sending it counts as that `hello`: the core does not
+  keep two messages in order). Both start →
   the phone with the smaller id sends `go` and both count down 3 s. While running, a phone sends its
   state at most every 83 ms (about 12 a second) and only once the core took the last one, or a second
   later if the core never answers. The first
@@ -1032,6 +1034,9 @@ package's contents. So:
   that answers a state after giving up on a round are one more patch for the games that bundle the
   live session: `1.0.2` for Paddle Pop, Sky Chase, Bumper Ring, Foam Duel, Robot Rumble, Balloon Fair
   and Duo Squad, and Racer's `0.7.4`. The other games' packages do not change.
+- A next round that starts on both phones when the `go` overtakes the `hello` is one more patch for
+  the games that bundle the live session: `1.0.3` for Paddle Pop, Sky Chase, Bumper Ring, Foam Duel,
+  Robot Rumble, Balloon Fair and Duo Squad, and Racer's `0.7.5`. The other games' packages do not change.
 
 ## Preview
 
