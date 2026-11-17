@@ -14,11 +14,17 @@ export class RacerElement extends HTMLElement {
     const goButton = page.createElement('button');
     goButton.type = 'button';
     goButton.className = 'go';
+    const note = page.createElement('p');
+    note.className = 'note';
+    note.hidden = true;
+    note.dir = 'auto';
+    note.setAttribute('role', 'status');
     const switches = createSwitches(page);
-    this.replaceChildren(canvas, goButton, switches.sound, switches.music, switches.volume);
+    this.replaceChildren(canvas, goButton, note, switches.sound, switches.music, switches.volume);
     this.session = createSession({
       canvas,
       goButton,
+      note,
       keyTarget: page.defaultView,
       page,
       store: globalThis.ft?.store,

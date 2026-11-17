@@ -7,8 +7,8 @@ const MOST = 640;
 const SHAPE = 1.3;
 const clamp = (value, low, high) => Math.min(high, Math.max(low, value));
 
-export function playLayout(width, height, { fill = false, rival = false } = {}) {
-  const bar = barLayout(width, height, { rival });
+export function playLayout(width, height, { fill = false, rival = false, pause = true } = {}) {
+  const bar = barLayout(width, height, { rival, pause });
   const top = bar.bar.y + bar.bar.h + GAP;
   const wide = Math.min(width - 2 * PAD, MOST);
   const stage = box((width - wide) / 2, top, wide, height - PAD - top);
@@ -30,7 +30,7 @@ export const sizeOf = (layout, kind) => KINDS[kind].size * layout.unit;
 export function playTargets(layout, { volume = false } = {}) {
   const { pause, speaker, music } = layout.controls;
   const targets = [
-    { kind: "pause", value: "pause", ...pause },
+    ...(pause ? [{ kind: "pause", value: "pause", ...pause }] : []),
     { kind: "speaker", value: "speaker", ...speaker },
     { kind: "music", value: "music", ...music },
   ];

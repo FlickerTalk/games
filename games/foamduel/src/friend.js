@@ -6,7 +6,7 @@ import { END_PAUSE, closeRound, newRound, review, scoresOf, showRound, stepRound
 import { DUEL, checkState, stateOf } from "./wire.js";
 
 export function joinFriend(game) {
-  game.duel = new CanvasDuel({ ft: game.ft, g: DUEL.g, gv: DUEL.gv, app: game.app, check: checkState, clock: game.now, onChange: () => changed(game) });
+  game.duel = new CanvasDuel({ ft: game.ft, g: DUEL.g, gv: DUEL.gv, app: game.app, check: checkState, clock: game.now, page: game.page, onChange: () => changed(game) });
 }
 
 export function startFriend(game) {
@@ -40,19 +40,19 @@ function listen(game, round) {
 }
 
 function tell(game, round, now) {
-  const { duel, state } = game;
+  const { duel } = game;
   if (round.step >= round.roundSteps || round.heard?.e === 1) {
     round.sent = true;
-    duel.end(duel.raceTime(now), stateOf(round, { paused: false, ended: true }));
+    duel.end(duel.raceTime(now), stateOf(round, { ended: true }));
     return;
   }
-  duel.send(duel.raceTime(now), stateOf(round, { paused: state.paused, ended: false }), now, { soon: round.urgent });
+  duel.send(duel.raceTime(now), stateOf(round, { ended: false }), now, { soon: round.urgent });
   round.urgent = false;
 }
 
 function play(game, round, now) {
   listen(game, round);
-  if (round.sent || game.state.paused || round.heard?.p === 1) {
+  if (round.sent) {
     round.steps.reset();
     review(game, round, now);
   } else stepRound(game, round, now);

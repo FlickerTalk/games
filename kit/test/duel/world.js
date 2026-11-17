@@ -7,7 +7,8 @@ export function liveWorld({ latency = 40, make }) {
   const phones = {};
   for (const name of ["a", "b"]) {
     const core = fakeCore();
-    phones[name] = { name, core, closed: false };
+    const page = Object.assign(new EventTarget(), { hidden: false });
+    phones[name] = { name, core, page, closed: false };
   }
   for (const name of ["a", "b"]) phones[name].made = make(phones[name], { clock: () => clock.now });
   const other = (name) => (name === "a" ? phones.b : phones.a);
@@ -32,9 +33,14 @@ export function liveWorld({ latency = 40, make }) {
     const end = clock.now + ms;
     while (clock.now < end) {
       clock.now = Math.min(end, clock.now + frame);
-      for (const phone of [phones.a, phones.b]) if (!phone.closed) each(phone, clock.now);
+      for (const phone of [phones.a, phones.b]) if (!phone.closed && !phone.page.hidden) each(phone, clock.now);
       await deliver();
     }
   };
-  return { phones, clock, queue, held, pass, deliver };
+  const hide = (name, hidden = true) => {
+    const { page } = phones[name];
+    page.hidden = hidden;
+    page.dispatchEvent(new Event("visibilitychange"));
+  };
+  return { phones, clock, queue, held, pass, deliver, hide };
 }

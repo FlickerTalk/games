@@ -1,5 +1,5 @@
 import { standIn } from "../../../kit/src/avatars/index.js";
-import { DIGITS, drawDigits, drawPause, drawRoundButton, formatNumber, pauseLayout } from "../../../kit/src/canvas/index.js";
+import { DIGITS, drawDigits, drawPause, formatNumber, pauseLayout } from "../../../kit/src/canvas/index.js";
 import { circle, clamp, roundedRect } from "../../../kit/src/canvas/pen.js";
 import { drawDragHand, drawGoalSplash, drawHitBurst, drawWideEffect } from "./bursts.js";
 import { drawDragZone, drawPlayBar, drawScoreLights } from "./hud.js";
@@ -172,7 +172,6 @@ export function drawPlay(ctx, game, theme, time) {
   const now = game.now();
   field(ctx, state, theme, time);
   countdown(ctx, state, theme, now);
-  if (round.theirs?.p === 1 && !state.paused) drawRoundButton(ctx, "pause", layout.table.x + layout.table.w / 2, layout.table.y + layout.table.h / 2, 88, theme.ui);
   const bar = { me: state.player, rival: rivalOf(state), left: leftOf(round), sound: state.sound, press: state.press, lang: state.lang };
   drawPlayBar(ctx, layout, bar, theme, time);
   if (state.paused) drawPause(ctx, state, theme.ui, { layout: pauseLayout(state.width, state.height, { fill: state.fill }) });

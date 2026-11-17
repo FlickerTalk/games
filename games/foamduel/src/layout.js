@@ -45,8 +45,8 @@ function duelIn(yard) {
   return { size, ground, knights: [{ x: middle - spread, y: ground }, { x: middle + spread, y: ground }], signal };
 }
 
-export function playLayout(width, height, { fill = false, pair = false } = {}) {
-  const bar = barLayout(width, height, { rival: true });
+export function playLayout(width, height, { fill = false, pair = false, pause = true } = {}) {
+  const bar = barLayout(width, height, { rival: true, pause });
   const top = bar.bar.y + bar.bar.h + GAP;
   const wide = Math.min(width - 2 * PAD, MOST);
   const stage = box((width - wide) / 2, top, wide, height - PAD - top);
@@ -66,7 +66,7 @@ export function playTargets(layout, { volume = false } = {}) {
   const { pause, speaker, music } = layout.controls;
   const targets = [
     ...layout.pads.map((pad, seat) => ({ kind: "strike", value: seat, ...pad })),
-    { kind: "pause", value: "pause", ...pause },
+    ...(pause ? [{ kind: "pause", value: "pause", ...pause }] : []),
     { kind: "speaker", value: "speaker", ...speaker },
     { kind: "music", value: "music", ...music },
   ];

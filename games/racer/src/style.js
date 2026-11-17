@@ -13,6 +13,8 @@ ft-racer canvas{display:block;width:100%;height:100%;touch-action:none}
 ft-racer .go{position:absolute;margin:0;padding:0;border:0;border-radius:50%;background:transparent;cursor:pointer;touch-action:none;-webkit-appearance:none;appearance:none}
 ft-racer .go[hidden]{display:none}
 ft-racer .go:focus-visible{outline:4px solid ${TEXT};outline-offset:2px}
+ft-racer .note{position:absolute;box-sizing:border-box;margin:0;padding:0 8px;overflow:hidden;text-align:center;font:700 16px/1.25 system-ui,sans-serif;color:${TEXT};pointer-events:none}
+ft-racer .note[hidden]{display:none}
 ft-racer .sound-switch{position:absolute;z-index:1;box-sizing:border-box;width:44px;height:44px;margin:0;padding:0;display:flex;align-items:center;justify-content:center;border:3px solid ${EDGE};border-radius:50%;background:${PANEL};color:${TEXT};box-shadow:0 3px 0 #243247;cursor:pointer;touch-action:manipulation;-webkit-appearance:none;appearance:none}
 ft-racer .sound-switch svg{width:24px;height:24px;pointer-events:none}
 ft-racer .sound-switch[aria-pressed=false]{background:${OFF};color:${OFF_TEXT}}

@@ -22,3 +22,7 @@ export function switchLabels(lang) {
   const { sound, music, volume } = textsFor(lang);
   return { sound, music, volume };
 }
+
+export function goneLabel(lang) {
+  return textsFor(lang).away;
+}

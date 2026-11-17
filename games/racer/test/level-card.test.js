@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import * as garage from '../src/art-garage.js';
 import * as vehicles from '../src/art-vehicles.js';
 import * as cars from '../src/art-cars.js';
-import { drawLevelCard, levelCardBox, levelCardGoButton, levelCardGarageButton, levelCardRobotButton, VEHICLE_COLORS, PALETTE } from '../src/art.js';
+import { drawLevelCard, levelCardBox, levelCardGoButton, levelCardGarageButton, levelCardNoteBox, levelCardRobotButton, VEHICLE_COLORS, PALETTE } from '../src/art.js';
 import { SWITCH_BAND } from '../src/layout.js';
 import { pointTracker } from './point-tracker.js';
 
@@ -134,6 +134,35 @@ test('coming second gets its own happy card, with confetti, never a sad one', ()
   drawLevelCard(won.ctx, { width: 384, height: 760, level: 2, result: 'won', time: 1, rival: { vehicle: { kind: 'bus' }, status: 'here' } });
   assert.ok(second.fills.length > start.fills.length + 15);
   assert.ok(Math.abs(second.fills.length - won.fills.length) <= 3);
+});
+
+test('when the friend left their empty place carries a red cross, as a friend who is ready carries a green tick', () => {
+  const card = (status) => {
+    const tracked = pointTracker();
+    drawLevelCard(tracked.ctx, { width: 384, height: 760, level: 2, result: 'start', time: 0.4, offerRobot: true, rival: { vehicle: null, status } });
+    return tracked.fills;
+  };
+  const reds = (fills) => fills.filter((fill) => fill === PALETTE.trafficRed).length;
+  const gone = card('gone');
+  const asleep = card('asleep');
+  assert.equal(reds(gone), reds(asleep) + 1);
+});
+
+test('when the friend left the start flag makes room on the card for the line that says so, clear of the number, the cars and the buttons', () => {
+  const inside = (box) => ([x, y]) => x > box.x + 2 && x < box.x + box.width - 2 && y > box.y + 2 && y < box.y + box.height - 2;
+  for (const [width, height] of STAGES) {
+    const box = levelCardNoteBox(width, height);
+    const card = levelCardBox(width, height);
+    assert.ok(box.height >= 30 && box.width >= 160, `${width}x${height}`);
+    assert.ok(box.x >= card.x && box.x + box.width <= card.x + card.width, `${width}x${height}`);
+    for (const other of [levelCardGarageButton(width, height), levelCardGoButton(width, height), levelCardRobotButton(width, height)]) assert.ok(!overlap(box, other), `${width}x${height}`);
+    const gone = pointTracker();
+    drawLevelCard(gone.ctx, { width, height, level: 12, result: 'start', time: 0.4, offerRobot: true, rival: { vehicle: null, status: 'gone' } });
+    assert.equal(gone.points.filter(inside(box)).length, 0, `${width}x${height}`);
+    const asleep = pointTracker();
+    drawLevelCard(asleep.ctx, { width, height, level: 12, result: 'start', time: 0.4, offerRobot: true, rival: { vehicle: null, status: 'asleep' } });
+    assert.ok(asleep.points.filter(inside(box)).length > 0, `${width}x${height}`);
+  }
 });
 
 test('when the friend is gone the card offers the robot with a button of its own, clear of the others', () => {

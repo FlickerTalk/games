@@ -1,7 +1,7 @@
 import { test } from 'vitest';
 import assert from 'node:assert/strict';
 import { TEXTS } from '../src/texts.js';
-import { startLabel, switchLabels } from '../src/labels.js';
+import { goneLabel, startLabel, switchLabels } from '../src/labels.js';
 
 test('the go label names the level in the reader\'s language', () => {
   assert.equal(startLabel('en', 12), 'Start level 12');
@@ -23,4 +23,11 @@ test('the sound and music buttons and the volume line are named in the reader\'s
   assert.deepEqual(switchLabels('es-MX'), { sound: 'Sonido', music: 'Música', volume: 'Volumen' });
   assert.deepEqual(switchLabels('xx'), switchLabels('en'));
   for (const lang of Object.keys(TEXTS)) assert.ok(switchLabels(lang).sound && switchLabels(lang).music && switchLabels(lang).volume, lang);
+});
+
+test('the line for a friend who left says it in the reader\'s language, as the canvas duels do', () => {
+  assert.equal(goneLabel('en'), 'Your friend does not have the game open');
+  assert.equal(goneLabel('es-MX'), 'Tu amigo no tiene el juego abierto');
+  assert.equal(goneLabel('xx'), goneLabel('en'));
+  for (const lang of Object.keys(TEXTS)) assert.ok(goneLabel(lang), lang);
 });

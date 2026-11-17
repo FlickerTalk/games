@@ -67,10 +67,11 @@ export function memoryStore(values = {}) {
 export async function setUp({ store = memoryStore(), options = { seed: 3 }, opening, app, sound, switches } = {}) {
   const canvas = quietCanvas();
   const goButton = document.createElement('button');
+  const note = document.createElement('p');
   const keyTarget = new EventTarget();
   const page = Object.assign(new EventTarget(), { visibilityState: 'visible', documentElement: { lang: 'en' } });
   const frames = fakeFrames();
-  const session = createSession({ canvas, goButton, keyTarget, page, store, options, frames, opening, app, sound, switches });
+  const session = createSession({ canvas, goButton, note, keyTarget, page, store, options, frames, opening, app, sound, switches });
   session.resize({ width: 384, height: 760, dpr: 1 });
   await session.ready;
   let now = 1000;
@@ -84,5 +85,5 @@ export async function setUp({ store = memoryStore(), options = { seed: 3 }, open
     now += milliseconds;
     frames.run(now);
   };
-  return { session, canvas, goButton, keyTarget, page, frames, store, play, later };
+  return { session, canvas, goButton, note, keyTarget, page, frames, store, play, later };
 }

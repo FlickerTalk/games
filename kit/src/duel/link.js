@@ -18,7 +18,7 @@ function wrap(check) {
 
 // A canvas game's live link to the other phone: only with a person, never against FlickerTalk; silent until start().
 export class CanvasDuel {
-  constructor({ ft, g, gv, app, check, clock = () => performance.now(), timing = {}, onChange = () => {}, onState = () => {}, newId }) {
+  constructor({ ft, g, gv, app, check, clock = () => performance.now(), timing = {}, onChange = () => {}, onState = () => {}, newId, page = globalThis.document }) {
     this.clock = new LiveClock();
     this.follow = new Follow();
     this.onChange = onChange;
@@ -35,6 +35,9 @@ export class CanvasDuel {
       ...(newId ? { newId } : {}),
     });
     ft.live?.onMessage?.((data) => this.session.heard(data));
+    this.page = page;
+    this.shown = () => this.away();
+    page?.addEventListener?.("visibilitychange", this.shown);
   }
 
   get phase() {
@@ -77,7 +80,15 @@ export class CanvasDuel {
       this.latest = null;
       this.latestT = null;
     }
+    if (this.away()) return;
     this.onChange();
+  }
+
+  // the round ends for both rather than wait for a phone that cannot play it
+  away() {
+    if (!this.page?.hidden || !this.session.running) return false;
+    this.session.stop();
+    return true;
   }
 
   heard(s, t, at) {
@@ -130,5 +141,10 @@ export class CanvasDuel {
 
   leave() {
     this.session.stop();
+  }
+
+  close() {
+    this.page?.removeEventListener?.("visibilitychange", this.shown);
+    this.leave();
   }
 }

@@ -7,7 +7,7 @@ import { STEP_MS } from "./table.js";
 import { DUEL, checkState, stateOf } from "./wire.js";
 
 export function joinFriend(game) {
-  game.duel = new CanvasDuel({ ft: game.ft, g: DUEL.g, gv: DUEL.gv, app: game.app, check: checkState, clock: game.now, onChange: () => changed(game) });
+  game.duel = new CanvasDuel({ ft: game.ft, g: DUEL.g, gv: DUEL.gv, app: game.app, check: checkState, clock: game.now, page: game.page, onChange: () => changed(game) });
 }
 
 export function startFriend(game) {
@@ -68,7 +68,7 @@ function apply(game, round, now) {
 
 function tell(game, round, now) {
   const { duel, state } = game;
-  const said = { look: state.progress.chosen.paddle, paused: state.paused, ended: false };
+  const said = { look: state.progress.chosen.paddle, ended: false };
   if (round.match.over || round.theirs?.e === 1) {
     round.sent = true;
     duel.end(duel.raceTime(now), stateOf(round.match, round.seat, { ...said, ended: true }));
@@ -79,10 +79,9 @@ function tell(game, round, now) {
 }
 
 function play(game, round, now) {
-  const { state } = game;
   apply(game, round, now);
   round.theirX = game.duel.other(now)?.x ?? null;
-  if (round.sent || state.paused || round.theirs?.p === 1) round.steps.reset();
+  if (round.sent) round.steps.reset();
   else {
     const mine = (event) => (event.kind === "hit" || event.kind === "goal") && event.seat === round.seat;
     round.urgent ||= stepRound(game, round).some(mine);

@@ -319,6 +319,60 @@ describe("a race between two phones", () => {
     expect(b.core.sent.length).toBe(sent);
   });
 
+  it("counts down on both phones when this phone's start was refused and the other starts a moment later", async () => {
+    const world = phones();
+    const { a, b } = world;
+    a.core.reachable = false;
+    a.session.start();
+    await world.pass(100);
+    expect([a.session.phase, a.session.notice]).toEqual(["left", "unreachable"]);
+    a.core.reachable = true;
+    await world.pass(1600);
+    b.session.start();
+    await world.pass(400);
+    expect(a.session.id).toBe(b.session.id);
+    expect([a.session.phase, b.session.phase]).toEqual(["countdown", "countdown"]);
+  });
+
+  it("only invites a phone whose refused start is long past when the other starts", async () => {
+    const world = phones();
+    const { a, b } = world;
+    a.core.reachable = false;
+    a.session.start();
+    await world.pass(100);
+    a.core.reachable = true;
+    await world.pass(LIVE_TIMING.answer + 500);
+    b.session.start();
+    await world.pass(400);
+    expect([a.session.phase, b.session.phase]).toEqual(["lobby", "lobby"]);
+    expect(a.session.ready).toEqual({ me: false, them: true });
+  });
+
+  it("does not let a message of a race it already left, refused late, end the next one", async () => {
+    const world = withClock(phones());
+    const { a, b } = world;
+    await lobby(world);
+    await world.pass(LIVE_TIMING.countdown + 500, drive({ a: 1, b: 1 }));
+    let late;
+    a.core.ft.live.send.mockImplementationOnce((data) => {
+      a.core.sent.push(data);
+      return new Promise((resolve) => (late = resolve));
+    });
+    a.session.stop();
+    a.closed = true;
+    await world.pass(LIVE_TIMING.silence + 500, drive({ a: 1, b: 1 }));
+    expect([b.session.phase, b.session.notice]).toEqual(["left", "silent"]);
+    a.closed = false;
+    a.session.start();
+    late(false);
+    await world.pass(1700);
+    expect(a.session.phase).not.toBe("left");
+    b.session.start();
+    await world.pass(400);
+    expect(a.session.id).toBe(b.session.id);
+    expect([a.session.phase, b.session.phase]).toEqual(["countdown", "countdown"]);
+  });
+
   it("finds one race when both start at the same moment", async () => {
     const world = phones();
     world.a.session.start();

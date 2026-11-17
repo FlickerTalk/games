@@ -6,7 +6,7 @@ import { decodeClaims, tally } from "./waves.js";
 import { DUEL, checkState, stateOf } from "./wire.js";
 
 export function joinFriend(game) {
-  game.duel = new CanvasDuel({ ft: game.ft, g: DUEL.g, gv: DUEL.gv, app: game.app, check: checkState, clock: game.now, onChange: () => changed(game) });
+  game.duel = new CanvasDuel({ ft: game.ft, g: DUEL.g, gv: DUEL.gv, app: game.app, check: checkState, clock: game.now, page: game.page, onChange: () => changed(game) });
 }
 
 export function startFriend(game) {
@@ -58,16 +58,16 @@ function tell(game, round, now) {
   const { duel, state } = game;
   if (overOf(round) || round.heard?.e === 1) {
     round.sent = true;
-    duel.end(duel.raceTime(now), stateOf(round, { hull: hullNow(state), paused: false, ended: true }));
+    duel.end(duel.raceTime(now), stateOf(round, { hull: hullNow(state), ended: true }));
     return;
   }
-  duel.send(duel.raceTime(now), stateOf(round, { hull: hullNow(state), paused: state.paused, ended: false }), now, { soon: round.urgent });
+  duel.send(duel.raceTime(now), stateOf(round, { hull: hullNow(state), ended: false }), now, { soon: round.urgent });
   round.urgent = false;
 }
 
 function play(game, round, now) {
   listen(game, round, now);
-  if (round.sent || game.state.paused || round.heard?.p === 1) round.steps.reset();
+  if (round.sent) round.steps.reset();
   else round.urgent = stepRound(game, round) || round.urgent;
   if (!round.sent) tell(game, round, now);
 }

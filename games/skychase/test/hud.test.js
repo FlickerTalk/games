@@ -26,4 +26,13 @@ describe("the bar", () => {
     const empty = draw((pen) => drawPlayBar(pen, layout, { ...state, left: 0 }, THEME, 0));
     expect(full.calls.length).toBeGreaterThan(empty.calls.length);
   });
+
+  it("puts the rival's face beside the sound button when the bar has no pause", () => {
+    const layout = barOf(384, 801, { pause: false });
+    const state = { lang: "en", press: null, sound: { level: "high", music: true, open: false, volume: 1 }, me: { who: "ari", hair: "none", hairColour: "ink" }, rival: { who: "flick" }, left: 0.4 };
+    const ctx = draw((pen) => drawPlayBar(pen, layout, state, THEME, 0));
+    const faces = ctx.calls.filter((call) => call.op === "arc" && Math.abs(call.radius - (layout.row - 12) * 0.48) < 0.01);
+    expect(Math.max(...faces.map((call) => call.points[0][0]))).toBeCloseTo(layout.controls.speaker.x - 6 - (layout.row - 12) / 2, 5);
+    expect(bounds(painted(ctx)).right).toBeLessThanOrEqual(layout.bar.x + layout.bar.w + 1);
+  });
 });

@@ -6,15 +6,16 @@ import { clampToRoad } from './track.js';
 import { stageFor } from './layout.js';
 import { levelKey, loadLevel, saveLevel, loadProfile, saveProfile } from './progress.js';
 import { noteLevel } from './profile.js';
-import { startLabel } from './labels.js';
+import { goneLabel, startLabel } from './labels.js';
 import { createOpening } from './opening.js';
 import { tapScreen, noteWins, screenHud, vehicleOf } from './session-garage.js';
-import { joinDuel, stepDuel, duelHud, duelGoShown } from './session-duel.js';
+import { joinDuel, stepDuel, duelHud, duelCardUp, duelGoShown } from './session-duel.js';
 import { attachSound, syncSound, placeSoundSwitches, keepSoundSettings } from './session-sound.js';
 import { loadSoundSettings } from './sound-settings.js';
 
 const GO_TARGET_MARGIN = 14;
 const TOUCH_FADE_SECONDS = 0.45;
+const NOTE_FONT = { most: 16, least: 11 };
 const BROWSER_FRAMES = {
   request: (callback) => requestAnimationFrame(callback),
   cancel: (id) => cancelAnimationFrame(id),
@@ -24,10 +25,10 @@ const px = (value) => `${value}px`;
 const randomSeed = () => Math.floor(Math.random() * 100000) + 1;
 
 export function createSession(parts) {
-  const { canvas, goButton, keyTarget, page, store, app, options = {}, frames = BROWSER_FRAMES, opening = createOpening(), sound, switches } = parts;
+  const { canvas, goButton, note = null, keyTarget, page, store, app, options = {}, frames = BROWSER_FRAMES, opening = createOpening(), sound, switches } = parts;
   const renderer = createRenderer(canvas);
   const run = {
-    renderer, goButton, page, store, frames, clock: createClock(), opened: null, key: levelKey(null),
+    renderer, goButton, note, page, store, frames, clock: createClock(), opened: null, key: levelKey(null),
     game: null, best: 1, hintPending: true, hidden: page.visibilityState === 'hidden', pressesAtPause: 0, frame: null, alive: true,
     releasesSeen: 0, releasedAt: null, canvas, profile: null, screen: null, winsSeen: 0, seconds: 0, garageOpened: false,
     duel: null, duelView: null, nowMs: 0,
@@ -117,7 +118,10 @@ function wire(run, keyTarget) {
   };
   const onVisibility = () => {
     run.hidden = run.page.visibilityState === 'hidden';
-    if (run.hidden) pause(run);
+    if (run.hidden) {
+      pause(run);
+      run.duel?.away();
+    }
     run.clock.reset();
   };
   const onTap = (event) => tapScreen(run, { x: event.offsetX, y: event.offsetY });
@@ -166,6 +170,7 @@ function frame(run, now) {
   if (run.duel) stepDuel(run, input, now);
   else if (run.game && !run.hidden) advance(run, input, dt, seconds);
   syncGoButton(run);
+  syncNote(run);
   syncSound(run);
   run.renderer.draw(currentGame(run), seconds, {
     hint: hintShown(run), touch: touchAt(run, seconds), vehicle: vehicleOf(run), screen: screenHud(run, seconds), garageHint: !run.garageOpened,
@@ -193,6 +198,29 @@ function syncGoButton(run) {
   if (!waiting) return;
   const label = startLabel(run.page.documentElement?.lang, run.duel ? run.duelView.card.level : run.game.level);
   if (run.goButton.getAttribute('aria-label') !== label) run.goButton.setAttribute('aria-label', label);
+}
+
+function syncNote(run) {
+  const { note } = run;
+  if (!note) return;
+  const gone = Boolean(run.duel && !run.screen && duelCardUp(run) && run.duelView.card.rival.status === 'gone');
+  if (note.hidden === gone) note.hidden = !gone;
+  if (!gone) return;
+  const text = goneLabel(run.page.documentElement?.lang);
+  const box = run.renderer.noteBox();
+  const key = `${text}|${box.x},${box.y},${box.width},${box.height}`;
+  if (run.noted === key) return;
+  run.noted = key;
+  note.textContent = text;
+  layOutNote(note, box);
+}
+
+function layOutNote(note, box) {
+  Object.assign(note.style, { left: px(box.x), top: px(box.y), width: px(box.width), maxHeight: px(box.height) });
+  let size = NOTE_FONT.most;
+  note.style.fontSize = px(size);
+  while (size > NOTE_FONT.least && note.scrollHeight > note.clientHeight + 1) note.style.fontSize = px((size -= 1));
+  note.style.top = px(box.y + Math.max(0, (box.height - note.offsetHeight) / 2));
 }
 
 function resize(run, { width, height, dpr }) {

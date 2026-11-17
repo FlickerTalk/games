@@ -1,5 +1,5 @@
 import { drawAvatar, standIn } from "../../../kit/src/avatars/index.js";
-import { DIGITS, drawDigits, drawPause, drawRoundButton, formatNumber, pauseLayout } from "../../../kit/src/canvas/index.js";
+import { DIGITS, drawDigits, drawPause, formatNumber, pauseLayout } from "../../../kit/src/canvas/index.js";
 import { circle, clamp, roundedRect } from "../../../kit/src/canvas/pen.js";
 import { drawAircraft } from "./aircraft.js";
 import { apart, hidden, shipAt } from "./arena.js";
@@ -163,7 +163,6 @@ export function drawPlay(ctx, game, theme, time) {
   for (const one of actors) drawTally(ctx, layout.tallies[one.mine ? 0 : 1], one.balloons, theme, { squared: one.squared });
   hint(ctx, state, mine, theme, time);
   countdown(ctx, state, theme, game.now());
-  if (round.theirs?.p === 1 && !state.paused) drawRoundButton(ctx, "pause", arena.x + arena.w / 2, arena.y + arena.h / 2, 88, theme.ui);
   drawPlayBar(ctx, layout, { me: state.player, rival: whoOf(state, 1 - round.seat), left: leftOf(round), sound: state.sound, press: state.press, lang: state.lang }, theme, time);
   if (state.paused) drawPause(ctx, state, theme.ui, { layout: pauseLayout(state.width, state.height, { fill: state.fill }) });
 }

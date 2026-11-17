@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { overlap } from "../../../kit/src/canvas/layout.js";
-import { checkTargets, eachSize, inside } from "../../../kit/test/canvas/sizes.js";
+import { SIZES, checkTargets, eachSize, inside } from "../../../kit/test/canvas/sizes.js";
 import { TALL, WIDE } from "../src/arena.js";
 import { TALLY, headingOn, playLayout, playTargets, pointOf, skyAt } from "../src/layout.js";
 
@@ -94,5 +94,14 @@ describe("the play screen's layout", () => {
     const [x2, y2] = pointOf(layout, 0.5, 0.6);
     expect(x2).toBeLessThan(x1);
     expect(y2).toBeCloseTo(y1, 6);
+  });
+
+  it("leaves the pause out of the bar of a round with a friend, sound and music where they were", () => {
+    for (const [width, height, fill] of SIZES) {
+      const layout = playLayout(width, height, { fill, pause: false });
+      expect(layout.controls.pause).toBeNull();
+      expect(playTargets(layout).some((one) => one.kind === "pause")).toBe(false);
+      expect(layout.controls.speaker).toEqual(playLayout(width, height, { fill }).controls.speaker);
+    }
   });
 });

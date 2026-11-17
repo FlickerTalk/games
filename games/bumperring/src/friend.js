@@ -11,7 +11,7 @@ const NUDGE_MS = 320;
 const URGENT = ["dash", "bump", "fall", "back"];
 
 export function joinFriend(game) {
-  game.duel = new CanvasDuel({ ft: game.ft, g: DUEL.g, gv: DUEL.gv, app: game.app, check: checkState, clock: game.now, onChange: () => changed(game) });
+  game.duel = new CanvasDuel({ ft: game.ft, g: DUEL.g, gv: DUEL.gv, app: game.app, check: checkState, clock: game.now, page: game.page, onChange: () => changed(game) });
 }
 
 export function startFriend(game) {
@@ -69,7 +69,7 @@ function apply(game, round, now) {
 
 function tell(game, round, now) {
   const { duel, state } = game;
-  const said = { look: state.progress.chosen.ring, paused: state.paused, ended: false };
+  const said = { look: state.progress.chosen.ring, ended: false };
   if (round.match.over || round.theirs?.e === 1) {
     round.sent = true;
     duel.end(duel.raceTime(now), stateOf(round.match, round.seat, { ...said, ended: true }));
@@ -89,7 +89,7 @@ function step(game, round, now) {
 
 function play(game, round, now) {
   apply(game, round, now);
-  if (round.sent || game.state.paused || round.theirs?.p === 1) round.steps.reset();
+  if (round.sent) round.steps.reset();
   else step(game, round, now);
   if (!round.sent) tell(game, round, now);
 }

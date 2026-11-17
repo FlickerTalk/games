@@ -47,9 +47,9 @@ function targetsOf(game) {
   return [];
 }
 
-export function createGame({ ft, sound, controls, app = "1.0.0", now = () => performance.now(), random = Math.random, onAsk = () => {}, onChange = () => {} }) {
+export function createGame({ ft, sound, controls, app = "1.0.0", now = () => performance.now(), random = Math.random, page, onAsk = () => {}, onChange = () => {} }) {
   const state = freshState();
-  const game = { ft, store: ft.store, sound, controls, app, now, random, onAsk, onChange, state, duel: null, pending: Promise.resolve() };
+  const game = { ft, store: ft.store, sound, controls, app, now, random, page, onAsk, onChange, state, duel: null, pending: Promise.resolve() };
 
   game.run = (task) => {
     game.pending = game.pending.then(task).catch((error) => globalThis.console?.warn?.("balloon fair:", error?.message ?? error)).finally(() => game.onChange());
@@ -75,7 +75,7 @@ export function createGame({ ft, sound, controls, app = "1.0.0", now = () => per
 
   game.resize = (width, height, fill) => {
     const rival = state.round ? state.round.kind !== "alone" : state.mode !== "alone";
-    Object.assign(state, { width, height, fill: Boolean(fill), layout: playLayout(width, height, { fill, rival }) });
+    Object.assign(state, { width, height, fill: Boolean(fill), layout: playLayout(width, height, { fill, rival, pause: state.mode !== "friend" }) });
   };
 
   game.targets = () => targetsOf(game);
@@ -101,6 +101,6 @@ export function createGame({ ft, sound, controls, app = "1.0.0", now = () => per
     return undefined;
   };
   game.resting = () => state.screen === "play" && state.paused && !game.duel;
-  game.close = () => game.duel?.leave();
+  game.close = () => game.duel?.close();
   return game;
 }

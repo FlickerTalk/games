@@ -9,14 +9,14 @@ const PAD = 8;
 const GAP = 8;
 const TURN = 88;
 
-export function barOf(width, height) {
+export function barOf(width, height, { pause = true } = {}) {
   const row = height < 420 ? 48 : 56;
   const bar = box(PAD, PAD, width - 2 * PAD, row);
   const music = box(bar.x + bar.w - row, bar.y, row, row);
   const speaker = box(music.x - row, bar.y, row, row);
-  const pause = box(speaker.x - row, bar.y, row, row);
+  const controls = { pause: pause ? box(speaker.x - row, bar.y, row, row) : null, speaker, music };
   const volume = box(Math.max(PAD, Math.min(width - PAD - 240, speaker.x + speaker.w / 2 - 120)), bar.y + bar.h + 6, 240, 64);
-  return { bar, row, controls: { pause, speaker, music }, volume };
+  return { bar, row, controls, volume };
 }
 
 function fitted(room, side) {
@@ -47,8 +47,8 @@ function beside(stage) {
   });
 }
 
-export function playLayout(width, height, { fill = false } = {}) {
-  const bar = barOf(width, height);
+export function playLayout(width, height, { fill = false, pause = true } = {}) {
+  const bar = barOf(width, height, { pause });
   const top = bar.bar.y + bar.bar.h + GAP;
   const stage = box(PAD, top, width - 2 * PAD, height - PAD - top);
   const chosen = [...above(stage), ...beside(stage)].reduce((best, one) => (one.arena.unit > best.arena.unit * 1.02 ? one : best));
@@ -74,7 +74,7 @@ export const headingOn = ({ arena }, hx, hy) => (arena.side ? [hy, 0 - hx] : [hx
 export function playTargets(layout, { volume = false } = {}) {
   const { pause, speaker, music } = layout.controls;
   const targets = [
-    { kind: "pause", value: "pause", ...pause },
+    ...(pause ? [{ kind: "pause", value: "pause", ...pause }] : []),
     { kind: "speaker", value: "speaker", ...speaker },
     { kind: "music", value: "music", ...music },
     { kind: "steer", value: "left", ...layout.turns[0] },

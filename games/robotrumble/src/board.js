@@ -1,5 +1,5 @@
 import { standIn } from "../../../kit/src/avatars/index.js";
-import { DIGITS, drawDigits, drawHintHand, drawPause, drawRoundButton, formatNumber, pauseLayout } from "../../../kit/src/canvas/index.js";
+import { DIGITS, drawDigits, drawHintHand, drawPause, formatNumber, pauseLayout } from "../../../kit/src/canvas/index.js";
 import { centreOf } from "../../../kit/src/canvas/layout.js";
 import { circle, clamp, ease, mix } from "../../../kit/src/canvas/pen.js";
 import { energyOf, lampsOf } from "./bout.js";
@@ -163,7 +163,6 @@ export function drawPlay(ctx, game, theme, time) {
   buttons(ctx, state, theme);
   hint(ctx, state, theme, time);
   countdown(ctx, state, theme, now);
-  if (round.heard?.p === 1 && !state.paused) drawRoundButton(ctx, "pause", layout.width / 2, layout.ground - layout.size * 0.55, 88, theme.ui);
   const bar = { me: state.player, rival: rivalOf(round.kind, state.player), left: clamp(leftOf(round)), sound: state.sound, press: state.press, lang: state.lang };
   drawPlayBar(ctx, layout, bar, theme, time);
   if (state.paused) drawPause(ctx, state, theme.ui, { layout: pauseLayout(state.width, state.height, { fill: state.fill }) });

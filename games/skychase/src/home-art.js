@@ -1,6 +1,7 @@
 import { drawAvatar, standIn } from "../../../kit/src/avatars/index.js";
 import { drawHome as drawHomeScreen, drawLooks as drawLooksScreen, drawPresent, homeLayout, looksLayout } from "../../../kit/src/canvas/index.js";
 import { clamp } from "../../../kit/src/canvas/pen.js";
+import { drawFriendLeft } from "../../../kit/src/duel/left.js";
 import { drawLobby, lobbyOf } from "../../../kit/src/duel/lobby.js";
 import { drawAircraft } from "./aircraft.js";
 import { LOOKS, PROGRESS, settingsFor } from "./levels.js";
@@ -71,6 +72,7 @@ export function drawHome(ctx, game, theme, time) {
   });
   const at = (kind) => layout.targets.find((one) => one.kind === kind);
   drawLobby(ctx, { play: at("play"), rival: at("rival") }, lobbyOf(game.duel?.status), theme.ui, time);
+  drawFriendLeft(ctx, at("rival"), game.duel?.status, theme.ui);
 }
 
 export function drawLookArt(ctx, area, look, theme, time, colour) {

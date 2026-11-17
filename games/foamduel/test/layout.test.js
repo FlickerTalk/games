@@ -97,4 +97,13 @@ describe("the play screen's layout", () => {
       buttons.forEach((one, at) => buttons.slice(at + 1).forEach((two) => expect(overlap(one, two), `${name} ${one.kind} ${two.kind}`).toBe(false)));
     });
   });
+
+  it("leaves the pause out of the bar of a round with a friend, sound and music where they were", () => {
+    for (const [width, height, fill] of SIZES) {
+      const layout = playLayout(width, height, { fill, pause: false });
+      expect(layout.controls.pause).toBeNull();
+      expect(playTargets(layout).some((one) => one.kind === "pause")).toBe(false);
+      expect(layout.controls.speaker).toEqual(playLayout(width, height, { fill }).controls.speaker);
+    }
+  });
 });

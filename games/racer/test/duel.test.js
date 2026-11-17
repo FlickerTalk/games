@@ -2,7 +2,10 @@
 import { test } from 'vitest';
 import assert from 'node:assert/strict';
 import { channel, pair, idle, driver } from './duel-channel.js';
-import { openAbout } from '../src/duel-wire.js';
+import { sealLive } from '../../../kit/src/live/wire.js';
+import { createDuel } from '../src/duel.js';
+import { DUEL, kindOf, openAbout } from '../src/duel-wire.js';
+import { normalizeProfile } from '../src/profile.js';
 
 const phase = (duel) => duel.session.phase;
 const road = (duel) => JSON.stringify([duel.game.level, duel.game.track.hazards.map(({ x, distance }) => [x, distance])]);
@@ -70,7 +73,7 @@ test('slow, bunched delivery still gives one race and one result', async () => {
   assert.notEqual(a.session.result.won, b.session.result.won);
 });
 
-test('when the other leaves mid-race the race goes on alone to the line, then offers a new race or the robot', async () => {
+test('when the other leaves mid-race the race ends at once with no winner, on the card that offers a new race or the robot', async () => {
   const net = channel({ delay: 30 });
   const race = pair(net);
   const { a, b } = race.duels;
@@ -80,11 +83,101 @@ test('when the other leaves mid-race the race goes on alone to the line, then of
   net.ends.b.open = false;
   await race.play(200);
   assert.equal(phase(a), 'left');
-  assert.equal(a.view(race.now).stage, 'race');
-  await race.play(90000, { until: () => a.view(race.now).stage === 'card' });
-  assert.equal(a.game.state, 'finished');
-  const { card } = a.view(race.now);
+  const { stage, card } = a.view(race.now);
+  assert.equal(stage, 'card');
   assert.deepEqual([card.offerRobot, card.goShown, card.rival.status], [true, true, 'gone']);
+  assert.deepEqual(race.won, { a: 0, b: 0 });
+});
+
+test('a phone whose page is hidden leaves the race, the other ends it at once with the rival gone, and the one that left comes back to the start card', async () => {
+  const net = channel({ delay: 30 });
+  const race = pair(net);
+  const { a, b } = race.duels;
+  await meet(race);
+  await race.play(5000);
+  race.hide('a');
+  assert.equal(phase(a), 'left');
+  assert.equal(kindOf(net.sent.a.at(-1)), 'bye');
+  await race.play(200);
+  assert.deepEqual([phase(b), b.session.notice], ['left', 'left']);
+  assert.equal(b.view(race.now).card.rival.status, 'gone');
+  race.hide('a', false);
+  await race.play(200);
+  const { stage, card } = a.view(race.now);
+  assert.equal(stage, 'card');
+  assert.deepEqual([card.result, card.goShown, card.offerRobot, card.rival.status], ['start', true, false, 'unknown']);
+  assert.deepEqual(race.won, { a: 0, b: 0 });
+});
+
+test('a phone that was hidden cannot win the race it left, even when its goodbye was lost and it comes back to drive on', async () => {
+  const net = channel({ delay: 30 });
+  const race = pair(net);
+  const { a, b } = race.duels;
+  await meet(race);
+  await race.play(8000);
+  net.lose('a');
+  net.ends.a.open = false;
+  race.hide('a');
+  await race.play(3000);
+  net.lose('a', false);
+  net.ends.a.open = true;
+  race.hide('a', false);
+  await race.play(90000, { until: () => a.view(race.now).stage === 'card' && b.view(race.now).stage === 'card' && phase(b) !== 'running' });
+  assert.equal(a.session.result, null);
+  assert.equal(a.view(race.now).card.result, 'start');
+  assert.deepEqual([phase(b), b.session.notice], ['left', 'left']);
+  assert.deepEqual(race.won, { a: 0, b: 0 });
+});
+
+test('both start the next race when the one that left presses go first, while its link is coming back', async () => {
+  const net = channel({ delay: 30 });
+  const race = pair(net, { timing: { answer: 8000 } });
+  const { a, b } = race.duels;
+  await meet(race);
+  await race.play(5000);
+  net.ends.a.open = false;
+  net.lose('a');
+  race.hide('a');
+  await race.play(8000);
+  assert.deepEqual([phase(b), b.session.notice], ['left', 'silent']);
+  net.ends.a.open = true;
+  net.lose('a', false);
+  race.hide('a', false);
+  net.refuse('a');
+  a.start();
+  await race.play(100);
+  net.refuse('a', false);
+  await race.play(1600);
+  b.start();
+  await race.play(1000, { until: () => phase(a) === 'countdown' && phase(b) === 'countdown' });
+  assert.deepEqual([phase(a), phase(b)], ['countdown', 'countdown']);
+});
+
+test('a race that starts while the page is hidden is left at once', async () => {
+  const net = channel({ delay: 30 });
+  const race = pair(net);
+  const { a, b } = race.duels;
+  a.start();
+  await race.play(1000, { until: () => phase(b) === 'lobby' && phase(a) === 'lobby' });
+  race.hide('a');
+  b.start();
+  await race.play(500);
+  assert.equal(phase(a), 'left');
+  assert.deepEqual([phase(b), b.session.notice], ['left', 'left']);
+});
+
+test('a page hidden before the race starts changes nothing', async () => {
+  const net = channel({ delay: 30 });
+  const race = pair(net);
+  const { a, b } = race.duels;
+  race.hide('a');
+  race.hide('a', false);
+  assert.equal(phase(a), 'idle');
+  a.start();
+  await race.play(1000, { until: () => phase(b) === 'lobby' && phase(a) === 'lobby' });
+  race.hide('a');
+  assert.equal(phase(a), 'lobby');
+  assert.equal(net.sent.a.filter((data) => kindOf(data) === 'bye').length, 0);
 });
 
 test('when nobody answers the card offers to try again or to race the robot', async () => {
@@ -154,4 +247,19 @@ test('the two vehicles start side by side, one on each side of the road', async 
   await meet(race);
   assert.ok(Math.abs(a.game.player.x) > 0.5);
   assert.equal(a.game.player.x, -b.game.player.x);
+});
+
+test('the core refusing the vehicle sent with an earlier start, long after, does not end the race that came after', async () => {
+  const pending = [];
+  const ft = { live: { send: (data) => new Promise((resolve) => pending.push({ kind: kindOf(data), resolve })) } };
+  let made = 0;
+  const duel = createDuel({ ft, profile: normalizeProfile({}), clock: () => 0, newId: () => `m${(made += 1).toString().padStart(12, '0')}` });
+  duel.start();
+  const [earlier] = pending;
+  duel.heard(sealLive({ g: DUEL.g, gv: DUEL.gv, k: 'hello', doc: '0'.repeat(13), who: 'z'.repeat(13), ready: true, app: '0.7.7' }));
+  assert.equal(phase(duel), 'countdown');
+  assert.equal(earlier.kind, 'about');
+  earlier.resolve(false);
+  for (let turn = 0; turn < 4; turn += 1) await null;
+  assert.equal(phase(duel), 'countdown');
 });

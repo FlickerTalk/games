@@ -7,8 +7,8 @@ const SHAPE = 1.3;
 const PART = 32;
 const clamp = (value, low, high) => Math.min(high, Math.max(low, value));
 
-export function playLayout(width, height, { fill = false } = {}) {
-  const bar = barLayout(width, height, { rival: true });
+export function playLayout(width, height, { fill = false, pause = true } = {}) {
+  const bar = barLayout(width, height, { rival: true, pause });
   const top = bar.bar.y + bar.bar.h + GAP;
   const wide = Math.min(width - 2 * PAD, MOST);
   const field = box((width - wide) / 2, top, wide, height - PAD - top);
@@ -29,7 +29,7 @@ export const metricsOf = ({ field, unit, craft }) => ({ w: field.w, h: field.h, 
 export function playTargets(layout, { volume = false } = {}) {
   const { pause, speaker, music } = layout.controls;
   const targets = [
-    { kind: "pause", value: "pause", ...pause },
+    ...(pause ? [{ kind: "pause", value: "pause", ...pause }] : []),
     { kind: "speaker", value: "speaker", ...speaker },
     { kind: "music", value: "music", ...music },
   ];
