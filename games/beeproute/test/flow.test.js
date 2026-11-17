@@ -3,7 +3,18 @@ import { phones, settle } from "../../../kit/test/helpers.js";
 import { shortest } from "../src/solver.js";
 import { makeGame, solve, tap, targetOf } from "./harness.js";
 
-const both = (one, two) => settle([one.game.relay.table, two.game.relay.table]);
+const coin = vi.hoisted(() => ({ first: null }));
+
+vi.mock("../../../kit/src/commit.js", async (importOriginal) => {
+  const real = await importOriginal();
+  const coinToss = (...args) => (coin.first === null ? real.coinToss(...args) : Promise.resolve(coin.first === "creator" ? 0 : 1));
+  return { ...real, coinToss };
+});
+
+async function both(one, two) {
+  await settle([one.game.relay.table, two.game.relay.table]);
+  await Promise.all([one.game.idle(), two.game.idle()]);
+}
 
 async function friends() {
   const { a, b } = phones();
@@ -14,7 +25,6 @@ async function friends() {
 }
 
 async function make(side) {
-  await tap(side.game, targetOf(side.game, "play"));
   expect(side.game.state.screen).toBe("build");
   await tap(side.game, targetOf(side.game, "tool", "battery"));
   await tap(side.game, targetOf(side.game, "cell", 12));
@@ -23,7 +33,10 @@ async function make(side) {
 
 describe("with a friend", () => {
   beforeEach(() => vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout"] }));
-  afterEach(() => vi.useRealTimers());
+  afterEach(() => {
+    vi.useRealTimers();
+    coin.first = null;
+  });
 
   it("says nothing when the game opens, and calls the friend only when the player starts", async () => {
     const { one, a } = await friends();
@@ -33,13 +46,36 @@ describe("with a friend", () => {
     expect(one.game.state.screen).toBe("home");
   });
 
-  it("one makes a level, the other solves it, and the maker watches the solution", async () => {
+  it("takes the player from one press of play to the build screen when the coin has them make the first level", async () => {
+    coin.first = "creator";
     const { one, two } = await friends();
     await tap(one.game, targetOf(one.game, "play"));
     await both(one, two);
-    const [maker, solver] = one.game.relay.duty() === "build" ? [one, two] : [two, one];
-    await make(maker);
+    expect(one.game.relay.duty()).toBe("build");
+    expect(one.game.state.screen).toBe("build");
+  });
+
+  it("keeps the player who pressed play waiting while the friend makes the first level, then opens it as it arrives", async () => {
+    coin.first = "joiner";
+    const { one, two } = await friends();
+    await tap(one.game, targetOf(one.game, "play"));
     await both(one, two);
+    expect(one.game.state.screen).toBe("home");
+    await tap(two.game, targetOf(two.game, "play"));
+    await make(two);
+    await both(one, two);
+    expect(one.game.state.screen).toBe("play");
+    expect(one.game.state.round).toMatchObject({ kind: "friend", maker: "friend" });
+    expect(one.game.state.round.level.cells[12]).toBe("B");
+  });
+
+  it("one makes a level, the other solves it, and the maker watches the solution", async () => {
+    coin.first = "creator";
+    const { one: maker, two: solver } = await friends();
+    await tap(maker.game, targetOf(maker.game, "play"));
+    await both(maker, solver);
+    await make(maker);
+    await both(maker, solver);
     expect(maker.game.state.screen).toBe("home");
     expect(maker.game.relay.duty()).toBe("wait");
     await tap(solver.game, targetOf(solver.game, "play"));
@@ -48,7 +84,7 @@ describe("with a friend", () => {
     await solve(solver.game, solver.later);
     expect(solver.game.state.screen).toBe("end");
     expect(solver.game.state.outcome.kind).toBe("friend");
-    await both(one, two);
+    await both(maker, solver);
     expect(maker.game.relay.duty()).toBe("watch");
     await tap(maker.game, targetOf(maker.game, "play"));
     expect(maker.game.state.round).toMatchObject({ kind: "watch", driver: "friend" });

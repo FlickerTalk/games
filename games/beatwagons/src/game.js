@@ -1,7 +1,7 @@
 import { defaultPlayer, loadPlayer, pickLayout, pickPress, savePlayer } from "../../../kit/src/avatars/index.js";
 import { endLayout, foldWhenIdle, homeLayout, looksLayout, pauseLayout, playMode, promptLayout, soundState } from "../../../kit/src/canvas/index.js";
 import { isChat } from "../../../kit/src/store.js";
-import { endRound } from "./flow.js";
+import { endRound, followDuel } from "./flow.js";
 import { composeLayout, layoutTargets, playLayout } from "./layout.js";
 import { LOOKS, PROGRESS } from "./levels.js";
 import { act, renamePlayer } from "./menus.js";
@@ -36,7 +36,7 @@ function freshState() {
   return {
     screen: "home", mode: "alone", lang: "en", chat: null, variant: "levels", taught: false,
     width: 0, height: 0, fill: false, layout: null, player: defaultPlayer(), progress: PROGRESS.fresh(),
-    round: null, build: null, resume: null, moments: [], hint: null, drag: null, paused: false, pausedAt: 0, outcome: null, endAt: null,
+    round: null, build: null, resume: null, moments: [], hint: null, drag: null, paused: false, pausedAt: 0, outcome: null, endAt: null, wanting: false,
     sound: { level: "high", music: true, open: false, volume: 1 }, pick: null, looks: "engine", press: null, volumeAt: 0,
   };
 }
@@ -122,7 +122,8 @@ export function createGame({ ft, sound, controls, app = "1.0.0", now = () => per
     Object.assign(state, await readOwn(game.store));
     state.resume = await readRound(game.store, state);
     if (state.mode === "friend") {
-      game.relay = new Relay({ ft, opening: { ...opening, chat: state.chat }, app, onChange: () => game.onChange() });
+      const heard = () => (state.wanting ? game.run(() => followDuel(game)) : game.onChange());
+      game.relay = new Relay({ ft, opening: { ...opening, chat: state.chat }, app, onChange: heard });
       await game.relay.ready();
     }
     game.syncSound();

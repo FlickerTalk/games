@@ -16,7 +16,7 @@ const newSeed = (game) => seedOf(`${game.random()}/${game.random()}/${game.now()
 
 function onScreen(game, screen) {
   const { state } = game;
-  Object.assign(state, { screen, paused: false, outcome: null, moments: [], endAt: null, press: null, drag: null, hint: null });
+  Object.assign(state, { screen, paused: false, outcome: null, moments: [], endAt: null, press: null, drag: null, hint: null, wanting: false });
   game.relayout();
   game.sound.music("calm");
 }
@@ -62,13 +62,19 @@ function beginWatch(game) {
   startScript(game, replayScript(game.relay.tries()));
 }
 
+const DUTIES = { build: openCompose, solve: beginFriend, watch: beginWatch };
+
 export async function duelNext(game) {
-  const duty = game.relay.duty();
-  if (duty === "build") return openCompose(game);
-  if (duty === "solve") return beginFriend(game);
-  if (duty === "watch") return beginWatch(game);
-  game.state.screen = "home";
+  const open = DUTIES[game.relay.duty()];
+  if (open) return open(game);
+  Object.assign(game.state, { screen: "home", wanting: true });
   return game.relay.start();
+}
+
+export function followDuel(game) {
+  const { state } = game;
+  const open = DUTIES[game.relay.duty()];
+  if (open && state.wanting && state.screen === "home") open(game);
 }
 
 function listen(game) {
