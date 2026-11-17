@@ -3,7 +3,7 @@ import { sceneryFor, groundColor } from './scenery.js';
 import { targetZoom, nextZoom } from './camera.js';
 import { drawWorld, onStage } from './draw-world.js';
 import { drawHud, drawTouch, HUD_BOTTOM } from './draw-hud.js';
-import { DAY_THEME, drawLevelCard, levelCardGoButton, levelCardGarageButton, levelCardRobotButton, drawGarage, drawGiftReveal } from './art.js';
+import { DAY_THEME, drawLevelCard, levelCardGoButton, levelCardGarageButton, levelCardNoteBox, levelCardRobotButton, drawGarage, drawGiftReveal } from './art.js';
 
 const NO_HUD = { hint: false, touch: null, vehicle: undefined, screen: null, garageHint: false, card: null, rival: null };
 
@@ -30,6 +30,7 @@ export function createRenderer(canvas) {
     goButton: () => goButtonRect(view),
     garageButton: () => onCanvas(view, levelCardGarageButton(view.width, view.height)),
     robotButton: () => onCanvas(view, levelCardRobotButton(view.width, view.height)),
+    noteBox: () => noteRect(view),
     screenSize: () => ({ width: view.canvasWidth, height: view.canvasHeight }),
     draw: (game, time, hud = NO_HUD) => drawFrame(ctx, view, game, time, { ...NO_HUD, ...hud }),
   };
@@ -92,6 +93,11 @@ function drawCard(ctx, view, game, time, { vehicle, garageHint, card }) {
 
 function onCanvas(view, box) {
   return { ...box, x: box.x + view.offsetX, centerX: box.centerX + view.offsetX };
+}
+
+function noteRect(view) {
+  const box = levelCardNoteBox(view.width, view.height);
+  return { ...box, x: box.x + view.offsetX };
 }
 
 function goButtonRect(view) {

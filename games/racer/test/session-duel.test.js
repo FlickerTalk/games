@@ -4,6 +4,7 @@ import { setUp } from './session-harness.js';
 import { PROFILE_KEY } from '../src/progress.js';
 import { sealLive } from '../../../kit/src/live/wire.js';
 import { DUEL, kindOf, openAbout } from '../src/duel-wire.js';
+import { goneLabel } from '../src/labels.js';
 
 const CHAT = 'aB3_-xYz09aB3_-xYz09aB3_-xYz09aB3_-xYz09aB3';
 const opened = (said) => ({ whenOpened: async () => ({ solo: false, chat: null, lang: 'en', live: false, ...said }) });
@@ -130,6 +131,29 @@ test('in a race with a friend a hidden page leaves the race, and coming back sho
   assert.equal(stage, 'card');
   assert.deepEqual([card.result, card.rival.status], ['start', 'unknown']);
   assert.equal(goButton.hidden, false);
+});
+
+test('in a race with a friend who leaves, a line on the card says so until a new race is asked for', async () => {
+  const app = fakeApp();
+  const { session, goButton, note, play } = await setUp({ opening: opened({ chat: CHAT, live: true }), app });
+  play(0.05);
+  assert.equal(note.hidden, true);
+  goButton.click();
+  play(0.05);
+  await Promise.resolve();
+  const live = session.duel.session;
+  const friend = (k, fields) => sealLive({ g: DUEL.g, gv: DUEL.gv, k, doc: live.id, who: 'z'.repeat(16), ...fields });
+  app.heard[0](friend('hello', { ready: true, re: true, app: '0.7.7' }));
+  play(4);
+  assert.equal(note.hidden, true);
+  app.heard[0](friend('bye'));
+  play(0.1);
+  assert.equal(note.hidden, false);
+  assert.equal(note.textContent, goneLabel('en'));
+  assert.ok(Number.parseFloat(note.style.width) > 0);
+  goButton.click();
+  play(0.1);
+  assert.equal(note.hidden, true);
 });
 
 test('a level reached against the robot raises the player\'s top level, used for races with friends', async () => {

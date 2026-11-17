@@ -748,12 +748,16 @@ middle of a round (counting down, running, or ended and waiting for the other's 
 it says `bye` if the core takes it and ends the round on its own, so the player comes back to the
 home screen. A round that starts while the page is hidden is left at once; before a round and after
 it nothing changes. The other phone ends the round as soon as the `bye` arrives, or once it has
-heard nothing for 6 s (`LIVE_TIMING.silence`), and goes home, where the friend's seat carries a mark
-(`friendLeft(status)`, `drawFriendLeft`) until either player starts again. A state with `p: 1`,
-which an older version sends when its player pauses, counts as the other leaving. Racer does the
-same in a race with a friend: the phone whose page is hidden leaves, the other ends the race with no
-winner on the card where the rival's empty place carries a red cross, and the one that left comes
-back to the start card.
+heard nothing for 6 s (`LIVE_TIMING.silence`), and goes home. There, until either player starts
+again or the friend comes back, a line of the page over the canvas (`showFriendNote`, in the
+interface's colours, under the buttons or, in a short room, beside the play button:
+`friendNoteBox`) says it with the game's own text for a friend away ("Your friend does not have the
+game open"), and the friend's seat is outlined with dashes (`drawFriendLeft`). `friendLeft(status)`
+tells when. A state with `p: 1`, which an older version sends when its player pauses, counts as the
+other leaving. Racer does the same in a race with a friend: the phone whose page is hidden leaves,
+the other ends the race with no winner on the card, where the same line takes the place of the start
+flag and the rival's empty place carries a red cross, and the one that left comes back to the start
+card.
 
 ## A board drawn on a canvas
 

@@ -248,6 +248,21 @@ function iconPlace(width, height, numberBottom, cardWidth, wanted) {
   return { size, y: Math.min(wanted, goTop - size * 1.08) };
 }
 
+function cardMarks(width, height) {
+  const { cardWidth, cardHeight, cardX, cardY } = cardBox(width, height);
+  const numberY = cardY + cardHeight * 0.18;
+  const numberSize = clamp(cardWidth * 0.29, 72, 100);
+  const icon = iconPlace(width, height, numberY + numberSize * 0.4, cardWidth, cardY + cardHeight * 0.44);
+  return { cardWidth, cardHeight, cardX, cardY, numberY, numberSize, iconY: icon.y, iconSize: icon.size };
+}
+
+export function levelCardNoteBox(width, height) {
+  const { cardWidth, cardX, iconY, iconSize } = cardMarks(width, height);
+  const buttons = levelCardGarageButton(width, height);
+  const top = Math.max(iconY - iconSize / 2, buttons.y + buttons.height + 4);
+  return { x: cardX + CARD_INSET, y: top, width: cardWidth - 2 * CARD_INSET, height: Math.max(0, iconY + iconSize / 4 - top) };
+}
+
 export function drawLevelCard(ctx, options, { ground, hud } = DAY_THEME) {
   const { width, height, level = 1, result = 'start', time = 0, vehicle = {}, garageHint = false, rival = null, meReady = false, offerRobot = false } = options;
   ctx.save();
@@ -255,7 +270,7 @@ export function drawLevelCard(ctx, options, { ground, hud } = DAY_THEME) {
   ctx.fillRect(0, 0, width, height);
   ellipse(ctx, width * 0.08, height * 0.12, width * 0.16, width * 0.16, ground.sun, null);
   ellipse(ctx, width * 0.94, height * 0.72, width * 0.24, width * 0.24, ground.hill, null);
-  const { cardWidth, cardHeight, cardX, cardY } = cardBox(width, height);
+  const { cardWidth, cardHeight, cardX, cardY, numberY, numberSize, iconY, iconSize } = cardMarks(width, height);
   roundedRect(ctx, cardX, cardY + 6, cardWidth, cardHeight, 34);
   paint(ctx, PALETTE.ink, null);
   roundedRect(ctx, cardX, cardY, cardWidth, cardHeight, 34);
@@ -267,14 +282,11 @@ export function drawLevelCard(ctx, options, { ground, hud } = DAY_THEME) {
     drawConfetti(ctx, { width, height, time });
     ctx.restore();
   }
-  const numberY = cardY + cardHeight * 0.18;
-  const numberSize = clamp(cardWidth * 0.29, 72, 100);
   drawLevelNumber(ctx, level, { width, height, y: numberY, size: numberSize, robot: offerRobot, ink: hud.text });
-  const { y: iconY, size: iconSize } = iconPlace(width, height, numberY + numberSize * 0.4, cardWidth, cardY + cardHeight * 0.44);
   if (result === 'won') drawTrophy(ctx, width / 2, iconY, iconSize);
   else if (result === 'second') drawMedal(ctx, width / 2, iconY, iconSize);
   else if (result === 'lost') drawRetryIcon(ctx, width / 2, iconY, iconSize);
-  else drawStartIcon(ctx, width / 2, iconY, iconSize, hud.text);
+  else if (rival?.status !== 'gone') drawStartIcon(ctx, width / 2, iconY, iconSize, hud.text);
   drawRacePair(ctx, width / 2, iconY + iconSize * 0.7, iconSize, { time, result, vehicle, rival, meReady });
   if (offerRobot) drawRobotButton(ctx, width, height);
   const garageButton = levelCardGarageButton(width, height);

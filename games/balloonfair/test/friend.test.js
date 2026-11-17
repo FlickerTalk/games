@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { draw } from "../../../kit/test/canvas/recorder.js";
+import { draw, recorder } from "../../../kit/test/canvas/recorder.js";
 import { drawFriendLeft, friendLeft } from "../../../kit/src/duel/left.js";
 import { drawFrame } from "../src/frame.js";
+import { TEXTS } from "../src/texts.js";
 import { THEME } from "../src/theme.js";
 import { liveWorld } from "../../../kit/test/duel/world.js";
 import { fromBase64 } from "../../../kit/src/envelope.js";
@@ -35,6 +36,19 @@ async function bothPlaying(t, each) {
 
 const seated = (t, seat) => ["a", "b"].map((name) => t.game(name)).find((game) => game.state.round.seat === seat);
 const scores = (game) => game.state.round.tally.scores;
+
+function noteOf(game) {
+  const host = document.createElement("div");
+  const canvas = document.createElement("canvas");
+  host.append(canvas);
+  const ctx = recorder();
+  ctx.canvas = canvas;
+  return () => {
+    drawFrame(ctx, game, THEME, 1);
+    const line = host.querySelector("p");
+    return line && !line.hidden ? line.textContent : null;
+  };
+}
 
 describe("a round with the other person in the chat", () => {
   it("sends nothing until the player taps play, then waits for the other, who sees this player ready", async () => {
@@ -128,7 +142,7 @@ describe("a round with the other person in the chat", () => {
     }
   });
 
-  it("leaves the round when the page is hidden, and the friend goes home with their seat marked as gone", async () => {
+  it("leaves the round when the page is hidden, and the friend goes home told why, in a line under the buttons and on its seat", async () => {
     const t = await twoPhones();
     await bothPlaying(t, pop);
     await t.w.pass(1000, t.frames(pop));
@@ -140,15 +154,19 @@ describe("a round with the other person in the chat", () => {
     expect(friendLeft(b.duel.status)).toBe(true);
     const mark = JSON.stringify(draw((pen) => drawFriendLeft(pen, targetOf(b, "rival"), b.duel.status, THEME.ui)).calls).slice(1, -1);
     expect(JSON.stringify(draw((pen) => drawFrame(pen, b, THEME, 1)).calls)).toContain(mark);
+    const told = noteOf(b);
+    expect(told()).toBe(TEXTS.en.away);
     t.w.hide("a", false);
     await t.w.pass(400, t.frames());
     expect(t.game("a").state.screen).toBe("home");
     expect(friendLeft(t.game("a").duel.status)).toBe(false);
+    expect(noteOf(t.game("a"))()).toBeNull();
     await press(b, "play");
     await t.w.pass(300, t.frames());
     await press(t.game("a"), "play");
     await t.w.pass(COUNTDOWN + 400, t.frames(pop));
     expect([t.game("a").state.screen, b.state.screen]).toEqual(["play", "play"]);
+    expect(told()).toBeNull();
   });
 
   it("goes back home, the other's seat marked as gone, when the other closes the game in the middle of a round", async () => {

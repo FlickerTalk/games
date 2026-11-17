@@ -13,7 +13,7 @@ export {
 export { drawGiftReveal, GIFT_REVEAL_SECONDS } from './art-gift.js';
 export { drawRoad, drawRoadside, drawFinishLine, drawHalfwayBand, drawCone, drawPuddle } from './art-road.js';
 export { drawProgressStrip, drawTouchHint, drawTouchPoint } from './art-hud.js';
-export { drawLevelCard, levelCardBox, levelCardGoButton, levelCardGarageButton, levelCardRobotButton, drawRotateHint } from './art-screens.js';
+export { drawLevelCard, levelCardBox, levelCardGoButton, levelCardGarageButton, levelCardNoteBox, levelCardRobotButton, drawRotateHint } from './art-screens.js';
 export {
   drawSpeedStreaks,
   drawExhaustPuffs,
